@@ -4,7 +4,7 @@
 
 <h1 align="center">GrantThai</h1>
 
-<p align="center"><strong>ใส่ข้อมูลทางเดียว &nbsp;·&nbsp; ได้ร่างไฟล์เดียว &nbsp;·&nbsp; ตรวจแล้วนำไปกรอก NRIIS</strong></p>
+<p align="center"><strong>งานความรู้หนึ่งชิ้น หลายเส้นทาง: บทความ &nbsp;·&nbsp; ข้อเสนอ NRIIS &nbsp;·&nbsp; concept note</strong></p>
 
 <p align="center">
   <img alt="ทำในประเทศไทย" src="https://img.shields.io/badge/%F0%9F%87%B9%F0%9F%87%AD-%E0%B8%97%E0%B8%B3%E0%B9%83%E0%B8%99%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%97%E0%B8%A8%E0%B9%84%E0%B8%97%E0%B8%A2-1B2A4A?style=for-the-badge">
@@ -29,16 +29,21 @@
 
 ## GrantThai คืออะไร
 
-เครื่องมือเปิดที่ช่วยเปลี่ยน **ปัญหาจริงที่คุณรู้ดี** ให้เป็น **ร่างข้อเสนอโครงการวิจัย** ที่เรียบเรียงไว้ในไฟล์เดียว เพื่อให้คุณตรวจทาน แล้วคัดลอกไปกรอกในระบบ NRIIS ด้วยตนเอง
+เครื่องมือเปิดที่ช่วยเปลี่ยน **ปัญหาจริงที่คุณรู้ดี** ให้เป็น **งานความรู้หนึ่งชิ้น** ที่คุณเก็บไว้ในไฟล์เดียว (`work.yaml`) แล้วเลือกเองว่าจะให้ออกมาเป็นอะไร: ร่างบทความวิชาการ ร่างข้อเสนอโครงการสำหรับกรอก NRIIS หรือ concept note แต่ละเส้นทางให้ไฟล์เดียว เพื่อให้คุณตรวจทาน แล้วนำไปใช้ต่อด้วยตนเอง
 
 ```
-project.yaml  ──►  grantthai build  ──►  build/NRIIS_SUBMISSION.md
-  (ข้อมูลของคุณ)                            (ร่างไฟล์เดียว รอคุณตรวจ)
+                                  ┌─ --route academic-article ─►  build/ACADEMIC_ARTICLE.md
+work.yaml  ──►  grantthai build ──┼─ --route nriis-proposal   ─►  build/NRIIS_SUBMISSION.md
+(ข้อมูลของคุณ ไฟล์เดียว)             └─ --route concept-note     ─►  build/RESEARCH_CONCEPT_NOTE.md
+                                  (คุณเป็นคนเลือกเส้นทาง ไม่ใช่ AI · หนึ่งครั้ง = หนึ่งไฟล์)
 ```
+
+การลงระบบ NRIIS ไม่ใช่แกนหลักอีกต่อไป แต่เป็นหนึ่งเส้นทางของ **router** — ในที่นี้ router หมายถึงเส้นทางผลลัพธ์ที่ **คน** เป็นผู้เลือกอย่างชัดเจน ไม่ใช่ AI ตัดสินให้ ไฟล์ `project.yaml` แบบเดิมยังใช้ได้โดยไม่ต้องแก้ (ระบบอ่านเป็นเส้นทาง NRIIS ให้อัตโนมัติ)
 
 - **ความรู้เป็นของคุณ** ประสบการณ์ ข้อมูล และดุลยพินิจของนักวิจัยคือต้นทาง
 - **AI เป็นเพียงผู้ช่วยเรียบเรียง** ถามคุณ ร่างให้ ตรวจโครงสร้าง แต่ไม่รับรองความรู้ และไม่แต่งข้อเท็จจริงเรื่องทุน
 - **ทุกช่องตรวจสอบย้อนกลับได้** อะไรยังขาด ระบบบอกว่า `NEEDS_INPUT` อะไรยังไม่ยืนยันกับเอกสารทางการ ระบบบอกว่า `NEEDS_VERIFICATION`
+- **ไม่แต่งข้อเท็จจริงเรื่องวารสาร** GrantThai ไม่มีทะเบียนวารสาร ไม่ผูกพันกับวารสารหรือสำนักพิมพ์ใด ข้อกำหนดของวารสารเป็นสิ่งที่คุณต้องยืนยันจากคู่มือผู้เขียนของวารสารนั้นเอง
 
 > **GrantThai ลดกำแพงในการเข้าสู่งานวิจัย ไม่ได้ลดมาตรฐานของงานวิจัย**
 
@@ -46,10 +51,13 @@ project.yaml  ──►  grantthai build  ──►  build/NRIIS_SUBMISSION.md
 
 ```bash
 pip install -e .                                   # ติดตั้งครั้งเดียว
-grantthai init project.yaml --project-id MY-001    # เริ่มโครงการใหม่
-grantthai set CORE.GENERAL.TITLE_TH "ชื่อโครงการ"   # กรอกข้อมูลทีละช่อง
-grantthai validate project.yaml                    # ตรวจว่าครบและสอดคล้องกันไหม
-grantthai build project.yaml                       # ได้ build/NRIIS_SUBMISSION.md
+grantthai init work.yaml --work-id MY-001 --work-type academic_article   # เริ่มงานใหม่ (หรือ research_proposal / concept_note)
+grantthai set CORE.GENERAL.TITLE_TH "ชื่องาน"                              # กรอกข้อมูลทีละช่อง
+grantthai route list                                                     # ดูว่ามีเส้นทางอะไรบ้าง
+grantthai route check --route academic-article work.yaml                 # ตรวจตามเส้นทางที่เลือก
+grantthai build work.yaml --route academic-article                       # ได้ build/ACADEMIC_ARTICLE.md
+grantthai build work.yaml --route nriis-proposal                         # งานเดียวกัน ได้ build/NRIIS_SUBMISSION.md
+grantthai migrate project.yaml --dry-run                                 # มี project.yaml เดิม? ดูก่อนว่าการย้ายเป็น work.yaml กระทบอะไร
 ```
 
 ## ใช้ร่วมกับ AI ของคุณ
@@ -62,7 +70,7 @@ grantthai build project.yaml                       # ได้ build/NRIIS_SUBMI
 | **MCP** | โปรแกรม AI ที่รองรับ MCP เช่น Claude Desktop | [`docs/mcp.md`](docs/mcp.md) |
 | **API** | ChatGPT Actions และระบบอัตโนมัติ | [`docs/api.md`](docs/api.md) |
 
-ทุกช่องทางให้ผลลัพธ์เดียวกัน คือไฟล์เดียวกันแบบไบต์ต่อไบต์ และทุกค่าที่ AI ร่างจะถูกระบุว่าเป็นร่างของ AI รอคุณยืนยันเสมอ
+ทุกช่องทางให้ผลลัพธ์เดียวกัน คือไฟล์เดียวกันแบบไบต์ต่อไบต์ต่อหนึ่งเส้นทาง และทุกค่าที่ AI ร่างจะถูกระบุว่าเป็นร่างของ AI รอคุณยืนยันเสมอ AI ทำได้แค่บอกว่ามีเส้นทางอะไรบ้างแล้วถามคุณ ไม่เคยเลือกเส้นทางแทนคุณ
 
 AI ทุกตัวทำงานภายใต้ [เพดานการใช้ AI](docs/policy/ai-use-ceiling.th.md) ที่อิงแนวทางการใช้ GenAI อย่างมีจริยธรรมสำหรับนักวิจัย
 (กันยายน 2569): ก่อนรับข้อมูลต้องเตือนเรื่องข้อมูลส่วนบุคคลและข้อมูลลับ และไฟล์ผลลัพธ์มีแบบแจ้งการใช้ AI ให้คุณตรวจและยืนยันเอง
@@ -70,8 +78,8 @@ AI ทุกตัวทำงานภายใต้ [เพดานการ
 ## ระบบนิเวศที่ GrantThai อยู่
 
 ```
-ประสบการณ์จริงของผู้คน ──► แปลงเป็นโจทย์วิจัย ──► ออกแบบวิธีวิจัย ──► จัดให้ตรงทุน ──► ร่างข้อเสนอสำหรับกรอก NRIIS
-                                        └────────────── GrantThai ทำส่วนนี้ ──────────────┘
+ประสบการณ์จริงของผู้คน ──► แปลงเป็นโจทย์วิจัย ──► ออกแบบวิธีวิจัย ──► (จัดให้ตรงทุน) ──► ผลลัพธ์ตามเส้นทางที่คุณเลือก
+                                        └────────────── GrantThai ทำส่วนนี้ ──────────────┘   บทความ · ข้อเสนอ NRIIS · concept note
 ```
 
 รายละเอียดทั้งระบบ ผู้เกี่ยวข้อง และขอบเขตที่ GrantThai **ไม่ทำ** อยู่ที่ [`docs/ecosystem.md`](docs/ecosystem.md)
@@ -132,39 +140,49 @@ repository.
 
 ### The one-input, one-output contract
 
-GrantThai's entire purpose is one pipeline:
+GrantThai's entire purpose is one pipeline, restated per route in v0.3:
 
 ```
-ONE INPUT                    ONE COMMAND                 ONE OUTPUT
-project.yaml  ------------>  grantthai build  --------->  build/NRIIS_SUBMISSION.md
-(the only canonical input)                                (a single, self-contained,
-                                                             ready-to-copy-paste file)
+ONE INPUT              ONE COMMAND PER ROUTE                       ONE OUTPUT PER ROUTE
+work.yaml  --------->  grantthai build --route academic-article -->  build/ACADEMIC_ARTICLE.md
+(the only canonical    grantthai build --route nriis-proposal   -->  build/NRIIS_SUBMISSION.md
+ input; a legacy       grantthai build --route concept-note     -->  build/RESEARCH_CONCEPT_NOTE.md
+ project.yaml is       (the route is chosen by a person, never by AI; each invocation writes
+ read unchanged)        exactly one file and leaves the other routes' files byte-identical)
 ```
 
-- **One input.** `project.yaml` is the only input `grantthai build` reads.
-  The offline web form, the Markdown forms, the Citizen/Expert
-  questionnaires, `grantthai init`, and any optional AI assistant are all
-  just *editors* of that one file. Your name, team and institution used in
-  the submission are stored in `project.yaml` too (`PROFILE.*` fields); an
-  optional local `profile.yaml` can pre-fill them while you edit, but
-  `build` never reads it. The fund profile is a bound reference named inside
-  `project.yaml`, not a second input.
-- **One command.** `grantthai build <project.yaml>`.
-- **One output.** `build/NRIIS_SUBMISSION.md` — one self-contained file
-  containing every field grouped by NRIIS tab, plus a readiness summary
-  (`BLOCK` / `REVIEW` / `INFO` findings, `NEEDS_INPUT`,
-  `NEEDS_VERIFICATION`) at the top. No second GrantThai-generated file is
-  needed to enter data into NRIIS; supporting documents for the attachments
-  tab are your own files, listed with their status. (Citizen Mode's
-  optional `--concept-note` output is a *separate*, clearly optional
-  artifact for people who are not yet build-ready for NRIIS at all — it is
-  never part of the NRIIS entry path itself.)
+- **One input.** `work.yaml` (0.3, a superset of `project.yaml` 0.2) is
+  the only input `grantthai build` reads. The Markdown forms, the
+  questionnaires, `grantthai init`/`set`, and any optional AI assistant are
+  all just *editors* of that one file. Your name, team and institution are
+  stored in it too (`PROFILE.*`, `ARTICLE.AUTHORS`); an optional local
+  `profile.yaml` can pre-fill them while you edit, but `build` never reads
+  it. The fund profile is a bound reference named inside the file, needed
+  only by routes that declare `needs_fund_binding` (the NRIIS route). If a
+  directory holds both `work.yaml` and `project.yaml`, `build` stops
+  (exit 2).
+- **One command per route.** `grantthai build <work.yaml> --route <id>`
+  (or `route build`). With no `--route`, the object's declared default
+  route is used; a legacy `project.yaml` means `nriis-proposal`; when the
+  choice is ambiguous the tool lists the candidates and stops — it never
+  picks.
+- **One output per route.** `build/NRIIS_SUBMISSION.md` (every field by
+  NRIIS tab, `submittable` against the bound fund profile only),
+  `build/ACADEMIC_ARTICLE.md` (a manuscript overview of your own records,
+  `manuscript_ready` = no BLOCK, never "accepted"), or
+  `build/RESEARCH_CONCEPT_NOTE.md` (never submittable). Each carries a
+  readiness summary at the top and the NOTICE on body line 1; the article
+  route adds its own line: GrantThai is not affiliated with any journal or
+  publisher. No second GrantThai-generated file is needed to use a route's
+  output.
 
 The full contract is written down in
 [`spec/contracts/one-input-one-output.md`](./spec/contracts/one-input-one-output.md)
-and is guarded by `tools/ci/check_one_output.py` (structural checks, plus
-a renderer-output check that runs `grantthai build` on the shipped
-FICTIONAL worked example).
+(0.3.0-draft) and is guarded by `tools/ci/check_one_output.py` (one
+template and one unique output filename per route, contract
+cross-references, plus a renderer-output check that builds every route the
+shipped FICTIONAL examples declare and checks the other routes' files stay
+byte-identical).
 
 ### Commands
 
@@ -172,28 +190,32 @@ Working in v0.1.0 (`grantthai --help`):
 
 | Command | Purpose |
 |---|---|
-| `grantthai init [PATH] [--project-id ID] [--fund ID]` | write a blank `project.yaml` (refuses to overwrite) |
+| `grantthai init [PATH] [--work-id ID] [--work-type T] [--fund ID]` | write a blank `work.yaml` 0.3 (refuses to overwrite); `--project-id` still accepted |
+| `grantthai migrate [PATH] [--rename] [--dry-run]` | rewrite a legacy `project.yaml` as `work.yaml` 0.3; prints which review gates go stale |
 | `grantthai set FIELD_ID VALUE [--ai --tool NAME]` | set one field; the result is always `DRAFT` (an AI value is `ai_draft`/`INFERENCE`) |
-| `grantthai fields [--tab TAB] [--required]` | list the fields in NRIIS order |
-| `grantthai validate [PATH] [--json] [--as-of DATE]` | run the rules (BLOCK/REVIEW/INFO report); exit 1 on any BLOCK |
+| `grantthai route list` | every route: id, title, output filename, accepted work types, status |
+| `grantthai route check --route ID [PATH] [--sub-profile SP] [--json]` | route-scoped validation, report-only |
+| `grantthai fields [--tab TAB] [--required] [--route ID]` | list the fields in NRIIS order, or in a route's placement order |
+| `grantthai validate [PATH] [--route ID] [--json] [--as-of DATE]` | run the rules in scope for one route (BLOCK/REVIEW/INFO report); exit 1 on any BLOCK |
 | `grantthai explain RULE_ID` | plain-language explanation of a rule |
-| `grantthai build [PATH] [--out DIR] [--as-of DATE]` | render the one output `build/NRIIS_SUBMISSION.md` |
+| `grantthai build [PATH] [--route ID] [--sub-profile SP] [--out DIR] [--as-of DATE]` | render exactly one `build/<route output file>` (same as `route build`) |
 | `grantthai-mcp --root DIR` | MCP server over the same functions |
 | `grantthai-api [--port N]` | local HTTP API over the same functions |
 
 Deferred (founder scope, 2026-09-25): `fill --interactive`, `import-form`,
 `fund check`/`fund stale` as separate commands, `export`, `doctor`, and the
-Citizen Mode, review and lock commands (`interview`, `review`,
-`accept-mapping`/`reject-mapping`, `build --concept-note`, `lock`, `diff`).
+Citizen Mode `interview` command. The former `build --concept-note` flag is
+replaced by the `concept-note` route.
 
 ---
 
 ### Ecosystem at a glance
 
 GrantThai bridges exactly four stages: **Problem/Knowledge → Researchable
-project → Funding-aligned project → NRIIS-ready project**, with the one
-canonical `project.yaml` in and the one canonical
-`build/NRIIS_SUBMISSION.md` out. It sits between two larger ecosystems —
+project → Funding-aligned project (when a route needs a fund) →
+route-ready output** (an academic article, an NRIIS proposal or a concept
+note; NRIIS is one route), with the one canonical `work.yaml` in and one
+file per chosen route out. It sits between two larger ecosystems —
 the founder's conceptual Toledo Open Research & Knowledge Ecosystem
 (lived experience ↔ academic knowledge, human-gated translation) and the
 national/sector Thailand Research & Innovation ecosystem (need → policy →
@@ -261,6 +283,9 @@ documentation), v0.1.0 adds the working engine (`src/grantthai/core`,
 `validators`, `render`, `api_py.py`, `cli`) and three AI-facing wrappers:
 the agent skill (`skills/grantthai/`), the MCP server
 (`src/grantthai/mcp/`) and the local HTTP API (`src/grantthai/api/`). The
+unreleased v0.3 router adds `work.yaml`, `routes/` (three routes: NRIIS
+proposal, academic article, concept note), the `route` commands, `migrate`,
+the `ARTICLE.*` fields and the ART rule family (`CHANGELOG.md`). The
 web form logic and launchers are deferred. See `GRANTTHAI_STANDALONE.md` for the full
 system/architecture description, `docs/design/PLAN.md` for the design plan
 (historical record), and `docs/deviations.md` for where this scaffold
@@ -271,6 +296,10 @@ intentionally departs from the original handoff package.
 - `spec/` — JSON Schema and YAML contracts.
 - `registry/`, `mappings/`, `validators/` — field registry, section-to-tab
   table, rule catalog (data).
+- `routes/` — the router: `INDEX.yaml` plus one `route.yaml` per output
+  route (`nriis-proposal`, `academic-article`, `concept-note`), each naming
+  exactly one template, one output filename and one contract; the article
+  route's placement and its two `NEEDS_VERIFICATION` sub-profiles.
 - `docs/th/`, `docs/en/` — role-specific guides (stubs in v0.1.0).
 - `docs/design/PLAN.md` — the founder's design plan (historical record).
 - `docs/demo/` — the fictional demo's comparisons with funded public work:

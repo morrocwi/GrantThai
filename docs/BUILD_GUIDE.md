@@ -340,6 +340,91 @@ kept when `assist` is built:
 OPEN; present the convention risk level as the guideline's; add the
 declaration to an NRIIS tab; name the guideline's drafting committee.
 
+## v0.3 router — one work object, many routes (unreleased, landed 2026-09-25)
+
+**Founder reframe (binding, verbatim):** "การลงใน NRIIS ไม่ใช่แกนหลักอีกต่อไป
+แต่เป็นแค่ทางเลือกหนึ่งของ router เพราะเราจะเปิดให้ตั้งแต่การทำบทความวิชาการด้วย" —
+entering NRIIS is no longer the core; it is one option of a router, because
+GrantThai opens to academic articles as well. "Router" here means a
+**deterministic output route chosen by a person**, never an AI decision
+(`docs/deviations.md`, K-R1). Design record: `docs/design/PLAN.md` §N.
+
+**What exists (files):**
+- Input: `spec/work/work.schema.json` 0.3.0-draft (`work_id`, `work_type`,
+  `routing`, optional `fund_binding`); a superset of `project.yaml` 0.2.
+  Legacy files are read unchanged as `work_type: research_proposal`,
+  `routing.default_route: nriis-proposal`. `spec/common/object-hash.md`
+  excludes `routing` from `content_sha256` (K-R3).
+- Router: `routes/INDEX.yaml`, `routes/nriis-proposal/route.yaml` (wraps
+  the existing NRIIS assets in place, nothing moved),
+  `routes/academic-article/{route,placement}.yaml` +
+  `sub_profiles/{thai-journal,international-journal}.yaml` (both
+  `NEEDS_VERIFICATION`, GrantThai defaults, not venue profiles),
+  `routes/concept-note/{route,placement}.yaml`; schemas in
+  `spec/routes/`.
+- Registry: `scope` and `route_ids` on every field
+  (`tools/registry/partition.py`), 24 `ARTICLE.*` fields with origin
+  `VENUE_NATIVE` (K-R2), every Thai label `NEEDS_VERIFICATION`.
+- Engine: `src/grantthai/routes/{registry,resolve}.py`; `core/project.py`
+  (work.yaml discovery, both-present refusal, legacy view, `migrate`);
+  `validators/engine.py` takes a route, evaluates only the rule families
+  in the route's scope, reports out-of-scope rules as one INFO (RT002),
+  runs `_fund()` only when `needs_fund_binding`; family ART (ART001–ART011,
+  `validators/rules.yaml`, REVIEW except ART007 BLOCK: an AI tool listed
+  as an author); renderers `render/submission.py` (untouched),
+  `render/article.py`, `render/concept_note.py`, dispatched by
+  `render/__init__.py::build_route`.
+- Surfaces: CLI `route list|check|build`, `build --route`, `init
+  --work-type`, `migrate [--rename] [--dry-run]`; `api_py.list_routes`,
+  `check_route`, `build(route=)`, `migrate`, `new_work`; MCP
+  `grantthai_list_routes`, `grantthai_check_route`, `route` on build and
+  validate; HTTP `GET /routes`, `POST /projects/{id}/routes/{route}/check`,
+  `route` on build; skill step 0 "choose the route with the researcher".
+- Guards: `tools/ci/check_one_output.py` (one template and one unique
+  output filename per route, contract cross-references, runtime
+  one-file-per-build check on every shipped example, three seeded bad
+  fixtures) and `tools/ci/check_notice.py` (NOTICE on body line 1 of every
+  route template; the route notice on line 2 where declared).
+- Contract: `spec/contracts/one-input-one-output.md` 0.3.0-draft, one
+  output per route; the concept note is a route, not an exception.
+
+**Route resolution (the tool never picks):** `--route`; else
+`routing.default_route`; else a legacy 0.2 file → `nriis-proposal`; else
+the single route whose `default_for_work_types` lists the `work_type`;
+else exit 2 with the candidates (`AmbiguousRoute`; MCP and HTTP return the
+list). A directory with both `work.yaml` and `project.yaml` exits 2.
+
+**Acceptance:**
+- **AT-R1** `examples/lecturer-no-ai` and `examples/demo-seedbank` build
+  byte-identical `NRIIS_SUBMISSION.md` through `build`, `build --route
+  nriis-proposal` and `route build`, against the golden snapshot taken
+  before the change (`tests/golden/routes/`).
+- **AT-R2** the fictional article example builds exactly one
+  `build/ACADEMIC_ARTICLE.md` with the NOTICE on line 1, BLOCK = 0 and the
+  seeded ART findings, deterministic across two runs.
+- **AT-R3** one object builds `NRIIS_SUBMISSION.md` and
+  `ACADEMIC_ARTICLE.md` in two invocations; each creates one file and
+  leaves the other byte-identical; shared-core values are identical in
+  both; editing `routing` does not change `content_sha256`.
+- Every guard passes on the tree and fails on its seeded fixtures
+  (`bash tools/ci/run_all_guards.sh`), run once at the end, not per edit.
+
+**Do NOT:** let any surface default the route when the resolution is
+ambiguous; name a journal, an index, a fee or a word limit anywhere (a
+venue fact enters only through `ARTICLE.VENUE.TARGET` with the
+researcher's source, ART010); let `manuscript_ready` read as accepted or
+publishable; make any ART rule BLOCK on a journal fact; compose section
+text; move the NRIIS assets under `routes/` (deferred, needs its own
+decision); change the NOTICE constant (K-R6 open); reuse the word "route"
+for the TOKE infrastructure advisory (that command is `advise infra`, not
+built here).
+
+**Open founder decisions:** K-R4 (file name `work.yaml` vs keep
+`project.yaml`), K-R5 (output name and whether both sub-profiles ship),
+K-R6 (NOTICE wording), K-R7 (next routes: thesis proposal, conference
+abstract, final report; whether a dated, human-checked venue profile
+should ever exist), K-R8 (router first, TOKE rebased onto it).
+
 ## v0.4 — interfaces
 
 **Status:** MCP and REST shipped early in v0.1.0 (founder scope change
@@ -372,9 +457,14 @@ silently editing anything.
   source would go (`docs/sources.md`).
 - Do not let AI set any field above `DRAFT`, or treat an
   `ACCEPTED_BY_REQUESTER` mapping as more than `CONTRIBUTORY` evidence.
-- Do not add a second "primary" output template — the one-input-one-output
-  contract requires exactly one (`tools/ci/check_one_output.py` enforces
-  this once templates exist).
+- Do not give a route a second template, share a template between routes,
+  or reuse an output filename across routes — the one-input-one-output
+  contract requires exactly one template and one unique output file per
+  route (`tools/ci/check_one_output.py` enforces this, with three seeded
+  bad fixtures).
+- Do not let a tool or an AI pick the output route; the route is the
+  person's declaration, and an ambiguous resolution stops with the
+  candidate list.
 - Do not add AI/vendor attribution anywhere outside
   `docs/lineage.md`/the README footers, and even there, never as authorship.
 - Do not skip a phase's acceptance criteria to reach a later phase faster.
