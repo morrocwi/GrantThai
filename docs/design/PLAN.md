@@ -444,7 +444,7 @@ The filename is the founder's letter contract (§9), so it stays. Whether it imp
 4. Run the independent adversarial gate. It must be a different agent or person from the maker, and AI review never counts as the independent check. It covers: leak scan with a denylist of PDF author strings, licence coverage, tier fidelity, citation accuracy, overclaim, and whether every Thai rule string is dated and sourced.
 5. Get founder answers to K1, K3, K4, K7, K13 and K14.
 6. Flip to public and re-check visibility.
-7. If a Forgejo mirror is added, register the repo in the shared remote manifest.
+7. If a Forgejo mirror is added, register the repo in the repository registry.
 
 **Privacy (PDPA).**
 - There is no server in v0.x, and the tool collects nothing.

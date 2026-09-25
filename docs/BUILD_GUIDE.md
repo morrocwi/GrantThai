@@ -201,13 +201,21 @@ beyond stubs.
 **Commands:** `grantthai validate project.yaml`, `grantthai build
 project.yaml` (against the FICTIONAL fund profile).
 
-**Tests/fixtures:** one negative fixture per BLOCK rule at the
-`negative_fixture` path each rule declares in `validators/rules.yaml`
-(`tests/fixtures/negative/<rule_id>/`); `tests/test_determinism.py` (same
-input + same renderer version ⇒ byte-identical output);
-`tests/test_no_ai_import.py` (exists); `tests/test_invariants.py`
-(hypothesis-based arithmetic checks: workplan sums to 100, budget line =
-qty×persons×times×unit).
+**Tests/fixtures:** one negative fixture (`project.yaml` + `expected.json`
+under `tests/fixtures/negative/<rule_id>/`) for every BLOCK rule that ships
+in v0.1 AND is evaluated by this build — run by
+`tests/test_negative_fixtures.py`. A BLOCK rule that v0.1 does not evaluate
+(`grantthai.validators.engine.V01_NOT_EVALUATED`) points `negative_fixture`
+at the literal `not_evaluated_in_v0.1` instead, and REVIEW/INFO rules that
+v0.1 does evaluate point it at the `test:<path>::<function>` pytest
+function that exercises them; see `spec/validators/rule.schema.json` for
+the three accepted forms. Determinism (same input + same renderer version
+⇒ byte-identical output) is `tests/test_engine.py::test_determinism_byte_identical`;
+`tests/test_no_ai_import.py` (exists); workplan/budget arithmetic invariants
+(weights sum to 100, budget line = qty×persons×times×unit) are asserted in
+`tests/test_example_project.py` and exercised negatively by
+`tests/test_engine.py::test_negative_budget_arithmetic_B002` and
+`tests/fixtures/negative/W003/`, `B002/`.
 
 **Acceptance (from the plan):**
 - **AT-2:** a non-CLI lecturer persona works through webform → launcher →
@@ -327,5 +335,5 @@ silently editing anything.
   contract requires exactly one (`tools/ci/check_one_output.py` enforces
   this once templates exist).
 - Do not add AI/vendor attribution anywhere outside
-  `docs/lineage.md`/README footer, and even there, never as authorship.
+  `docs/lineage.md`/the README footers, and even there, never as authorship.
 - Do not skip a phase's acceptance criteria to reach a later phase faster.

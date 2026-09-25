@@ -11,9 +11,9 @@ for any reader: contributor, reviewer, or another AI builder.)*
 ## 1. Purpose
 
 GrantThai is open research infrastructure that helps any person turn a
-real problem into one research project object, checked against
-GrantThai's own rules (planned for v0.1), then render that object to one
-file: `build/NRIIS_SUBMISSION.md`. It is unofficial. It has
+real problem into one research project object, checks it against
+GrantThai's own rules (`validators/rules.yaml`), then renders that object
+to one file: `build/NRIIS_SUBMISSION.md`. It is unofficial. It has
 no affiliation with NRCT, TSRI, any PMU, or NRIIS. See the README
 philosophy sentences and `spec/contracts/one-input-one-output.md` for the
 headline contract this entire system exists to serve.
@@ -188,7 +188,9 @@ package.
 
 ## 10. Roadmap
 
-Phase 0 (this scaffold) → v0.1 "Lecturer, no AI" → v0.2 "Citizen, no AI" +
-review + lock → v0.3 optional AI assist → v0.4 interfaces → v0.5 real fund
-profiles/network/labels. Full detail, per-phase files and acceptance
+Phase 0 (tree skeleton, governance/policy files) → **v0.1.0 "Lecturer, no
+AI" (released 2026-09-25: engine, one fund profile, one worked example,
+skill, MCP server and HTTP API)** → v0.2 "Citizen, no AI" + review + lock →
+v0.3 optional AI assist → v0.4 REST/browser-assist interfaces → v0.5 real
+fund profiles/network/labels. Full detail, per-phase files and acceptance
 criteria: `docs/BUILD_GUIDE.md`.

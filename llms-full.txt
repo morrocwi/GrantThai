@@ -71,7 +71,7 @@ No Co-Authored-By trailer naming an AI vendor, no Claude-Session line, no
 enforces it in CI, across full git history, tracked files, and PR
 title/body. The only sanctioned place any AI model is named is the Core
 Epistemic Structure role-disclosure block in docs/lineage.md and the
-README footer — role disclosure only, never authorship.
+README footers — role disclosure only, never authorship.
 
 ## For an AI builder starting from zero
 

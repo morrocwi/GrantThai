@@ -174,8 +174,9 @@ project.yaml  ------------>  grantthai build  --------->  build/NRIIS_SUBMISSION
 
 The full contract is written down in
 [`spec/contracts/one-input-one-output.md`](./spec/contracts/one-input-one-output.md)
-and is guarded by `tools/ci/check_one_output.py` (structural checks now;
-the renderer-output check is added when the renderer ships).
+and is guarded by `tools/ci/check_one_output.py` (structural checks, plus
+a renderer-output check that runs `grantthai build` on the shipped
+FICTIONAL worked example).
 
 ### Commands
 
@@ -242,7 +243,7 @@ endorsement by, NRCT, TSRI, any PMU, or NRIIS — see `NOTICE`.
 
 Every AI-assisted convenience has a human-only equivalent that ships in the
 same or an earlier version. See `spec/common/parity.yaml` for the
-machine-readable version (populated from v0.3 onward; empty in Phase 0).
+machine-readable version (populated from v0.3 onward; empty in v0.1.0).
 
 | AI feature (v0.3+) | Human-only equivalent (ships v0.1/v0.2) |
 |---|---|
@@ -252,7 +253,7 @@ machine-readable version (populated from v0.3 onward; empty in Phase 0).
 | critique | `grantthai validate` + a named expert review record |
 | fund-fit check | `grantthai fund check` |
 | handoff package | `NRIIS_SUBMISSION.md` (the one output); `GRANTTHAI_STANDALONE.md` is reference documentation |
-| MCP / browser-assist (v0.4) | human copy/paste |
+| MCP (v0.1.0) / browser-assist (v0.4) | human copy/paste |
 
 AI output is never `SOURCE` and never moves a field above `DRAFT` on its
 own. AI critique is never recorded as an independent review of a research
@@ -263,7 +264,7 @@ project. See `spec/common/status.yaml` and
 
 ## What this repository is (v0.1.0)
 
-On top of the Phase 0 scaffold (directory layout, governance and policy
+On top of the initial scaffold (directory layout, governance and policy
 documents, data contracts (JSON Schema and YAML), the field registry
 derived from the handoff package (`registry/fields.jsonl`, every Thai label
 `NEEDS_VERIFICATION`), the validation rule catalog as data
@@ -282,7 +283,7 @@ intentionally departs from the original handoff package.
 - `spec/` — JSON Schema and YAML contracts.
 - `registry/`, `mappings/`, `validators/` — field registry, section-to-tab
   table, rule catalog (data).
-- `docs/th/`, `docs/en/` — role-specific guides (stubs in Phase 0).
+- `docs/th/`, `docs/en/` — role-specific guides (stubs in v0.1.0).
 - `docs/design/PLAN.md` — the founder's design plan (historical record).
 - `skills/grantthai/` — the agent skill (SKILL.md, references, helper script).
 - `src/grantthai/` — the library (`api_py.py` is the one Python surface); `core`, `validators`, `review`,
@@ -290,9 +291,10 @@ intentionally departs from the original handoff package.
   (CI enforces this — see `.github/workflows/ci.yml`, no-AI-import guard).
   `assist`, `mcp`, `api` are optional and never load in the core path.
 - `funds/` — dated, sourced fund-call profiles. `funds/example/` ships a
-  clearly `FICTIONAL` profile for testing; never a real one in Phase 0.
+  clearly `FICTIONAL` profile for testing; never a real one in v0.1.0.
 - `tests/` — positive/negative fixtures, guard tests, and (from v0.1)
-  golden files and one negative fixture per BLOCK rule.
+  golden files, and one negative fixture per BLOCK rule v0.1 evaluates
+  (`tests/fixtures/negative/<rule_id>/`, run by `tests/test_negative_fixtures.py`).
 - `.githooks/commit-msg` — rejects AI/vendor attribution trailers in commit
   messages. Run `git config core.hooksPath .githooks` after cloning.
 

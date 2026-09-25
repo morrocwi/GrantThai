@@ -46,7 +46,8 @@ NIKAH SOCIAL ENTERPRISE CO.).
 
 ## Core docs
 
-- [README.md](./README.md): quickstart (no-AI lecturer path first), philosophy, ecosystem summary.
+- [README.en.md](./README.en.md): quickstart (no-AI lecturer path first), philosophy, ecosystem summary,
+  in English. [README.md](./README.md) is the Thai cover (short, with the organisation logo).
 - [GRANTTHAI_STANDALONE.md](./GRANTTHAI_STANDALONE.md): full system/architecture guide.
 - [spec/contracts/one-input-one-output.md](./spec/contracts/one-input-one-output.md): the headline contract.
 - [docs/ecosystem.md](./docs/ecosystem.md): where GrantThai sits (TH+EN).

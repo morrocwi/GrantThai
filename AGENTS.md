@@ -17,8 +17,10 @@ for first still lands here.
    2026-09-25; where it and `spec/`, `GOVERNANCE.md` or
    `docs/deviations.md` differ, those files win. Anywhere in this
    repository, "plan §X" or "plan section X" means a section of this file.
-3. `README.md` — the human-facing overview, no-AI quickstart, philosophy,
-   one-input-one-output contract, ecosystem summary.
+3. `README.en.md` — the human-facing overview, no-AI quickstart, philosophy,
+   one-input-one-output contract, ecosystem summary, in English.
+   `README.md` is the Thai cover (short, with the organisation logo);
+   follow its own `English` link to reach `README.en.md`.
 4. `GRANTTHAI_STANDALONE.md` — the full system/architecture description.
 5. `docs/BUILD_GUIDE.md` — the phase-by-phase build plan, with exact files,
    contracts, commands, tests, and acceptance criteria per phase.
@@ -107,7 +109,7 @@ these are hard boundaries, not style choices.
    enforces this at commit time; `tools/ci/check_attribution.py` enforces
    it in CI (git history, tracked files, PR title/body). The **only**
    sanctioned place any AI model is named is the Core Epistemic Structure
-   role-disclosure block in `docs/lineage.md` and the README footer — and
+   role-disclosure block in `docs/lineage.md` and the README footers — and
    even there, only as role disclosure, never as author/co-author/credit.
    If you are an AI drafting a commit message or PR description for this
    repository right now: do **not** add your own attribution trailer, even
@@ -115,8 +117,8 @@ these are hard boundaries, not style choices.
 5. **The unofficial NOTICE is non-negotiable.** GrantThai is not affiliated
    with NRCT, TSRI, any PMU, or NRIIS. The one-line NOTICE constant
    (`spec/output/notice_constant.txt`) is reused byte for byte in
-   `NOTICE`, `README.md`, `ai.json`, `llms.txt`, `llms-full.txt`,
-   `GRANTTHAI_STANDALONE.md`, and as line 1 of every rendered
+   `NOTICE`, `README.md`, `README.en.md`, `ai.json`, `llms.txt`,
+   `llms-full.txt`, `GRANTTHAI_STANDALONE.md`, and as line 1 of every rendered
    `build/NRIIS_SUBMISSION.md` body; `tools/ci/check_notice.py` enforces
    this. Other files point to `NOTICE` rather than paraphrasing it.
 6. **Public-repo exclusions are absolute.** Never commit: the original
@@ -150,7 +152,8 @@ criteria (AT-1 through AT-6). In short:
 - **v0.2 "Citizen, no AI" + review + lock:** Citizen Mode, concept note,
   review/lock, bridge ontology + generated SHACL. See AT-1/AT-2 extended.
 - **v0.3 optional AI assist:** `grantthai[ai]`, parity CI. See AT-3b.
-- **v0.4 interfaces:** MCP (from the Phase 0 contract), REST, browser-assist.
+- **v0.4 interfaces:** REST, browser-assist. (MCP shipped early, in v0.1.0 —
+  see above.)
 - **v0.5 real fund profiles, network, labels** (v0.1.0 already carries
   *candidate* Thai labels from public documents, all `NEEDS_VERIFICATION`,
   in `mappings/nriis/labels@nrct-manual-2566.yaml`).
