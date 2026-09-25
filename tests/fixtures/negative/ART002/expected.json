@@ -1,0 +1,8 @@
+{
+  "rule_id": "ART002",
+  "must_fire_severity": "REVIEW",
+  "route": "academic-article",
+  "as_of": "2026-09-25",
+  "only_art_rule": true,
+  "note": "Generated fixture: a mutated copy of examples/article-fictional/work.yaml (only one English keyword (default band 3-6)). On route academic-article, ART002 fires and no other ART rule does."
+}

@@ -1,0 +1,8 @@
+{
+  "rule_id": "ART009",
+  "must_fire_severity": "REVIEW",
+  "route": "academic-article",
+  "as_of": "2026-09-25",
+  "only_art_rule": true,
+  "note": "Generated fixture: a mutated copy of examples/article-fictional/work.yaml (a data-bearing figure marked as an AI-generated illustration). On route academic-article, ART009 fires and no other ART rule does."
+}
