@@ -6,6 +6,45 @@ SemVer from v0.1 onward.
 
 ## [Unreleased]
 
+### Added — practice shared by funded work
+- `docs/practice/funded-work-patterns.md` (English) and
+  `docs/practice/funded-work-patterns.th.md` (Thai): what the 100 funded
+  final reports share, with tiers fixed in advance (CORE: at least 70/100
+  and at least 50% in each source; CONTEXTUAL: 40–69% or concentrated in
+  one source; EMERGING: under 40% but rising across year bands), an
+  evidence table of 37 patterns, a close reading of 8 stratified documents
+  (cited by corpus id and PDF page), and limits. Six proposal-relevant
+  patterns are CORE: background, objectives section, numbered objectives,
+  method section, objectives with method, and a reference list.
+- `tools/corpus/practice_stats.py`: recomputes the evidence table from
+  `docs/demo/corpus-100.csv` alone.
+- Rules FW001 (theory or foundations filled, reference list empty; 78/100)
+  and FW002 (two or more objectives, objectives narrative not numbered;
+  77/100), family FW, REVIEW only. The rule schema allows the source
+  `docs/practice/funded-work-patterns.md` and forbids BLOCK for it. This
+  implements the rule the corpus key finding below had only proposed.
+- `guidance/writing_intent.yaml`: a `practice:` list on 25 fields (32
+  entries: pattern id, evidence count, tier, context, advice in English and
+  Thai, what not to do, deep-read pages); schema updated. The Thai advice is
+  the only filled Thai text in that file, and it sits next to its evidence.
+- Skill: `SKILL.md`, `reference/interview.md` (section 3a),
+  `reference/writing.md` and `reference/rules-th.md` ask for and explain
+  these patterns.
+- `tests/test_practice_patterns.py`: negative tests for FW001 and FW002,
+  and a check that every count and tier matches the CSV.
+
+### Changed
+- The fictional demo now shows **REVIEW 1** (FW001: its theory box has
+  content, its reference list is empty). The demo is left unchanged so the
+  finding stays visible; `examples/demo-seedbank/NRIIS_SUBMISSION.md` is
+  rebuilt with `--as-of 2026-09-25`.
+- `docs/demo/comparison.md`: a dated note (2026-09-25) that the e-Library's
+  own download path requires a login, that R1, R3 and R4 were reached
+  through direct file URLs that may bypass that gate, that the corpus-100
+  work therefore excluded the e-Library, and that R1, R3 and R4 stay cited
+  by public title and contract only, with no further use pending the
+  founder's decision.
+
 ### Added — funded-document corpus (n=100)
 - `docs/demo/corpus-100.md` (English) and `docs/demo/corpus-100.th.md`
   (Thai): 100 funded Thai research documents that anyone can download
