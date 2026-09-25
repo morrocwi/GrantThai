@@ -1,6 +1,8 @@
 """tests/test_rules_added.py — the rules added from the package audit
 (S009-S011, R008, R009, W005, B007, E009, F005, C001-C003) and the
 crosswalk of every package validation code."""
+import json
+import re
 import sys
 from pathlib import Path
 
@@ -138,3 +140,151 @@ def test_crosswalk_covers_every_package_code_with_real_rule_ids():
 @pytest.mark.parametrize("rid", ["C001", "C002", "C003"])
 def test_classification_rules_are_reported_as_not_evaluated(rid):
     assert api.explain(rid)["implemented_in_v0_1"] is False
+
+
+# ------------------------------------------------------------ v0.3 router
+# Route data of WP-R3: the ART family, `routes:` on every rule, the
+# crosswalk's route_scope mirror, and the academic-article route assets.
+
+ROUTE_DIR = ROOT / "routes/academic-article"
+ROUTE_IDS = {"nriis-proposal", "academic-article", "concept-note"}
+ART_IDS = [f"ART{n:03d}" for n in range(1, 12)]
+REPORT_CAVEAT = "funded final reports, not articles"
+
+
+def _rules():
+    return P.rules_catalog()["rules"]
+
+
+def test_every_rule_declares_its_routes():
+    for r in _rules():
+        routes = r.get("routes")
+        assert routes, f"{r['id']}: no routes"
+        assert routes == ["all"] or (set(routes) <= ROUTE_IDS and "all" not in routes), (r["id"], routes)
+
+
+def test_ART_family_ids_scope_and_severity():
+    art = [r for r in _rules() if r["family"] == "ART"]
+    assert [r["id"] for r in art] == ART_IDS
+    for r in art:
+        assert r["routes"] == ["academic-article"], r["id"]
+        assert r["ships"] == "v0.3"
+        assert r["negative_fixture"] == f"tests/fixtures/negative/{r['id']}/"
+        if r["id"] == "ART007":
+            assert r["severity"] == "BLOCK" and r["source"]["derived_from"] == "AGENTS.md"
+            assert "non-negotiable 4" in r["source"]["locator"]
+        else:
+            assert r["severity"] == "REVIEW", r["id"]
+    # no ART rule rests a BLOCK on a journal fact: every practice/policy source is REVIEW
+    for r in art:
+        if r["source"]["derived_from"] != "AGENTS.md":
+            assert r["severity"] != "BLOCK", r["id"]
+        if r["source"]["derived_from"] == "docs/practice/funded-work-patterns.md":
+            assert REPORT_CAVEAT in r["source"]["locator"], r["id"]
+
+
+def test_crosswalk_route_scope_agrees_with_rules():
+    cw = yaml.safe_load((ROOT / "validators/crosswalk.yaml").read_text(encoding="utf-8"))
+    rs = cw["route_scope"]
+    assert set(rs["routes"]) == ROUTE_IDS
+    by_family = {f["family"]: f for f in rs["families"]}
+    for r in _rules():
+        fam = by_family[r["family"]]
+        want = fam["routes"]
+        for ex in fam.get("exceptions") or []:
+            if r["id"] in ex["rule_ids"]:
+                want = ex["routes"]
+        assert r["routes"] == want, (r["id"], r["routes"], want)
+    for f in rs["families"]:
+        assert f["routes"] == ["all"] or set(f["routes"]) <= ROUTE_IDS, f["family"]
+
+
+def test_nriis_only_and_all_route_scope_per_spec():
+    scope = {r["id"]: r["routes"] for r in _rules()}
+    for rid in ("S009", "S010", "S012", "W001", "B001", "T001", "F003", "ELIG001", "U001", "P001", "G001", "C001", "FW002"):
+        assert scope[rid] == ["nriis-proposal"], rid
+    for rid in ("S001", "S002", "R001", "CH002", "X003", "AI001", "AI004", "FW001", "W101"):
+        assert scope[rid] == ["all"], rid
+    for rid in ("E001", "E009"):
+        assert scope[rid] == ["nriis-proposal", "academic-article"], rid
+
+
+def test_academic_article_route_assets_agree():
+    route = yaml.safe_load((ROUTE_DIR / "route.yaml").read_text(encoding="utf-8"))
+    assert route["id"] == "academic-article" and route["needs_fund_binding"] is False
+    assert route["readiness"]["ready_flag"] == "manuscript_ready"
+    assert route["output"]["filename"] == "ACADEMIC_ARTICLE.md"
+    for rel in (route["output"]["template"], route["output"]["contract"], route["placement"]):
+        assert (ROOT / rel).exists(), rel
+    assert "ART" in route["rules"]["include_families"] and "FW002" in route["rules"]["exclude_ids"]
+    assert route["required_fields"] == ["ARTICLE.META.KIND", "ARTICLE.AUTHORS"]
+    assert "not affiliated with any journal or publisher" in route["route_notice_en"]
+    assert route["title_th"] == "NEEDS_INPUT"
+    # the template is tagged for exactly this route and keeps the NOTICE as body line 1, the route notice as line 2
+    tpl = (ROOT / route["output"]["template"]).read_text(encoding="utf-8")
+    assert "output_kind: route_output" in tpl and "route: academic-article" in tpl
+    assert "output_kind: primary_submission" not in tpl
+    body = tpl.split("\n---\n", 2)[2].split("\n")
+    assert body[0] == "{{ disclaimer }}" and body[1] == "{{ route_notice }}"
+    for word in ("accepted", "publishable"):
+        assert f"manuscript_ready: {word}" not in tpl
+    # the contract cross-references the one-input-one-output contract
+    contract = (ROOT / route["output"]["contract"]).read_text(encoding="utf-8")
+    assert "spec/contracts/one-input-one-output.md" in contract
+    assert "spec/output/nriis-submission.contract.md" in contract
+    # sub-profiles: both shipped, both NEEDS_VERIFICATION, no venue named
+    sp_dir = ROOT / route["sub_profiles"]["dir"]
+    ids = {yaml.safe_load(p.read_text(encoding="utf-8"))["id"] for p in sp_dir.glob("*.yaml")}
+    assert ids == {"thai-journal", "international-journal"} and route["sub_profiles"]["default"] in ids
+    for p in sp_dir.glob("*.yaml"):
+        sp = yaml.safe_load(p.read_text(encoding="utf-8"))
+        assert sp["status_marker"] == "NEEDS_VERIFICATION" and sp["source"] is None and sp["route"] == "academic-article"
+        assert sp["length_targets"] == []
+        assert "proposed_default" in sp["keywords"]["basis"] and "NEEDS_VERIFICATION" in sp["keywords"]["basis"]
+
+
+def test_academic_article_placement_covers_every_article_field_once():
+    placement = yaml.safe_load((ROUTE_DIR / "placement.yaml").read_text(encoding="utf-8"))
+    assert placement["route"] == "academic-article"
+    assert [s["section"] for s in placement["sections"]] == placement["section_order"]
+    placed = [f["field_id"] for s in placement["sections"] for f in s["fields"]]
+    assert len(placed) == len(set(placed))
+    art_defs = json.loads((ROOT / "spec/registry/structured_fields.schema.json").read_text(encoding="utf-8"))["$defs"]
+    art_structured = {k for k in art_defs if k.startswith("ARTICLE.")}
+    assert art_structured <= set(placed), art_structured - set(placed)
+    reg = P.registry_by_id()
+    for fid in placed:
+        if not fid.startswith("ARTICLE."):
+            assert fid in reg and reg[fid]["field_id"] == fid, fid
+    for s in placement["sections"]:
+        assert s["title_th"] == "NEEDS_INPUT"
+        for f in s["fields"]:
+            for src in f.get("render_from") or []:
+                assert src.startswith("chain:") or src in reg, (f["field_id"], src)
+            if f.get("fallback_copy_from"):
+                assert f["fallback_copy_from"] in reg
+    for fid in placement["appendix_shared"]:
+        assert fid in reg, fid
+    # every rule input on an ARTICLE field is a placed field
+    for r in _rules():
+        for inp in r["inputs"]:
+            if inp.startswith("ARTICLE."):
+                assert inp in placed, (r["id"], inp)
+
+
+def test_article_structured_defs_are_self_consistent():
+    doc = json.loads((ROOT / "spec/registry/structured_fields.schema.json").read_text(encoding="utf-8"))
+    defs, nonchain = doc["$defs"], set(doc["x-grantthai-nonchain-node-types"])
+    want = {"ARTICLE.ABSTRACT_TH", "ARTICLE.ABSTRACT_EN", "ARTICLE.AUTHORS", "ARTICLE.CONTRIBUTIONS",
+            "ARTICLE.BODY.SECTIONS", "ARTICLE.STATEMENT.AI_USE", "ARTICLE.FIGURES_TABLES", "ARTICLE.VENUE.TARGET"}
+    assert want <= set(defs)
+    for k in ("Author", "Contribution", "FigureTable", "ManuscriptSection"):
+        assert k in nonchain
+    assert re.match(defs["_node_id"]["pattern"], "ARTICLE.AUTHORS") and re.match(defs["_node_id"]["pattern"], "AU1")
+    for fid in ("ARTICLE.AUTHORS", "ARTICLE.CONTRIBUTIONS"):
+        items = defs[fid]["items"]
+        assert items["properties"]["member_id"]["x-grantthai-ref"]["targets"] == ["PROFILE.TEAM.MEMBERS"]
+        assert "member_id" in items["required"]
+    roles = defs["ARTICLE.CONTRIBUTIONS"]["items"]["properties"]["roles"]["items"]["enum"]
+    assert len(roles) == 14 and "NEEDS_VERIFICATION" in defs["ARTICLE.CONTRIBUTIONS"]["items"]["properties"]["roles"]["description"]
+    assert "source_ref" in defs["ARTICLE.VENUE.TARGET"]["properties"]["stated_requirements"]["items"]["properties"]
