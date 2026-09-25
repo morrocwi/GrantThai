@@ -1,0 +1,14 @@
+# FIXTURE — deliberately INVALID fund profile (61-character sha256, id that
+# does not match its path) used to prove tools/ci/check_schema_lint.py
+# validates instances, not only parsing.
+id: "FICTIONAL_CALL@0.1"
+status: ACTIVE
+effective_from: "2026-01-01"
+verified_at: "2026-09-25"
+trust_level: FICTIONAL
+source_manifest:
+  title: "FIXTURE"
+  issuer: "FIXTURE"
+  sha256: "0000000000000000000000000000000000000000000000000000000000000"
+  retrieval_date: "2026-09-25"
+rules: []

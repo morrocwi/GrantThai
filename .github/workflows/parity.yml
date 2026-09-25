@@ -1,0 +1,11 @@
+name: parity
+on: [push, pull_request]
+
+jobs:
+  parity-manifest-check:
+    runs-on: ubuntu-latest
+    if: false  # Phase 0/v0.1/v0.2: no AI feature exists yet. Enabled from v0.3
+               # (test_parity_manifest), per spec/common/parity.yaml.
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "parity CI ships v0.3 — see spec/common/parity.yaml"

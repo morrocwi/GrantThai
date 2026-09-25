@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  guards:
+    runs-on: ubuntu-latest
+    env:
+      # Maintainer-specific leak terms, newline-separated regexes, kept in a
+      # repository secret so the public source never lists them. Empty is
+      # allowed; the generic leak patterns still run.
+      GRANTTHAI_LEAKDENY: ${{ secrets.GRANTTHAI_LEAKDENY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Python dependencies
+        run: pip install pyyaml jsonschema pytest reuse
+      - name: Run all guards (good tree + seeded bad fixtures)
+        run: bash tools/ci/run_all_guards.sh
+      - name: Run tests
+        run: pytest -q

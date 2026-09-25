@@ -1,0 +1,19 @@
+name: staleness-report
+on:
+  schedule:
+    - cron: "0 3 1 * *"   # monthly, 1st of month, 03:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  staleness-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install pyyaml
+      - name: Check fund profile staleness (Phase 0 stub — opens an issue in v0.5)
+        run: |
+          echo "Phase 0 stub: no fund profiles ship real (non-fictional) data yet."
+          echo "v0.5 wires this job to open a GitHub issue per stale/expired rule"
+          echo "(rule F002 staleness), never to silently edit a fund profile."

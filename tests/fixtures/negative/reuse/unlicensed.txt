@@ -1,0 +1,2 @@
+FIXTURE: this directory deliberately has no REUSE.toml, LICENSE or LICENSES/,
+so that tools/ci/check_reuse.py fails when run with --root pointing here.

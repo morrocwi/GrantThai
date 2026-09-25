@@ -1,0 +1,28 @@
+name: attribution-scan
+on:
+  push:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  attribution-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Scan full commit history and tracked files
+        run: python tools/ci/check_attribution.py --root .
+      - name: Scan PR title and body
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          printf '%s\n%s\n' "$PR_TITLE" "$PR_BODY" > "$RUNNER_TEMP/pr_text.txt"
+          if grep -qiE "co-authored-by:.*(claude|anthropic|openai|gpt|codex|copilot|gemini)|claude-session:|generated with \[?(claude|copilot|codex|chatgpt)" "$RUNNER_TEMP/pr_text.txt"; then
+            echo "PR title/body contains a banned attribution pattern" >&2
+            exit 1
+          fi

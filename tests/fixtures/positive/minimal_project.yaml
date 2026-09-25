@@ -1,0 +1,18 @@
+# tests/fixtures/positive/minimal_project.yaml — a minimal, schema-conformant
+# project.yaml, FICTIONAL, for use once validators exist (v0.1+).
+schema_version: "0.1.0-draft"
+project_id: "TEST-FIXTURE-0001"
+mode: expert
+authoring:
+  mode: human
+  tools_disclosed: []
+  self_declared: true
+fund_binding:
+  fund_profile_id: "example/FICTIONAL_CALL@0.1"
+fields: []
+chain: {}
+ecosystem_positions: []
+review_records: []
+mappings: []
+lock:
+  locked: false

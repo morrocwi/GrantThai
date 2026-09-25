@@ -1,0 +1,13 @@
+name: reuse
+on: [push, pull_request]
+jobs:
+  reuse-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Install the REUSE tool
+        run: pip install reuse
+      - name: reuse lint (fails on any file without licence information)
+        run: python tools/ci/check_reuse.py --root .

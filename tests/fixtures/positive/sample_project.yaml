@@ -1,0 +1,68 @@
+# tests/fixtures/positive/sample_project.yaml — FICTIONAL. Exercises the
+# project schema: a project-level field, chain content, an evidence item,
+# a review record and a mapping. Every value is synthetic.
+schema_version: "0.1.0-draft"
+project_id: "FICTIONAL-SAMPLE-0002"
+mode: expert
+authoring:
+  mode: human
+  tools_disclosed: []
+  self_declared: true
+fund_binding:
+  fund_profile_id: "example/FICTIONAL_CALL@0.1"
+fields:
+  - field_id: CORE.GENERAL.TITLE_EN
+    value: "FICTIONAL: a sample project title"
+    status: DRAFT
+    provenance:
+      provenance_class: DECISION
+      source_type: PROJECT_DOCUMENT
+      evidence_role: ORIENTING
+      authored_by: human
+  - field_id: CORE.GENERAL.TITLE_TH
+    value: null
+    status: NEEDS_INPUT
+    markers: [NEEDS_VERIFICATION]
+    provenance:
+      provenance_class: DECISION
+      source_type: PROJECT_DOCUMENT
+      evidence_role: ORIENTING
+      authored_by: human
+chain:
+  Problem:
+    - field_id: CORE.RESEARCH.PROBLEM
+      value: "FICTIONAL: a synthetic problem statement"
+      status: DRAFT
+      provenance:
+        provenance_class: DECISION
+        source_type: PROJECT_DOCUMENT
+        evidence_role: ORIENTING
+        authored_by: human
+  Evidence:
+    - field_id: CORE.EVIDENCE.E1
+      value: "FICTIONAL: a synthetic evidence statement"
+      status: DRAFT
+      supports_claim_id: CORE.CLAIM.C1
+      claim_strength_cap: FULL
+      provenance:
+        provenance_class: SOURCE
+        source_type: PUBLISHED_LITERATURE
+        evidence_role: SUPPORTING
+        authored_by: human
+ecosystem_positions: []
+review_records:
+  - gate_id: RG0
+    reviewer_name: "FICTIONAL Reviewer"
+    reviewer_role: lecturer
+    scope: "Problem, PriorKnowledge"
+    independence: self
+    date: "2026-09-25"
+    object_sha256: "0f343b0931126a20f133d67c2b018a3b5c0e2bd4bb1d8a8c0b87e3bc3fb2f0a1"
+mappings:
+  - id: BRIDGE.MAPPING.M1
+    local_term: "FICTIONAL local term"
+    academic_concept: "FICTIONAL academic concept"
+    proposed_by: {kind: human, name: "FICTIONAL Author"}
+    acceptance_state: ACCEPTED_SELF
+lock:
+  locked: false

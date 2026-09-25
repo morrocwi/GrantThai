@@ -1,0 +1,27 @@
+name: fund-profile-ci
+on:
+  push:
+    paths:
+      - "funds/**"
+  pull_request:
+    paths:
+      - "funds/**"
+
+jobs:
+  fund-profile-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install pyyaml jsonschema
+      - name: No hardcoded rules outside funds/ (this run only re-checks funds/ paths are internally well-formed)
+        run: python tools/ci/check_no_hardcoded_rules.py --root .
+      - name: Schema lint (fund profiles validated against the schema; id matches path)
+        run: python tools/ci/check_schema_lint.py --root .
+      - name: Reminder — maker != checker
+        run: |
+          echo "Reminder: funds/** changes require a cited official source, a"
+          echo "capture/verification date, and review by a SECOND human before"
+          echo "merge (see GOVERNANCE.md). This job does not itself enforce the"
+          echo "second reviewer; branch protection + CODEOWNERS do."
