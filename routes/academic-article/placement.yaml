@@ -32,18 +32,18 @@ sections:
     fields:
       - {field_id: ARTICLE.META.KIND}
       - {field_id: ARTICLE.META.LANGUAGE}
-      - {field_id: ARTICLE.TITLE_TH, fallback_copy_from: CORE.GENERAL.TITLE_TH}
-      - {field_id: ARTICLE.TITLE_EN, fallback_copy_from: CORE.GENERAL.TITLE_EN}
-      - {field_id: ARTICLE.AUTHORS}
-      - {field_id: ARTICLE.CONTRIBUTIONS}
+      - {field_id: ARTICLE.META.TITLE_TH, fallback_copy_from: CORE.GENERAL.TITLE_TH}
+      - {field_id: ARTICLE.META.TITLE_EN, fallback_copy_from: CORE.GENERAL.TITLE_EN}
+      - {field_id: ARTICLE.FRONT.AUTHORS}
+      - {field_id: ARTICLE.FRONT.CONTRIBUTIONS}
       - {field_id: CORE.GENERAL.KEYWORDS_TH, shared: true}
       - {field_id: CORE.GENERAL.KEYWORDS_EN, shared: true}
   - section: ABSTRACT
     title_en: "Abstract"
     title_th: NEEDS_INPUT
     fields:
-      - {field_id: ARTICLE.ABSTRACT_TH}
-      - {field_id: ARTICLE.ABSTRACT_EN}
+      - {field_id: ARTICLE.FRONT.ABSTRACT_TH}
+      - {field_id: ARTICLE.FRONT.ABSTRACT_EN}
   - section: BODY
     title_en: "Body"
     title_th: NEEDS_INPUT
@@ -65,17 +65,17 @@ sections:
       - {field_id: ARTICLE.STATEMENT.DATA_AVAILABILITY}
       - {field_id: ARTICLE.STATEMENT.CONFLICT_OF_INTEREST}
       - {field_id: ARTICLE.STATEMENT.FUNDING}
-      - {field_id: ARTICLE.ACKNOWLEDGEMENTS}
+      - {field_id: ARTICLE.BACK.ACKNOWLEDGEMENTS}
   - section: FIGURES_TABLES
     title_en: "Figures and tables"
     title_th: NEEDS_INPUT
     fields:
-      - {field_id: ARTICLE.FIGURES_TABLES}
+      - {field_id: ARTICLE.BODY.FIGURES_TABLES}
   - section: REFERENCES
     title_en: "References"
     title_th: NEEDS_INPUT
     fields:
-      - {field_id: ARTICLE.REFERENCE_STYLE}
+      - {field_id: ARTICLE.META.REFERENCE_STYLE}
       - {field_id: CORE.NARRATIVE.REFERENCES, shared: true}
   - section: VENUE
     title_en: "Target venue (researcher-supplied, NEEDS_VERIFICATION)"

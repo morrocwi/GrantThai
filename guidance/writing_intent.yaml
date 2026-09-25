@@ -890,21 +890,21 @@ fields:
     keep_out: ["a language the venue has not been confirmed to accept (NEEDS_VERIFICATION)"]
     quality_traits: [{trait: "consistent with the abstract and title languages supplied", seen_in: NEEDS_INPUT}]
     derived_from: registry/fields.jsonl
-  ARTICLE.TITLE_TH:
+  ARTICLE.META.TITLE_TH:
     purpose: {en: "The manuscript's Thai title. Empty means the shared CORE.GENERAL.TITLE_TH is copied as-is (never composed).", th: NEEDS_INPUT}
     micro_template: {en: "<object> <relation or method> <site or group>", th: NEEDS_INPUT}
     length_target: null
     keep_out: ["a title that promises a result the Results section does not show"]
     quality_traits: [{trait: "names the object, the setting and the design", seen_in: NEEDS_INPUT}]
     derived_from: registry/fields.jsonl
-  ARTICLE.TITLE_EN:
+  ARTICLE.META.TITLE_EN:
     purpose: {en: "The manuscript's English title. Empty means the shared CORE.GENERAL.TITLE_EN is copied as-is (never composed).", th: NEEDS_INPUT}
     micro_template: {en: "<object> <relation or method> <site or group>", th: NEEDS_INPUT}
     length_target: null
     keep_out: ["a literal word-for-word rendering of the Thai title"]
     quality_traits: [{trait: "one to one in meaning with the Thai title", seen_in: NEEDS_INPUT}]
     derived_from: registry/fields.jsonl
-  ARTICLE.ABSTRACT_TH:
+  ARTICLE.FRONT.ABSTRACT_TH:
     purpose: {en: "The Thai abstract: what was asked, how, what was found, what it means. Plain text or the four parts.", th: NEEDS_INPUT}
     micro_template: {en: "{background: <why>, methods: <design, sample, analysis>, results: <main finding>, conclusion: <what it means>}", th: NEEDS_INPUT}
     length_target: null
@@ -912,7 +912,7 @@ fields:
     quality_traits: [{trait: "every claim in the abstract appears in the body", seen_in: NEEDS_INPUT}]
     practice_context: "FWP-11: an abstract (Thai or English) is present in 64/100 funded final reports, rising 35% to 87% across the year bands; Thai abstract lengths in that corpus (median about 2,500 characters) are report figures and are not article targets (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
     derived_from: registry/fields.jsonl
-  ARTICLE.ABSTRACT_EN:
+  ARTICLE.FRONT.ABSTRACT_EN:
     purpose: {en: "The English abstract, same content as the Thai one. Plain text or the four parts.", th: NEEDS_INPUT}
     micro_template: {en: "{background: <why>, methods: <design, sample, analysis>, results: <main finding>, conclusion: <what it means>}", th: NEEDS_INPUT}
     length_target: null
@@ -920,14 +920,14 @@ fields:
     quality_traits: [{trait: "same findings as the Thai abstract", seen_in: NEEDS_INPUT}]
     practice_context: "FWP-11: an abstract (Thai or English) is present in 64/100 funded final reports (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
     derived_from: registry/fields.jsonl
-  ARTICLE.AUTHORS:
+  ARTICLE.FRONT.AUTHORS:
     purpose: {en: "Who the authors are, by reference to the shared team record, in order, with the corresponding author marked.", th: NEEDS_INPUT}
     micro_template: {en: "[{id: AU1, member_id: TM1, order: 1, corresponding: true, affiliation_as_typed: <as it should print>}]", th: NEEDS_INPUT}
     length_target: null
     keep_out: ["an AI tool as an author (ART007, BLOCK)", "a person not in PROFILE.TEAM.MEMBERS"]
-    quality_traits: [{trait: "every author has a role in ARTICLE.CONTRIBUTIONS", seen_in: NEEDS_INPUT}]
+    quality_traits: [{trait: "every author has a role in ARTICLE.FRONT.CONTRIBUTIONS", seen_in: NEEDS_INPUT}]
     derived_from: registry/fields.jsonl
-  ARTICLE.CONTRIBUTIONS:
+  ARTICLE.FRONT.CONTRIBUTIONS:
     purpose: {en: "What each author did, as role codes (CRediT vocabulary, RELAYED, NEEDS_VERIFICATION).", th: NEEDS_INPUT}
     micro_template: {en: "[{id: CRT1, member_id: TM1, roles: [conceptualization, methodology, writing_original_draft]}]", th: NEEDS_INPUT}
     length_target: null
@@ -1025,15 +1025,15 @@ fields:
     keep_out: ["a funder's required wording taken from memory (NEEDS_VERIFICATION)"]
     quality_traits: [{trait: "the identifier matches the fund_binding or the researcher's award letter", seen_in: NEEDS_INPUT}]
     derived_from: registry/fields.jsonl
-  ARTICLE.ACKNOWLEDGEMENTS:
+  ARTICLE.BACK.ACKNOWLEDGEMENTS:
     purpose: {en: "People and organisations to thank who are not authors. Optional. An AI-use statement may be placed here (ARTICLE.STATEMENT.AI_USE placement).", th: NEEDS_INPUT}
     micro_template: {en: "The authors thank <who> for <what>.", th: NEEDS_INPUT}
     length_target: null
-    keep_out: ["an author listed here instead of in ARTICLE.AUTHORS", "an AI tool thanked as if a contributor"]
+    keep_out: ["an author listed here instead of in ARTICLE.FRONT.AUTHORS", "an AI tool thanked as if a contributor"]
     quality_traits: [{trait: "names only people and organisations with a stated contribution", seen_in: NEEDS_INPUT}]
     practice_context: "FWP-34: an acknowledgement is present in 62/100 funded final reports, report-stage (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
     derived_from: registry/fields.jsonl
-  ARTICLE.FIGURES_TABLES:
+  ARTICLE.BODY.FIGURES_TABLES:
     purpose: {en: "Each figure, table or supplementary item: its caption, whether it bears data, whether an AI made or altered it, and the sources it rests on.", th: NEEDS_INPUT}
     micro_template: {en: "[{id: FIG1, kind: figure, caption: <caption>, data_bearing: true, ai_generated_illustration: false, source_refs: [SRC-1]}]", th: NEEDS_INPUT}
     length_target: null
@@ -1047,7 +1047,7 @@ fields:
     keep_out: ["any requirement without a source_ref (ART010)", "scope, indexing, fees or review time from memory (NEEDS_VERIFICATION)"]
     quality_traits: [{trait: "every stated requirement names the page of the venue's current author guidelines", seen_in: NEEDS_INPUT}]
     derived_from: registry/fields.jsonl
-  ARTICLE.REFERENCE_STYLE:
+  ARTICLE.META.REFERENCE_STYLE:
     purpose: {en: "The citation style the researcher declares for the reference list, as a label. GrantThai never reformats citations.", th: NEEDS_INPUT}
     micro_template: {en: "<style label as the venue names it>", th: NEEDS_INPUT}
     length_target: null

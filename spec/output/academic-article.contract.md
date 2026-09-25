@@ -88,8 +88,8 @@ fictional work object prints a FICTIONAL banner after them.
    was filled by copying the shared `CORE.GENERAL.TITLE_*` value (copy,
    never composition), `STATUS` with basis and markers, `REQUIRED`,
    `SOURCE_IDS`, `VALIDATION`, `AUTHORED_BY`.
-   - **Structured fields** (`ARTICLE.AUTHORS`, `ARTICLE.CONTRIBUTIONS`,
-     `ARTICLE.BODY.SECTIONS`, `ARTICLE.FIGURES_TABLES`,
+   - **Structured fields** (`ARTICLE.FRONT.AUTHORS`, `ARTICLE.FRONT.CONTRIBUTIONS`,
+     `ARTICLE.BODY.SECTIONS`, `ARTICLE.BODY.FIGURES_TABLES`,
      `ARTICLE.VENUE.TARGET`, `ARTICLE.STATEMENT.AI_USE`, structured
      abstracts; contracts in `spec/registry/structured_fields.schema.json`)
      render as a table, one row per item in `id` order as written, one
@@ -137,7 +137,7 @@ fictional work object prints a FICTIONAL banner after them.
 - The body contains **no timestamps**.
 - No venue is named by GrantThai; no citation is reformatted; no section
   text is composed.
-- Personal data in `PROFILE.*` and `ARTICLE.AUTHORS` renders only into the
+- Personal data in `PROFILE.*` and `ARTICLE.FRONT.AUTHORS` renders only into the
   private `build/` directory.
 
 ## Release QA (developer-side, not a user requirement)

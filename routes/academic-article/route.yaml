@@ -37,7 +37,7 @@ sub_profiles:
 # The S001 BLOCK set for this route. Kept minimal on purpose: journal
 # requirements vary and are NEEDS_VERIFICATION, so no BLOCK here may rest on
 # a journal fact (spec §4.3). Everything else is REVIEW or NEEDS_INPUT.
-required_fields: [ARTICLE.META.KIND, ARTICLE.AUTHORS]
+required_fields: [ARTICLE.META.KIND, ARTICLE.FRONT.AUTHORS]
 rules:
   include_families: [SCHEMA, S, R, CH, X, AI, FW, ART, OK, E]
   exclude_ids: [FW002]
@@ -46,7 +46,6 @@ readiness:
   ready_flag: manuscript_ready
 disclosure_blocks: [notice, route_notice, ai_use_declaration, core_epistemic_note]
 route_notice_en: "GrantThai is not affiliated with any journal or publisher. Venue requirements are yours to confirm from the venue's own current author guidelines."
-route_notice_th: NEEDS_INPUT
 needs_verification_policy:
   venue_fact_without_source: NEEDS_VERIFICATION   # ART010
   thai_label_without_source: NEEDS_VERIFICATION

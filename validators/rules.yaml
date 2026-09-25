@@ -1437,12 +1437,12 @@ rules:
   routes: [academic-article]
   severity: REVIEW
   severity_basis: proposed_default
-  description_en: The abstract is empty in a language the sub-profile in force enables (ARTICLE.ABSTRACT_TH for th,
-    ARTICLE.ABSTRACT_EN for en), or in a language an ARTICLE.VENUE.TARGET stated_requirements item with a source
+  description_en: The abstract is empty in a language the sub-profile in force enables (ARTICLE.FRONT.ABSTRACT_TH for th,
+    ARTICLE.FRONT.ABSTRACT_EN for en), or in a language an ARTICLE.VENUE.TARGET stated_requirements item with a source
     asks for. Which languages a venue asks for is NEEDS_VERIFICATION; the sub-profile default is proposed_default.
   inputs:
-  - ARTICLE.ABSTRACT_TH
-  - ARTICLE.ABSTRACT_EN
+  - ARTICLE.FRONT.ABSTRACT_TH
+  - ARTICLE.FRONT.ABSTRACT_EN
   - ARTICLE.VENUE.TARGET
   - route:sub_profile
   chain_step: project
@@ -1549,12 +1549,12 @@ rules:
   routes: [academic-article]
   severity: REVIEW
   severity_basis: proposed_default
-  description_en: ARTICLE.AUTHORS has more than one entry and ARTICLE.CONTRIBUTIONS is empty, or an author has no
-    ARTICLE.CONTRIBUTIONS entry with at least one role. The role vocabulary is the CRediT taxonomy (ANSI/NISO
+  description_en: ARTICLE.FRONT.AUTHORS has more than one entry and ARTICLE.FRONT.CONTRIBUTIONS is empty, or an author has no
+    ARTICLE.FRONT.CONTRIBUTIONS entry with at least one role. The role vocabulary is the CRediT taxonomy (ANSI/NISO
     Z39.104-2022), RELAYED and NEEDS_VERIFICATION; whether a venue uses it is NEEDS_VERIFICATION.
   inputs:
-  - ARTICLE.AUTHORS
-  - ARTICLE.CONTRIBUTIONS
+  - ARTICLE.FRONT.AUTHORS
+  - ARTICLE.FRONT.CONTRIBUTIONS
   chain_step: project
   source:
     derived_from: docs/policy/ai-use-ceiling.md
@@ -1568,13 +1568,13 @@ rules:
   routes: [academic-article]
   severity: BLOCK
   severity_basis: plan
-  description_en: An ARTICLE.AUTHORS or ARTICLE.CONTRIBUTIONS entry names a disclosed AI tool (the referenced
+  description_en: An ARTICLE.FRONT.AUTHORS or ARTICLE.FRONT.CONTRIBUTIONS entry names a disclosed AI tool (the referenced
     PROFILE.TEAM.MEMBERS full_name or organization, or affiliation_as_typed, matches an authoring.ai_use_declaration
     tools[].name or authoring.tools_disclosed entry, case-insensitive). An AI is never an author.
   inputs:
   - project:authoring
-  - ARTICLE.AUTHORS
-  - ARTICLE.CONTRIBUTIONS
+  - ARTICLE.FRONT.AUTHORS
+  - ARTICLE.FRONT.CONTRIBUTIONS
   - PROFILE.TEAM.MEMBERS
   chain_step: project
   source:
@@ -1612,10 +1612,10 @@ rules:
   routes: [academic-article]
   severity: REVIEW
   severity_basis: proposed_default
-  description_en: An ARTICLE.FIGURES_TABLES item has data_bearing true and ai_generated_illustration true. An AI may
+  description_en: An ARTICLE.BODY.FIGURES_TABLES item has data_bearing true and ai_generated_illustration true. An AI may
     not generate or alter research data, results or factual images.
   inputs:
-  - ARTICLE.FIGURES_TABLES
+  - ARTICLE.BODY.FIGURES_TABLES
   chain_step: Evidence
   source:
     derived_from: docs/policy/ai-use-ceiling.md
@@ -1648,10 +1648,10 @@ rules:
   routes: [academic-article]
   severity: REVIEW
   severity_basis: proposed_default
-  description_en: An ARTICLE.FIGURES_TABLES item has ai_generated_illustration true and its caption is empty or
+  description_en: An ARTICLE.BODY.FIGURES_TABLES item has ai_generated_illustration true and its caption is empty or
     carries no disclosure (no mention of AI, generated or the disclosed tool's name).
   inputs:
-  - ARTICLE.FIGURES_TABLES
+  - ARTICLE.BODY.FIGURES_TABLES
   - project:authoring
   chain_step: project
   source:
