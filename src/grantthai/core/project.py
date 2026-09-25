@@ -28,8 +28,27 @@ from grantthai.core.object_hash import load_project_text
 
 # Repository data root (spec/, registry/, validators/, templates/, funds/,
 # mappings/). GRANTTHAI_HOME overrides it; otherwise the source checkout
-# this module lives in (src/grantthai/core/project.py -> repo root).
+# this module lives in (src/grantthai/core/project.py -> repo root). This
+# guess only holds for an editable install or a run from inside the repo
+# checkout: `pip install .` (non-editable) copies src/grantthai/ into
+# site-packages without its sibling data directories, so the guess is wrong
+# there and GRANTTHAI_HOME must be set. `_require_data_root()` turns that
+# into one clear message instead of a bare FileNotFoundError.
 DATA_ROOT = Path(os.environ.get("GRANTTHAI_HOME") or Path(__file__).resolve().parents[3])
+
+
+def _require_data_root() -> None:
+    if (DATA_ROOT / "registry").is_dir() and (DATA_ROOT / "spec").is_dir():
+        return
+    raise RuntimeError(
+        f"GrantThai cannot find its data directories (registry/, spec/, validators/, templates/, "
+        f"funds/, mappings/) under {DATA_ROOT}. This usually means GrantThai was installed with "
+        f"`pip install .` (a non-editable install), which does not carry those directories with "
+        f"it. Set GRANTTHAI_HOME to your GrantThai repository checkout, e.g.:\n"
+        f"    export GRANTTHAI_HOME=/path/to/GrantThai\n"
+        f"or install editable from the checkout instead: `pip install -e .`."
+    )
+
 
 PROJECT_SCHEMA_ID = "https://github.com/morrocwi/GrantThai/spec/project/project.schema.json"
 FUND_SCHEMA_ID = "https://github.com/morrocwi/GrantThai/spec/fund/fund-profile.schema.json"
@@ -48,10 +67,12 @@ AI_AUTHORED = ("ai_draft", "human_ai_assisted")
 # --------------------------------------------------------------------------
 
 def _read_yaml(rel: str) -> Any:
+    _require_data_root()
     return yaml.safe_load((DATA_ROOT / rel).read_text(encoding="utf-8"))
 
 
 def _read_jsonl(rel: str) -> list[dict]:
+    _require_data_root()
     text = (DATA_ROOT / rel).read_text(encoding="utf-8")
     return [json.loads(line) for line in text.splitlines() if line.strip()]
 
@@ -91,6 +112,7 @@ def candidate_labels() -> dict:
     """mappings/nriis/labels@<edition>.yaml: CANDIDATE Thai labels and code
     lists from public documents, every one NEEDS_VERIFICATION (K14). With
     several editions the files are merged in sorted file-name order."""
+    _require_data_root()
     out: dict = {}
     for path in sorted((DATA_ROOT / "mappings" / "nriis").glob("labels@*.yaml")):
         doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
@@ -136,12 +158,14 @@ def contradictions() -> tuple[dict, ...]:
 
 @lru_cache(maxsize=None)
 def notice_constant() -> str:
+    _require_data_root()
     raw = (DATA_ROOT / "spec/output/notice_constant.txt").read_text(encoding="utf-8")
     return raw.rstrip("\n")
 
 
 @lru_cache(maxsize=None)
 def _schemas() -> dict:
+    _require_data_root()
     out = {}
     for path in sorted((DATA_ROOT / "spec").rglob("*.schema.json")):
         doc = json.loads(path.read_text(encoding="utf-8"))
@@ -206,6 +230,7 @@ def save(doc: dict, path: str | Path) -> Path:
 def load_fund_profile(doc: dict) -> tuple[dict | None, str | None, list[str]]:
     """Resolve fund_binding.fund_profile_id to funds/<id>/fund-profile.yaml.
     Returns (profile, id, problems)."""
+    _require_data_root()
     fid = ((doc.get("fund_binding") or {}).get("fund_profile_id"))
     if not isinstance(fid, str) or not fid:
         return None, None, ["fund_binding.fund_profile_id is missing"]

@@ -9,11 +9,12 @@ message: >-
 title: "GrantThai"
 abstract: >
   GrantThai is open, unofficial research infrastructure that helps a person
-  turn a real problem into one research project object, checked against
-  GrantThai's own rules (planned for v0.1), then render it to a single
+  turn a real problem into one research project object, checks it against
+  GrantThai's own rules (validators/rules.yaml), then renders it to a single
   copy/paste-ready draft file (build/NRIIS_SUBMISSION.md). It is not
-  affiliated with NRCT, TSRI, any PMU, or NRIIS. Phase 0 scaffold; not yet
-  released.
+  affiliated with NRCT, TSRI, any PMU, or NRIIS. v0.1.0: the deterministic
+  v0.1 validator and renderer, a worked FICTIONAL example, and negative test
+  fixtures for every BLOCK rule v0.1 evaluates.
 authors:
   - family-names: "Lahtee"
     given-names: "Yaoharee"
@@ -23,4 +24,5 @@ license:
   - Apache-2.0
   - CC-BY-4.0
 repository-code: "https://github.com/morrocwi/GrantThai"
-version: "0.0.0-phase0"
+version: "0.1.0"
+date-released: "2026-09-25"

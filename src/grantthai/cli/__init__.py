@@ -106,7 +106,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{f['tab']}.{f['entry_order']}\t{f['field_id']}\t{f['type']}\t"
                       f"{'required' if f['required'] else 'optional'}\t{f['label_en']}")
             return 0
-    except (ValueError, KeyError, FileExistsError, FileNotFoundError) as exc:
+    except (ValueError, KeyError, FileExistsError, FileNotFoundError, RuntimeError) as exc:
         print(f"grantthai: error: {exc}", file=sys.stderr)
         return 2
     return 2
