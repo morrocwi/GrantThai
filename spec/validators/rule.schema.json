@@ -39,7 +39,7 @@
       "required": ["id", "family", "ships", "severity", "severity_basis", "description_en", "inputs", "chain_step", "source", "negative_fixture"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Z]{1,4}[0-9]{3}$"},
-        "family": {"type": "string", "enum": ["S", "R", "W", "B", "T", "CH", "F", "ELIG", "E", "U", "P", "G", "X", "C", "FW"]},
+        "family": {"type": "string", "enum": ["S", "R", "W", "B", "T", "CH", "F", "ELIG", "E", "U", "P", "G", "X", "C", "FW", "AI"]},
         "ships": {"type": "string", "enum": ["v0.1", "v0.2", "v0.3"]},
         "severity": {"type": "string", "enum": ["BLOCK", "REVIEW", "INFO"]},
         "severity_basis": {"type": "string", "enum": ["plan", "proposed_default"]},
@@ -47,14 +47,14 @@
         "inputs": {
           "type": "array",
           "minItems": 1,
-          "items": {"type": "string", "pattern": "^((PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}|chain:[A-Za-z]+|fund_profile|registry:required|registry:types|project:review_records|project:mappings|project:chain_edges|project:sources|registry:structured)$"}
+          "items": {"type": "string", "pattern": "^((PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}|chain:[A-Za-z]+|fund_profile|registry:required|registry:types|project:review_records|project:mappings|project:chain_edges|project:sources|registry:structured|project:authoring|project:records)$"}
         },
         "chain_step": {"type": "string", "description": "A node in spec/common/chain.yaml, or 'project' / 'fund_profile'."},
         "source": {
           "type": "object",
           "required": ["derived_from", "locator"],
           "properties": {
-            "derived_from": {"type": "string", "pattern": "^(core/0[1-6]@sha256:[a-f0-9]{64}|docs/design/PLAN\\.md|docs/practice/funded-work-patterns\\.md)$", "description": "docs/practice/funded-work-patterns.md = a practice pattern shared by funded final reports (corpus-100); such a rule is REVIEW or INFO only, never BLOCK."},
+            "derived_from": {"type": "string", "pattern": "^(core/0[1-6]@sha256:[a-f0-9]{64}|docs/design/PLAN\\.md|docs/practice/funded-work-patterns\\.md|docs/policy/ai-use-ceiling\\.md)$", "description": "docs/practice/funded-work-patterns.md = a practice pattern shared by funded final reports (corpus-100); docs/policy/ai-use-ceiling.md = GrantThai's AI-use ceiling, built on the national GenAI research-ethics guideline (September 2569), which is guidance whose binding status is OPEN. A rule from either source is REVIEW or INFO only, never BLOCK; its locator cites the guideline page."},
             "locator": {"type": "string"}
           },
           "additionalProperties": false
@@ -67,7 +67,7 @@
         "notes": {"type": "string"}
       },
       "additionalProperties": false,
-      "if": {"properties": {"source": {"properties": {"derived_from": {"const": "docs/practice/funded-work-patterns.md"}}}}},
+      "if": {"properties": {"source": {"properties": {"derived_from": {"enum": ["docs/practice/funded-work-patterns.md", "docs/policy/ai-use-ceiling.md"]}}}}},
       "then": {"properties": {"severity": {"enum": ["REVIEW", "INFO"]}}}
     }
   }

@@ -1,10 +1,10 @@
 ---
 grantthai_version: 0.2.0
 schema_version: 0.2.0-draft
-renderer_version: nriis_submission.md.j2@0.2.0
+renderer_version: nriis_submission.md.j2@0.3.0
 project_id: FICTIONAL-DEMO-SEEDBANK-0001
-project_content_sha256: 0ba0daf771313f7f4016cdc8007414e9623227ae6f91cb4b9823c24903970506
-project_state_sha256: 44285261785c3b320a1e0feffdd9f8e377eea5ee3161d2ab4acf6f44000d2389
+project_content_sha256: 62896930208d5a390b8440d50774f7fd876b3eb34bc869fe630f70aeaf66fdaf
+project_state_sha256: d58b3479418b59f9bc1963aa9afe7531adba98d879b68436611697bcc0537a09
 project_locked: false
 fund_profile: example/FICTIONAL_CALL@0.1
 fund_profile_trust_level: FICTIONAL
@@ -15,6 +15,7 @@ authoring:
   tools_disclosed:
   - AI assistant (simulated interview; demo only)
   self_declared: true
+  ai_use_declaration: unconfirmed
 submission_mode:
   human_copy_paste: true
   ai_assisted_fill: false
@@ -48,7 +49,7 @@ stale_rules: []
 accepted_by_requester_mappings: []
 validation_summary:
   block: 0
-  review: 1
+  review: 3
   info: 31
 disclaimer: GrantThai is an independent, unofficial project. It is NOT affiliated with, endorsed by, sponsored by, or officially connected to NRCT, TSRI, any PMU, or NRIIS. / GrantThai เป็นโครงการอิสระ ไม่เป็นทางการ และไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU) ใด ๆ หรือระบบ NRIIS
 ---
@@ -62,7 +63,7 @@ This file is the researcher's own information, arranged for copy/paste into NRII
 
 ## 1. Readiness summary
 
-- Findings: BLOCK 0 / REVIEW 1 / INFO 31
+- Findings: BLOCK 0 / REVIEW 3 / INFO 31
 - Submittable to a real call: n/a (fictional call). Against the fictional test profile `example/FICTIONAL_CALL@0.1` only: yes
 - Hold reasons:
   - RG0: no review record (claim strength downgraded; build is not blocked)
@@ -78,6 +79,8 @@ This file is the researcher's own information, arranged for copy/paste into NRII
 
 ### 1.2 REVIEW findings (a person should look)
 - **FW001** [CORE.NARRATIVE.THEORY, CORE.NARRATIVE.REFERENCES]: CORE.NARRATIVE.THEORY has content but CORE.NARRATIVE.REFERENCES is empty; 78 of 100 funded final reports carry a reference list (corpus-100 pattern FWP-06). Next step: List the works the theory and literature boxes draw on (CORE.NARRATIVE.REFERENCES), or record why there are none. Practice, not a fund rule.
+- **AI001**: The AI Use Declaration is incomplete: human_verification is empty (GenAI guideline 2569 p.11-12, p.34). Next step: The researcher fills authoring.ai_use_declaration in project.yaml (tools with version, stages and purpose; influence_on_conclusions; human_verification; data_handling) and, after reading it, sets declaration_confirmed_by_human: true themselves. An AI never sets that flag.
+- **AI001**: The AI Use Declaration is not confirmed by the researcher (declaration_confirmed_by_human is not true; GenAI guideline 2569 p.12 item 4: the user confirms the output was checked). Next step: The researcher fills authoring.ai_use_declaration in project.yaml (tools with version, stages and purpose; influence_on_conclusions; human_verification; data_handling) and, after reading it, sets declaration_confirmed_by_human: true themselves. An AI never sets that flag.
 
 ### 1.3 NEEDS_INPUT (required NRIIS fields with no value)
 - None.
@@ -3116,3 +3119,31 @@ Guidance only, never validation (guidance/writing_intent.yaml; status DRAFT, NEE
 | WC12 | HUMAN_CHECK | CORE.NARRATIVE.SUMMARY, CORE.NARRATIVE.RATIONALE, CORE.NARRATIVE.OBJECTIVES, CORE.NARRATIVE.FRAMEWORK, CORE.NARRATIVE.THEORY, CORE.NARRATIVE.METHOD | Each narrative box says only what its render_from records say; nothing new is introduced in the box. |
 | WC13 | HUMAN_CHECK | CORE.NARRATIVE.SUMMARY, CORE.NARRATIVE.RATIONALE | The summary and rationale read as the researcher's own words, and the person pasting them has re-read them once against the form. |
 | WC14 | HUMAN_CHECK | RESULTS.CHAIN.IMPACTS, CORE.RESEARCH.NATIONAL_NEED | The results chain reaches the national need: at least one impact returns to it, with an honest claim strength. |
+
+### 4.7 AI Use Declaration (GrantThai appendix, not an NRIIS field)
+
+A GrantThai appendix, not an NRIIS box. Its shape follows the sample "AI Use Declaration" form in Appendix A (p.34) of the GenAI guideline 2569 (National Research Council of Thailand, September 2569; docs/sources.md). Whether NRIIS or this call asks for such a declaration is NEEDS_VERIFICATION: attach or paste it only if the call or your institution asks. Everything below is self-declared by the researcher and unverified; GrantThai checks only that it is filled in and confirmed (rule AI001), never that it is true.
+
+1. Project title (p.34 item 1): เครือข่ายเรียนรู้ธนาคารเมล็ดพันธุ์ข้าวพื้นบ้านโดยชุมชน อำเภอสมมติ จังหวัดสมมติ ก
+2. Responsible person / PI (p.34 item 2): the member marked PI in `PROFILE.TEAM.MEMBERS` (section 2).
+3. AI tools used (p.34 items 3-4; p.11 tool, stage and purpose):
+
+| tool | developer | version | stages | purpose | used on |
+|---|---|---|---|---|---|
+| AI assistant (simulated interview; demo only) | not applicable (simulated; demo only) | not applicable (simulated; demo only) | proposal_writing, language_editing | FICTIONAL: interviewed the persona; translated the English title and keywords; drafted the gap statement, rationale, method narrative and summary from the persona's answers | one simulated interview session (demo only) |
+
+4. Influence on decisions or conclusions (p.11): FICTIONAL: the persona chose the research question, objectives, method and budget; the AI only reworded the persona's answers into narrative boxes. No research data or result was produced by the AI.
+5. Types of data given to the AI and how personal or confidential data was kept out (p.14-16; p.34 item 5): FICTIONAL: only the persona's invented interview answers were given to the AI. The persona's field notes (SRC-FN1, personal data) were described by type, never pasted.
+6. Prompts, settings and output log kept at (p.12-13 item 7; p.34 item 6): docs/demo/transcript-seedbank.md (turn ids T01-T21)
+7. Human verification: what was checked, how, and who signs (p.12 item 4; p.34 item 7): NEEDS_INPUT
+8. Values in project.yaml written with AI assistance: 6 (listed in section 1.5 for the researcher to confirm).
+9. The researcher's own risk self-assessment, 1 (low) to 3 (high), on the five dimensions of the guideline's example scoring table (p.10-11, an example only):
+   - Impact on research conclusions: 2
+   - Accuracy risk (hallucination): 2
+   - Data sensitivity: 1
+   - Bias risk: 1
+   - Reproducibility / checkability: 2
+   - GrantThai convention level: 2. This is GrantThai's own convention (the highest of the five scores), not the guideline's: the guideline gives the five dimensions and example readings of levels 1-3 but no rule for combining them.
+10. Declaration of responsibility (p.12 item 4; p.15 item 2.3; p.34 item 8): NOT CONFIRMED (NEEDS_INPUT). Only the researcher can confirm, after reading this declaration, by setting declaration_confirmed_by_human: true in project.yaml. An AI never sets it.
+
+- Still missing (rule AI001): human_verification is empty.

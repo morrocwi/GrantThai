@@ -11,6 +11,31 @@ authoring:
   tools_disclosed:
   - AI assistant (simulated interview; demo only)
   self_declared: true
+  ai_use_declaration:
+    tools:
+    - name: AI assistant (simulated interview; demo only)
+      version: not applicable (simulated; demo only)
+      stages:
+      - proposal_writing
+      - language_editing
+      purpose: 'FICTIONAL: interviewed the persona; translated the English title and keywords; drafted
+        the gap statement, rationale, method narrative and summary from the persona''s answers'
+      developer: not applicable (simulated; demo only)
+      used_on: one simulated interview session (demo only)
+    declaration_confirmed_by_human: false
+    influence_on_conclusions: 'FICTIONAL: the persona chose the research question, objectives, method
+      and budget; the AI only reworded the persona''s answers into narrative boxes. No research data or
+      result was produced by the AI.'
+    human_verification: NEEDS_INPUT
+    data_handling: 'FICTIONAL: only the persona''s invented interview answers were given to the AI. The
+      persona''s field notes (SRC-FN1, personal data) were described by type, never pasted.'
+    log_ref: docs/demo/transcript-seedbank.md (turn ids T01-T21)
+    risk_self_assessment:
+      impact_on_conclusions: 2
+      accuracy_hallucination: 2
+      data_sensitivity: 1
+      bias: 1
+      reproducibility: 2
 fund_binding:
   fund_profile_id: example/FICTIONAL_CALL@0.1
 sources:

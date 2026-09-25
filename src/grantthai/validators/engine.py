@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from grantthai.core import links
+from grantthai.core import pii
 from grantthai.core import project as P
 from grantthai.core.object_hash import content_sha256, state_sha256
 from grantthai.mapping import form_profile as FP
@@ -35,7 +36,9 @@ V01_NOT_EVALUATED = {
 V02_EVALUATED = frozenset({"W101", "W102"})
 # Rules shipped after v0.2 that this engine evaluates: the FW family, practice
 # shared by funded work (docs/practice/funded-work-patterns.md). REVIEW only.
-V03_EVALUATED = frozenset({"FW001", "FW002"})
+V03_EVALUATED = frozenset({"FW001", "FW002",
+                           # the AI-use ceiling (docs/policy/ai-use-ceiling.md). REVIEW only.
+                           "AI001", "AI002", "AI003", "AI004"})
 EVALUATED_AFTER_V01 = V02_EVALUATED | V03_EVALUATED
 
 # An item number in an objectives narrative: 1) 2) / (1) (2) / 1. 2. / ข้อ 1,
@@ -523,6 +526,124 @@ def _practice(c: _Ctx):
 
 
 # --------------------------------------------------------------------------
+# AI — the AI-use ceiling (docs/policy/ai-use-ceiling.md; REVIEW only)
+# --------------------------------------------------------------------------
+
+GUIDELINE = "GenAI guideline 2569"
+DATA_BEARING_CHAIN = ("Evidence", "Observation", "LivedExperience")
+RISK_DIMENSIONS = ("impact_on_conclusions", "accuracy_hallucination", "data_sensitivity", "bias",
+                   "reproducibility")
+
+
+def convention_risk_level(scores) -> int | None:
+    """GrantThai's own convention, not the guideline's: the highest of the
+    five self-assessed scores (1-3). The guideline's table (p.10-11) is an
+    example and gives no rule for combining the scores. None when no score
+    is given."""
+    if not isinstance(scores, dict):
+        return None
+    vals = [scores.get(k) for k in RISK_DIMENSIONS]
+    vals = [v for v in vals if isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 3]
+    return max(vals) if vals else None
+
+
+def ai_use_recorded(raw: dict, doc: dict) -> bool:
+    auth = raw.get("authoring") or {}
+    if auth.get("mode") == "ai_assisted" or auth.get("tools_disclosed"):
+        return True
+    return any((rec.get("provenance") or {}).get("authored_by") in P.AI_AUTHORED
+               for rec, _ in P.iter_records(doc))
+
+
+def declaration_gaps(decl: dict, disclosed: list) -> list[str]:
+    """What an AI Use Declaration still lacks (AI001); shared with the renderer."""
+    gaps = []
+    tools = [t for t in decl.get("tools") or [] if isinstance(t, dict)]
+    if not tools:
+        gaps.append("no tool is listed in tools")
+    for t in tools:
+        name = t.get("name") or "(unnamed)"
+        for key in ("version", "purpose"):
+            if not _filled(t.get(key)):
+                gaps.append(f"tool {name!r} has no {key}")
+        if not t.get("stages"):
+            gaps.append(f"tool {name!r} has no stages")
+    named = {t.get("name") for t in tools}
+    for d in disclosed or []:
+        if d not in named:
+            gaps.append(f"disclosed tool {d!r} is not in tools")
+    for key in ("influence_on_conclusions", "human_verification", "data_handling"):
+        if not _filled(decl.get(key)):
+            gaps.append(f"{key} is empty")
+    return gaps
+
+
+def _ai_use(c: _Ctx):
+    auth = c.raw.get("authoring") if isinstance(c.raw.get("authoring"), dict) else {}
+    decl = auth.get("ai_use_declaration")
+    decl = decl if isinstance(decl, dict) else None
+    fix = ("The researcher fills authoring.ai_use_declaration in project.yaml (tools with version, stages and "
+           "purpose; influence_on_conclusions; human_verification; data_handling) and, after reading it, sets "
+           "declaration_confirmed_by_human: true themselves. An AI never sets that flag.")
+    if ai_use_recorded(c.raw, c.doc):
+        if decl is None:
+            c.add("AI001", f"AI assistance is recorded but authoring.ai_use_declaration is missing ({GUIDELINE} "
+                  "p.10-12: every use is disclosed with tool, stage, purpose, influence and oversight; p.34 "
+                  "sample form).", [], fix)
+        else:
+            gaps = declaration_gaps(decl, auth.get("tools_disclosed") or [])
+            if gaps:
+                c.add("AI001", "The AI Use Declaration is incomplete: " + "; ".join(gaps)
+                      + f" ({GUIDELINE} p.11-12, p.34).", [], fix)
+            if decl.get("declaration_confirmed_by_human") is not True:
+                c.add("AI001", "The AI Use Declaration is not confirmed by the researcher "
+                      f"(declaration_confirmed_by_human is not true; {GUIDELINE} p.12 item 4: the user confirms "
+                      "the output was checked).", [], fix)
+    # AI002: AI-drafted data-bearing records (extends X003)
+    for rec, key in P.iter_records(c.doc):
+        prov = rec.get("provenance") or {}
+        if prov.get("authored_by") != "ai_draft" or rec.get("value") is None:
+            continue
+        if key in DATA_BEARING_CHAIN or prov.get("source_type") == "PRIMARY_DATA":
+            fid = rec.get("field_id")
+            where = f"chain {key}" if key in DATA_BEARING_CHAIN else "source_type PRIMARY_DATA"
+            c.add("AI002", f"{fid}: a data-bearing record ({where}) is an AI draft. An AI may restate the "
+                  "researcher's own data but never generate or alter research data, results or factual images "
+                  f"({GUIDELINE} p.11, p.24-25).", [fid],
+                  "The researcher checks the record against their own data and source, then rewrites it or "
+                  "adopts it (authored_by human or human_ai_assisted); if it is not from their data, remove it.")
+    # AI003: personal-data-shaped strings in AI-assisted values
+    for rec, _ in P.iter_records(c.doc):
+        if (rec.get("provenance") or {}).get("authored_by") not in P.AI_AUTHORED:
+            continue
+        hits = pii.find_in_value(rec.get("value"))
+        if hits:
+            kinds = sorted({k for k, _ in hits})
+            fid = rec.get("field_id")
+            c.add("AI003", f"{fid}: a value written with AI assistance contains {len(hits)} personal-data-shaped "
+                  f"string(s) ({', '.join(kinds)}); personal data that identifies someone must not go into a "
+                  f"public AI ({GUIDELINE} p.14 item 1.1).", [fid],
+                  "Check whether the AI tool was a public service. Enter personal data yourself (grantthai set, "
+                  "without --ai), keep it out of AI chats, and record the tool's data handling in "
+                  "authoring.ai_use_declaration.data_handling.")
+    # AI004: high self-assessed risk; the level is GrantThai's convention
+    if decl is not None:
+        scores = decl.get("risk_self_assessment")
+        level = convention_risk_level(scores)
+        if level == 3:
+            high = [k for k in RISK_DIMENSIONS if (scores or {}).get(k) == 3]
+            extra = (" data_sensitivity is 3: that data must stay out of public AI; a closed or local system only, "
+                     f"with approval and a recorded reason ({GUIDELINE} p.14-16).") if "data_sensitivity" in high else ""
+            c.add("AI004", f"The researcher's risk self-assessment scores {', '.join(high)} at 3. GrantThai "
+                  "convention level: 3 (the highest of the five scores; GrantThai's convention, not the "
+                  f"guideline's, whose table is an example with no combination rule, {GUIDELINE} p.10-11). "
+                  "In the guideline's example reading, level 3 means detailed disclosure of the AI use and of "
+                  "the human validation (p.11)." + extra, [],
+                  "Describe the AI use and the human checks in detail in authoring.ai_use_declaration "
+                  "(human_verification, influence_on_conclusions) and in the method section if the call asks.")
+
+
+# --------------------------------------------------------------------------
 # F / ELIG — the bound fund profile
 # --------------------------------------------------------------------------
 
@@ -596,6 +717,7 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
     _structure(c)
     _logic(c)
     _practice(c)
+    _ai_use(c)
     hold, stale, trust = _fund(c)
 
     # v0.2 writing layer: W101/W102 length findings (REVIEW only, report-only).

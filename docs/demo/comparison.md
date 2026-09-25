@@ -100,7 +100,7 @@ the GrantThai field and the status the demo build shows.
 
 - 59 records: 54 `DRAFT`, 5 `NEEDS_INPUT`; 8 `NEEDS_VERIFICATION` markers; no record above `DRAFT`; no `SOURCE` record.
 - Authored by: 53 "human" (meaning the **simulated persona**; see section 5, gap G8), 4 AI drafts the persona adopted, 2 AI drafts not adopted.
-- 51 of the 122 registry fields have a value. `grantthai validate`: BLOCK 0, REVIEW 0, INFO 31 (as of 2026-09-25, v0.2.0 rules; with the unreleased FW rules the demo shows REVIEW 1, FW001, see `docs/practice/funded-work-patterns.md`). BLOCK 0 is structure and links only; it says nothing about quality.
+- 51 of the 122 registry fields have a value. `grantthai validate`: BLOCK 0, REVIEW 0, INFO 31 (as of 2026-09-25, v0.2.0 rules; with the unreleased FW and AI rules the demo shows REVIEW 3: FW001, see `docs/practice/funded-work-patterns.md`, and AI001 twice, see `docs/policy/ai-use-ceiling.md`). BLOCK 0 is structure and links only; it says nothing about quality.
 
 ## 3. Rubric (for the scorers)
 

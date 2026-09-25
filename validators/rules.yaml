@@ -80,6 +80,11 @@ rule_families:
   ships: v0.3
   checks: practice shared by funded work (CORE patterns of docs/practice/funded-work-patterns.md, REVIEW only, never BLOCK)
   ids_status: enumerated
+- family: AI
+  ships: v0.3
+  checks: the AI-use ceiling (docs/policy/ai-use-ceiling.md, built on the National Research Council of
+    Thailand GenAI guideline, September 2569); REVIEW only, never BLOCK
+  ids_status: enumerated
 - family: ECO
   ships: v0.2
   checks: ecosystem checks for declared positions only
@@ -1248,3 +1253,81 @@ rules:
   negative_fixture: test:tests/test_practice_patterns.py::test_FW002_objectives_not_numbered
   notes: Objectives are written as a numbered list of two or more items in 77 of the 100 funded final
     reports (HSRI repository 76%, PSU repository 82%). Thai digits count as numbers. REVIEW only.
+- id: AI001
+  family: AI
+  ships: v0.3
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: AI assistance is recorded (authoring.mode ai_assisted, a disclosed tool, or a value authored
+    ai_draft or human_ai_assisted), but authoring.ai_use_declaration is missing, incomplete (a tool without
+    version, stage or purpose; no statement of influence on conclusions, human verification or data handling),
+    or not confirmed by the researcher (declaration_confirmed_by_human is not true).
+  inputs:
+  - project:authoring
+  - project:records
+  chain_step: project
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: National Research Council of Thailand GenAI guideline 2569 p.6, p.10-12, p.22, p.34 (Appendix A)
+  negative_fixture: test:tests/test_ai_use_ceiling.py::test_AI001_ai_use_without_confirmed_declaration
+  notes: The guideline says every use must be disclosed (p.10) with tool, stage, purpose, influence and
+    oversight (p.11), and that the user must confirm the output was checked (p.12); funders should ask for
+    disclosure at the proposal stage (p.22), and Appendix A (p.34) is a sample form. GrantThai checks only
+    that the declaration exists, is filled and is marked confirmed; it cannot check that it is true.
+- id: AI002
+  family: AI
+  ships: v0.3
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A data-bearing record (a chain Evidence, Observation or LivedExperience record, or any record
+    whose provenance source_type is PRIMARY_DATA) is authored_by ai_draft. An AI may reword the researcher's
+    data but must never generate or alter research data, results or factual images.
+  inputs:
+  - chain:Evidence
+  - chain:Observation
+  - chain:LivedExperience
+  - project:records
+  chain_step: Evidence
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: National Research Council of Thailand GenAI guideline 2569 p.11 item 1, p.24, p.25 items 1-5
+  negative_fixture: test:tests/test_ai_use_ceiling.py::test_AI002_ai_drafted_evidence
+  notes: Extends X003. X003 (BLOCK) stops an AI draft from being marked SOURCE anywhere; AI002 (REVIEW) asks
+    the researcher to confirm that an AI-drafted data-bearing record only restates their own data. Plans
+    (METHOD.PLAN.DATA_COLLECTION, METHOD.PLAN.ANALYSIS) are not data and are not checked.
+- id: AI003
+  family: AI
+  ships: v0.3
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A value authored with AI assistance (ai_draft or human_ai_assisted) contains a
+    personal-data-shaped string (a checksum-valid Thai national ID, a phone number or an e-mail address), so
+    that data passed through an AI tool.
+  inputs:
+  - project:records
+  chain_step: project
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: National Research Council of Thailand GenAI guideline 2569 p.14 item 1.1, p.15 item 1.2, p.23
+  negative_fixture: test:tests/test_ai_use_ceiling.py::test_AI003_pii_in_ai_assisted_value
+  notes: Uses the same patterns as the repository leak/PII guard (src/grantthai/core/pii.py). The finding
+    names the kind of string, never the string itself. Names, addresses and health details are not detected;
+    a quiet AI003 never means no personal data reached an AI.
+- id: AI004
+  family: AI
+  ships: v0.3
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The researcher's own risk self-assessment (authoring.ai_use_declaration.risk_self_assessment)
+    scores at least one of the five dimensions 3 (high). The single level GrantThai prints is its own
+    convention (the highest of the five scores); the guideline's scoring table is an example and gives no
+    rule for combining the scores.
+  inputs:
+  - project:authoring
+  chain_step: project
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: National Research Council of Thailand GenAI guideline 2569 p.10-11 (example scoring table), p.14-16
+  negative_fixture: test:tests/test_ai_use_ceiling.py::test_AI004_high_self_assessed_risk
+  notes: In the guideline's example reading, level 3 means detailed disclosure of the AI use and of the human
+    validation (p.11). A data-sensitivity score of 3 also means the data must stay out of public AI (p.14-16).
