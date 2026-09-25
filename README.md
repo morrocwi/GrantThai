@@ -258,10 +258,15 @@ pending a founder-supplied non-personal address, decision K9).
 
 - **Core respondent / experience-based expert:** Yaoharee Lahtee.
 - **Interactional expert:** None.
-- **AI model(s) used (role only, not authorship):** GPT-5.6-sol (OpenAI, via
-  Codex) and Claude models — used for drafting of the handoff package and
-  the Phase 0 scaffold planning. This footer and `docs/lineage.md` are the
-  only places an AI model is named as having been used in producing this
-  repository (other mentions are guard patterns, SDK package names in
-  import-ban lists, tooling file names or guard-test fixtures). It is a role disclosure, not an authorship or
-  credit line.
+- **AI model(s) used (role only, not authorship):**
+  - GPT-5.6-sol (OpenAI, via Codex) — co-drafting of the handoff package
+    and overall picture with the author.
+  - Claude Opus 5.5 — planning meeting chair/seats, adversarial gate
+    review, drafting fixes.
+  - Claude Sonnet 5 — scaffolding and verification.
+
+  This footer and `docs/lineage.md` are the only places an AI model is
+  named as having been used in producing this repository (other mentions
+  are guard patterns, SDK package names in import-ban lists, tooling file
+  names or guard-test fixtures). It is a role disclosure, not an
+  authorship or credit line.

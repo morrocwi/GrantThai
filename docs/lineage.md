@@ -12,11 +12,15 @@ and `GOVERNANCE.md`.
 
 - **Core respondent / experience-based expert:** Yaoharee Lahtee.
 - **Interactional expert:** None.
-- **AI model(s) used (role only):** GPT-5.6-sol (OpenAI, via Codex) and
-  Claude models — used for drafting of the handoff package and planning
-  of this Phase 0 scaffold. Neither is an author, co-author, or credited
-  contributor of GrantThai. (Exact model versions per role: NEEDS_INPUT
-  from the founder.)
+- **AI model(s) used (role only):**
+  - GPT-5.6-sol (OpenAI, via Codex) — co-drafting of the handoff package
+    and overall picture with the author.
+  - Claude Opus 5.5 — planning meeting chair/seats, adversarial gate
+    review, drafting fixes.
+  - Claude Sonnet 5 — scaffolding and verification.
+
+  None of the above is an author, co-author, or credited contributor of
+  GrantThai.
 
 ## Handoff-package lineage
 
