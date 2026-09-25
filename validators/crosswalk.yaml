@@ -5,6 +5,12 @@
 # code. coverage: full = the rule(s) check what the code says; partial = part
 # of it (see note); none = not checked (see note for why and when).
 # tests/test_rules_added.py checks every rule id exists and the per-source counts.
+#
+# v0.3 router: `route_scope` records, per rule family, the output routes the
+# family's rules are evaluated for (spec/router §4.2). It is a readable
+# mirror of the `routes:` key every rule carries in rules.yaml;
+# tests/test_rules_added.py checks the two agree, so neither can drift.
+# A route is chosen by a person, never by an AI.
 schema: grantthai.crosswalk.v0
 version: 0.1.0-draft
 sources:
@@ -611,3 +617,68 @@ crosswalk:
   - C003
   coverage: full
   note: C001-C003 ship v0.2.
+route_scope:
+  routes: [nriis-proposal, academic-article, concept-note]
+  note: >-
+    Scope by family, as recorded in each rule's `routes:` in rules.yaml.
+    "all" = every route. Rules outside a route's scope are reported once
+    as INFO RT002 by the engine, never silently skipped. Route-level
+    include_families / exclude_ids (routes/<id>/route.yaml) narrow this
+    further; they never widen it.
+  families:
+  - family: SCHEMA
+    routes: [all]
+    note: JSON Schema validation of the work object; not a catalog rule.
+  - family: S
+    routes: [all]
+    exceptions:
+    - {rule_ids: [S009, S010, S012], routes: [nriis-proposal], note: attachment and duration checks of the NRIIS form}
+    note: S001 takes its required set from the route (route.required_fields; the NRIIS route keeps registry flags plus the form profile).
+  - family: R
+    routes: [all]
+  - family: W
+    routes: [nriis-proposal]
+    exceptions:
+    - {rule_ids: [W101, W102], routes: [all], note: length targets are guidance; on article fields only with a sourced basis, and none is shipped}
+  - family: B
+    routes: [nriis-proposal]
+  - family: T
+    routes: [nriis-proposal]
+  - family: CH
+    routes: [all]
+  - family: F
+    routes: [nriis-proposal]
+    note: _fund() runs only when the route has needs_fund_binding true.
+  - family: ELIG
+    routes: [nriis-proposal]
+  - family: E
+    routes: [nriis-proposal, academic-article]
+    note: the concept note carries no ethics rules (spec §4.2).
+  - family: U
+    routes: [nriis-proposal]
+  - family: P
+    routes: [nriis-proposal]
+  - family: G
+    routes: [nriis-proposal]
+  - family: X
+    routes: [all]
+    note: X003 (AI draft marked SOURCE) blocks on every route.
+  - family: C
+    routes: [nriis-proposal]
+  - family: FW
+    routes: [all]
+    exceptions:
+    - {rule_ids: [FW002], routes: [nriis-proposal], note: objectives numbering is a proposal-narrative pattern}
+  - family: AI
+    routes: [all]
+  - family: ART
+    routes: [academic-article]
+    note: REVIEW only, except ART007 (BLOCK). No rule rests on a journal fact.
+  - family: ECO
+    routes: [nriis-proposal]
+    note: no ids yet (NEEDS_INPUT).
+  - family: OK
+    routes: [nriis-proposal, academic-article]
+    note: >-
+      Not in this catalog yet (TOKE integration, RELAYED). When it lands: OK002 and OK003 on
+      nriis-proposal and academic-article; OK005 and OK006 on nriis-proposal only (spec §2.4).
