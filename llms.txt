@@ -4,11 +4,20 @@
 >
 > See NOTICE for the full statement.
 
-GrantThai helps a person turn a real problem into one research project
-object, checked against GrantThai's own rules (planned for v0.1), then
-renders it to one file: `build/NRIIS_SUBMISSION.md`. Status: v0.1.0; the
-engine, CLI, agent skill, MCP server and local HTTP API work; the web
-form, launchers and Citizen Mode are deferred.
+GrantThai helps a person turn a real problem into one work object
+(`work.yaml`), checked against GrantThai's own rules, then renders it
+through the route the person chooses to exactly one file:
+`build/ACADEMIC_ARTICLE.md` (academic article), `build/NRIIS_SUBMISSION.md`
+(NRIIS research proposal) or `build/RESEARCH_CONCEPT_NOTE.md` (concept
+note). Entering NRIIS is one route of the router, not the core (founder
+reframe 2026-09-25). "Router" means a deterministic output route chosen by
+a person, never by an AI: an AI may list routes and ask, never choose.
+GrantThai is not affiliated with any journal or publisher and ships no
+venue registry; journal facts are NEEDS_VERIFICATION unless the researcher
+supplies the venue's own document. Status: v0.1.0 plus the unreleased v0.3
+router; the engine, CLI, agent skill, MCP server and local HTTP API work;
+the web form, launchers and Citizen Mode are deferred. A legacy
+`project.yaml` is read unchanged as the NRIIS route.
 
 Philosophy:
 1. "GrantThai lowers the entry barrier to research, not the standard of research."
@@ -43,13 +52,14 @@ NIKAH SOCIAL ENTERPRISE CO.).
 - [AGENTS.md](./AGENTS.md): read this first — non-negotiables and read order.
 - [docs/BUILD_GUIDE.md](./docs/BUILD_GUIDE.md): phase-by-phase build plan.
 - [spec/INDEX.yaml](./spec/INDEX.yaml): manifest of every contract file.
+- [routes/INDEX.yaml](./routes/INDEX.yaml): the router — every output route, its route.yaml, output filename and the registry partition.
 
 ## Core docs
 
 - [README.en.md](./README.en.md): quickstart (no-AI lecturer path first), philosophy, ecosystem summary,
   in English. [README.md](./README.md) is the Thai cover (short, with the organisation logo).
 - [GRANTTHAI_STANDALONE.md](./GRANTTHAI_STANDALONE.md): full system/architecture guide.
-- [spec/contracts/one-input-one-output.md](./spec/contracts/one-input-one-output.md): the headline contract.
+- [spec/contracts/one-input-one-output.md](./spec/contracts/one-input-one-output.md): the headline contract (0.3: one output per route).
 - [docs/ecosystem.md](./docs/ecosystem.md): where GrantThai sits (TH+EN).
 - [docs/lineage.md](./docs/lineage.md): Core Epistemic Structure (role disclosure) and Toledo pointers.
 - [docs/sources.md](./docs/sources.md): bibliographic source list (no author metadata).

@@ -6,6 +6,66 @@ SemVer from v0.1 onward.
 
 ## [Unreleased]
 
+### Changed — the router: NRIIS is one route, not the core
+- Founder reframe (2026-09-25, verbatim): "การลงใน NRIIS ไม่ใช่แกนหลักอีกต่อไป
+  แต่เป็นแค่ทางเลือกหนึ่งของ router เพราะเราจะเปิดให้ตั้งแต่การทำบทความวิชาการด้วย" —
+  entering NRIIS is no longer the core; it is one option of a router,
+  because GrantThai opens to academic articles as well. "Router" means a
+  deterministic output route chosen by a person, never by an AI; the old
+  sense "AI as router" stays dropped (`docs/deviations.md`, K-R1; PLAN §N).
+- `spec/contracts/one-input-one-output.md` 0.3.0-draft: one input, one
+  command per route, exactly one file per route. The concept note is an
+  ordinary route, no longer "the one exception". The NRIIS route's output
+  is byte-identical to before (AT-R1, `tests/golden/routes/`).
+- `tools/ci/check_one_output.py` is restated per route (one template and
+  one unique output filename per route, contract cross-references, a
+  runtime one-file-per-build check on every shipped example) with three
+  seeded bad fixtures; `tools/ci/check_notice.py` checks every route
+  template for the NOTICE on body line 1 and the route notice on line 2.
+- The NOTICE constant is unchanged (K-R6 open). The article route adds its
+  own line under it: GrantThai is not affiliated with any journal or
+  publisher.
+- `README.md`, `README.en.md`, `AGENTS.md`, `GRANTTHAI_STANDALONE.md`,
+  `docs/ecosystem.md` (the GrantThai box shows the routes),
+  `docs/BUILD_GUIDE.md` ("v0.3 router"), `docs/design/PLAN.md` §N
+  (appended addendum), `llms.txt`, `llms-full.txt`, `ai.json`.
+
+### Added — the router
+- `work.yaml` 0.3 (`spec/work/work.schema.json`): `work_id`, `work_type`,
+  `routing` (declared routes, default route, sub-profiles) and an optional
+  `fund_binding`, required only by routes with `needs_fund_binding`. A
+  superset of `project.yaml` 0.2; legacy files are read unchanged as the
+  NRIIS route. `routing` is excluded from `content_sha256`
+  (`spec/common/object-hash.md`, K-R3).
+- `routes/`: `INDEX.yaml` and three routes — `nriis-proposal` (wraps the
+  existing assets in place), `academic-article` (placement, sub-profiles
+  `thai-journal` and `international-journal`, both `NEEDS_VERIFICATION`),
+  `concept-note`; schemas in `spec/routes/`.
+- `grantthai route list | check | build`, `build --route`, `init
+  --work-type`, `migrate [--rename] [--dry-run]`; `api_py.list_routes`,
+  `check_route`, `build(route=)`, `migrate`, `new_work`; MCP
+  `grantthai_list_routes`, `grantthai_check_route` and a `route` argument;
+  HTTP `GET /routes`, `POST /projects/{id}/routes/{route}/check`. Every
+  surface returns the candidate list instead of picking when the route is
+  ambiguous.
+- Registry: `scope` and `route_ids` on every field
+  (`tools/registry/partition.py`); the `ARTICLE.*` fields with the new
+  origin `VENUE_NATIVE` (K-R2), every Thai label `NEEDS_VERIFICATION`.
+- Family ART (ART001–ART011): REVIEW, except ART007 (an AI tool listed as
+  an author) BLOCK. No rule rests on a journal fact; GrantThai ships no
+  venue registry (ART010). Rules carry `routes:` and the engine evaluates
+  only the families in the chosen route's scope (RT001/RT002 INFO).
+- `build/ACADEMIC_ARTICLE.md` (`spec/output/academic-article.contract.md`,
+  `templates/academic_article.md.j2`, `render/article.py`) and
+  `build/RESEARCH_CONCEPT_NOTE.md` as a route
+  (`spec/output/research-concept-note.contract.md`, `render/concept_note.py`);
+  fictional examples `examples/article-fictional/` and
+  `examples/both-routes-fictional/` (no real journal named).
+
+### Removed — the router
+- Nothing. 0.2 files are read unchanged; `build --concept-note` (never
+  implemented) is superseded by the `concept-note` route.
+
 ### Added — the AI-use ceiling (GenAI guideline 2569)
 - `docs/policy/ai-use-ceiling.md` and `docs/policy/ai-use-ceiling.th.md`:
   the most any AI may do in GrantThai, each line citing the page of the

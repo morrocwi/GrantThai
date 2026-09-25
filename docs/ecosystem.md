@@ -21,7 +21,10 @@ In both diagrams below, the stages GrantThai covers are marked (`[GT n]`
 in diagram (a), a `[GrantThai: stages 1-4]` box in diagram (b)) with the
 four bridge stages:
 **①** Problem/Knowledge, **②** Researchable project, **③** Funding-aligned
-project, **④** NRIIS-ready project. Every diagram also draws the direct
+project (only when the chosen route needs a fund), **④** route-ready
+output — an academic article, an NRIIS proposal or a concept note; **NRIIS
+is one route** of the router, and the route is chosen by the person, never
+by an AI (founder reframe, 2026-09-25). Every diagram also draws the direct
 `Person ==(no AI)==> Research core` edge.
 
 ### (a) The Toledo Open Research & Knowledge Ecosystem (conceptual, founder's)
@@ -53,9 +56,11 @@ ones GrantThai covers (stage n); unmarked nodes are outside GrantThai.
               Verified knowledge
                      |
                      v
-              Research project                        [GT 3] Funding-aligned project
-                     |                                [GT 4] NRIIS-ready project
-                     |                                       (build/NRIIS_SUBMISSION.md)
+              Research project                        [GT 3] Funding-aligned project (NRIIS route)
+                     |                                [GT 4] route-ready output, one file per route:
+                     |                                       build/ACADEMIC_ARTICLE.md (scholarly record)
+                     |                                       build/NRIIS_SUBMISSION.md (one route)
+                     |                                       build/RESEARCH_CONCEPT_NOTE.md
                      v
                  Innovation (social or other)
                      |
@@ -90,10 +95,15 @@ relying on any specific name or figure — see `docs/sources.md`.
  |  (1) Problem/Knowledge                                   |      |
  |  Person ==(no AI)==> Research core                       |      |
  |  (2) Researchable project                                |      |
- |  (3) Funding-aligned project (bound to the fund profile) |      |
- |  (4) NRIIS-ready project: build/NRIIS_SUBMISSION.md      |      |
+ |  (3) Funding-aligned project (NRIIS route: bound fund)   |      |
+ |  (4) ROUTER, the person chooses (never an AI):           |      |
+ |      --route academic-article -> build/ACADEMIC_ARTICLE.md        |      |
+ |      --route nriis-proposal   -> build/NRIIS_SUBMISSION.md        |      |
+ |      --route concept-note     -> build/RESEARCH_CONCEPT_NOTE.md   |      |
  +---------------------------|-----------------------------+      |
-                             v  a person submits; GrantThai never does   |
+                             v  a person submits (NRIIS route) or   |
+                                finishes the manuscript; GrantThai  |
+                                never submits                       |
  Research institution / network (endorsement, submission)         |
          |                                                        |
          v                                                        |
@@ -108,10 +118,11 @@ relying on any specific name or figure — see `docs/sources.md`.
 GrantThai is the bridge across exactly four stages, and nowhere else:
 
 ```
-(1) Problem / Knowledge --> (2) Researchable project --> (3) Funding-aligned project --> (4) NRIIS-ready project
-                                                                                                |
-                                                                                                v
-                                                    [ one project.yaml IN --> one build/NRIIS_SUBMISSION.md OUT ]
+(1) Problem / Knowledge --> (2) Researchable project --> (3) Funding-aligned project --> (4) route-ready output
+                                                          (only for routes that need a fund)        |
+                                                                                                    v
+                        [ one work.yaml IN --> the person picks a route --> exactly one file OUT per route ]
+                          academic-article -> ACADEMIC_ARTICLE.md | nriis-proposal -> NRIIS_SUBMISSION.md | concept-note -> RESEARCH_CONCEPT_NOTE.md
 ```
 
 How the four stages map onto the nodes of each ecosystem (also in
@@ -121,28 +132,32 @@ How the four stages map onto the nodes of each ecosystem (also in
 |---|---|---|
 | (1) Problem / Knowledge | real-world problems; people/practitioners; academic knowledge | national/sector need (as the person's problem statement) |
 | (2) Researchable project | translation; research core | — (before any fund is involved) |
-| (3) Funding-aligned project | research project | fund/PMU (read only, as a dated fund profile); policy/plan/KR (as declared positions) |
-| (4) NRIIS-ready project | research project (rendered) | project (only once a person submits it and it is funded — outside GrantThai) |
+| (3) Funding-aligned project | research project | fund/PMU (read only, as a dated fund profile); policy/plan/KR (as declared positions). Only the NRIIS route needs this stage |
+| (4) Route-ready output | research project (rendered); for the article route, the scholarly-record layer of the open-knowledge intake (a manuscript overview the person finishes; preprint is not peer review) | project (NRIIS route, only once a person submits it and it is funded — outside GrantThai); a journal's own process (article route — outside GrantThai) |
 
 ```
-                 +-------------------------------------------------------+
-                 |                       GrantThai                       |
-                 |                                                       |
-                 |   Person ==(no AI)==> project.yaml                    |
-   project.yaml  |   spec/ (contracts) -> validators -> review gates ->  |  build/NRIIS_SUBMISSION.md
-   (one input) --+-> render (Jinja2, deterministic)                      +--> (one output)
-                 |                                                       |
-                 |   AI assist (v0.3+, OPTIONAL, never SOURCE,           |
-                 |   never above DRAFT)                                  |
-                 +-------------------------------------------------------+
+                 +---------------------------------------------------------------+
+                 |                           GrantThai                           |
+                 |                                                               |
+                 |   Person ==(no AI)==> work.yaml                               |
+                 |   spec/ (contracts) -> validators (route-scoped) ->           |
+   work.yaml     |   review gates -> ROUTER (routes/, the person chooses) ->     |  exactly one file per route:
+   (one input) --+-> render (Jinja2, deterministic, one template per route)      +--> build/ACADEMIC_ARTICLE.md
+                 |                                                               |     build/NRIIS_SUBMISSION.md
+                 |   AI assist (OPTIONAL, never SOURCE, never above DRAFT,       |     build/RESEARCH_CONCEPT_NOTE.md
+                 |   never picks a route)                                        |
+                 +---------------------------------------------------------------+
 ```
 
-**Inside the GrantThai box:** the project object, the rule engine, the
-review-gate bookkeeping, the renderer, and (v0.3+) an optional AI
-assistant that can only ever propose, never check or approve.
+**Inside the GrantThai box:** the work object, the rule engine, the
+review-gate bookkeeping, the router (a declared, deterministic choice of
+output route), one renderer per route, and an optional AI assistant that
+can only ever propose, never check, approve, or pick a route.
 
 **Outside the GrantThai box, and never entered by GrantThai:** NRIIS
-itself (GrantThai never submits — see `NOTICE`), any fund/PMU's internal
+itself (GrantThai never submits — see `NOTICE`), any journal's or
+publisher's submission and review process (GrantThai is not affiliated
+with any of them and ships no venue registry), any fund/PMU's internal
 review process, any institution's own approval chain, and any human's
 final judgment about whether and what to submit.
 
@@ -165,7 +180,8 @@ See `ecosystem/ecosystem.yaml` (`actors:`) for the machine-readable form.
 | Institution | affiliation record | partner/eligibility context | none |
 | Research network | partner matching | directory pointers (v0.5, opt-in) | none |
 | Fund / PMU | a dated fund profile | nothing — GrantThai only reads the profile | none |
-| NRIIS | the external render target | nothing — GrantThai never submits to it | none |
+| NRIIS | one external render target (the `nriis-proposal` route) | nothing — GrantThai never submits to it | none |
+| Journal / publisher | another external target (the `academic-article` route) | nothing — GrantThai names no journal and reads no venue rules; the researcher supplies the venue's own document | none |
 | User / adopter | downstream use of the output | nothing directly | none |
 
 AI's column is always "optional" or "none" — never "required". This is not
@@ -184,10 +200,16 @@ a simplification; it is the enforced ceiling (`spec/common/status_permissions.ya
 - **Funding flow.** A dated `funds/<agency>/<call-id>@<ver>/` profile is
   bound at build time; it decides eligibility (`ELIG001`) and rule content.
   GrantThai's core schema holds no eligibility thresholds of its own.
+- **Routing flow.** The person declares the route (`routing` in
+  `work.yaml`, or `--route`); the tool resolves it deterministically and
+  stops when the choice is ambiguous. Choosing a route is not authored
+  content: `routing` is outside `content_sha256`, so a route choice never
+  makes a review stale.
 - **Output → user → outcome → impact flow.** Mirrors both ecosystem
-  diagrams above; GrantThai's own responsibility ends at rendering
-  `build/NRIIS_SUBMISSION.md` — everything from submission onward is a
-  human, and later a funder/institution/user, decision.
+  diagrams above; GrantThai's own responsibility ends at rendering the one
+  file of the chosen route — everything from submission, or from the
+  manuscript's journey to a journal, onward is a human, and later a
+  funder/journal/institution/user, decision.
 - **Feedback loop.** Both ecosystem diagrams draw impact feeding back into
   new problems/needs. In the chain contract (`spec/common/chain.yaml`)
   this is modelled explicitly as the `feedback` edges `KR -> Need` and
@@ -209,7 +231,14 @@ a simplification; it is the enforced ceiling (`spec/common/status_permissions.ya
 ## 6. Boundaries — what GrantThai does NOT do
 
 - It does not submit anything to NRIIS, ever (`NOTICE`,
-  `submission_mode.direct_submit: false`, always).
+  `submission_mode.direct_submit: false`, always), and it does not submit
+  to any journal.
+- It does not pick a route. The route is the person's declaration; an AI
+  surface lists routes and asks.
+- It does not write an article. The article route arranges the
+  researcher's own records into an overview; section text, citations and
+  venue facts are the researcher's (`NEEDS_VERIFICATION` without a
+  supplied source).
 - It does not decide PI eligibility — that is the bound fund profile's job
   (`ELIG001`).
 - It does not grant any certification or official/compatible status. Its
@@ -236,8 +265,9 @@ GrantThai อยู่ระหว่างระบบนิเวศสอง�
 
 ในแผนภาพทั้งสองข้างต้น ขั้นตอนที่ GrantThai ดูแลมีเครื่องหมายกำกับ (`[GT n]` ในแผนภาพ (a)
 และกรอบ `[GrantThai: stages 1-4]` ในแผนภาพ (b)) พร้อมหมายเลข
-สี่ขั้นของสะพาน ได้แก่ (1) ปัญหา/ความรู้ (2) โครงการที่วิจัยได้ (3) โครงการที่สอดคล้องกับแหล่งทุน
-(4) โครงการพร้อมเข้า NRIIS ทุกแผนภาพมีเส้นตรง `บุคคล ==(ไม่ใช้ AI)==> แกนวิจัย` เสมอ
+สี่ขั้นของสะพาน ได้แก่ (1) ปัญหา/ความรู้ (2) โครงการที่วิจัยได้ (3) โครงการที่สอดคล้องกับแหล่งทุน (เฉพาะเส้นทางที่ต้องใช้ทุน)
+(4) ผลลัพธ์ตามเส้นทางที่เลือก — บทความวิชาการ ข้อเสนอ NRIIS หรือ concept note โดย **NRIIS เป็นเพียงหนึ่งเส้นทางของ router**
+และคนเป็นผู้เลือกเส้นทาง ไม่ใช่ AI (ผู้ก่อตั้งปรับกรอบ 2026-09-25) ทุกแผนภาพมีเส้นตรง `บุคคล ==(ไม่ใช้ AI)==> แกนวิจัย` เสมอ
 
 - **(ก) ระบบนิเวศวิจัยและความรู้เปิดของ Toledo (เชิงแนวคิด):** ผู้คน/ผู้ปฏิบัติงาน และความรู้เชิงวิชาการ
   → ปัญหาจริง [GT 1] → การแปล (โดยมนุษย์ AI เป็นทางเลือก ไม่บังคับ) [GT 2] → แกนวิจัย [GT 2]
@@ -252,9 +282,10 @@ GrantThai อยู่ระหว่างระบบนิเวศสอง�
 ### 2. ตำแหน่งของ GrantThai
 
 GrantThai เป็นสะพานผ่านสี่ขั้นตอนเท่านั้น: (1) ปัญหา/ความรู้ → (2) โครงการที่วิจัยได้ →
-(3) โครงการที่สอดคล้องกับแหล่งทุน → (4) โครงการพร้อมเข้า NRIIS โดยมี **input ทางเดียว
-(project.yaml) และ output ทางเดียว (build/NRIIS_SUBMISSION.md)** ตารางในข้อ 2 ภาษาอังกฤษ
-แสดงว่าแต่ละขั้นตรงกับส่วนใดของระบบนิเวศทั้งสอง
+(3) โครงการที่สอดคล้องกับแหล่งทุน (เมื่อเส้นทางต้องใช้ทุน) → (4) ผลลัพธ์ตามเส้นทางที่เลือก โดยมี **input ทางเดียว
+(work.yaml) และ output หนึ่งไฟล์ต่อหนึ่งเส้นทาง** (`build/ACADEMIC_ARTICLE.md`, `build/NRIIS_SUBMISSION.md`
+หรือ `build/RESEARCH_CONCEPT_NOTE.md`) ไฟล์ `project.yaml` แบบเดิมอ่านได้โดยไม่ต้องแก้และถือเป็นเส้นทาง NRIIS
+ตารางในข้อ 2 ภาษาอังกฤษแสดงว่าแต่ละขั้นตรงกับส่วนใดของระบบนิเวศทั้งสอง
 
 ### 3. ผู้มีบทบาท (actors)
 
@@ -273,7 +304,8 @@ GrantThai เป็นสะพานผ่านสี่ขั้นตอน�
 | สถาบัน | ข้อมูลสังกัด | บริบทหุ้นส่วนและคุณสมบัติ | ไม่ใช้ |
 | เครือข่ายวิจัย | การจับคู่หุ้นส่วน | ตัวชี้ไปยังทำเนียบรายชื่อ (v0.5, สมัครใจ) | ไม่ใช้ |
 | แหล่งทุน/PMU | โปรไฟล์ทุนที่มีวันที่กำกับ | ไม่มี — GrantThai แค่อ่านโปรไฟล์ | ไม่ใช้ |
-| NRIIS | ระบบปลายทางภายนอก | ไม่มี — GrantThai ไม่ส่งข้อมูลเข้าระบบ | ไม่ใช้ |
+| NRIIS | ระบบปลายทางภายนอกหนึ่งทาง (เส้นทาง `nriis-proposal`) | ไม่มี — GrantThai ไม่ส่งข้อมูลเข้าระบบ | ไม่ใช้ |
+| วารสาร/สำนักพิมพ์ | ปลายทางภายนอกอีกทาง (เส้นทาง `academic-article`) | ไม่มี — GrantThai ไม่ระบุชื่อวารสารและไม่อ่านกติกาวารสารเอง นักวิจัยเป็นผู้นำเอกสารของวารสารมาเอง | ไม่ใช้ |
 | ผู้ใช้/ผู้นำไปใช้ | การนำผลผลิตไปใช้ต่อ | ไม่มีโดยตรง | ไม่ใช้ |
 
 ช่อง AI เป็น "เลือกใช้ได้" หรือ "ไม่ใช้" เสมอ ไม่เคยเป็น "ต้องใช้" และบังคับจริงด้วย
@@ -285,7 +317,9 @@ GrantThai เป็นสะพานผ่านสี่ขั้นตอน�
 - **การตรวจ:** ตัวตรวจแบบกำหนดแน่นอน (deterministic validator) เท่านั้นที่ตั้งสถานะ STRUCTURE_CHECKED/LOGIC_LINKED
   บันทึกการทบทวนที่ระบุชื่อบุคคลเท่านั้นที่ตั้ง HUMAN_REVIEWED/VERIFIED และ AI ตั้งสถานะได้ไม่เกิน DRAFT
 - **ทุน:** โปรไฟล์ทุนที่มีวันที่กำกับถูกผูกตอน build และเป็นผู้ตัดสินคุณสมบัติ (ELIG001)
-- **ผลผลิต → ผู้ใช้ → ผลลัพธ์ → ผลกระทบ:** หน้าที่ของ GrantThai จบที่การสร้างไฟล์ build/NRIIS_SUBMISSION.md
+- **เส้นทาง (routing):** คนเป็นผู้ประกาศเส้นทาง (`routing` ใน work.yaml หรือ `--route`) เครื่องมือแค่ทำตามอย่างแน่นอน
+  ถ้ากำกวมจะหยุดและแสดงตัวเลือก การเลือกเส้นทางไม่ใช่เนื้อหา จึงอยู่นอก `content_sha256` และไม่ทำให้การทบทวนใดล้าสมัย
+- **ผลผลิต → ผู้ใช้ → ผลลัพธ์ → ผลกระทบ:** หน้าที่ของ GrantThai จบที่การสร้างไฟล์เดียวของเส้นทางที่เลือก
 - **วงย้อนกลับ:** ผลกระทบย้อนกลับไปเป็นปัญหา/ความต้องการใหม่ (`feedback` edges ใน `spec/common/chain.yaml`)
 
 ### 5. โครงสร้างพื้นฐานพี่น้อง (ตัวชี้เท่านั้น ไม่คัดลอกเนื้อหา)
@@ -295,7 +329,10 @@ Toledo (repository คลังสมการ), glosa (ระเบียบว
 
 ### 6. ขอบเขต — สิ่งที่ GrantThai ไม่ทำ
 
-- ไม่ส่งข้อมูลใด ๆ เข้า NRIIS เองเลย (`direct_submit: false` เสมอ)
+- ไม่ส่งข้อมูลใด ๆ เข้า NRIIS หรือวารสารใดเองเลย (`direct_submit: false` เสมอ)
+- ไม่เลือกเส้นทางแทนคน AI บอกได้ว่ามีเส้นทางอะไรบ้างแล้วถาม แต่ไม่ตัดสินให้
+- ไม่เขียนบทความให้ เส้นทางบทความแค่จัดเรียงบันทึกของนักวิจัยเองเป็นภาพรวมต้นฉบับ เนื้อหาแต่ละส่วน การอ้างอิง
+  และข้อเท็จจริงเรื่องวารสารเป็นของนักวิจัย (ไม่มีแหล่งที่นักวิจัยนำมา = `NEEDS_VERIFICATION`)
 - ไม่ตัดสินคุณสมบัติหัวหน้าโครงการ — เป็นหน้าที่ของโปรไฟล์ทุนที่ผูกไว้ (ELIG001)
 - ไม่มอบการรับรองหรือสถานะทางการใด ๆ ผลลัพธ์ของ GrantThai บอกเพียงว่า "ตรวจตามกฎของ GrantThai แล้ว"
   ไม่เคยอ้างว่ามีหน่วยงานภายนอกรับรอง

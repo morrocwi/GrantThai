@@ -1,0 +1,6 @@
+schema: grantthai.route.v0
+id: a
+output:
+  filename: OUT.md
+  template: templates/a.j2
+  contract: spec/output/a.contract.md

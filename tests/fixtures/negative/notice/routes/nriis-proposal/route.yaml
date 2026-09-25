@@ -1,0 +1,6 @@
+schema: grantthai.route.v0
+id: nriis-proposal
+output:
+  filename: NRIIS_SUBMISSION.md
+  template: templates/nriis_submission.md.j2
+  contract: spec/output/nriis-submission.contract.md

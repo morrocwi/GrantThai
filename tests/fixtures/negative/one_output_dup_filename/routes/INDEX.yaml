@@ -1,0 +1,8 @@
+schema: grantthai.routes_index.v0
+routes:
+  - id: a
+    path: routes/a/route.yaml
+    output_filename: OUT.md
+  - id: b
+    path: routes/b/route.yaml
+    output_filename: OUT.md
