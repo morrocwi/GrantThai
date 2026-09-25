@@ -1,0 +1,35 @@
+# GrantThai .gitignore
+# Never commit personal data, private workspaces, or build output.
+
+profile.yaml
+workspaces/
+build/
+*.har
+cookies/
+screenshots/
+.env
+.env.*
+
+# Maintainer-specific leak denylist (loaded by tools/ci/check_leak_pii.py;
+# must never be committed, because the list itself would leak its terms).
+.leakdeny.local
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node (webform tooling, if any is added later)
+node_modules/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/

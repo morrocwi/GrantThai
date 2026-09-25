@@ -1,0 +1,23 @@
+version = 1
+SPDX-PackageName = "GrantThai"
+SPDX-PackageSupplier = "Organization: ARAYA NIKAH SOCIAL ENTERPRISE CO."
+SPDX-PackageDownloadLocation = "https://github.com/morrocwi/GrantThai"
+
+# Licensing follows founder ruling K13 (2026-09-25, GOVERNANCE.md):
+# code is Apache-2.0; documentation, specifications and data are CC BY 4.0.
+# In REUSE.toml the LAST matching annotation wins, so the catch-all comes
+# first and the code paths override it.
+
+# Default for everything: documentation, specifications, ontology,
+# templates and data (registry, mappings, rule catalog, fund profiles,
+# ecosystem files, examples, discovery files, CITATION.cff).
+[[annotations]]
+path = "**"
+SPDX-FileCopyrightText = "2026 Yaoharee Lahtee and ARAYA NIKAH SOCIAL ENTERPRISE CO."
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# Code: Apache-2.0
+[[annotations]]
+path = ["src/**", "tools/**", "tests/**", ".githooks/**", ".github/**", "webform/**", "launchers/**", "pyproject.toml", ".gitignore"]
+SPDX-FileCopyrightText = "2026 Yaoharee Lahtee and ARAYA NIKAH SOCIAL ENTERPRISE CO."
+SPDX-License-Identifier = "Apache-2.0"

@@ -1,0 +1,57 @@
+GrantThai — Unofficial, Independent Project
+=============================================
+
+GrantThai is an independent, unofficial project. It is NOT affiliated with, endorsed by, sponsored by, or officially connected to NRCT, TSRI, any PMU, or NRIIS. / GrantThai เป็นโครงการอิสระ ไม่เป็นทางการ และไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU) ใด ๆ หรือระบบ NRIIS
+
+GrantThai is an independent, unofficial open-source project. It is NOT
+affiliated with, endorsed by, sponsored by, or officially connected to:
+
+  - NRCT   (National Research Council of Thailand)
+  - TSRI   (Thailand Science Research and Innovation)
+  - any PMU (Program Management Unit), e.g. บพข., บพค., บพท.
+  - NRIIS  (National Research and Innovation Information System)
+
+"NRIIS" and any related names, logos, or trademarks are the property of
+their respective owners and are used here only in a descriptive, nominative
+sense (to identify the external system this tool helps a person prepare
+copy/paste text for). Use of these names does not imply any endorsement,
+partnership, certification, or official compatibility.
+
+GrantThai produces a human-reviewed draft file
+(`build/NRIIS_SUBMISSION.md`) intended to help a person prepare content to
+copy into the NRIIS system (or an equivalent). GrantThai never submits
+anything automatically. A human always makes the final decision and
+performs the final submission.
+
+ไทย: GrantThai เป็นโครงการอิสระที่ไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU)
+ใด ๆ หรือระบบ NRIIS อย่างเป็นทางการ เครื่องมือนี้ช่วยจัดทำร่างข้อความเพื่อให้
+ผู้ใช้คัดลอกไปกรอกเองเท่านั้น ไม่มีการส่งข้อมูลอัตโนมัติ และการตัดสินใจขั้นสุดท้าย
+เป็นของมนุษย์ผู้ใช้งานเสมอ.
+
+--------------------------------------------------------------------------
+Copyright 2026 Yaoharee Lahtee and ARAYA NIKAH SOCIAL ENTERPRISE CO.
+
+Developer / maintainer: Yaoharee Lahtee (เยาฮารี หละตี),
+ORCID 0009-0005-3861-0626.
+Developing organisation: ARAYA NIKAH SOCIAL ENTERPRISE CO.
+(อารยานิกะห์ วิสาหกิจเพื่อสังคม).
+Purpose: "พัฒนาเพื่อให้เป็นประโยชน์กับคนไทยทุกคนในการพัฒนาความรู้" /
+"Developed to benefit every Thai person in developing knowledge."
+Joint work: ผลงานร่วมกับ ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์ ซึ่งเป็นศูนย์ของ
+อารยานิกะห์ วิสาหกิจเพื่อสังคม (a joint work with
+ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์, a centre of ARAYA NIKAH SOCIAL ENTERPRISE
+CO.).
+
+This developer/organisation statement is separate from, and does not
+change, the non-affiliation statement above: GrantThai is still
+independent of NRCT, TSRI, any PMU, and NRIIS.
+
+--------------------------------------------------------------------------
+The line at the top of this file is the NOTICE constant. It is stored,
+byte for byte, in spec/output/notice_constant.txt and is reused verbatim
+in README.md, ai.json, llms.txt, llms-full.txt, GRANTTHAI_STANDALONE.md,
+and as line 1 of every rendered build/NRIIS_SUBMISSION.md body
+(tools/ci/check_notice.py checks this). Other files point to this NOTICE
+instead of paraphrasing it. To change the wording, edit
+spec/output/notice_constant.txt and this file together, then update the
+files listed above.

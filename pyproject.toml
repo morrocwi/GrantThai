@@ -1,0 +1,25 @@
+[project]
+name = "grantthai"
+version = "0.0.0-phase0"
+description = "GrantThai — open, unofficial research infrastructure. Phase 0 scaffold, no implementation yet."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+dependencies = []
+# Kept intentionally empty in Phase 0. v0.1 is expected to add: pyyaml,
+# jsonschema, jinja2 (renderer) — minimal dependencies by design (P3: no
+# core task may require anything beyond a Python stdlib-adjacent toolchain).
+
+[project.optional-dependencies]
+ai = []
+# Populated in v0.3 (grantthai[ai]). Never imported by the core packages
+# (see spec/common/status_permissions.yaml "hard_ceiling" and
+# tools/ci/check_no_ai_import.py).
+dev = ["pyyaml", "jsonschema", "pytest", "reuse"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,8 @@
+# Paths that need a maintainer review before merge.
+
+/funds/**        @morrocwi
+/spec/**         @morrocwi
+/NOTICE          @morrocwi
+/LICENSE         @morrocwi
+/LICENSES/**     @morrocwi
+/CITATION.cff    @morrocwi
