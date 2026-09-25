@@ -33,6 +33,6 @@ statements:
   expected: [ETHICS, AI_USE, DATA_AVAILABILITY, CONFLICT_OF_INTEREST, FUNDING]
   basis: "proposed_default; GenAI research-ethics guideline 2569 (National Research Council of Thailand) p.27 (authors check the journal's own GenAI rules first); NEEDS_VERIFICATION"
 reference_style:
-  value: null          # the researcher's declared label (ARTICLE.REFERENCE_STYLE); GrantThai never reformats citations
+  value: null          # the researcher's declared label (ARTICLE.META.REFERENCE_STYLE); GrantThai never reformats citations
   basis: "proposed_default: none"
 notes: "Defaults only. Whether a venue is indexed anywhere, and by whom, is a venue fact GrantThai never states (OK003: hosting is not indexing). Word limits, scope, fees and review time are NEEDS_VERIFICATION unless the researcher supplies the venue's own document."

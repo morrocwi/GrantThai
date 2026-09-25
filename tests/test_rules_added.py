@@ -217,7 +217,7 @@ def test_academic_article_route_assets_agree():
     for rel in (route["output"]["template"], route["output"]["contract"], route["placement"]):
         assert (ROOT / rel).exists(), rel
     assert "ART" in route["rules"]["include_families"] and "FW002" in route["rules"]["exclude_ids"]
-    assert route["required_fields"] == ["ARTICLE.META.KIND", "ARTICLE.AUTHORS"]
+    assert route["required_fields"] == ["ARTICLE.META.KIND", "ARTICLE.FRONT.AUTHORS"]
     assert "not affiliated with any journal or publisher" in route["route_notice_en"]
     assert route["title_th"] == "NEEDS_INPUT"
     # the template is tagged for exactly this route and keeps the NOTICE as body line 1, the route notice as line 2
@@ -275,16 +275,16 @@ def test_academic_article_placement_covers_every_article_field_once():
 def test_article_structured_defs_are_self_consistent():
     doc = json.loads((ROOT / "spec/registry/structured_fields.schema.json").read_text(encoding="utf-8"))
     defs, nonchain = doc["$defs"], set(doc["x-grantthai-nonchain-node-types"])
-    want = {"ARTICLE.ABSTRACT_TH", "ARTICLE.ABSTRACT_EN", "ARTICLE.AUTHORS", "ARTICLE.CONTRIBUTIONS",
-            "ARTICLE.BODY.SECTIONS", "ARTICLE.STATEMENT.AI_USE", "ARTICLE.FIGURES_TABLES", "ARTICLE.VENUE.TARGET"}
+    want = {"ARTICLE.FRONT.ABSTRACT_TH", "ARTICLE.FRONT.ABSTRACT_EN", "ARTICLE.FRONT.AUTHORS", "ARTICLE.FRONT.CONTRIBUTIONS",
+            "ARTICLE.BODY.SECTIONS", "ARTICLE.STATEMENT.AI_USE", "ARTICLE.BODY.FIGURES_TABLES", "ARTICLE.VENUE.TARGET"}
     assert want <= set(defs)
     for k in ("Author", "Contribution", "FigureTable", "ManuscriptSection"):
         assert k in nonchain
-    assert re.match(defs["_node_id"]["pattern"], "ARTICLE.AUTHORS") and re.match(defs["_node_id"]["pattern"], "AU1")
-    for fid in ("ARTICLE.AUTHORS", "ARTICLE.CONTRIBUTIONS"):
+    assert re.match(defs["_node_id"]["pattern"], "ARTICLE.FRONT.AUTHORS") and re.match(defs["_node_id"]["pattern"], "AU1")
+    for fid in ("ARTICLE.FRONT.AUTHORS", "ARTICLE.FRONT.CONTRIBUTIONS"):
         items = defs[fid]["items"]
         assert items["properties"]["member_id"]["x-grantthai-ref"]["targets"] == ["PROFILE.TEAM.MEMBERS"]
         assert "member_id" in items["required"]
-    roles = defs["ARTICLE.CONTRIBUTIONS"]["items"]["properties"]["roles"]["items"]["enum"]
-    assert len(roles) == 14 and "NEEDS_VERIFICATION" in defs["ARTICLE.CONTRIBUTIONS"]["items"]["properties"]["roles"]["description"]
+    roles = defs["ARTICLE.FRONT.CONTRIBUTIONS"]["items"]["properties"]["roles"]["items"]["enum"]
+    assert len(roles) == 14 and "NEEDS_VERIFICATION" in defs["ARTICLE.FRONT.CONTRIBUTIONS"]["items"]["properties"]["roles"]["description"]
     assert "source_ref" in defs["ARTICLE.VENUE.TARGET"]["properties"]["stated_requirements"]["items"]["properties"]

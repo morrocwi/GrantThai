@@ -1,8 +1,198 @@
-{#- templates/research_concept_note.md.j2 — Phase 0 stub.
+{#- templates/research_concept_note.md.j2 — renderer template for the
+    concept-note route (v0.3 router).
     output_kind: secondary_optional
-    Ships v0.2. Optional secondary artifact for Citizen Mode with no
-    eligible PI partner. Never replaces nriis_submission.md.j2 and is never
-    required to enter NRIIS (spec/contracts/one-input-one-output.md). -#}
+    route: concept-note
+    The ONE output template of routes/concept-note/route.yaml
+    (spec/output/research-concept-note.contract.md). Formerly the "one
+    exception" of the one-input-one-output contract; in v0.3 an ordinary
+    route. Never submittable to any system and never a replacement for the
+    NRIIS route. Rendered by src/grantthai/render/concept_note.py; all
+    values arrive pre-formatted. `disclaimer` is the NOTICE constant, read
+    byte for byte from spec/output/notice_constant.txt, and stays the first
+    body line; `route_notice` is route.yaml's route_notice_en, the second.
+    No timestamps anywhere (determinism). GrantThai never composes text:
+    every value below is exactly what the work object says. -#}
+---
+{{ frontmatter_yaml }}
+---
 {{ disclaimer }}
+{{ route_notice }}
+{% if trust_level == "FICTIONAL" %}
 
-<!-- Phase 0 stub: implemented v0.2. -->
+> **FICTIONAL / สมมติ.** This work object is a fictional example. Nothing in this concept note is a real proposal.
+{% endif %}
+
+# Research concept note: {{ work_id }}
+
+This file is the researcher's own information, arranged as a short concept note (a pre-proposal working document) for talking the idea through with a partner, a supervisor or a prospective PI. It is not a proposal, it is never submittable to any funder system, and GrantThai submits nothing anywhere. Every value below is exactly what the work object says; a missing value prints as `NEEDS_INPUT`. Validation findings are structural and logical checks only.
+
+- Route: `{{ route_id }}` (chosen by the researcher, never by the tool)
+- Work type: `{{ work_type }}`
+
+## 1. Readiness summary
+
+- Findings: BLOCK {{ summary.block }} / REVIEW {{ summary.review }} / INFO {{ summary.info }}
+- submittable: no (a concept note enters no system; this route always holds)
+- Hold reasons:
+{% for h in hold_reasons %}
+  - {{ h }}
+{% endfor %}
+- Human final approval is always required before this note is shared with anyone.
+
+### 1.1 BLOCK findings
+{% if blocks %}
+{% for f in blocks %}
+- **{{ f.rule_id }}**{% if f.field_ids %} [{{ f.field_ids | join(", ") }}]{% endif %}: {{ f.message_en }} Next step: {{ f.next_step_en }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 1.2 REVIEW findings (a person should look)
+{% if reviews %}
+{% for f in reviews %}
+- **{{ f.rule_id }}**{% if f.field_ids %} [{{ f.field_ids | join(", ") }}]{% endif %}: {{ f.message_en }} Next step: {{ f.next_step_en }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 1.3 NEEDS_INPUT (route fields with no value)
+{% if needs_input %}
+{% for fid in needs_input %}
+- `{{ fid }}`: NEEDS_INPUT. Next step: supply the value (`grantthai set {{ fid }} <value>`).
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+{% if record_needs_input %}
+- Other records in the work object still NEEDS_INPUT: {% for fid in record_needs_input %}`{{ fid }}`{{ ", " if not loop.last }}{% endfor %}
+
+{% endif %}
+
+### 1.4 NEEDS_VERIFICATION
+- Every Thai section heading and label in this note is NEEDS_INPUT or NEEDS_VERIFICATION (no Thai wording is filled without a cited source).
+{% for fid, m, reason in marked %}
+- `{{ fid }}`: {{ m }}{% if reason %} ({{ reason }}){% endif %}. Next step: confirm this value against a current, cited source.
+{% endfor %}
+
+### 1.5 AI-drafted values (the researcher must confirm)
+{% if ai_drafts %}
+{% for fid, by in ai_drafts %}
+{% if by == "ai_draft" %}
+- `{{ fid }}`: authored_by is `ai_draft`, an AI draft not yet adopted (DRAFT, not a source). Next step: rewrite it in your own words and set authored_by to human, or adopt it as it stands and set authored_by to human_ai_assisted.
+{% else %}
+- `{{ fid }}`: authored_by is `human_ai_assisted`, an AI-assisted value the researcher adopted (DRAFT, not a source). Next step: read it and confirm it says what you mean.
+{% endif %}
+{% endfor %}
+{% else %}
+- None declared.
+{% endif %}
+
+### 1.6 Rules not evaluated by this version or not in scope for this route (INFO)
+{% for f in infos %}
+- {{ f.message_en }}
+{% endfor %}
+
+## 2. Concept note by section
+
+Section names are GrantThai's own descriptive headings (`routes/concept-note/placement.yaml`), not any funder's.
+{% for s in sections %}
+
+### {{ loop.index }}. {{ s.title_en }} (TH: {{ s.title_th }})
+{% for f in s.fields %}
+
+#### {{ loop.index }}. {{ f.label_en }}
+
+LABEL_TH: {{ f.label_th }}
+
+
+{{ f.value }}
+
+- FIELD_ID: `{{ f.field_id }}`{% if f.shared %} (shared core: identical in every route built from this object){% endif %}
+
+- STATUS: {{ f.status }} (basis: {{ f.basis }}){% if f.markers %}; markers: {{ f.markers | join(", ") }}{% endif %}
+
+- REQUIRED: {{ f.required }}
+- SOURCE_IDS: {{ f.source_ids }}
+- VALIDATION: {{ f.validation }}
+- AUTHORED_BY: {{ f.authored_by }}
+{% endfor %}
+{% endfor %}
+
+## 3. Machine field metadata
+
+```yaml
+{{ meta_yaml }}
+```
+
+## 4. Validation and provenance appendix
+
+### 4.1 Review gates
+{% for g, v in gates.items() %}
+- {{ g }}: {{ v.state }} ({{ v.basis }})
+{% endfor %}
+
+### 4.2 Source manifest
+{% if sources %}
+{% for s in sources %}
+{% if s.private %}
+- `{{ s.source_id }}` ({{ s.kind }}): [private]
+{% else %}
+- `{{ s.source_id }}` ({{ s.kind }}): {{ s.citation }}{% if s.locator %}; locator: {{ s.locator }}{% endif %}{% if s.url %}; url (not fetched): {{ s.url }}{% endif %}{% if s.sha256 %}; sha256: {{ s.sha256 }}{% endif %}; cited by: {{ s.cited_by }}
+{% endif %}
+{% endfor %}
+{% else %}
+- No sources declared.
+{% endif %}
+
+### 4.3 Unresolved references
+{% if unresolved %}
+{% for u in unresolved %}
+- {{ u }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 4.4 Records not placed in this concept note
+
+Records of the work object that this route does not place in a section. They are never dropped; they are simply not part of this route's output body.
+{% if unmapped %}
+{% for u in unmapped %}
+
+`{{ u.field_id }}` (ORIGIN: {{ u.origin }}; scope: {{ u.scope }}; status: {{ u.status }}; not placed because: {{ u.why }})
+
+{{ u.value }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 4.5 AI Use Declaration (GrantThai appendix)
+
+A GrantThai appendix, self-declared by the researcher and unverified; GrantThai checks only that it is filled in and confirmed (rule AI001), never that it is true (GenAI research-ethics guideline 2569, National Research Council of Thailand; docs/sources.md).
+{% if not ai_decl.used and not ai_decl.present %}
+
+- No AI use is recorded in the work object. If you used an AI tool anywhere in preparing this note, fill authoring.ai_use_declaration.
+{% else %}
+
+{% if ai_decl.tools %}
+| tool | developer | version | stages | purpose | used on |
+|---|---|---|---|---|---|
+{% for t in ai_decl.tools %}
+| {{ t.name | replace("|", "\\|") }} | {{ t.developer | replace("|", "\\|") }} | {{ t.version | replace("|", "\\|") }} | {{ t.stages }} | {{ t.purpose | replace("|", "\\|") | replace("\n", " ") }} | {{ t.used_on | replace("|", "\\|") }} |
+{% endfor %}
+
+{% else %}
+- NEEDS_INPUT: no tool is listed in authoring.ai_use_declaration.tools.
+{% endif %}
+{% for label, v in ai_decl.rows %}
+- {{ label }}: {{ v }}
+{% endfor %}
+- Declaration of responsibility: {% if ai_decl.confirmed %}confirmed by the researcher (by {{ ai_decl.confirmed_by }}, on {{ ai_decl.confirmed_on }}).{% else %}NOT CONFIRMED (NEEDS_INPUT). Only the researcher can confirm, by setting declaration_confirmed_by_human: true in the work object.{% endif %}
+
+{% if ai_decl.gaps %}
+- Still missing (rule AI001): {{ ai_decl.gaps | join("; ") }}.
+{% endif %}
+{% endif %}
