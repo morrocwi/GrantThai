@@ -263,7 +263,8 @@ in `docs/deviations.md`):
   and order).
 - **Lifecycle.** The core/04 project lifecycle (20 states, V-L01–V-L06:
   certification, contract change control, extension, progress and final
-  reports, 5-year utilization reporting) as `spec/common/lifecycle.yaml`,
+  reports, 5-year utilization reporting) as `spec/common/lifecycle.yaml`
+  (planned, not present),
   or an explicit decision that it stays out of scope.
 - **Writing layer.** core/02 §4A.2 compression targets, §4B section writing
   intent and micro-templates, §4E section purpose matrix and §15
@@ -300,7 +301,8 @@ strength and adds a `hold_reason` instead (`spec/common/review_gates.yaml`).
 ## v0.3 — optional AI assist
 
 **Files to create:** `src/grantthai/assist/*` (`ask`, `propose-mapping`,
-`find-gaps`, `search-terms`, `draft <FIELD_ID>`), `examples/citizen-ai-assisted/`,
+`find-gaps`, `search-terms`, `draft <FIELD_ID>`), `examples/citizen-ai-assisted/`
+(planned, not present),
 populate `spec/common/parity.yaml` with a tested human equivalent per AI
 feature, enable `.github/workflows/parity.yml` (currently `if: false`).
 
@@ -367,7 +369,7 @@ GrantThai opens to academic articles as well. "Router" here means a
   `VENUE_NATIVE` (K-R2), every Thai label `NEEDS_VERIFICATION`.
 - Engine: `src/grantthai/routes/{registry,resolve}.py`; `core/project.py`
   (work.yaml discovery, both-present refusal, legacy view, `migrate`);
-  `validators/engine.py` takes a route, evaluates only the rule families
+  `src/grantthai/validators/engine.py` takes a route, evaluates only the rule families
   in the route's scope, reports out-of-scope rules as one INFO (RT002),
   runs `_fund()` only when `needs_fund_binding`; family ART (ART001–ART011,
   `validators/rules.yaml`, REVIEW except ART007 BLOCK: an AI tool listed

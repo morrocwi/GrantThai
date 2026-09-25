@@ -14,8 +14,8 @@ through the route the person chooses to exactly one file:
 note). Entering NRIIS is no longer the core but one route of the router
 (founder reframe 2026-09-25: "การลงใน NRIIS ไม่ใช่แกนหลักอีกต่อไป แต่เป็นแค่
 ทางเลือกหนึ่งของ router เพราะเราจะเปิดให้ตั้งแต่การทำบทความวิชาการด้วย").
-Status: v0.1.0 plus the unreleased v0.3 router; the engine, CLI, agent
-skill (skills/grantthai/), MCP server and local HTTP API work; the web
+Status: v0.3.0 (the router and the 7SSA structure profiles; not yet on a
+package index); the engine, CLI, agent skill (skills/grantthai/), MCP server and local HTTP API work; the web
 form, launchers and Citizen Mode are deferred. It never submits anything
 automatically, to NRIIS or to any journal; a human always makes the final
 decision and performs the final submission.
@@ -77,6 +77,17 @@ Toledo-registered equations and no proofs — see docs/lineage.md.
   The NOTICE constant is body line 1 of every route; the article route
   adds its own line: GrantThai is not affiliated with any journal or
   publisher.
+- 7SSA structure profiles (academic-article route, v0.3.0): for a
+  conceptual-family article the researcher may select one of four 7SSA
+  (seven-sector scholarly article) layouts, `7ssa-world`, `7ssa-thai-7`,
+  `7ssa-thai-5` or `7ssa-thai-4` (`routes/academic-article/profiles/`), in
+  `routing.structure_profiles` or with `--structure-profile`. The router only
+  lists candidates (INFO RT004); the researcher selects. The output is still
+  one `build/ACADEMIC_ARTICLE.md`; rules 7SSA-01..7SSA-10 are REVIEW or INFO,
+  never BLOCK; `build --format tex` writes `build/ACADEMIC_ARTICLE.tex`
+  instead, from the sha256-pinned glosa GLOSA-7SSA template, with a visible
+  unofficial-draft line under the title. With no profile selected nothing
+  changes. Sources: `docs/sources.md`, `templates/tex/SOURCE.yaml`.
 
 ## AI is optional everywhere (never required)
 

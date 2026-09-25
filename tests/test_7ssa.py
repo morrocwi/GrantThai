@@ -399,6 +399,9 @@ def test_at_7ssa_3_tex_export_writes_one_file_from_the_pinned_template(tmp_path)
     assert tex.startswith("% " + P.notice_constant().splitlines()[0])
     assert "[FILL" not in tex.replace(r"\newcommand{\Fill}{\texttt{[FILL]}}", "")
     assert "\\glosaauditfalse\n" in tex and "\\thaiarticlefalse\n" in tex
+    # a visible draft/unofficial line right under the title (not only a comment)
+    assert "\\maketitle\n" + TEX.DRAFT_MARKER_TEX + "\n" in tex and tex.count(TEX.DRAFT_MARKER) == 1
+    assert "unofficial" in TEX.DRAFT_MARKER and "current instructions" in TEX.DRAFT_MARKER
     assert "\\section{Conceptual Problem}\n\\label{sec:s4}" in tex
     assert "pdfauthor={FICTIONAL Lecturer A}" in tex
     assert "CLASSIFICATION\\_GAP" in tex                               # escaped, literal

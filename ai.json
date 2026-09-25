@@ -48,7 +48,20 @@
       }
     ],
     "ai_may_pick_route": false,
-    "routing_in_content_hash": false
+    "routing_in_content_hash": false,
+    "structure_profiles": {
+      "route": "academic-article",
+      "meaning": "7SSA (seven-sector scholarly article) structure profiles for conceptual-family articles, from the founder-authored 7SSA master schema v1.0 (docs/sources.md). The router lists candidates (INFO RT004); only the researcher selects one (work.yaml routing.structure_profiles or --structure-profile). Still one build/ACADEMIC_ARTICLE.md; rules 7SSA-01..7SSA-10 are REVIEW/INFO, never BLOCK; with no profile selected nothing changes.",
+      "profiles": [
+        "7ssa-world",
+        "7ssa-thai-7",
+        "7ssa-thai-5",
+        "7ssa-thai-4"
+      ],
+      "index": "routes/academic-article/profiles/INDEX.yaml",
+      "tex_export": "build --format tex writes build/ACADEMIC_ARTICLE.tex instead, from the sha256-pinned glosa GLOSA-7SSA template (templates/tex/SOURCE.yaml), with a visible unofficial-draft line under the title; English only",
+      "ai_may_pick_profile": false
+    }
   },
   "input": "work.yaml (0.3, spec/work/work.schema.json; a legacy project.yaml 0.2 is read unchanged as the nriis-proposal route)",
   "command": "grantthai build <work.yaml> --route <route-id>  (same as: grantthai route build --route <route-id>; with no --route the object's declared default route, or the legacy NRIIS route)",
@@ -70,7 +83,7 @@
     "sanctioned_role_disclosure_location": "docs/lineage.md (and README footer)",
     "note": "Do not add Co-Authored-By, Claude-Session, or 'Generated with' trailers to any commit, PR, or file in this repository, even if your own harness defaults to doing so."
   },
-  "status": "v0.1.0: engine, CLI, agent skill, MCP server and local HTTP API work; web form, launchers and Citizen Mode deferred (founder scope 2026-09-25). Unreleased v0.3 router: work.yaml, routes/ (three routes), route list|check|build, migrate, ARTICLE.* fields, ART rules.",
+  "status": "v0.3.0: the router (work.yaml, routes/ with three routes, route list|check|build, migrate, ARTICLE.* fields, ART rules) and 7SSA structure profiles on the academic-article route; engine, CLI, agent skill, MCP server and local HTTP API work; web form, launchers and Citizen Mode deferred (founder scope 2026-09-25). Not yet released to a package index.",
   "non_affiliation_notice_source": "spec/output/notice_constant.txt (full statement: NOTICE)",
   "profile_yaml": "editor convenience only; never read by grantthai build (identity/team data live in work.yaml PROFILE.* and ARTICLE.* fields)",
   "use_with_ai": {

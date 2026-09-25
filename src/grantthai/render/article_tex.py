@@ -262,6 +262,12 @@ def resolved_headings(route, profile: dict | None, article_type: str | None) -> 
     return dict(ov["headings_en"]) if ov else base
 
 
+# One plain line typeset under \maketitle of every export (v0.3.0 release
+# review m4; recorded in docs/deviations.md).
+DRAFT_MARKER = ("Draft prepared with GrantThai (unofficial); check the target journal's current instructions.")
+DRAFT_MARKER_TEX = "\\noindent{\\small\\textit{" + DRAFT_MARKER + "}}\\par\\medskip"
+
+
 def fill(text: str, fm: dict, values: _Values, *, headings: dict, glosa_audit: bool, header: str,
          thai_profile: str | None) -> str:
     spans = fill_tokens(text)
@@ -305,6 +311,9 @@ def fill(text: str, fm: dict, values: _Values, *, headings: dict, glosa_audit: b
     if not glosa_audit:
         filled = filled.replace("\n\\glosaaudittrue\n", "\n\\glosaauditfalse\n", 1)
     filled = _policy_cells(filled)
+    # a visible draft/unofficial line under the title, in the typeset body
+    # (not only in the comment header; docs/deviations.md)
+    filled = filled.replace("\n\\maketitle\n", "\n\\maketitle\n" + DRAFT_MARKER_TEX + "\n", 1)
     return header + filled
 
 

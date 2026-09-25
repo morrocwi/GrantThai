@@ -10,9 +10,20 @@ reframe, 2026-09-25). GrantThai is not affiliated with any journal or
 publisher and ships no venue registry; every journal fact is
 `NEEDS_VERIFICATION` unless you supply the venue's own document.
 
-**Status: v0.1.0 (not yet released to a package index); the v0.3 router is
-unreleased (`CHANGELOG.md`).** The engine works through the `grantthai`
-command, a Python API, an agent **skill**, an **MCP** server and
+7SSA structure profiles (academic-article route, v0.3.0): for a
+conceptual-family article the researcher may select one of four 7SSA
+(seven-sector scholarly article) layouts, `7ssa-world`, `7ssa-thai-7`,
+`7ssa-thai-5` or `7ssa-thai-4` (`routes/academic-article/profiles/`), in
+`routing.structure_profiles` or with `--structure-profile`. The router only
+lists candidates (INFO RT004); the researcher selects. The output is still
+one `build/ACADEMIC_ARTICLE.md`; rules 7SSA-01..7SSA-10 are REVIEW or INFO,
+never BLOCK; `build --format tex` writes `build/ACADEMIC_ARTICLE.tex`
+instead, from the sha256-pinned glosa GLOSA-7SSA template, with a visible
+unofficial-draft line under the title. With no profile selected nothing
+changes. Sources: `docs/sources.md`, `templates/tex/SOURCE.yaml`.
+
+**Status: v0.3.0 (`CHANGELOG.md`; not yet released to a package
+index).** The engine works through the `grantthai` command, a Python API, an agent **skill**, an **MCP** server and
 a local **HTTP API**. A legacy `project.yaml` is read unchanged as the
 NRIIS route. The offline web form, the launchers and Citizen Mode
 are deferred (founder scope, 2026-09-25; see `docs/BUILD_GUIDE.md`). Every
@@ -410,5 +421,6 @@ pending a founder-supplied non-personal address, decision K9).
   This footer and `docs/lineage.md` are the only places an AI model is
   named as having been used in producing this repository (other mentions
   are guard patterns, SDK package names in import-ban lists, tooling file
-  names or guard-test fixtures). It is a role disclosure, not an
+  names, guard-test fixtures, or interoperability/how-to mentions of AI
+  products). It is a role disclosure, not an
   authorship or credit line.

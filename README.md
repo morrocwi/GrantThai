@@ -360,7 +360,8 @@ pending a founder-supplied non-personal address, decision K9).
   This footer and `docs/lineage.md` are the only places an AI model is
   named as having been used in producing this repository (other mentions
   are guard patterns, SDK package names in import-ban lists, tooling file
-  names or guard-test fixtures). It is a role disclosure, not an
+  names, guard-test fixtures, or interoperability/how-to mentions of AI
+  products). It is a role disclosure, not an
   authorship or credit line.
 
 

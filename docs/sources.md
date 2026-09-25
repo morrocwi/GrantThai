@@ -143,6 +143,21 @@ are short phrases. The names of its drafting committee are not reproduced
 anywhere in this repository. Appendix B (p.35-36) reproduces another
 agency's AI disclosure form; GrantThai does not use that form.
 
+## 7SSA master schema v1.0 (structure profiles)
+
+The 7SSA structure profiles of the academic-article route
+(`routes/academic-article/profiles/`) and rules 7SSA-01..7SSA-10 are built
+on one founder-authored document. It is not committed here; it is pinned
+by sha256 and located through its glosa registration.
+
+| Field | Value |
+|---|---|
+| Title | 7SSA master schema v1.0 (seven-sector scholarly article; founder-authored pseudo-DAG schema, `q1_world_thai_7sector_master_schema.pseudo.dag.md`, 2026-09-25) |
+| sha256 of the copy read | `1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980` |
+| Locator | glosa (`https://github.com/morrocwi/glosa`) `templates/paper/glosa-7ssa/README.md` at main merge commit `f2856ce`, section "Source provenance" (row `SCHEMA.md`); glosa's `SCHEMA.md` reproduces it with a short header, so its own sha256 differs |
+| Status | the founder's method direction; its readings of publisher policies are relayed and stay `NEEDS_VERIFICATION` against each venue's current author guidelines |
+| Used for | sector S1-S7 slots, writing order, compression rules A-D and article-type overlays in the profiles; the LaTeX export template is pinned separately in `templates/tex/SOURCE.yaml` |
+
 ## Excluded AI-derived readout of portal screenshots
 
 One excluded file is an AI-generated readout of three NRIIS portal

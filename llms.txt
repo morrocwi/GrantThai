@@ -14,10 +14,22 @@ reframe 2026-09-25). "Router" means a deterministic output route chosen by
 a person, never by an AI: an AI may list routes and ask, never choose.
 GrantThai is not affiliated with any journal or publisher and ships no
 venue registry; journal facts are NEEDS_VERIFICATION unless the researcher
-supplies the venue's own document. Status: v0.1.0 plus the unreleased v0.3
-router; the engine, CLI, agent skill, MCP server and local HTTP API work;
-the web form, launchers and Citizen Mode are deferred. A legacy
+supplies the venue's own document. Status: v0.3.0 (the router and the
+7SSA structure profiles; not yet on a package index); the engine, CLI,
+agent skill, MCP server and local HTTP API work; the web form, launchers and Citizen Mode are deferred. A legacy
 `project.yaml` is read unchanged as the NRIIS route.
+
+7SSA structure profiles (academic-article route, v0.3.0): for a
+conceptual-family article the researcher may select one of four 7SSA
+(seven-sector scholarly article) layouts, `7ssa-world`, `7ssa-thai-7`,
+`7ssa-thai-5` or `7ssa-thai-4` (`routes/academic-article/profiles/`), in
+`routing.structure_profiles` or with `--structure-profile`. The router only
+lists candidates (INFO RT004); the researcher selects. The output is still
+one `build/ACADEMIC_ARTICLE.md`; rules 7SSA-01..7SSA-10 are REVIEW or INFO,
+never BLOCK; `build --format tex` writes `build/ACADEMIC_ARTICLE.tex`
+instead, from the sha256-pinned glosa GLOSA-7SSA template, with a visible
+unofficial-draft line under the title. With no profile selected nothing
+changes. Sources: `docs/sources.md`, `templates/tex/SOURCE.yaml`.
 
 Philosophy:
 1. "GrantThai lowers the entry barrier to research, not the standard of research."
