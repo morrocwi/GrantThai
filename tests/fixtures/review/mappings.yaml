@@ -1,0 +1,13 @@
+# FICTIONAL mapping proposals for tests/test_review.py. Synthetic names only.
+mappings:
+  - id: BRIDGE.MAPPING.SHARED_WATER_TURN
+    local_term: "FICTIONAL local term: shared water turn"
+    academic_concept: "FICTIONAL academic concept: rotational irrigation scheduling"
+    proposed_by: {kind: human, name: "FICTIONAL Proposer P"}
+    acceptance_state: PROPOSED
+  - id: BRIDGE.MAPPING.RESERVOIR_KEEPER
+    local_term: "FICTIONAL local term: reservoir keeper"
+    academic_concept: "FICTIONAL academic concept: community water steward"
+    proposed_by: {kind: ai}
+    requested_by: "FICTIONAL Requester Q"
+    acceptance_state: PROPOSED
