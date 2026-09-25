@@ -1,5 +1,5 @@
 ---
-grantthai_version: 0.1.0
+grantthai_version: 0.2.0.dev0
 schema_version: 0.2.0-draft
 renderer_version: nriis_submission.md.j2@0.2.0
 project_id: FICTIONAL-DEMO-SEEDBANK-0001
@@ -54,6 +54,8 @@ disclaimer: GrantThai is an independent, unofficial project. It is NOT affiliate
 ---
 GrantThai is an independent, unofficial project. It is NOT affiliated with, endorsed by, sponsored by, or officially connected to NRCT, TSRI, any PMU, or NRIIS. / GrantThai เป็นโครงการอิสระ ไม่เป็นทางการ และไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU) ใด ๆ หรือระบบ NRIIS
 
+> **FICTIONAL / สมมติ: bound to a fictional test call.** The fund profile `example/FICTIONAL_CALL@0.1` is not a real call. Nothing in this worksheet is submittable to any real fund; "submittable" below refers to the fictional test call only.
+
 # NRIIS submission worksheet: FICTIONAL-DEMO-SEEDBANK-0001
 
 This file is the researcher's own information, arranged for copy/paste into NRIIS by a person. GrantThai never submits anything. Every value below is exactly what `project.yaml` says; a missing value prints as `NEEDS_INPUT`, and any NRIIS label, tab name or order not confirmed from a public document prints as `NEEDS_VERIFICATION`. Validation findings are structural and logical checks only: they do not mean the content is true, sound or fundable.
@@ -61,7 +63,7 @@ This file is the researcher's own information, arranged for copy/paste into NRII
 ## 1. Readiness summary
 
 - Findings: BLOCK 0 / REVIEW 0 / INFO 31
-- Submittable against the bound fund profile `example/FICTIONAL_CALL@0.1` (trust level FICTIONAL): yes
+- Submittable to a real call: n/a (fictional call). Against the fictional test profile `example/FICTIONAL_CALL@0.1` only: yes
 - Hold reasons:
   - RG0: no review record (claim strength downgraded; build is not blocked)
   - RG1: no review record (claim strength downgraded; build is not blocked)
@@ -93,12 +95,12 @@ This file is the researcher's own information, arranged for copy/paste into NRII
 - `FUND.CALL.KEY_RESULTS`: NEEDS_VERIFICATION. Next step: confirm this value against a current, cited source.
 
 ### 1.5 AI-drafted values (the researcher must confirm)
-- `CORE.GENERAL.TITLE_EN`: authored_by marks an AI draft (DRAFT, not a source). Next step: read it, rewrite or confirm it in your own words, then set authored_by to human.
-- `CORE.GENERAL.KEYWORDS_EN`: authored_by marks an AI draft (DRAFT, not a source). Next step: read it, rewrite or confirm it in your own words, then set authored_by to human.
-- `CORE.NARRATIVE.SUMMARY`: authored_by marks an AI draft (DRAFT, not a source). Next step: read it, rewrite or confirm it in your own words, then set authored_by to human.
-- `CORE.NARRATIVE.RATIONALE`: authored_by marks an AI draft (DRAFT, not a source). Next step: read it, rewrite or confirm it in your own words, then set authored_by to human.
-- `CORE.NARRATIVE.METHOD`: authored_by marks an AI draft (DRAFT, not a source). Next step: read it, rewrite or confirm it in your own words, then set authored_by to human.
-- `CORE.RESEARCH.GAP`: authored_by marks an AI draft (DRAFT, not a source). Next step: read it, rewrite or confirm it in your own words, then set authored_by to human.
+- `CORE.GENERAL.TITLE_EN`: authored_by is `human_ai_assisted`, an AI-assisted value the researcher adopted (DRAFT, not a source). Next step: read it and confirm it says what you mean; keep authored_by as human_ai_assisted unless you rewrite it yourself.
+- `CORE.GENERAL.KEYWORDS_EN`: authored_by is `ai_draft`, an AI draft not yet adopted (DRAFT, not a source). Next step: rewrite it in your own words and set authored_by to human, or adopt it as it stands and set authored_by to human_ai_assisted.
+- `CORE.NARRATIVE.SUMMARY`: authored_by is `ai_draft`, an AI draft not yet adopted (DRAFT, not a source). Next step: rewrite it in your own words and set authored_by to human, or adopt it as it stands and set authored_by to human_ai_assisted.
+- `CORE.NARRATIVE.RATIONALE`: authored_by is `human_ai_assisted`, an AI-assisted value the researcher adopted (DRAFT, not a source). Next step: read it and confirm it says what you mean; keep authored_by as human_ai_assisted unless you rewrite it yourself.
+- `CORE.NARRATIVE.METHOD`: authored_by is `human_ai_assisted`, an AI-assisted value the researcher adopted (DRAFT, not a source). Next step: read it and confirm it says what you mean; keep authored_by as human_ai_assisted unless you rewrite it yourself.
+- `CORE.RESEARCH.GAP`: authored_by is `human_ai_assisted`, an AI-assisted value the researcher adopted (DRAFT, not a source). Next step: read it and confirm it says what you mean; keep authored_by as human_ai_assisted unless you rewrite it yourself.
 
 ### 1.6 Mappings and self-checked reviews
 - None.

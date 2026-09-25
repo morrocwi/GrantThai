@@ -15,7 +15,8 @@ TRANSCRIPT = ROOT / "docs/demo/transcript-seedbank.md"
 COMPARISON = ROOT / "docs/demo/comparison.md"
 AS_OF = "2026-09-25"
 ABOVE_DRAFT = {"STRUCTURE_CHECKED", "LOGIC_LINKED", "HUMAN_REVIEWED", "VERIFIED", "LOCKED"}
-FILES = [TRANSCRIPT, COMPARISON, DEMO / "README.md", DEMO / "answers.yaml", DEMO / "project.yaml",
+READING = [ROOT / "docs/demo/scored-reading-draft.md", ROOT / "docs/demo/scored-reading-draft.th.md"]
+FILES = [TRANSCRIPT, COMPARISON, *READING, DEMO / "README.md", DEMO / "answers.yaml", DEMO / "project.yaml",
          DEMO / "NRIIS_SUBMISSION.md"]
 
 
@@ -27,6 +28,13 @@ def test_fictional_banner_on_line_1_and_after_the_notice():
         assert any("FICTIONAL" in ln for ln in lines[notice + 1:notice + 4]), f
     assert COMPARISON.read_text(encoding="utf-8").splitlines()[2].startswith("> **The demo is FICTIONAL.**")
     assert "FICTIONAL" in yaml.safe_load((DEMO / "project.yaml").read_text(encoding="utf-8"))["project_id"]
+
+
+def test_output_carries_a_fictional_banner_right_after_the_notice():
+    body = (DEMO / "NRIIS_SUBMISSION.md").read_text(encoding="utf-8").split("\n---\n", 1)[1]
+    lines = [ln for ln in body.splitlines() if ln.strip()]
+    assert lines[1].startswith("> **FICTIONAL / สมมติ")
+    assert "Submittable to a real call: n/a (fictional call)" in body
 
 
 def test_nothing_above_draft_and_no_source():

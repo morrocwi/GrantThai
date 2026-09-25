@@ -13,6 +13,10 @@
 {{ frontmatter_yaml }}
 ---
 {{ disclaimer }}
+{% if trust_level == "FICTIONAL" %}
+
+> **FICTIONAL / สมมติ: bound to a fictional test call.** The fund profile `{{ fund_profile }}` is not a real call. Nothing in this worksheet is submittable to any real fund; "submittable" below refers to the fictional test call only.
+{% endif %}
 
 # NRIIS submission worksheet: {{ project_id }}
 
@@ -21,7 +25,11 @@ This file is the researcher's own information, arranged for copy/paste into NRII
 ## 1. Readiness summary
 
 - Findings: BLOCK {{ summary.block }} / REVIEW {{ summary.review }} / INFO {{ summary.info }}
+{% if trust_level == "FICTIONAL" %}
+- Submittable to a real call: n/a (fictional call). Against the fictional test profile `{{ fund_profile }}` only: {{ "yes" if submittable else "no" }}
+{% else %}
 - Submittable against the bound fund profile `{{ fund_profile }}` (trust level {{ trust_level }}): {{ "yes" if submittable else "no" }}
+{% endif %}
 {% if hold_reasons %}
 - Hold reasons:
 {% for h in hold_reasons %}
@@ -70,8 +78,12 @@ This file is the researcher's own information, arranged for copy/paste into NRII
 
 ### 1.5 AI-drafted values (the researcher must confirm)
 {% if ai_drafts %}
-{% for fid in ai_drafts %}
-- `{{ fid }}`: authored_by marks an AI draft (DRAFT, not a source). Next step: read it, rewrite or confirm it in your own words, then set authored_by to human.
+{% for fid, by in ai_drafts %}
+{% if by == "ai_draft" %}
+- `{{ fid }}`: authored_by is `ai_draft`, an AI draft not yet adopted (DRAFT, not a source). Next step: rewrite it in your own words and set authored_by to human, or adopt it as it stands and set authored_by to human_ai_assisted.
+{% else %}
+- `{{ fid }}`: authored_by is `human_ai_assisted`, an AI-assisted value the researcher adopted (DRAFT, not a source). Next step: read it and confirm it says what you mean; keep authored_by as human_ai_assisted unless you rewrite it yourself.
+{% endif %}
 {% endfor %}
 {% else %}
 - None declared.

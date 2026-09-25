@@ -335,7 +335,8 @@ def build_context(raw: dict, result: E.Result) -> dict:
     # Readiness summary
     marked = [(rec.get("field_id"), m, rec.get("hold_reason"))
               for rec, _ in P.iter_records(doc) for m in sorted(set(rec.get("markers") or []))]
-    ai_drafts = [rec.get("field_id") for rec, _ in P.iter_records(doc)
+    ai_drafts = [(rec.get("field_id"), (rec.get("provenance") or {}).get("authored_by"))
+                 for rec, _ in P.iter_records(doc)
                  if ((rec.get("provenance") or {}).get("authored_by")) in AI_AUTHORED]
     record_needs_input = [rec.get("field_id") for rec, _ in P.iter_records(doc)
                           if rec.get("value") is None and rec.get("field_id") not in needs_input]

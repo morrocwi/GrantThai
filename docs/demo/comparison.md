@@ -33,16 +33,22 @@ Cited by title (as printed on the cover), first author, and contract or
 handle only. No PDF is committed. No text is reproduced beyond fragments of
 at most 15 words. No ethics approval numbers, team rosters or other
 personal data are copied. sha256 values were computed on the downloaded
-files (`VERIFIED`, 2026-09-25); access and licence status was checked in
-the v0.2 research (relayed) and is summarised here.
+files (`VERIFIED`, 2026-09-25). Page counts were checked with `pdfinfo` on
+the files with these hashes by an independent reviewer (2026-09-25).
+**Access and licence status is `relayed` from the v0.2 research notes and
+is `OPEN`:** a re-check on 2026-09-25 could not re-open the landing pages
+(one returned a login page, one a server error). A human reader must open
+each landing page and record its terms statement, URL and date before
+this file is pushed. Nothing here depends on a licence: sources are cited,
+not reproduced, and quotes are at most 15 words.
 
 | Id | Title (as printed) | First author (public) | Funder / contract or handle | Type, PDF pages | Access and licence | sha256 |
 |---|---|---|---|---|---|---|
 | R0 | Blank Fundamental Fund full-proposal form, 2570 cycle (title as printed: `SD-5` in `docs/sources.md`) | none | public download page of nriis.go.th; `SD-5` in `docs/sources.md` | blank form, 52 | public; no licence statement: cite only | `f212e61beb19aea74b203bdc80d68d935f508006358fa4bf92d50adee90621ec` |
-| R1 | การสังเคราะห์รูปแบบการสร้างความเข้มแข็งของชุมชนบนฐานการทำนาจังหวัดนราธิวาส | พรพันธุ์ เขมคุณาศัย | Thailand Research Fund, contract RDG60S0001 (January 2563) | final report, 140 | e-Library of Thailand Science Research and Innovation, full text, no login; only a copyright line, no licence: all rights reserved, short quotes only | `609c78be14b7fa0a05ab09d3a99473baddbdd3f01b6c21f1e1a63fcb4c4a2712` |
-| R2 | การดูแลผู้สูงอายุที่มีภาวะพึ่งพิงแบบบูรณาการโดยการมีส่วนร่วมของชุมชนเพื่อเตรียมรับการระบาดซ้ำของโรคติดเชื้อไวรัสโคโรนา 2019 | สุพิชญา หวังปิติพาณิชย์ | Health Systems Research Institute, handle `hdl.handle.net/11228/5712` | final report, 131 | the institute's repository; the item's licence file is an unedited placeholder, so no licence is granted: all rights reserved | `25874ac8c86d97af2782f32df5a591724dda6937450c07d5bec0d402da84faa8` |
-| R3 | โครงการการสังเคราะห์งานวิจัยภายใต้กรอบการวิจัยการพัฒนาคน ชุมชน และสังคมไทย | สมจิต แดนสีแก้ว | National Research Council of Thailand and Thailand Research Fund, contract RDG5840049 (May 2561) | final report, 102 | same terms as R1 | `054e1678a577a626691b534a00e6ed11e8efc37a3d6776f35fe6e1c0db79c0ec` |
-| R4 (anchor for D7 only) | Outcome and impact evaluation of a large research and innovation programme: Genomics Thailand (English description; the Thai cover title names the funder by acronym) | relayed; not re-read | Thailand Science Research and Innovation, contract ORG65F3010 | evaluation report, relayed | same terms as R1 (relayed) | `6b0408b1e93e18146bf31858c7f7292ddfea4e1efb95223a6bc15d5a7b04cc0a` |
+| R1 | การสังเคราะห์รูปแบบการสร้างความเข้มแข็งของชุมชนบนฐานการทำนาจังหวัดนราธิวาส | พรพันธุ์ เขมคุณาศัย | Thailand Research Fund, contract RDG60S0001 (January 2563) | final report, 139 | e-Library of Thailand Science Research and Innovation, full text, no login; only a copyright line, no licence (relayed, OPEN): treat as all rights reserved, short quotes only | `609c78be14b7fa0a05ab09d3a99473baddbdd3f01b6c21f1e1a63fcb4c4a2712` |
+| R2 | การดูแลผู้สูงอายุที่มีภาวะพึ่งพิงแบบบูรณาการโดยการมีส่วนร่วมของชุมชนเพื่อเตรียมรับการระบาดซ้ำของโรคติดเชื้อไวรัสโคโรนา 2019 | สุพิชญา หวังปิติพาณิชย์ | Health Systems Research Institute, handle `hdl.handle.net/11228/5712` | final report, 130 | the institute's repository; the item's licence file is an unedited placeholder, so no licence is granted (relayed, OPEN): treat as all rights reserved | `25874ac8c86d97af2782f32df5a591724dda6937450c07d5bec0d402da84faa8` |
+| R3 | โครงการการสังเคราะห์งานวิจัยภายใต้กรอบการวิจัยการพัฒนาคน ชุมชน และสังคมไทย | สมจิต แดนสีแก้ว | National Research Council of Thailand and Thailand Research Fund, contract RDG5840049 (May 2561) | final report, 101 | same terms as R1 | `054e1678a577a626691b534a00e6ed11e8efc37a3d6776f35fe6e1c0db79c0ec` |
+| R4 (withdrawn; not used) | Outcome and impact evaluation of a large research and innovation programme: Genomics Thailand (English description; the Thai cover title names the funder by acronym) | not recorded | Thailand Science Research and Innovation, contract ORG65F3010 | evaluation report, 137 (`pdfinfo`, independent reviewer) | relayed, OPEN; withdrawn as the D7 anchor until its terms and contents are re-checked | `6b0408b1e93e18146bf31858c7f7292ddfea4e1efb95223a6bc15d5a7b04cc0a` |
 
 One repository was excluded (relayed): its full texts need membership,
 allow non-commercial use only, are watermarked with the downloader's name
@@ -60,14 +66,14 @@ the GrantThai field and the status the demo build shows.
 | Part | R0 form item | R1 | R2 | R3 | Demo (field: status) |
 |---|---|---|---|---|---|
 | Significance / need / problem | part 2 item 2, p3 | ch. 1, TOC p8 | ch. 1 (relayed) | ch. 1 (relayed) | `CORE.RESEARCH.NATIONAL_NEED`, `.PROBLEM`: DRAFT (simulated persona) |
-| Objectives | part 2, p3 | ch. 1, TOC p8 | p9 (relayed) | ch. 1 (relayed) | `CORE.RESEARCH.OBJECTIVES`: DRAFT, 3 items, each linked to the RQ, a method phase and an output |
-| Research questions | not a separate item (OPEN) | ch. 1, TOC p8 | not found (relayed) | ch. 1 (relayed) | `CORE.RESEARCH.RQ.PRIMARY`, `.SECONDARY`: DRAFT |
+| Objectives | part 2, p3 | ch. 1, TOC p8 | 3, PDF p19 (`VERIFIED` in the DRAFT reading) | ch. 1 (relayed) | `CORE.RESEARCH.OBJECTIVES`: DRAFT, 3 items, each linked to the RQ, a method phase and an output |
+| Research questions | not a separate item (OPEN) | ch. 1, TOC p8 | OPEN: not found (relayed) | ch. 1 (relayed) | `CORE.RESEARCH.RQ.PRIMARY`, `.SECONDARY`: DRAFT |
 | Sites / target groups | part 3, p6 (research sites) | ch. 1, TOC p8 | 3 informant groups (relayed) | not applicable (synthesis) | `GEO.AREA.RESEARCH_SITES`, `METHOD.PLAN.SAMPLE`: DRAFT |
 | Conceptual framework | part 2, p3 | p9, p38 (keyword) | p9, p20, p31 (keyword) | p13, p20, p59–60 (keyword) | `CORE.NARRATIVE.FRAMEWORK`: DRAFT, one sentence |
 | Literature / theory | part 2, p3 | ch. 2, TOC p8 | ch. 2 (relayed) | ch. 2 (relayed) | `CORE.NARRATIVE.THEORY`: DRAFT, no references; `CORE.PRIORKNOWLEDGE.PK2`, `CORE.NARRATIVE.REFERENCES`: NEEDS_INPUT |
 | Method | part 2, p3 | PAR (p23 keyword) | ch. 3 (relayed) | ch. 3 (relayed) | `METHOD.PLAN.*`: DRAFT, PAR in 3 cycles |
-| Ethics | part 3 (standards), relayed | no hit for the word (relayed: not found) | p41–42 (keyword) | several hits (keyword) | `METHOD.PLAN.ETHICS`: DRAFT; `COMP.STANDARD.HUMAN`: DRAFT, NEEDS_VERIFICATION |
-| Expected results / indicators | part 4, p12 | ch. 1, TOC p8; indicators p27–31 (keyword) | relayed: absent | relayed: present | `RESULTS.CHAIN.OUTPUTS`, `.OUTCOMES`: DRAFT |
+| Ethics | part 3 (standards), relayed | OPEN: no hit in full-text search of the final report (terms in the DRAFT reading, D6) | p41–42 (keyword) | several hits (keyword) | `METHOD.PLAN.ETHICS`: DRAFT; `COMP.STANDARD.HUMAN`: DRAFT, NEEDS_VERIFICATION |
+| Expected results / indicators | part 4, p12 | ch. 1, TOC p8; indicators p27–31 (keyword) | guidelines and policy proposals, PDF p90–93 (`VERIFIED` in the DRAFT reading; replaces the earlier relayed "absent") | relayed: present | `RESULTS.CHAIN.OUTPUTS`, `.OUTCOMES`: DRAFT |
 | Policy proposals | 10 output types in the annex (relayed) | ch. 5 (relayed) | p43 and ch. 5 (keyword and relayed) | p19–24, p85 (keyword) | `OUT4` "policy proposal": output type NEEDS_VERIFICATION (no dedicated type) |
 | Output → outcome → impact | part 4, p12 | partial (relayed) | partial (relayed) | partial (relayed) | `RESULTS.CHAIN.OUTCOME_PROCESS`, `.OUTCOMES`, `.IMPACTS` (claim strength CONTRIBUTORY): DRAFT |
 | Budget in categories | part 3, p9 | N/A-report | N/A-report | N/A-report | `BUDGET.PLAN.ITEMS` BI1–BI6, total 480,000 (arithmetic checked by B002); FF category rules listed, not evaluated |
@@ -97,13 +103,18 @@ banners, the title and the project id removed.
 | D4 | Framework / theory | missing | theory named | framework with constructs, relations and cited origin | R1–R3 |
 | D5 | Method fit | not stated | design named | design, sample, instruments, analysis, quality each trace to an objective | R1–R3 |
 | D6 | Ethics / participants | missing | mentioned | consent, risk and approval route per participant group | R1–R3 |
-| D7 | Output → outcome → impact | outputs only | outputs + outcomes | full pathway with users, beneficiaries and mechanism (R4 anchor) | R1–R3 |
+| D7 | Output → outcome → impact | outputs only | outputs + outcomes | full pathway with users, beneficiaries and mechanism | R1–R3 |
 | D8 | Partners and users | none | listed | named roles, co-research, plan for use after the project | R1–R3 |
 | D9 | Fund / KR alignment | none | plan named | focus area, national plan and KR each linked to outputs | R0 only |
 | D10 | Budget and workplan | missing | totals only | line arithmetic, R0 category rules, activity ↔ budget ↔ month links | R0 only |
 | D11 | Epistemic honesty (GrantThai-specific) | invented facts | some gaps marked | every gap `NEEDS_INPUT`/`NEEDS_VERIFICATION`, sources cited, nothing AI-written above `DRAFT` | all |
 
 ## 4. Scores (PENDING, not by the maker)
+
+One non-blind AI reading exists as a separate `DRAFT`:
+`docs/demo/scored-reading-draft.md` (Thai: `scored-reading-draft.th.md`).
+It is not one of the two blind scores, validates nothing, and does not
+fill this table. The blind round is still pending.
 
 | # | Demo (Scorer A) | Demo (Scorer B) | R1 | R2 | R3 | Evidence (page or field; ≤15-word fragment) |
 |---|---|---|---|---|---|---|
@@ -142,6 +153,6 @@ against the SD-5 page text) and from running the demo (G8–G12).
 | G7 | Summary word cap | R0 p3 (`VERIFIED`) | shipped in v0.2 as W101 (3000 words); see G9 |
 | G8 | The provenance model has no value for a **simulated** author: the demo persona's statements are recorded `authored_by: human` | this demo | a project-level `simulation: true` flag or an `authored_by: simulated` value, rendered in the frontmatter |
 | G9 | Length checks are blind for Thai prose (whitespace tokens undercount), so the checklist's WC09 shows `PASS` for Thai boxes that were never measured | demo build, section 4.6 | a Thai word or character measure, or `HUMAN_CHECK` instead of `PASS` when the text is Thai |
-| G10 | The worksheet's section 1.5 lists adopted AI drafts (`human_ai_assisted`) and unadopted ones with the same "set authored_by to human" advice; the skill's `report` lists only the unadopted two | demo build vs `grantthai_skill.py report` | separate the two lists and wording |
+| G10 | The worksheet's section 1.5 listed adopted AI drafts (`human_ai_assisted`) and unadopted ones with the same "set authored_by to human" advice, which nudged a user to relabel adopted AI-assisted text as human-authored | demo build vs `grantthai_skill.py report` | fixed in v0.2: separate advice per value (`tests/test_engine.py`) |
 | G11 | `reference/interview.md` does not give the id prefixes for partners (`PTN`) and impacts (`IMP`); the demo's first apply failed on them | demo run | fixed in v0.2: prefixes added to `reference/interview.md` |
-| G12 | A form profile names a real form while the only fund binding is the fictional test call, so the frontmatter says "submittable: yes" against a call that does not exist | demo build | keep until a real fund profile exists; say so in the readiness summary |
+| G12 | A form profile names a real form while the only fund binding is the fictional test call, so the frontmatter says "submittable: true" against a call that does not exist | demo build | partly fixed in v0.2: a FICTIONAL banner after the notice line and "Submittable to a real call: n/a (fictional call)" in the readiness summary; the frontmatter boolean stays (contract) |

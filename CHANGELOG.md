@@ -54,13 +54,34 @@ reports. Not released; the founder approves any release.
   or handle, sha256; no PDF committed), a structural matrix against the
   public FF form and three funded final reports, the D1–D11 rubric, an
   empty score sheet for two independent scorers (the maker does not score),
-  and gaps G1–G12 as v0.3 candidates.
+  and gaps G1–G12 as v0.3 candidates. Licence and terms of R1–R4 are
+  relayed and still `OPEN` (to be re-checked by a person before any push);
+  R4 is withdrawn as the D7 anchor.
+- `docs/demo/scored-reading-draft.md` and `.th.md`: one non-blind AI
+  reading with D1–D11 scores (`DRAFT`, not the blind scores). Funded works
+  are named only in `comparison.md`'s source table; no score is given from
+  a failed search (`OPEN`), and lessons are stated as structure, not as
+  flaws of a named work.
+- CI guard `tools/ci/check_case_collision.py` (in `run_all_guards.sh`):
+  fails when two tracked paths differ only by letter case; its bad fixture
+  is generated at run time.
 - Skill: answers may carry `markers` (`NEEDS_VERIFICATION`,
   `HOLD_FOR_VERIFICATION`) next to a supplied value, and
   `project.form_profile`; plain-Thai explanations for W101/W102; the
   interview guide now gives the id prefixes for partners, users, outcomes,
   impacts, beneficiaries and outcome process.
 - `tests/test_demo.py`.
+
+### Changed — v0.2 fixes
+- Package version `0.2.0.dev0` (the frontmatter no longer says 0.1.0 next
+  to renderer 0.2.0).
+- A build bound to a FICTIONAL fund profile prints a FICTIONAL banner right
+  after the notice line and "Submittable to a real call: n/a (fictional
+  call)"; the frontmatter `submittable` boolean is unchanged.
+- Worksheet section 1.5 gives separate advice for `ai_draft` (rewrite and
+  set human, or adopt as `human_ai_assisted`) and `human_ai_assisted`
+  (confirm; no relabelling to human). Golden hash in
+  `tests/test_form_profiles.py` re-pinned once for these three changes.
 
 ### Changed
 - Renderer `nriis_submission.md.j2@0.2.0`. The example build

@@ -39,8 +39,11 @@ SOURCES = (ROOT / "docs/sources.md").read_text(encoding="utf-8")
 # W101/W102 findings, section 4.6 completeness checklist), so the golden was
 # re-pinned in the same commit (CHANGELOG.md, v0.2). Regenerate it only for
 # a deliberate template or contract change, and say so in CHANGELOG.md.
-GOLDEN_V010_SHA256 = "d51d071441f4fa60126922efcd4717a59c160445bdbff934b467dc849b86af78"
-GOLDEN_V010_BYTES = 109570
+# Re-pinned once more for the v0.2 fixes: package version 0.2.0.dev0 in the
+# frontmatter, the FICTIONAL-call banner and "n/a (fictional call)"
+# submittable line, and the split section 1.5 advice.
+GOLDEN_V010_SHA256 = "7fc04cfa74ff034846092b712bad6359425f4cef8896d9847f4bd7c8da847646"
+GOLDEN_V010_BYTES = 109851
 
 EXPECTED_IDS = {
     "research@sd1-2566", "innovation@sd1-2566", "personnel_development@sd1-2566",

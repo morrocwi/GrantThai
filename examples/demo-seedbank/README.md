@@ -16,7 +16,8 @@ participatory action research with community co-researchers.
 | `answers.yaml` | the answers file an AI with a shell writes from that interview (`skills/grantthai/reference/answers-format.md`) |
 | `project.yaml` | the one input, produced by `grantthai_skill.py apply` |
 | `NRIIS_SUBMISSION.md` | a committed copy of the one output, `build/NRIIS_SUBMISSION.md` (the `build/` folder itself is git-ignored) |
-| `../../docs/demo/comparison.md` | the comparison with real, funded, public reports and the public FF form, and the gaps found |
+| `../../docs/demo/comparison.md` | the comparison with real, funded, public reports and the public FF form, and the gaps found; its section 4 waits for two blind scorers |
+| `../../docs/demo/scored-reading-draft.md` (Thai: `.th.md`) | one non-blind AI reading with scores (`DRAFT`), not the blind scores |
 
 ## Reproduce
 
@@ -53,7 +54,10 @@ byte for byte what `build --as-of 2026-09-25` gives for the committed
   list, not confirmed against a current call.
 - The project is bound to the fictional test call
   `example/FICTIONAL_CALL@0.1` (GrantThai ships no real fund profile), with
-  the form profile `ff_full_proposal@nriis-2570` (`NEEDS_VERIFICATION`). So
-  "submittable: yes" is against a call that does not exist.
+  the form profile `ff_full_proposal@nriis-2570` (`NEEDS_VERIFICATION`). The
+  output says so in a FICTIONAL banner right after the notice line, and its
+  readiness summary prints "Submittable to a real call: n/a (fictional
+  call)". The frontmatter key `submittable: true` is against that fictional
+  call only (`fund_profile_trust_level: FICTIONAL`).
 - This demo is **not** an AT-1 pass: AT-1 needs a human-authored gap and
   research question.

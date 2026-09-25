@@ -22,6 +22,7 @@ GEN_DIR="$(mktemp -d)"
 trap 'rm -rf "$GEN_DIR"' EXIT
 "$PY" tools/ci/make_negative_fixtures.py pii "$GEN_DIR/leak_pii" >/dev/null
 "$PY" tools/ci/make_negative_fixtures.py gitleaks "$GEN_DIR/gitleaks" >/dev/null
+"$PY" tools/ci/make_negative_fixtures.py case "$GEN_DIR/case_collision" >/dev/null
 
 run_guard () {
   local name="$1" script="$2" good_root="$3" bad_root="$4"
@@ -55,6 +56,7 @@ run_guard "schema-lint (parse)" tools/ci/check_schema_lint.py "$ROOT" "$ROOT/tes
 run_guard "schema-lint (instances)" tools/ci/check_schema_lint.py "$ROOT" "$ROOT/tests/fixtures/negative/schema_instance"
 run_guard "one-input-one-output" tools/ci/check_one_output.py "$ROOT" "$ROOT/tests/fixtures/negative/one_output"
 run_guard "notice" tools/ci/check_notice.py "$ROOT" "$ROOT/tests/fixtures/negative/notice"
+run_guard "case-collision" tools/ci/check_case_collision.py "$ROOT" "$GEN_DIR/case_collision"
 
 echo
 if [ "$FAIL" -eq 0 ]; then

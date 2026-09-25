@@ -11,9 +11,11 @@ or secret-shaped value is ever committed to this repository.
             does. It is regenerated with random digits on every run.
   gitleaks  a file with an AWS-access-key-shaped string built from random
             characters on every run.
+  case      two files whose paths differ only by letter case (generated,
+            never committed, because committing them is the defect).
 
 Usage:
-    python tools/ci/make_negative_fixtures.py <pii|gitleaks> <out_dir>
+    python tools/ci/make_negative_fixtures.py <pii|gitleaks|case> <out_dir>
 """
 from __future__ import annotations
 
@@ -53,14 +55,21 @@ def make_gitleaks(out: Path, rng: random.Random) -> Path:
     return path
 
 
+def make_case(out: Path, rng: random.Random) -> Path:
+    for name in ("notes.md", "NOTES.md"):
+        (out / name).write_text("FIXTURE - case-collision pair.\n", encoding="utf-8")
+    return out / "NOTES.md"
+
+
 def main() -> int:
-    if len(sys.argv) != 3 or sys.argv[1] not in {"pii", "gitleaks"}:
+    if len(sys.argv) != 3 or sys.argv[1] not in {"pii", "gitleaks", "case"}:
         print(__doc__)
         return 2
     out = Path(sys.argv[2])
     out.mkdir(parents=True, exist_ok=True)
     rng = random.Random()
-    path = make_pii(out, rng) if sys.argv[1] == "pii" else make_gitleaks(out, rng)
+    maker = {"pii": make_pii, "gitleaks": make_gitleaks, "case": make_case}[sys.argv[1]]
+    path = maker(out, rng)
     print(f"wrote {path}")
     return 0
 
