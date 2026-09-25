@@ -15,7 +15,7 @@
     "fields": {
       "type": "object",
       "minProperties": 1,
-      "propertyNames": {"pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}$"},
+      "propertyNames": {"pattern": "^((PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}|ARTICLE(\\.[A-Z0-9_]+){1,})$"},
       "additionalProperties": {"$ref": "#/$defs/intent"}
     },
     "completeness_checklist": {
@@ -75,10 +75,18 @@
       "properties": {
         "purpose": {"$ref": "#/$defs/bilingual"},
         "micro_template": {"$ref": "#/$defs/bilingual"},
-        "length_target": {"$ref": "#/$defs/length_target"},
+        "length_target": {
+          "oneOf": [{"$ref": "#/$defs/length_target"}, {"type": "null"}],
+          "description": "null = no length target shipped for this field (v0.3 router: article fields carry none until a target has a sourced basis, spec §4.3); W101/W102 skip a null target."
+        },
         "keep_out": {"type": "array", "items": {"type": "string", "minLength": 1}},
         "quality_traits": {"type": "array", "items": {"$ref": "#/$defs/quality_trait"}},
         "practice": {"type": "array", "items": {"$ref": "#/$defs/practice"}},
+        "practice_context": {
+          "type": "string",
+          "minLength": 1,
+          "description": "v0.3 router: descriptive practice context for a field the corpus does not map to directly (an ARTICLE.* field). Cites corpus-100 patterns (FWP-nn, count) and MUST carry the caveat that corpus-100 is funded final reports, not articles; it is never a `practice` entry (which must map to the field) and never a rule basis on its own. Checked by tests/test_writing_intent.py."
+        },
         "derived_from": {"$ref": "#/$defs/derived_from"}
       },
       "additionalProperties": false
@@ -118,7 +126,7 @@
         "field_ids": {
           "type": "array",
           "minItems": 1,
-          "items": {"type": "string", "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}$"}
+          "items": {"type": "string", "pattern": "^((PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}|ARTICLE(\\.[A-Z0-9_]+){1,})$"}
         },
         "evaluable": {"type": "string", "enum": ["deterministic", "human"]},
         "kind": {

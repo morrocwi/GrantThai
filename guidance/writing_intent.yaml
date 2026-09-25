@@ -41,6 +41,15 @@
 #   rule; `seen_in` cites a deep-read report by corpus id and PDF page only.
 #   These are final reports, so budget, workplan, key results, TRL and SRL
 #   get no practice entry from this corpus.
+# - v0.3 router: ARTICLE.* entries (routes/academic-article) carry
+#   `length_target: null` (no article length target is shipped; W101/W102
+#   skip them until a target has a sourced basis) and a `practice_context`
+#   string instead of `practice` entries. Every practice_context cites
+#   corpus-100 patterns AND says that corpus-100 is funded FINAL REPORTS,
+#   not articles: the counts are descriptive context for the box, never a
+#   venue fact and never a rule basis on their own. No venue is named.
+#   No ARTICLE checklist item is added here: the checklist is rendered into
+#   every route's output and pinned by a golden file for the NRIIS route.
 schema: grantthai.writing_intent.v0
 version: 0.2.0-draft
 status: DRAFT
@@ -864,6 +873,188 @@ fields:
 # stands as GrantThai's proposed default. Deterministic items are evaluated
 # by src/grantthai/guidance/writing.py (PASS/OPEN); human items always
 # render HUMAN_CHECK. Rendered as output section 4.6 (integrator).
+  # ------------------------------------------------------ ARTICLE (v0.3 router)
+  # Route academic-article only. No length target shipped (null); every Thai
+  # string NEEDS_INPUT; no venue named anywhere.
+  ARTICLE.META.KIND:
+    purpose: {en: "The kind of article, from GrantThai's descriptive list (not any venue's article types).", th: NEEDS_INPUT}
+    micro_template: {en: "<empirical_research | review | conceptual | case_study | short_communication | other>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a venue's own article-type label copied as the kind"]
+    quality_traits: [{trait: "the kind matches the body structure used (IMRaD or free sections)", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.META.LANGUAGE:
+    purpose: {en: "The manuscript language: th, en or th+en. Drives which abstract and title languages the overview expects together with the sub-profile.", th: NEEDS_INPUT}
+    micro_template: {en: "<th | en | th+en>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a language the venue has not been confirmed to accept (NEEDS_VERIFICATION)"]
+    quality_traits: [{trait: "consistent with the abstract and title languages supplied", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.TITLE_TH:
+    purpose: {en: "The manuscript's Thai title. Empty means the shared CORE.GENERAL.TITLE_TH is copied as-is (never composed).", th: NEEDS_INPUT}
+    micro_template: {en: "<object> <relation or method> <site or group>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a title that promises a result the Results section does not show"]
+    quality_traits: [{trait: "names the object, the setting and the design", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.TITLE_EN:
+    purpose: {en: "The manuscript's English title. Empty means the shared CORE.GENERAL.TITLE_EN is copied as-is (never composed).", th: NEEDS_INPUT}
+    micro_template: {en: "<object> <relation or method> <site or group>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a literal word-for-word rendering of the Thai title"]
+    quality_traits: [{trait: "one to one in meaning with the Thai title", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.ABSTRACT_TH:
+    purpose: {en: "The Thai abstract: what was asked, how, what was found, what it means. Plain text or the four parts.", th: NEEDS_INPUT}
+    micro_template: {en: "{background: <why>, methods: <design, sample, analysis>, results: <main finding>, conclusion: <what it means>}", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["results not in the Results section", "citations", "a word limit taken from memory of a venue (NEEDS_VERIFICATION)"]
+    quality_traits: [{trait: "every claim in the abstract appears in the body", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-11: an abstract (Thai or English) is present in 64/100 funded final reports, rising 35% to 87% across the year bands; Thai abstract lengths in that corpus (median about 2,500 characters) are report figures and are not article targets (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.ABSTRACT_EN:
+    purpose: {en: "The English abstract, same content as the Thai one. Plain text or the four parts.", th: NEEDS_INPUT}
+    micro_template: {en: "{background: <why>, methods: <design, sample, analysis>, results: <main finding>, conclusion: <what it means>}", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["results not in the Results section", "citations"]
+    quality_traits: [{trait: "same findings as the Thai abstract", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-11: an abstract (Thai or English) is present in 64/100 funded final reports (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.AUTHORS:
+    purpose: {en: "Who the authors are, by reference to the shared team record, in order, with the corresponding author marked.", th: NEEDS_INPUT}
+    micro_template: {en: "[{id: AU1, member_id: TM1, order: 1, corresponding: true, affiliation_as_typed: <as it should print>}]", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["an AI tool as an author (ART007, BLOCK)", "a person not in PROFILE.TEAM.MEMBERS"]
+    quality_traits: [{trait: "every author has a role in ARTICLE.CONTRIBUTIONS", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.CONTRIBUTIONS:
+    purpose: {en: "What each author did, as role codes (CRediT vocabulary, RELAYED, NEEDS_VERIFICATION).", th: NEEDS_INPUT}
+    micro_template: {en: "[{id: CRT1, member_id: TM1, roles: [conceptualization, methodology, writing_original_draft]}]", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a role for an AI tool (ART007)", "roles nobody can stand behind"]
+    quality_traits: [{trait: "one entry per author; the corresponding author carries at least one writing role", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.INTRODUCTION:
+    purpose: {en: "Why the study: the problem, what is known, the gap, and the question. Written by the researcher from the Problem, PriorKnowledge and Gap records.", th: NEEDS_INPUT}
+    micro_template: {en: "<problem with a sourced figure> <what prior work shows> <the gap> <this study asks RQ>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["results", "text not traceable to a chain record", "AI-composed prose adopted unread"]
+    quality_traits: [{trait: "ends with the research question or objective", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-01: a background or rationale section is present in 91/100 funded final reports; FWP-09: a literature-review section in 64/100 (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.METHODS:
+    purpose: {en: "How the study was done: design, population and sample, instruments, data collection, analysis, ethics. Written from the METHOD.PLAN.* records as executed.", th: NEEDS_INPUT}
+    micro_template: {en: "Design: <design>. Participants: <population, sample, size basis>. Instruments: <INS list>. Procedure: <collection>. Analysis: <analysis per objective>. Ethics: <approval as typed>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["the planned method where the executed one differed, without saying so", "AI-generated or AI-altered data (AI002)"]
+    quality_traits: [{trait: "each objective has an analysis", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-04: a method section is present in 80/100 funded final reports; FWP-10: method sub-parts in 66/100 (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.RESULTS:
+    purpose: {en: "What was found, per objective, from the Evidence records only. No interpretation here.", th: NEEDS_INPUT}
+    micro_template: {en: "Objective 1: <finding, figure or table ref>. Objective 2: <finding>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["interpretation (belongs in Discussion)", "a result with no Evidence record", "an AI-drafted data-bearing value (AI002)"]
+    quality_traits: [{trait: "every figure or table is cited once", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-07: a results section is present in 85/100 funded final reports, report-stage (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.DISCUSSION:
+    purpose: {en: "What the findings mean against prior work: the Claim records set against PriorKnowledge, with the claim strength the evidence allows (CH003).", th: NEEDS_INPUT}
+    micro_template: {en: "<finding> <agrees or differs with prior work, cited> <why> <what follows for practice or policy>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a claim stronger than its evidence path (CH003)", "new results"]
+    quality_traits: [{trait: "each claim names the evidence it rests on", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-08: a discussion or conclusion section is present in 90/100 funded final reports, report-stage (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.CONCLUSION:
+    purpose: {en: "The answer to the research question in a few sentences, and what should happen next.", th: NEEDS_INPUT}
+    micro_template: {en: "<answer to RQ> <main implication> <next step>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["claims absent from the Discussion"]
+    quality_traits: [{trait: "answers the research question as asked", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-08: a discussion or conclusion section is present in 90/100 funded final reports, report-stage (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.LIMITATIONS:
+    purpose: {en: "Known limits of the design, data and setting, in the researcher's own words. Optional.", th: NEEDS_INPUT}
+    micro_template: {en: "<limit> <what it may affect> <how it was reduced or why it stands>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a generic limitation list not tied to this study"]
+    quality_traits: [{trait: "each limit points at a specific design or data choice", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-25: limitations are stated in 15/100 funded final reports, EMERGING and rising (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.BODY.SECTIONS:
+    purpose: {en: "For kinds other than empirical_research: the researcher's own headings, in order, each with its text and the records it was written from.", th: NEEDS_INPUT}
+    micro_template: {en: "[{id: MSC1, heading: <heading>, text: <text>, render_from: [<record ids>]}]", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["IMRaD sections duplicated here for an empirical article"]
+    quality_traits: [{trait: "headings follow the argument, not a venue template from memory", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.ETHICS:
+    purpose: {en: "The ethics statement as it should print: committee name and approval identifier exactly as the researcher has them, and consent.", th: NEEDS_INPUT}
+    micro_template: {en: "Approved by <committee as typed>, <identifier as typed>; informed consent <how>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a committee name or identifier filled from memory", "an approval that has not happened"]
+    quality_traits: [{trait: "identifier matches the ethics record in METHOD.PLAN.ETHICS", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-24: ethics wording appears in 29/100 funded final reports, EMERGING and undercounted (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.AI_USE:
+    purpose: {en: "The in-text AI-use statement, researcher-written: tool, stage, purpose, influence on conclusions, human checking; and where it goes (methods or acknowledgements). The venue's own rule comes first and is NEEDS_VERIFICATION.", th: NEEDS_INPUT}
+    micro_template: {en: "{text: '<tool, version> was used for <purpose> at <stage>; it did not <influence>; all output was checked by <who>.', placement: <methods | acknowledgements>}", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a statement written by the AI tool itself and adopted unread", "prompts containing sensitive data"]
+    quality_traits: [{trait: "consistent with authoring.ai_use_declaration", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.DATA_AVAILABILITY:
+    purpose: {en: "Where the data are, or why they cannot be shared. Optional.", th: NEEDS_INPUT}
+    micro_template: {en: "<data> are available <where, under what condition> | cannot be shared because <reason>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a repository or identifier not yet created"]
+    quality_traits: [{trait: "matches the privacy plan in METHOD.PLAN.ETHICS", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.CONFLICT_OF_INTEREST:
+    purpose: {en: "Interests that could be read as influencing the work, or a statement that there are none. Optional.", th: NEEDS_INPUT}
+    micro_template: {en: "The authors declare <no competing interests | the following: ...>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a blanket denial where E005 raised a finding"]
+    quality_traits: [{trait: "consistent with the conflict-of-interest record in METHOD.PLAN.ETHICS", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.FUNDING:
+    purpose: {en: "Who funded the work, as the funder asks to be named, with the grant identifier as typed. Optional; no fund binding is required by this route.", th: NEEDS_INPUT}
+    micro_template: {en: "This work was supported by <funder as typed> (<identifier as typed>).", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a funder's required wording taken from memory (NEEDS_VERIFICATION)"]
+    quality_traits: [{trait: "the identifier matches the fund_binding or the researcher's award letter", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.ACKNOWLEDGEMENTS:
+    purpose: {en: "People and organisations to thank who are not authors. Optional. An AI-use statement may be placed here (ARTICLE.STATEMENT.AI_USE placement).", th: NEEDS_INPUT}
+    micro_template: {en: "The authors thank <who> for <what>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["an author listed here instead of in ARTICLE.AUTHORS", "an AI tool thanked as if a contributor"]
+    quality_traits: [{trait: "names only people and organisations with a stated contribution", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-34: an acknowledgement is present in 62/100 funded final reports, report-stage (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.FIGURES_TABLES:
+    purpose: {en: "Each figure, table or supplementary item: its caption, whether it bears data, whether an AI made or altered it, and the sources it rests on.", th: NEEDS_INPUT}
+    micro_template: {en: "[{id: FIG1, kind: figure, caption: <caption>, data_bearing: true, ai_generated_illustration: false, source_refs: [SRC-1]}]", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a data-bearing item made or altered by an AI (ART009)", "an AI-made illustration with no disclosure in its caption (ART011)"]
+    quality_traits: [{trait: "every item is cited from Results", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.VENUE.TARGET:
+    purpose: {en: "The venue the researcher is writing for, exactly as typed, with the venue's requirements as the researcher read them, each with the source it was read from. GrantThai holds no venue registry.", th: NEEDS_INPUT}
+    micro_template: {en: "{name_as_typed: <name>, sub_profile: <thai-journal | international-journal>, source_refs: [SRC-n], stated_requirements: [{item: <what>, value: <as read>, source_ref: SRC-n}]}", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["any requirement without a source_ref (ART010)", "scope, indexing, fees or review time from memory (NEEDS_VERIFICATION)"]
+    quality_traits: [{trait: "every stated requirement names the page of the venue's current author guidelines", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.REFERENCE_STYLE:
+    purpose: {en: "The citation style the researcher declares for the reference list, as a label. GrantThai never reformats citations.", th: NEEDS_INPUT}
+    micro_template: {en: "<style label as the venue names it>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a style label the venue has not been confirmed to require"]
+    quality_traits: [{trait: "one style throughout CORE.NARRATIVE.REFERENCES", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-06: a reference list is present in 78/100 funded final reports (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
 completeness_checklist:
   - id: WC01
     check: {en: "Need, problem, gap and the primary research question are all written.", th: NEEDS_INPUT}

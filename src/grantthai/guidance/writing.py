@@ -175,6 +175,8 @@ def length_findings(doc: dict, field_ids: list[str] | None = None) -> list[Findi
         value = rec.get("value")
         tgt = targets[fid].get("length_target") or {}
         unit = tgt.get("unit")
+        if not unit:
+            continue        # no target shipped for this field (null length_target)
         n = measure(value, unit)
         if n is None:
             continue
