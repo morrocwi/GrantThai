@@ -2,56 +2,211 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/morrocwi/GrantThai/spec/registry/field.schema.json",
   "title": "GrantThai core field registry record (one line of registry/fields.jsonl)",
-  "description": "Draft. One authoring field. Re-keyed from the handoff package core/05 (founder-owned, K13) per the re-key table in registry/README.md. label_en is a descriptive label from core/05, NOT an official NRIIS label; label_th stays NEEDS_VERIFICATION until captured from a public call or TOR document (K14). guidance replaces core/05's ai_prompt.",
+  "description": "Draft. One authoring field. Re-keyed from the handoff package core/05 (founder-owned, K13) per the re-key table in registry/README.md. label_en is a descriptive label from core/05, NOT an official NRIIS label; label_th stays NEEDS_VERIFICATION until captured from a public call or TOR document (K14). guidance replaces core/05's ai_prompt. Every record declares one origin (core/02 §2): NRIIS_NATIVE fields are rendered onto an NRIIS tab; every other origin is never presented as an NRIIS field (core/02 rule R4) and appears only in the output's 'Project records not placed on any NRIIS tab' appendix.",
   "type": "object",
-  "required": ["field_id", "source_field_id", "section", "chain_node", "label_en", "label_en_basis", "label_th", "type", "cardinality", "required", "input_control", "dependencies", "observed_form", "guidance", "authored_by", "derived_from", "markers"],
+  "required": [
+    "field_id",
+    "source_field_id",
+    "section",
+    "origin",
+    "origin_basis",
+    "chain_node",
+    "label_en",
+    "label_en_basis",
+    "label_th",
+    "type",
+    "cardinality",
+    "required",
+    "input_control",
+    "dependencies",
+    "observed_form",
+    "guidance",
+    "authored_by",
+    "derived_from",
+    "markers"
+  ],
   "properties": {
     "field_id": {
       "type": "string",
       "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}$",
       "description": "<NS>.<GROUP>[.<SUB>].<NAME>. Never reused; renames go through registry/aliases.yaml."
     },
-    "source_field_id": {"type": "string", "description": "The field id in core/05 this record was re-keyed from."},
-    "section": {"type": "string", "description": "core/05 section name; mapped to an NRIIS tab by mappings/nriis/section_to_tab.yaml."},
+    "source_field_id": {
+      "type": "string",
+      "description": "The field id in core/05 this record was re-keyed from."
+    },
+    "section": {
+      "type": "string",
+      "description": "core/05 section name; mapped to an NRIIS tab by mappings/nriis/section_to_tab.yaml."
+    },
+    "origin": {
+      "type": "string",
+      "enum": [
+        "NRIIS_NATIVE",
+        "FUND_PROFILE",
+        "AUTHORING_CORE",
+        "DERIVED",
+        "RECOMMENDED_EXTENSION"
+      ],
+      "description": "core/02 §2 origin types. NRIIS_NATIVE: a field or structure of the NRIIS proposal workflow (observed on the form or described by a public document; still NEEDS_VERIFICATION). FUND_PROFILE: a requirement of one funding call, agency, fiscal year or scheme. AUTHORING_CORE: an internal research-design field used to produce stronger NRIIS content. DERIVED: calculated from other fields. RECOMMENDED_EXTENSION: useful structure not confirmed as an NRIIS field. Only NRIIS_NATIVE records get an NRIIS.* record (tools/registry/build_nriis_fields.py)."
+    },
+    "origin_basis": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Where the origin comes from (core/02 section, public-document page) and any GrantThai DECISION or recorded contradiction (docs/contradictions.md)."
+    },
     "chain_node": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "description": "The spec/common/chain.yaml node this field belongs to (a GrantThai DECISION), or null for project-level fields. In project.yaml a field with a chain_node lives under chain.<node>; a field with null lives under fields."
     },
-    "label_en": {"type": "string", "minLength": 1},
-    "label_en_basis": {"type": "string", "enum": ["descriptive", "public_document"]},
-    "label_th": {"type": "string", "minLength": 1, "description": "Literal NEEDS_VERIFICATION until a public-document label is captured."},
+    "label_en": {
+      "type": "string",
+      "minLength": 1
+    },
+    "label_en_basis": {
+      "type": "string",
+      "enum": [
+        "descriptive",
+        "public_document"
+      ]
+    },
+    "label_th": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Literal NEEDS_VERIFICATION until a public-document label is captured."
+    },
     "type": {
       "type": "string",
-      "enum": ["string", "text", "rich_text", "integer", "money", "datetime", "boolean", "enum", "reference", "enum|string", "boolean|string", "array<string>", "array<text>", "array<object>", "object", "rich_text|object"],
+      "enum": [
+        "string",
+        "text",
+        "rich_text",
+        "integer",
+        "money",
+        "datetime",
+        "boolean",
+        "enum",
+        "reference",
+        "enum|string",
+        "boolean|string",
+        "array<string>",
+        "array<text>",
+        "array<object>",
+        "object",
+        "rich_text|object"
+      ],
       "description": "Semantics of each value: spec/registry/types.yaml. For array<object>, object and rich_text|object the value contract is spec/registry/structured_fields.schema.json#/$defs/<field_id> (every such field must have one; tools/ci/check_schema_lint.py)."
     },
-    "cardinality": {"type": "string", "pattern": "^(1|0\\.\\.N|1\\.\\.N)$"},
-    "required": {"type": "boolean"},
+    "cardinality": {
+      "type": "string",
+      "pattern": "^(1|0\\.\\.N|1\\.\\.N)$"
+    },
+    "required": {
+      "type": "boolean"
+    },
     "input_control": {
       "type": "string",
-      "enum": ["text", "textarea", "number", "datetime", "checkbox", "select", "select_or_text", "checkbox_or_text", "repeating_text", "repeating_textarea", "repeating_group", "group", "textarea_or_group"]
+      "enum": [
+        "text",
+        "textarea",
+        "number",
+        "datetime",
+        "checkbox",
+        "select",
+        "select_or_text",
+        "checkbox_or_text",
+        "repeating_text",
+        "repeating_textarea",
+        "repeating_group",
+        "group",
+        "textarea_or_group"
+      ]
     },
-    "allowed_values": {"type": ["array", "null"]},
+    "allowed_values": {
+      "type": [
+        "array",
+        "null"
+      ]
+    },
     "dependencies": {
       "type": "array",
-      "items": {"type": "string", "pattern": "^[A-Z][A-Z0-9_.]*(=.+)?$"},
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_.]*(=.+)?$"
+      },
       "description": "Field ids this field depends on, or '<field_id>=<value>' conditions."
     },
-    "validation_notes": {"type": "array", "items": {"type": "string"}},
-    "source_status": {"type": "string", "enum": ["OBSERVED", "PARTIALLY_OBSERVED", "OBSERVED_LABEL_ONLY", "INFERRED_SCHEMA_EXTENSION"]},
-    "observed_form": {"type": "string", "pattern": "^[A-Za-z0-9_\\-]+@(\\d{4}-\\d{2}-\\d{2}|NEEDS_VERIFICATION)$"},
+    "validation_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_status": {
+      "type": "string",
+      "enum": [
+        "OBSERVED",
+        "PARTIALLY_OBSERVED",
+        "OBSERVED_LABEL_ONLY",
+        "INFERRED_SCHEMA_EXTENSION"
+      ]
+    },
+    "observed_form": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_\\-]+@(\\d{4}-\\d{2}-\\d{2}|NEEDS_VERIFICATION)$"
+    },
     "guidance": {
       "type": "object",
-      "required": ["en", "th"],
-      "properties": {"en": {"type": "string"}, "th": {"type": "string"}},
+      "required": [
+        "en",
+        "th"
+      ],
+      "properties": {
+        "en": {
+          "type": "string"
+        },
+        "th": {
+          "type": "string"
+        }
+      },
       "additionalProperties": false
     },
-    "authored_by": {"type": "string", "enum": ["human", "human_ai_assisted", "ai_draft", "imported"]},
-    "derived_from": {"type": "string", "pattern": "^core/0[1-6]@sha256:[a-f0-9]{64}$"},
+    "authored_by": {
+      "type": "string",
+      "enum": [
+        "human",
+        "human_ai_assisted",
+        "ai_draft",
+        "imported"
+      ]
+    },
+    "derived_from": {
+      "type": "string",
+      "pattern": "^core/0[1-6]@sha256:[a-f0-9]{64}$"
+    },
     "markers": {
       "type": "array",
-      "items": {"type": "string", "enum": ["NEEDS_VERIFICATION", "HOLD_FOR_VERIFICATION", "UI_DRIFT"]},
+      "items": {
+        "type": "string",
+        "enum": [
+          "NEEDS_VERIFICATION",
+          "HOLD_FOR_VERIFICATION",
+          "UI_DRIFT"
+        ]
+      },
       "uniqueItems": true
+    },
+    "render_from": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_.]*$"
+      },
+      "uniqueItems": true,
+      "description": "For a narrative (rendered) NRIIS field: the fields its text is written from (core/02 §6). GrantThai never composes the text; the list tells the person what the box must summarise."
     }
   },
   "additionalProperties": false

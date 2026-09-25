@@ -11,6 +11,12 @@ nriis-fields.jsonl is never edited by hand. Run this script after changing
 either input; `--check` exits non-zero when the committed file is out of
 date (used by tests/test_registry.py).
 
+Only records with origin NRIIS_NATIVE whose section is mapped to a tab get
+an NRIIS.* record. AUTHORING_CORE, FUND_PROFILE, DERIVED and
+RECOMMENDED_EXTENSION records are never presented as NRIIS fields (core/02
+rule R4); neither are sections listed under `not_on_tab`. A narrative field
+carries its `render_from` list (core/02 §6).
+
 Every generated record keeps the NEEDS_VERIFICATION marker: the tab, the
 tab order and the labels come from one observed form and are not confirmed
 from a public document (founder ruling K14, see GOVERNANCE.md).
@@ -39,6 +45,8 @@ def build(root: Path) -> str:
     order = {tab: 0 for tab in s2t["tab_order"]}
     lines = []
     for f in fields:
+        if f.get("origin") != "NRIIS_NATIVE" or f["section"] not in tab_of:
+            continue
         tab = tab_of[f["section"]]
         order[tab] += 1
         rec = {
@@ -53,8 +61,11 @@ def build(root: Path) -> str:
             "input_control": f["input_control"],
             "dependencies": f["dependencies"],
             "core_field_id": f["field_id"],
+            "origin": f["origin"],
             "markers": ["NEEDS_VERIFICATION"],
         }
+        if f.get("render_from"):
+            rec["render_from"] = list(f["render_from"])
         lines.append(json.dumps(rec, ensure_ascii=False))
     return "\n".join(lines) + "\n"
 

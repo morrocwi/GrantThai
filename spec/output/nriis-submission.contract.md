@@ -48,12 +48,17 @@ template puts it there.
    order within each tab describe one observed form and are
    `NEEDS_VERIFICATION`** until confirmed from a public call or TOR
    document (founder ruling K14). The rendered section heading says so.
-   Each field block gives: label (EN, plus TH or
+   **Only fields with registry `origin: NRIIS_NATIVE` are placed here**
+   (core/02 rule R4: an authoring-core field is never presented as an
+   NRIIS field). Each field block gives: label (EN, plus TH or
    `LABEL_TH: NEEDS_VERIFICATION`), a fenced plain value, `FIELD_ID`,
-   `ORIGIN`, `STATUS` with its basis, `REQUIRED`, `INPUT_CONTROL`,
-   `DEPENDENCIES`, `SOURCE_IDS`, `VALIDATION`, `AUTHORED_BY`, and an
-   arithmetic-check line where one applies (e.g. workplan-sums-to-100,
-   budget line totals).
+   `ORIGIN` (the registry origin, core/02 §2), `PROVENANCE` (the record's
+   provenance class, source type and evidence role), `RENDER_FROM` on a
+   narrative field (the records the box is written from; GrantThai never
+   composes the text), `STATUS` with its basis, `REQUIRED`,
+   `INPUT_CONTROL`, `DEPENDENCIES`, `SOURCE_IDS`, `VALIDATION`,
+   `AUTHORED_BY`, and an arithmetic-check line where one applies (e.g.
+   workplan-sums-to-100, budget line totals).
    - **Structured fields** (`array<object>`, `object`,
      `rich_text|object`; value contracts in
      `spec/registry/structured_fields.schema.json`) render as a table,

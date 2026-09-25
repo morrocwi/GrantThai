@@ -224,8 +224,10 @@ def build_context(raw: dict, result: E.Result) -> dict:
             "value": rendered,
             "field_id": cfid,
             "nriis_field_id": n["field_id"],
-            "origin": (f"provenance_class={prov.get('provenance_class')}, source_type={prov.get('source_type')}, "
-                       f"evidence_role={prov.get('evidence_role')}") if prov else "none (no record)",
+            "origin": n.get("origin") or r.get("origin") or "NEEDS_VERIFICATION",
+            "provenance": (f"provenance_class={prov.get('provenance_class')}, source_type={prov.get('source_type')}, "
+                           f"evidence_role={prov.get('evidence_role')}") if prov else "none (no record)",
+            "render_from": ", ".join(n.get("render_from") or []),
             "status": status,
             "basis": basis,
             "markers": markers,
@@ -241,14 +243,35 @@ def build_context(raw: dict, result: E.Result) -> dict:
             tabs.append({"tab": n["tab"], "fields": []})
         tabs[-1]["fields"].append(block)
         meta.append({
-            "nriis_field_id": n["field_id"], "field_id": cfid, "tab": n["tab"], "entry_order": n["entry_order"],
+            "nriis_field_id": n["field_id"], "field_id": cfid, "origin": n.get("origin"), "tab": n["tab"],
+            "entry_order": n["entry_order"],
             "required": n["required"], "status": status, "markers": markers,
             "source_ids": list((rec or {}).get("source_ids") or []),
             "authored_by": prov.get("authored_by"),
         })
 
     mapped = {n["core_field_id"] for n in nf}
+    off_tab = {m.get("section"): m.get("reason") for m in P.tab_mapping().get("not_on_tab") or []}
+
+    def _why_unmapped(fid):
+        r = reg.get(fid)
+        if r is None:
+            return "chain content without a registry field (never an NRIIS field)"
+        if r.get("section") in off_tab:
+            return off_tab[r["section"]]
+        return {"AUTHORING_CORE": "authoring core: its content reaches NRIIS only through a narrative field",
+                "FUND_PROFILE": "a requirement of the bound call, not an NRIIS form field",
+                "DERIVED": "calculated from other fields",
+                "RECOMMENDED_EXTENSION": "structure not confirmed as an NRIIS field"}.get(r.get("origin"), "not mapped")
+
+    feeds: dict[str, list[str]] = {}
+    for n in nf:
+        for src in n.get("render_from") or []:
+            feeds.setdefault(src, []).append(n["core_field_id"])
     unmapped = [{"field_id": rec.get("field_id"), "chain": key or "fields", "status": rec.get("status"),
+                 "origin": (reg.get(rec.get("field_id")) or {}).get("origin") or "none (not a registry field)",
+                 "why": _why_unmapped(rec.get("field_id")),
+                 "feeds": ", ".join(feeds.get(rec.get("field_id"), [])),
                  "value": _any(rec.get("value"))}
                 for rec, key in P.iter_records(doc) if rec.get("field_id") not in mapped]
 

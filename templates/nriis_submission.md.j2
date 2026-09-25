@@ -109,6 +109,10 @@ LABEL_TH: {{ f.label_th }}
 
 - FIELD_ID: `{{ f.field_id }}` (NRIIS map: `{{ f.nriis_field_id }}`)
 - ORIGIN: {{ f.origin }}
+- PROVENANCE: {{ f.provenance }}
+{% if f.render_from %}
+- RENDER_FROM: {{ f.render_from }} (write this box from these records; GrantThai does not compose it)
+{% endif %}
 - STATUS: {{ f.status }} (basis: {{ f.basis }}){% if f.markers %}; markers: {{ f.markers | join(", ") }}{% endif %}
 
 - REQUIRED: {{ f.required }}
@@ -159,10 +163,12 @@ LABEL_TH: {{ f.label_th }}
 {% endif %}
 
 ### 4.4 Project records not placed on any NRIIS tab
+
+These records are not NRIIS fields (origin AUTHORING_CORE, FUND_PROFILE, DERIVED or RECOMMENDED_EXTENSION, or a system-assigned section). Do not paste them as NRIIS boxes; where `feeds` is shown, they are what the listed narrative box is written from.
 {% if unmapped %}
 {% for u in unmapped %}
 
-`{{ u.field_id }}` (chain: {{ u.chain }}, status: {{ u.status }})
+`{{ u.field_id }}` (ORIGIN: {{ u.origin }}; chain: {{ u.chain }}; status: {{ u.status }}; not on a tab because: {{ u.why }}{% if u.feeds %}; feeds: {{ u.feeds }}{% endif %})
 
 {{ u.value }}
 {% endfor %}

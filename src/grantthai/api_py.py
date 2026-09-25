@@ -13,7 +13,7 @@ SOURCE, and validation is report-only.
     validate(project, *, as_of=None) -> dict          # validation report
     build(path, *, out_dir=None, as_of=None) -> Path  # build/NRIIS_SUBMISSION.md
     explain(rule_id) -> dict
-    list_fields(*, tab=None, required_only=False) -> list[dict]
+    list_fields(*, tab=None, required_only=False) -> list[dict]   # whole registry; tab NOT_ON_TAB for non-NRIIS fields
 
 `project` is either a path to project.yaml or an already-loaded dict.
 """
@@ -25,6 +25,8 @@ from typing import Any
 from grantthai.core import project as _P
 from grantthai.render import submission as _R
 from grantthai.validators import engine as _E
+
+NOT_ON_TAB = "NOT_ON_TAB"
 
 __all__ = ["new_project", "set_field", "validate", "build", "explain", "list_fields", "load", "save"]
 
@@ -87,22 +89,31 @@ def explain(rule_id: str) -> dict:
 
 
 def list_fields(*, tab: str | None = None, required_only: bool = False) -> list[dict]:
-    """Registry fields in NRIIS entry order, with type, requirement, label
-    (Thai labels are NEEDS_VERIFICATION) and where the value lives."""
+    """Every registry field. Fields placed on an NRIIS tab (origin
+    NRIIS_NATIVE) come first, in NRIIS entry order; every other field
+    follows in registry order with tab "NOT_ON_TAB" (research core,
+    methodology, fund-profile and derived fields: filled in project.yaml,
+    never pasted as an NRIIS box). Thai labels are NEEDS_VERIFICATION."""
     reg = _P.registry_by_id()
     order = _P.tab_mapping().get("tab_order") or []
+    placed = sorted(_P.nriis_fields(), key=lambda n: (order.index(n["tab"]) if n["tab"] in order else 99,
+                                                      n["entry_order"]))
+    rows = [(n["core_field_id"], n["tab"], n["entry_order"], n) for n in placed]
+    on_tab = {n["core_field_id"] for n in placed}
+    rest = [r for r in _P.registry() if r["field_id"] not in on_tab]
+    rows += [(r["field_id"], NOT_ON_TAB, i, None) for i, r in enumerate(rest, start=1)]
     out = []
-    for n in sorted(_P.nriis_fields(), key=lambda n: (order.index(n["tab"]) if n["tab"] in order else 99,
-                                                      n["entry_order"])):
-        r = reg.get(n["core_field_id"], {})
-        if tab and n["tab"] != tab:
+    for fid, t, pos, n in rows:
+        r = reg.get(fid, {})
+        req = bool(n["required"] if n else r.get("required"))
+        if tab and t != tab:
             continue
-        if required_only and not n["required"]:
+        if required_only and not req:
             continue
         out.append({
-            "field_id": n["core_field_id"], "tab": n["tab"], "entry_order": n["entry_order"],
-            "label_en": n["label_en"], "label_th": n["label_th"], "type": r.get("type"),
-            "cardinality": r.get("cardinality"), "required": n["required"],
+            "field_id": fid, "tab": t, "entry_order": pos,
+            "label_en": r.get("label_en"), "label_th": r.get("label_th"), "type": r.get("type"),
+            "cardinality": r.get("cardinality"), "required": req, "origin": r.get("origin"),
             "chain_node": r.get("chain_node"), "allowed_values": r.get("allowed_values"),
             "guidance_en": (r.get("guidance") or {}).get("en"),
         })

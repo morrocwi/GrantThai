@@ -521,8 +521,15 @@ def main() -> int:
         s2t = get("mappings/nriis/section_to_tab.yaml")
         if isinstance(s2t, dict):
             mapped = {m.get("section") for m in s2t.get("mappings") or []}
-            for sec in sorted({r.get("section") for r in fields} - mapped):
-                violations.append(f"mappings/nriis/section_to_tab.yaml: registry section {sec} has no tab")
+            off_tab = {m.get("section") for m in s2t.get("not_on_tab") or []}
+            for sec in sorted(mapped & off_tab):
+                violations.append(f"mappings/nriis/section_to_tab.yaml: section {sec} is both on a tab and not_on_tab")
+            for sec in sorted({r.get("section") for r in fields} - mapped - off_tab):
+                violations.append(f"mappings/nriis/section_to_tab.yaml: registry section {sec} has no tab and no not_on_tab reason")
+        for rec in fields:
+            for src in rec.get("render_from") or []:
+                if src not in ids:
+                    violations.append(f"registry/fields.jsonl: {rec.get('field_id')}: render_from {src} does not resolve")
         rules = get("validators/rules.yaml")
         if isinstance(rules, dict):
             for rule in rules.get("rules") or []:

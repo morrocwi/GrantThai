@@ -9,6 +9,13 @@
 # a public call or TOR document (founder ruling K14, 2026-09-25: NRIIS labels
 # and tab order come later from public documents). Treat every entry as an
 # observed-form note, not as settled NRIIS fact.
+#
+# Only records with origin NRIIS_NATIVE (registry/fields.jsonl) are placed on
+# a tab. A section whose records are all system-assigned or GrantThai-internal
+# is listed under `not_on_tab` with the reason; its records appear only in the
+# output appendix "Project records not placed on any NRIIS tab" (core/02 R4).
+# Tab count and the placement of some sections differ between sources:
+# docs/contradictions.md CX-07 and CX-09.
 schema: grantthai.section_to_tab.v0
 version: "0.1.0-draft"
 derived_from: "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4"
@@ -17,8 +24,6 @@ status_marker: NEEDS_VERIFICATION
 tab_order: [GENERAL, PROJECT, WORKPLAN, UTILIZATION, ATTACHMENTS]   # NEEDS_VERIFICATION
 mappings:
   - section: FundingContext
-    tab: GENERAL
-  - section: ProposalMeta
     tab: GENERAL
   - section: GeneralInformation
     tab: GENERAL
@@ -48,5 +53,8 @@ mappings:
     tab: UTILIZATION
   - section: Attachments
     tab: ATTACHMENTS
+not_on_tab:
+  - section: ProposalMeta
+    reason: "System-assigned identifiers (core/02 §5 02.01): shown by the funder system, not typed by the applicant."
   - section: Audit
-    tab: ATTACHMENTS
+    reason: "GrantThai-internal revision log (core/02 §5 10.03); never entered in NRIIS."

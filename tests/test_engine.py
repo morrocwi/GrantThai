@@ -60,6 +60,14 @@ def test_e2e_example_builds_exactly_one_file_block_zero(tmp_path):
     for n in P.nriis_fields():
         assert body.count(f"(NRIIS map: `{n['field_id']}`)") == 1
     assert "LABEL_TH: NEEDS_VERIFICATION" in body
+    # ORIGIN is the registry origin (core/02 §2), never a provenance class
+    assert "- ORIGIN: NRIIS_NATIVE\n" in body and "- ORIGIN: provenance_class" not in body
+    assert "- RENDER_FROM: METHOD.PLAN.DESIGN" in body
+    # the methodology is one NRIIS box; its structured records sit in the appendix
+    sec2 = body[body.index("## 2. Copy/paste"):body.index("## 3. Machine field metadata")]
+    assert "`METHOD.PLAN." not in sec2 and sec2.count("FIELD_ID: `CORE.NARRATIVE.METHOD`") == 1
+    appendix = body[body.index("### 4.4 Project records not placed on any NRIIS tab"):]
+    assert "`METHOD.PLAN.DESIGN` (ORIGIN: AUTHORING_CORE" in appendix
     assert "ARITHMETIC CHECK: sum(weight_percent) = 100.00 (must be 100.00): OK" in body
 
 
