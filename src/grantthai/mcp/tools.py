@@ -25,6 +25,7 @@ from typing import Any, Callable
 
 from grantthai import __version__
 from grantthai import api_py as api
+from grantthai.core import pii as _PII
 from grantthai.core import project as _P
 
 SERVER_NAME = "grantthai"
@@ -40,6 +41,10 @@ INSTRUCTIONS = (
     "output for the researcher to confirm. Never invent Thai fund, NRIIS or institutional "
     "facts: write the literal value NEEDS_VERIFICATION instead. Validation findings are a "
     "report, not a verdict on the research. Nothing here submits anything to NRIIS or any fund. "
+    "BEFORE you accept any research data from the researcher, show them this warning (data_warning in "
+    "the grantthai_new_project result): " + _PII.DATA_WARNING_EN + " "
+    "Every grantthai_set_field call records your tool name and version in "
+    "authoring.ai_use_declaration.tools; only the researcher fills in the rest and confirms it. "
     "Typical flow: grantthai_new_project -> grantthai_list_fields -> grantthai_set_field (repeat) "
     "-> grantthai_validate -> grantthai_build."
 )
@@ -52,9 +57,11 @@ class ToolError(Exception):
 @dataclass
 class Context:
     """Per-server state: the folder all paths live in, and the client name
-    (from MCP initialize) used as the disclosed tool when none is given."""
+    and version (from MCP initialize) used as the disclosed tool when none
+    is given."""
     root: Path = field(default_factory=Path.cwd)
     client_name: str | None = None
+    client_version: str | None = None
 
     def path(self, rel: str | None, default: str | None = None) -> Path:
         raw = rel if rel not in (None, "") else default
@@ -164,7 +171,12 @@ TOOL_SPECS: list[dict] = [
                                "description": "Ids of the researcher's sources (SRC-...) this value rests on."},
                 "links": {"type": "object", "description": "Chain links for this record, as the engine expects."},
                 "tool": {"type": "string",
-                         "description": "Name of the AI tool drafting (disclosed in the output). Default: the MCP client's name."},
+                         "description": "Name of the AI tool drafting (disclosed in the output and recorded in "
+                                        "authoring.ai_use_declaration.tools). Default: the MCP client's name."},
+                "tool_version": {"type": "string",
+                                 "description": "The tool's version. Default: the MCP client's version, if it sent one."},
+                "stage": {"type": "string", "enum": list(_P.AI_USE_STAGES),
+                          "description": f"Research stage of this AI use. Default: {_P.DEFAULT_AI_STAGE}."},
             },
             "required": ["field_id", "value"],
             "additionalProperties": False,
@@ -263,7 +275,9 @@ def _new_project(ctx: Context, a: dict) -> dict:
                           a.get("mode") or "expert", path=p)
     needs = [r["field_id"] for r, _ in _P.iter_records(doc) if r.get("status") == "NEEDS_INPUT"]
     return {"project_path": ctx.rel(p), "needs_input": needs,
-            "next": "Ask the researcher for each NEEDS_INPUT field, then call grantthai_set_field."}
+            "data_warning": {"en": _PII.DATA_WARNING_EN, "th": _PII.DATA_WARNING_TH},
+            "next": "Show the researcher data_warning first. Then ask for each NEEDS_INPUT field and call "
+                    "grantthai_set_field."}
 
 
 def _list_fields(ctx: Context, a: dict) -> dict:
@@ -281,9 +295,11 @@ def _set_field(ctx: Context, a: dict) -> dict:
     prov = ({"provenance_class": "DECISION", "authored_by": "human_ai_assisted"} if verbatim
             else {"provenance_class": "INFERENCE", "authored_by": "ai_draft"})
     tool = a.get("tool") or ctx.client_name or DEFAULT_TOOL_NAME
+    version = a.get("tool_version") or (ctx.client_version if not a.get("tool") else None)
     rec = api.set_field(p, a["field_id"], a["value"], actor="ai_assisted",
                         chain_node=a.get("chain_node"), provenance=prov,
-                        source_ids=a.get("source_ids"), links=a.get("links"), tool=tool)
+                        source_ids=a.get("source_ids"), links=a.get("links"), tool=tool,
+                        tool_version=version, stage=a.get("stage"))
     return {"project_path": ctx.rel(p), "record": rec,
             "note": "Stored as an AI-assisted DRAFT. The researcher must confirm it; "
                     "the output lists it under AI-drafted values."}

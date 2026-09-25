@@ -60,6 +60,11 @@ DEFAULT_FUND_PROFILE = "example/FICTIONAL_CALL@0.1"
 
 ACTORS = ("human", "ai_assisted")
 AI_AUTHORED = ("ai_draft", "human_ai_assisted")
+# Research stages of authoring.ai_use_declaration.tools[].stages
+# (spec/project/project.schema.json#/$defs/ai_use_stage).
+AI_USE_STAGES = ("idea", "proposal_writing", "literature", "data", "analysis", "writing",
+                 "language_editing", "review", "publication")
+DEFAULT_AI_STAGE = "proposal_writing"   # what an AI does through GrantThai's surfaces
 
 
 # --------------------------------------------------------------------------
@@ -329,14 +334,17 @@ def new_project(project_id: str = "NEEDS_INPUT", fund_profile_id: str = DEFAULT_
 def set_field(doc: dict, field_id: str, value: Any, *, actor: str = "human",
               chain_node: str | None = None, provenance: dict | None = None,
               source_ids: list[str] | None = None, links: dict | None = None,
-              tool: str | None = None) -> dict:
+              tool: str | None = None, tool_version: str | None = None,
+              stage: str | None = None) -> dict:
     """Write one field record (in place) and return it.
 
     The resulting status is always DRAFT, or NEEDS_INPUT when the value is
     cleared (None / "NEEDS_INPUT"). A value of "NEEDS_VERIFICATION" is stored
     as null plus that marker. `actor` is "human" or "ai_assisted"; an AI
     draft is recorded with authored_by ai_draft and may never claim the
-    provenance class SOURCE (ValueError)."""
+    provenance class SOURCE (ValueError). An AI-assisted write that names
+    its `tool` also records it in authoring.ai_use_declaration.tools
+    (record_ai_tool), with `tool_version` and `stage` when given."""
     if actor not in ACTORS:
         raise ValueError(f"actor must be one of {ACTORS}")
     if not isinstance(field_id, str) or not field_id:
@@ -397,8 +405,45 @@ def set_field(doc: dict, field_id: str, value: Any, *, actor: str = "human",
         auth["mode"] = "ai_assisted"
         auth.setdefault("self_declared", True)
         if tool:
-            tools = list(auth.get("tools_disclosed") or [])
-            if tool not in tools:
-                tools.append(tool)
-            auth["tools_disclosed"] = tools
+            record_ai_tool(doc, tool, version=tool_version, stage=stage or DEFAULT_AI_STAGE)
     return existing
+
+
+def record_ai_tool(doc: dict, name: str, *, version: str | None = None,
+                   stage: str | None = None) -> bool:
+    """Record an AI tool the way an AI surface may: add its name to
+    authoring.tools_disclosed and an entry to authoring.ai_use_declaration
+    .tools (docs/policy/ai-use-ceiling.md). An existing entry of the same
+    name gains the stage, and a version when it had none. purpose stays
+    NEEDS_INPUT for the researcher. Returns True when tools[] changed; the
+    researcher's confirmation (declaration_confirmed_by_human) is then reset
+    to false, because the declaration no longer covers every use. Nothing
+    else in the declaration is touched."""
+    if not isinstance(name, str) or not name.strip():
+        raise ValueError("tool name must be a non-empty string")
+    if stage is not None and stage not in AI_USE_STAGES:
+        raise ValueError(f"stage must be one of {AI_USE_STAGES}")
+    auth = doc.setdefault("authoring", {"mode": "human", "tools_disclosed": [], "self_declared": True})
+    auth["mode"] = "ai_assisted"
+    auth.setdefault("self_declared", True)
+    disclosed = list(auth.get("tools_disclosed") or [])
+    if name not in disclosed:
+        disclosed.append(name)
+    auth["tools_disclosed"] = disclosed
+    decl = auth.setdefault("ai_use_declaration", {})
+    tools = decl.setdefault("tools", [])
+    entry = next((t for t in tools if isinstance(t, dict) and t.get("name") == name), None)
+    changed = False
+    if entry is None:
+        entry = {"name": name, "version": version or "NEEDS_INPUT", "stages": [], "purpose": "NEEDS_INPUT"}
+        tools.append(entry)
+        changed = True
+    elif version and entry.get("version") in (None, "", "NEEDS_INPUT"):
+        entry["version"] = version
+        changed = True
+    if stage and stage not in (entry.get("stages") or []):
+        entry["stages"] = list(entry.get("stages") or []) + [stage]
+        changed = True
+    if changed or "declaration_confirmed_by_human" not in decl:
+        decl["declaration_confirmed_by_human"] = False
+    return changed

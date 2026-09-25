@@ -9,9 +9,12 @@ SOURCE, and validation is report-only.
 
     new_project(project_id=..., fund_profile_id=..., mode=..., path=None) -> dict
     set_field(project, field_id, value, *, actor="human", chain_node=None,
-              provenance=None, source_ids=None, links=None, tool=None, save=True) -> dict
+              provenance=None, source_ids=None, links=None, tool=None,
+              tool_version=None, stage=None, save=True) -> dict
     validate(project, *, as_of=None) -> dict          # validation report
     build(path, *, out_dir=None, as_of=None) -> Path  # build/NRIIS_SUBMISSION.md
+    record_ai_tool(project, name, *, version=None, stage=None, save=True) -> bool
+    data_warning() -> dict                             # {"en", "th"}: show before accepting data
     explain(rule_id) -> dict
     list_fields(*, tab=None, required_only=False) -> list[dict]   # whole registry; tab NOT_ON_TAB for non-NRIIS fields
 
@@ -55,18 +58,42 @@ def new_project(project_id: str = "NEEDS_INPUT", fund_profile_id: str = _P.DEFAU
 def set_field(project: str | Path | dict, field_id: str, value: Any, *, actor: str = "human",
               chain_node: str | None = None, provenance: dict | None = None,
               source_ids: list[str] | None = None, links: dict | None = None,
-              tool: str | None = None, save: bool = True) -> dict:
+              tool: str | None = None, tool_version: str | None = None,
+              stage: str | None = None, save: bool = True) -> dict:
     """Set one field. With a path, loads, edits and (save=True) writes the
     file back. Returns the written record."""
     if isinstance(project, dict):
         return _P.set_field(project, field_id, value, actor=actor, chain_node=chain_node,
-                            provenance=provenance, source_ids=source_ids, links=links, tool=tool)
+                            provenance=provenance, source_ids=source_ids, links=links, tool=tool,
+                            tool_version=tool_version, stage=stage)
     doc = _P.load(project)
     rec = _P.set_field(doc, field_id, value, actor=actor, chain_node=chain_node,
-                       provenance=provenance, source_ids=source_ids, links=links, tool=tool)
+                       provenance=provenance, source_ids=source_ids, links=links, tool=tool,
+                       tool_version=tool_version, stage=stage)
     if save:
         _P.save(doc, project)
     return rec
+
+
+def record_ai_tool(project: str | Path | dict, name: str, *, version: str | None = None,
+                   stage: str | None = None, save: bool = True) -> bool:
+    """Record an AI tool in authoring.ai_use_declaration.tools (and
+    tools_disclosed) without writing a field. Returns True when tools[]
+    changed; the researcher's confirmation is then reset to false."""
+    if isinstance(project, dict):
+        return _P.record_ai_tool(project, name, version=version, stage=stage)
+    doc = _P.load(project)
+    changed = _P.record_ai_tool(doc, name, version=version, stage=stage)
+    if save:
+        _P.save(doc, project)
+    return changed
+
+
+def data_warning() -> dict:
+    """The warning to show the researcher before accepting any research
+    data (docs/policy/ai-use-ceiling.md section 5)."""
+    from grantthai.core import pii
+    return {"en": pii.DATA_WARNING_EN, "th": pii.DATA_WARNING_TH}
 
 
 def validate(project: str | Path | dict, *, as_of: str | None = None) -> dict:

@@ -10,6 +10,11 @@ provenance and validation decision is made by the GrantThai engine.
     python grantthai_skill.py check
         Is the engine importable? Prints the version and where it found it.
 
+    python grantthai_skill.py warning
+        Print the personal/confidential-data warning (Thai, then English).
+        Show it to the researcher BEFORE accepting any research data
+        (docs/policy/ai-use-ceiling.md, section 5).
+
     python grantthai_skill.py apply ANSWERS.yaml [--project project.yaml] [--init]
         Write the interview answers (and the researcher's sources) into
         project.yaml through api_py.set_field. --init creates project.yaml
@@ -58,6 +63,13 @@ BY_VALUES = {
 }
 SOURCE_KEYS = {"source_id", "kind", "citation", "locator", "url", "file", "sha256",
                "accessed", "contains_personal_data"}
+# Keys of the answers file's ai_use_declaration block. The researcher's
+# confirmation (declaration_confirmed_by_human, confirmed_by, confirmed_on)
+# is refused here: only the researcher sets it, in project.yaml.
+DECLARATION_KEYS = {"tools", "influence_on_conclusions", "human_verification", "data_handling",
+                    "log_ref", "risk_self_assessment"}
+DECLARATION_HUMAN_ONLY = {"declaration_confirmed_by_human", "confirmed_by", "confirmed_on"}
+TOOL_KEYS = {"name", "developer", "version", "stages", "purpose", "used_on"}
 
 
 def _import_api():
@@ -151,6 +163,8 @@ def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = Fa
     _upsert_sources(doc, answers_doc.get("sources") or [])
     source_kind = {s.get("source_id"): s.get("kind") for s in doc.get("sources") or []}
     tool = answers_doc.get("tool")
+    tool_version = answers_doc.get("tool_version")
+    tool_stage = answers_doc.get("tool_stage")
     lines = []
     for i, a in enumerate(answers_doc.get("answers") or []):
         extra = set(a) - ANSWER_KEYS
@@ -183,7 +197,9 @@ def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = Fa
         rec = api.set_field(doc, a["field_id"], a["value"], actor=actor,
                             chain_node=a.get("chain_node"), provenance=prov or None,
                             source_ids=a.get("source_ids"), links=a.get("links"),
-                            tool=tool if actor == "ai_assisted" else None, save=False)
+                            tool=tool if actor == "ai_assisted" else None,
+                            tool_version=tool_version if actor == "ai_assisted" else None,
+                            stage=tool_stage if actor == "ai_assisted" else None, save=False)
         if a.get("markers"):
             bad = set(a["markers"]) - ANSWER_MARKERS
             if bad:
@@ -196,14 +212,54 @@ def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = Fa
         lines.append(f"{rec['field_id']}: {rec['status']} "
                      f"({rec['provenance']['provenance_class']}, {rec['provenance']['authored_by']})")
     if authored_by_any_human_ai(doc) and tool:
-        auth = doc.setdefault("authoring", {"mode": "human", "tools_disclosed": [], "self_declared": True})
-        auth["mode"] = "ai_assisted"
-        tools = list(auth.get("tools_disclosed") or [])
-        if tool not in tools:
-            tools.append(tool)
-        auth["tools_disclosed"] = tools
+        api.record_ai_tool(doc, tool, version=tool_version, stage=tool_stage, save=False)
+    if answers_doc.get("ai_use_declaration") is not None:
+        lines.extend(merge_declaration(doc, answers_doc["ai_use_declaration"]))
     api.save(doc, project_path)
     return lines
+
+
+def merge_declaration(doc: dict, block: Any) -> list[str]:
+    """Merge the answers file's ai_use_declaration block into project.yaml
+    (authoring.ai_use_declaration). Tools merge by name. The researcher's
+    confirmation keys are refused. Any change resets the confirmation."""
+    if not isinstance(block, dict):
+        raise ValueError("ai_use_declaration must be a mapping")
+    human_only = set(block) & DECLARATION_HUMAN_ONLY
+    if human_only:
+        raise ValueError(f"ai_use_declaration: {sorted(human_only)} can only be set by the researcher, "
+                         "in project.yaml, after reading the declaration (never from an answers file)")
+    extra = set(block) - DECLARATION_KEYS
+    if extra:
+        raise ValueError(f"ai_use_declaration: unknown keys {sorted(extra)}")
+    auth = doc.setdefault("authoring", {"mode": "human", "tools_disclosed": [], "self_declared": True})
+    decl = auth.setdefault("ai_use_declaration", {})
+    before = json.dumps(decl, sort_keys=True, ensure_ascii=False)
+    for t in block.get("tools") or []:
+        if not isinstance(t, dict) or not t.get("name"):
+            raise ValueError("ai_use_declaration.tools: every entry needs a name")
+        bad = set(t) - TOOL_KEYS
+        if bad:
+            raise ValueError(f"ai_use_declaration.tools {t['name']!r}: unknown keys {sorted(bad)}")
+        tools = decl.setdefault("tools", [])
+        cur = next((x for x in tools if isinstance(x, dict) and x.get("name") == t["name"]), None)
+        if cur is None:
+            cur = {"name": t["name"]}
+            tools.append(cur)
+        for k in ("developer", "version", "purpose", "used_on"):
+            if t.get(k) is not None:
+                cur[k] = t[k]
+        if t.get("stages"):
+            cur["stages"] = list(dict.fromkeys(list(cur.get("stages") or []) + list(t["stages"])))
+    for k in ("influence_on_conclusions", "human_verification", "data_handling", "log_ref",
+              "risk_self_assessment"):
+        if block.get(k) is not None:
+            decl[k] = block[k]
+    changed = json.dumps(decl, sort_keys=True, ensure_ascii=False) != before
+    if changed or "declaration_confirmed_by_human" not in decl:
+        decl["declaration_confirmed_by_human"] = False
+    return ["authoring.ai_use_declaration: " + ("updated; the researcher must confirm it"
+                                                if changed else "unchanged")]
 
 
 def authored_by_any_human_ai(doc: dict) -> bool:
@@ -267,6 +323,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="grantthai_skill")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("check")
+    sub.add_parser("warning")
     p = sub.add_parser("apply")
     p.add_argument("answers")
     p.add_argument("--project", default="project.yaml")
@@ -283,6 +340,12 @@ def main(argv: list[str] | None = None) -> int:
             import grantthai
             print(f"grantthai {getattr(grantthai, '__version__', '?')} found at "
                   f"{Path(grantthai.__file__).resolve().parent}")
+            return 0
+        if a.cmd == "warning":
+            w = api.data_warning()
+            print(w["th"])
+            print()
+            print(w["en"])
             return 0
         if a.cmd == "apply":
             answers = _yaml().safe_load(Path(a.answers).read_text(encoding="utf-8")) or {}

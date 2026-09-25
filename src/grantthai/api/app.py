@@ -27,12 +27,13 @@ from urllib.parse import parse_qs
 import yaml
 
 from grantthai import api_py
+from grantthai.core import pii as _PII
 from grantthai.core import project as _P
 
 MAX_BODY_BYTES = 1_000_000
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 SET_KEYS = {"field_id", "value", "actor", "researcher_verbatim", "chain_node", "provenance",
-            "source_ids", "links", "tool"}
+            "source_ids", "links", "tool", "tool_version", "stage"}
 PROVENANCE_KEYS = {"provenance_class", "source_type", "evidence_role"}
 DEFAULT_TOOL_NAME = "http-client"
 CREATE_KEYS = {"project_id", "fund_profile_id", "mode"}
@@ -181,10 +182,14 @@ class GrantThaiAPI:
                 raise HTTPError(400, f"update {i}: provenance may only set {', '.join(sorted(PROVENANCE_KEYS))} "
                                      f"(refused: {', '.join(bad)})")
             prov.update(extra_prov)
-        if u.get("tool") is not None and not isinstance(u["tool"], str):
-            raise HTTPError(400, f"update {i}: tool must be a string")
+        for k in ("tool", "tool_version"):
+            if u.get(k) is not None and not isinstance(u[k], str):
+                raise HTTPError(400, f"update {i}: {k} must be a string")
+        if u.get("stage") is not None and u["stage"] not in _P.AI_USE_STAGES:
+            raise HTTPError(400, f"update {i}: stage must be one of {', '.join(_P.AI_USE_STAGES)}")
         kwargs: dict = {"actor": "ai_assisted", "provenance": prov,
-                        "tool": u.get("tool") or DEFAULT_TOOL_NAME}
+                        "tool": u.get("tool") or DEFAULT_TOOL_NAME,
+                        "tool_version": u.get("tool_version"), "stage": u.get("stage")}
         for k in ("chain_node", "source_ids", "links"):
             if u.get(k) is not None:
                 kwargs[k] = u[k]
@@ -234,7 +239,8 @@ class GrantThaiAPI:
             doc = api_py.new_project(**kwargs)
         except FileExistsError:
             raise HTTPError(409, f"project {pid!r} already exists") from None
-        return 201, "application/json", {"id": pid, "project": doc}
+        return 201, "application/json", {"id": pid, "project": doc,
+                                         "data_warning": {"en": _PII.DATA_WARNING_EN, "th": _PII.DATA_WARNING_TH}}
 
     def get_project(self, pid: str, **_):
         return 200, "application/json", {"id": pid, "project": api_py.load(self._project_file(pid))}

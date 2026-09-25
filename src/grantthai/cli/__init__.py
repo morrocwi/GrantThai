@@ -2,7 +2,8 @@
 
     grantthai init [PATH] [--project-id ID] [--fund FUND_PROFILE_ID] [--mode MODE]
     grantthai set FIELD_ID VALUE [--project PATH] [--string] [--chain-node NODE]
-                  [--source-id SRC-..]... [--provenance-class C] [--ai --tool NAME]
+                  [--source-id SRC-..]... [--provenance-class C]
+                  [--ai --tool NAME [--tool-version V] [--stage STAGE]]
     grantthai validate [PATH] [--json] [--as-of YYYY-MM-DD]
     grantthai explain RULE_ID|FIELD_ID
     grantthai explain-field FIELD_ID
@@ -23,6 +24,7 @@ import sys
 from grantthai import __version__
 from grantthai import api_py as api
 from grantthai.cli import cmd_explain_field, cmd_review
+from grantthai.core import project as P
 from grantthai.core.object_hash import load_project_text
 
 
@@ -55,7 +57,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--source-id", action="append", dest="source_ids")
     p.add_argument("--provenance-class", choices=["SOURCE", "INFERENCE", "DECISION", "DERIVED"])
     p.add_argument("--ai", action="store_true", help="the value is an AI draft (stored as ai_draft, never SOURCE)")
-    p.add_argument("--tool", help="disclosed tool name for an AI draft")
+    p.add_argument("--tool", help="disclosed tool name for an AI draft (also recorded in "
+                                  "authoring.ai_use_declaration.tools)")
+    p.add_argument("--tool-version", help="the tool's version, as the researcher states it")
+    p.add_argument("--stage", choices=list(P.AI_USE_STAGES),
+                   help=f"research stage of this AI use (default {P.DEFAULT_AI_STAGE})")
 
     p = sub.add_parser("validate", help="report-only validation")
     p.add_argument("path", nargs="?", default="project.yaml")
@@ -98,7 +104,8 @@ def main(argv: list[str] | None = None) -> int:
             prov = {"provenance_class": a.provenance_class} if a.provenance_class else None
             rec = api.set_field(a.project, a.field_id, _value(a.value, a.string),
                                 actor="ai_assisted" if a.ai else "human", chain_node=a.chain_node,
-                                provenance=prov, source_ids=a.source_ids, tool=a.tool)
+                                provenance=prov, source_ids=a.source_ids, tool=a.tool,
+                                tool_version=a.tool_version, stage=a.stage)
             print(f"{rec['field_id']}: {rec['status']}")
             return 0
         if a.cmd == "validate":

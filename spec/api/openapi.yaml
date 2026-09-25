@@ -124,10 +124,17 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [id, project]
+                required: [id, project, data_warning]
                 properties:
                   id: {type: string}
                   project: {type: object, additionalProperties: true}
+                  data_warning:
+                    type: object
+                    description: Show this to the researcher BEFORE accepting any research data (personal, confidential or dual-use data must not go into a public AI; docs/policy/ai-use-ceiling.md section 5).
+                    required: [en, th]
+                    properties:
+                      en: {type: string}
+                      th: {type: string}
         "400": {$ref: "#/components/responses/Error"}
         "409": {$ref: "#/components/responses/Error"}
   /projects/{id}:
@@ -143,10 +150,17 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [id, project]
+                required: [id, project, data_warning]
                 properties:
                   id: {type: string}
                   project: {type: object, additionalProperties: true}
+                  data_warning:
+                    type: object
+                    description: Show this to the researcher BEFORE accepting any research data (personal, confidential or dual-use data must not go into a public AI; docs/policy/ai-use-ceiling.md section 5).
+                    required: [en, th]
+                    properties:
+                      en: {type: string}
+                      th: {type: string}
         "404": {$ref: "#/components/responses/Error"}
   /projects/{id}/fields:
     patch:
@@ -347,4 +361,11 @@ components:
           additionalProperties: true
         tool:
           type: string
-          description: The AI tool to disclose (recorded under authoring.tools_disclosed). Default http-client.
+          description: The AI tool to disclose (recorded under authoring.tools_disclosed and authoring.ai_use_declaration.tools). Default http-client.
+        tool_version:
+          type: string
+          description: The tool's version, recorded in authoring.ai_use_declaration.tools. Omitted = NEEDS_INPUT for the researcher to fill.
+        stage:
+          type: string
+          enum: [idea, proposal_writing, literature, data, analysis, writing, language_editing, review, publication]
+          description: Research stage of this AI use. Default proposal_writing.

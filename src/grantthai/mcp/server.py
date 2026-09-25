@@ -59,6 +59,8 @@ def handle_message(ctx: T.Context, msg: Any) -> dict | None:
         client = params.get("clientInfo") or {}
         if isinstance(client, dict) and client.get("name"):
             ctx.client_name = str(client["name"])
+            if client.get("version"):
+                ctx.client_version = str(client["version"])
         asked = params.get("protocolVersion")
         version = asked if asked in PROTOCOL_VERSIONS else PROTOCOL_VERSIONS[0]
         return ok({"protocolVersion": version,
@@ -149,6 +151,7 @@ def build_sdk_server(ctx: T.Context):
         try:
             info = server.request_context.session.client_params.clientInfo
             ctx.client_name = info.name or None
+            ctx.client_version = getattr(info, "version", None) or None
         except Exception:  # noqa: BLE001 - best effort only
             pass
 
