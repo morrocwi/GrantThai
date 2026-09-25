@@ -1,0 +1,120 @@
+# spec/INDEX.yaml
+# Machine-checkable manifest of every contract file in spec/: its version,
+# status, and the release that first needs it. `needed_by` uses the same
+# labels as AGENTS.md and docs/BUILD_GUIDE.md: phase0, v0.1, v0.2, v0.3,
+# v0.4, v0.5. tools/ci/check_schema_lint.py confirms every listed path
+# exists, every schema is a valid JSON Schema, and instances validate.
+schema: grantthai.spec_index.v0
+version: "0.2.0-draft"
+
+contracts:
+  - path: spec/contracts/one-input-one-output.md
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/chain.yaml
+    version: "0.2.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/status.yaml
+    version: "0.2.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/status_permissions.yaml
+    version: "0.2.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/review_gates.yaml
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/roles.yaml
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/parity.yaml
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/object-hash.md
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/provenance.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/field_record.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/review.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/mapping_proposal.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/evidence.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/common/validation_report.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/registry/field.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/validators/rule.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/mappings/section_to_tab.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/mappings/mode_mapping.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/interview/question_set.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/profile/profile.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+  - path: spec/project/project.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+  - path: spec/fund/fund-profile.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+  - path: spec/nriis/field.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+  - path: spec/output/nriis-submission.contract.md
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+  - path: spec/output/notice_constant.txt
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: phase0
+  - path: spec/mcp/tools.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.4
+    note: "Contract only; implementation ships v0.4."
+
+not_yet_created:
+  - path: spec/output/parity.schema.json
+    needed_by: v0.3
+    note: "Optional formalisation of spec/common/parity.yaml, if the table form proves insufficient."

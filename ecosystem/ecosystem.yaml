@@ -1,0 +1,167 @@
+# Machine-readable ecosystem map for GrantThai.
+# This file is descriptive/orienting only. It carries no eligibility rules,
+# no checking authority, and no time-sensitive facts as settled truth —
+# see docs/ecosystem.md for the full narrative. Time-sensitive Thai facts
+# are marked trust_level: RELAYED with a date.
+schema: grantthai.ecosystem.v0
+derived_from: "core/03@sha256:8bdf055edc0b61d744337bdcbd664a19af581fead6ad335a6c77eb82585d4ef3"
+
+ecosystems:
+  - id: toledo_open_research
+    name_en: "Toledo Open Research & Knowledge Ecosystem"
+    name_th: "ระบบนิเวศวิจัยและความรู้เปิดของ Toledo"
+    scope: conceptual
+    note: >
+      Conceptual framework only. Related to, but not the same as, the
+      separate Toledo repository listed under sibling_infrastructure.
+      GrantThai contains no Toledo-registered equations and no proofs.
+    nodes:
+      - people_practitioners       # Stream A: lived experience
+      - academic_knowledge         # Stream B
+      - real_world_problems
+      - translation                # by people; AI optional
+      - research_core
+      - experts_universities_institutions_networks
+      - quality_assurance
+      - verified_knowledge
+      - research_project
+      - innovation
+      - outcome
+      - impact
+    feedback_edges:
+      - [impact, real_world_problems]
+    human_direct_edges:          # bypass edge: a person reaches the research core without AI
+      - [people_practitioners, research_core]
+
+  - id: thailand_ri_ecosystem
+    name_en: "Thailand Research & Innovation (R&I) Ecosystem"
+    name_th: "ระบบนิเวศวิจัยและนวัตกรรมของประเทศไทย"
+    scope: national_sector
+    trust_level: RELAYED
+    dated: "2026-09"
+    note: >
+      Time-sensitive Thai facts here (agency names, programmes, funds) are
+      RELAYED and dated only. Verify against current public sources before
+      relying on any specific name or figure. See docs/sources.md.
+    nodes:
+      - national_sector_need
+      - policy_plan_kr
+      - fund_pmu
+      - research_institution_network
+      - project
+      - output
+      - user
+      - outcome
+      - impact
+    feedback_edges:
+      - [impact, national_sector_need]
+
+grantthai_position:
+  human_direct_edge: "Person -> research core, no AI (drawn in every diagram in docs/ecosystem.md)"
+  bridges: [problem_knowledge, researchable_project, funding_aligned_project, nriis_ready_project]
+  stages:
+    - id: problem_knowledge
+      maps_to:
+        toledo_open_research: [real_world_problems, people_practitioners, academic_knowledge]
+        thailand_ri_ecosystem: [national_sector_need]
+    - id: researchable_project
+      maps_to:
+        toledo_open_research: [translation, research_core]
+        thailand_ri_ecosystem: []
+    - id: funding_aligned_project
+      maps_to:
+        toledo_open_research: [research_project]
+        thailand_ri_ecosystem: [fund_pmu, policy_plan_kr]   # read only: dated fund profile, declared positions
+    - id: nriis_ready_project
+      maps_to:
+        toledo_open_research: [research_project]
+        thailand_ri_ecosystem: []   # "project" begins only after a person submits and it is funded (outside GrantThai)
+  input: project.yaml            # the one canonical input
+  output: build/NRIIS_SUBMISSION.md   # the one canonical output
+  in_scope:
+    - drafting a project object and checking it against GrantThai rules
+    - rendering a copy/paste-ready NRIIS submission draft
+    - optional AI-assisted translation of lived experience into research language (v0.3+)
+  out_of_scope:
+    - submitting anything to NRIIS on a person's behalf
+    - deciding PI eligibility (delegated to the bound fund profile)
+    - granting any certification or official/compatibility status
+    - AI validation of any field above DRAFT
+
+actors:
+  - id: citizen
+    brings: lived_experience
+    gains: guided_questionnaire_and_concept_note_path
+    ai: optional
+  - id: practitioner
+    brings: field_knowledge
+    gains: same_as_citizen_plus_local_terms
+    ai: optional
+  - id: civil_society
+    brings: community_representation
+    gains: same_as_citizen
+    ai: optional
+  - id: social_entrepreneur
+    brings: applied_problem_framing
+    gains: expert_or_citizen_mode
+    ai: optional
+  - id: graduate_student
+    brings: partial_academic_training
+    gains: expert_mode_guidance
+    ai: optional
+  - id: lecturer
+    brings: academic_expertise
+    gains: full_no_ai_expert_path
+    ai: none_required
+  - id: university_researcher
+    brings: academic_expertise
+    gains: full_no_ai_expert_path
+    ai: none_required
+  - id: independent_researcher
+    brings: academic_or_applied_expertise
+    gains: full_no_ai_expert_path
+    ai: none_required
+  - id: research_administrator
+    brings: institutional_process_knowledge
+    gains: review_and_lock_workflow
+    ai: none
+  - id: expert_reviewer
+    brings: independent_judgment
+    gains: named_review_record_tooling
+    ai: none
+  - id: mentor
+    brings: guidance
+    gains: review_view
+    ai: none
+  - id: institution
+    brings: affiliation_record
+    gains: partner_and_eligibility_context
+    ai: none
+  - id: research_network
+    brings: partner_matching
+    gains: directory_pointers_v0.5
+    ai: none
+  - id: fund_pmu
+    brings: dated_fund_profile
+    gains: nothing_grantthai_only_reads_the_profile
+    ai: none
+  - id: nriis
+    brings: external_submission_system
+    gains: nothing_render_target_only
+    ai: none
+  - id: user_adopter
+    brings: downstream_use_of_output
+    gains: nothing_directly
+    ai: none
+
+sibling_infrastructure:
+  - id: toledo
+    role: "Equation registry and proof framework GrantThai's founder also maintains; related to, but not the same as, the conceptual Toledo ecosystem above. GrantThai uses none of its content."
+    url: "https://github.com/morrocwi/toledo"
+    doi: "10.5281/zenodo.22537318"
+  - id: glosa
+    role: "Human-AI knowledge co-production methodology (maker/checker discipline, claim cards)."
+    url: "https://github.com/morrocwi/glosa"
+  - id: main_hub
+    role: "Routing layer across the founder's public Human-AI Readout Programme repos."
+    url: "https://github.com/morrocwi/main.hub"

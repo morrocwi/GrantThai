@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/common/review.schema.json",
+  "title": "GrantThai named review record",
+  "description": "Draft. One record covers exactly one gate (gate_id); a review of several gates is several records. Field list matches spec/common/review_gates.yaml review_record.required_fields. No cryptographic signing in v0.x. object_sha256 is computed as defined in spec/common/object-hash.md.",
+  "type": "object",
+  "required": [
+    "gate_id",
+    "reviewer_name",
+    "reviewer_role",
+    "scope",
+    "independence",
+    "date",
+    "object_sha256"
+  ],
+  "properties": {
+    "gate_id": {
+      "type": "string",
+      "enum": [
+        "RG0",
+        "RG1",
+        "RG2",
+        "RG3",
+        "RG4"
+      ]
+    },
+    "reviewer_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reviewer_role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Which fields or chain nodes within the gate this record covers."
+    },
+    "independence": {
+      "type": "string",
+      "enum": [
+        "self",
+        "independent"
+      ]
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "object_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "basis": {
+      "type": "string",
+      "description": "Plain-language basis for the review outcome."
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "HUMAN_REVIEWED",
+        "VERIFIED"
+      ],
+      "description": "Rendered as AUTHOR_CHECKED when independence == self and outcome == VERIFIED (spec/common/status.yaml)."
+    }
+  },
+  "additionalProperties": false
+}

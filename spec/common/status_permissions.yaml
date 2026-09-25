@@ -1,0 +1,86 @@
+# GrantThai status transition permissions (spec/common/status_permissions.yaml)
+# This is the REAL enforcement surface (principle P11: advisory text in
+# ai.json / llms*.txt is a request, not a guard — this file, the core code
+# that implements it, and CI are the guard).
+#
+# The table is complete: every status change not listed here is refused by
+# src/grantthai/core. Actors:
+#   human               - a person editing project.yaml through any editor
+#   ai_assisted         - a person accepting an AI draft (v0.3+), or AI output
+#   deterministic_validator - the core validator run locally (CLI `validate`)
+#   named_human         - a person acting through a named review record
+#   core                - automatic regression applied by src/grantthai/core
+schema: grantthai.status_permissions.v0
+version: "0.2.0-draft"
+status: draft
+
+transitions:
+  - from: EMPTY
+    to: NEEDS_INPUT
+    allowed_actors: [human, ai_assisted, core]
+    notes: "Marking a field as awaiting input (the core does this for required fields on load)."
+
+  - from: [EMPTY, NEEDS_INPUT]
+    to: DRAFT
+    allowed_actors: [human, ai_assisted]
+    notes: "Any author, human or AI-assisted, may draft."
+
+  - from: DRAFT
+    to: STRUCTURE_CHECKED
+    allowed_actors: [deterministic_validator]
+    notes: "Only a local deterministic validator pass sets this. Never AI, never a human claim alone, never over MCP/REST (report-only there)."
+
+  - from: STRUCTURE_CHECKED
+    to: LOGIC_LINKED
+    allowed_actors: [deterministic_validator]
+
+  - from: LOGIC_LINKED
+    to: [HUMAN_REVIEWED, VERIFIED]
+    allowed_actors: [named_human]
+    requires: "a review record (spec/common/review.schema.json) with scope and independence (self or independent) whose object_sha256 matches the current object"
+
+  - from: HUMAN_REVIEWED
+    to: VERIFIED
+    allowed_actors: [named_human]
+    requires: "a further review record with outcome VERIFIED; renders as AUTHOR_CHECKED when independence is self"
+
+  - from: [HUMAN_REVIEWED, VERIFIED]
+    to: LOCKED
+    allowed_actors: [named_human]
+    notes: "Field-level LOCKED (see status.yaml lock_vs_field_locked). The object-level LOCK is a separate gate."
+
+  - from: LOCKED
+    to: SUBMITTED
+    allowed_actors: [named_human]
+    requires: "the object LOCK is in place (lock.locked: true)"
+    notes: "Recorded by a named human after the external submission act. GrantThai never submits."
+
+regressions:
+  - trigger: "a field's value, provenance or markers are edited"
+    from: [STRUCTURE_CHECKED, LOGIC_LINKED, HUMAN_REVIEWED, VERIFIED, LOCKED]
+    to: DRAFT
+    applies_to: "the edited field only"
+    actor: core
+  - trigger: "any field is edited while the object LOCK is in place"
+    effect: "lock.locked becomes false (the lock is broken); the edited field goes to DRAFT; other fields keep their status"
+    actor: core
+  - trigger: "a deterministic validator run finds a BLOCK finding on a field"
+    from: [STRUCTURE_CHECKED, LOGIC_LINKED]
+    to: DRAFT
+    applies_to: "each field named in the finding"
+    actor: deterministic_validator
+  - trigger: "the project object hash changes after a review record was written"
+    effect: "the review record becomes stale (spec/common/object-hash.md); it no longer counts toward its gate. Field statuses it set are rendered with the basis 'review stale' until a new record is written"
+    actor: core
+  - trigger: "a value is cleared (set to null or the literal NEEDS_INPUT)"
+    from: [DRAFT, STRUCTURE_CHECKED, LOGIC_LINKED, HUMAN_REVIEWED, VERIFIED, LOCKED]
+    to: NEEDS_INPUT
+    actor: core
+
+hard_ceiling:
+  rule: >
+    MCP, REST, and the optional `assist` package can never set any field's
+    status above DRAFT, regardless of caller. Their `validate` is
+    report-only: it returns a validation report and persists no status. This
+    is enforced in src/grantthai/core (never in assist/mcp/api), so the
+    ceiling holds even if a caller is compromised or misconfigured.

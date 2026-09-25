@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/fund/fund-profile.schema.json",
+  "title": "GrantThai fund profile",
+  "description": "Draft. Stored at funds/<agency>/<call-id>@<major.minor>/fund-profile.yaml, and `id` MUST equal '<agency>/<call-id>@<major.minor>' so that a project's fund_binding.fund_profile_id resolves to exactly one path: funds/<id>/fund-profile.yaml. Trust levels are ordered FICTIONAL < COMMUNITY_EXTRACTED < HUMAN_VERIFIED < SECOND_CHECKED; the profile's own trust_level must not be higher than the lowest trust_level among its rules (checked by the fund-profile loader in src/grantthai/fund and by tools/ci/check_schema_lint.py). A DRAFT profile (e.g. funds/_template/) may carry NEEDS_INPUT in place of dates and the source sha256; an ACTIVE or EXPIRED profile may not. derived_from: core/03@sha256:8bdf055edc0b61d744337bdcbd664a19af581fead6ad335a6c77eb82585d4ef3 (ecosystem/time-bound rules), core/04@sha256:c23217441176d90f129e525248c24103575bcd85841020b2842fd237638d269a (rule precedence).",
+  "type": "object",
+  "required": [
+    "id",
+    "status",
+    "effective_from",
+    "source_manifest",
+    "rules",
+    "trust_level"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_\\-]+/[A-Za-z0-9_.\\-]+@\\d+\\.\\d+$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "ACTIVE",
+        "EXPIRED"
+      ]
+    },
+    "effective_from": {
+      "$ref": "#/$defs/date_or_needs_input"
+    },
+    "effective_to": {
+      "$ref": "#/$defs/date_or_needs_input"
+    },
+    "verified_at": {
+      "$ref": "#/$defs/date_or_needs_input"
+    },
+    "verification_note": {
+      "type": "string",
+      "description": "Free text, e.g. 'N/A-fictional: fixture, never verified against a real source'."
+    },
+    "trust_level": {
+      "type": "string",
+      "enum": [
+        "FICTIONAL",
+        "COMMUNITY_EXTRACTED",
+        "HUMAN_VERIFIED",
+        "SECOND_CHECKED"
+      ],
+      "description": "COMMUNITY_EXTRACTED: AI extraction allowed but a human double-check is required before use."
+    },
+    "source_manifest": {
+      "type": "object",
+      "required": [
+        "title",
+        "issuer",
+        "sha256",
+        "retrieval_date"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "issuer": {
+          "type": "string"
+        },
+        "edition": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "description": "Use the literal string NEEDS_VERIFICATION when unconfirmed."
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            {
+              "const": "NEEDS_INPUT"
+            }
+          ]
+        },
+        "retrieval_date": {
+          "$ref": "#/$defs/date_or_needs_input"
+        }
+      },
+      "additionalProperties": false,
+      "description": "No author metadata is ever included here (docs/design/PLAN.md §H exclusions)."
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "rule_id",
+          "value",
+          "source_id",
+          "trust_level",
+          "verified_at",
+          "verified_by_role"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string"
+          },
+          "value": {},
+          "source_id": {
+            "type": "string"
+          },
+          "locator": {
+            "type": "string",
+            "description": "e.g. page/section reference within the source."
+          },
+          "quoted_text_th": {
+            "type": "string"
+          },
+          "trust_level": {
+            "type": "string",
+            "enum": [
+              "FICTIONAL",
+              "COMMUNITY_EXTRACTED",
+              "HUMAN_VERIFIED",
+              "SECOND_CHECKED"
+            ]
+          },
+          "verified_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "verified_by_role": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "eligibility": {
+      "type": "object",
+      "description": "ELIG001: PI eligibility is decided only here. The core (spec/common/roles.yaml) holds no thresholds.",
+      "properties": {
+        "pi_requires_partner_institution": {
+          "type": "boolean"
+        },
+        "notes_th": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "independent_review_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, self-review (AUTHOR_CHECKED) does not satisfy the LOCK gate; an independent VERIFIED review record is required."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "EXPIRED"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_from": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "verified_at": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "source_manifest": {
+            "properties": {
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "retrieval_date": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              }
+            }
+          }
+        },
+        "required": [
+          "verified_at"
+        ]
+      }
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "date_or_needs_input": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        {
+          "const": "NEEDS_INPUT"
+        }
+      ]
+    }
+  }
+}

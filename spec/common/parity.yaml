@@ -1,0 +1,15 @@
+# GrantThai AI/human parity manifest (spec/common/parity.yaml)
+# From v0.3, CI fails any `assist`, MCP, or REST command that has no
+# human-equivalent command with a passing test (plan §G "Parity manifest").
+# This file is intentionally EMPTY in Phase 0: no AI feature exists yet to
+# require a parity entry. It ships with its schema comment so the v0.3
+# CI job (test_parity_manifest) has a stable location to populate.
+schema: grantthai.parity.v0
+version: "0.1.0-draft"
+status: draft
+
+# Each future entry (v0.3+) has this shape:
+#   - ai_feature: <string, id of the AI-assisted command/feature>
+#     human_equivalent: <string, id of the command/path with a passing test>
+#     test_ref: <path to the test that proves the human path works>
+entries: []

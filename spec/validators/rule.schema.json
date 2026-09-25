@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/validators/rule.schema.json",
+  "title": "GrantThai validation rule catalog (validators/rules.yaml)",
+  "description": "Draft. Rules are data; src/grantthai/validators implements them. Severity vocabulary is BLOCK / REVIEW / INFO everywhere (rules, validation reports, validation_summary in the output frontmatter).",
+  "type": "object",
+  "required": ["schema", "version", "severity_levels", "rule_families", "rules"],
+  "properties": {
+    "schema": {"const": "grantthai.rules.v0"},
+    "version": {"type": "string"},
+    "severity_levels": {
+      "type": "object",
+      "required": ["BLOCK", "REVIEW", "INFO"],
+      "additionalProperties": {"type": "string"}
+    },
+    "rule_families": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["family", "ships", "checks", "ids_status"],
+        "properties": {
+          "family": {"type": "string"},
+          "ships": {"type": "string", "enum": ["v0.1", "v0.2", "ci_only"]},
+          "checks": {"type": "string"},
+          "ids_status": {"type": "string", "enum": ["enumerated", "NEEDS_INPUT", "ci_only"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "rules": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/rule"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "required": ["id", "family", "ships", "severity", "severity_basis", "description_en", "inputs", "chain_step", "source", "negative_fixture"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Z]{1,4}[0-9]{3}$"},
+        "family": {"type": "string", "enum": ["S", "R", "W", "B", "T", "CH", "F", "ELIG", "E", "U", "P", "G", "X"]},
+        "ships": {"type": "string", "enum": ["v0.1", "v0.2"]},
+        "severity": {"type": "string", "enum": ["BLOCK", "REVIEW", "INFO"]},
+        "severity_basis": {"type": "string", "enum": ["plan", "proposed_default"]},
+        "description_en": {"type": "string", "minLength": 1},
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^((PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}|chain:[A-Za-z]+|fund_profile|registry:required|registry:types|project:review_records|project:mappings|project:chain_edges)$"}
+        },
+        "chain_step": {"type": "string", "description": "A node in spec/common/chain.yaml, or 'project' / 'fund_profile'."},
+        "source": {
+          "type": "object",
+          "required": ["derived_from", "locator"],
+          "properties": {
+            "derived_from": {"type": "string", "pattern": "^(core/0[1-6]@sha256:[a-f0-9]{64}|docs/design/PLAN\\.md)$"},
+            "locator": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "negative_fixture": {"type": "string", "pattern": "^tests/fixtures/negative/[A-Za-z0-9_]+/$"},
+        "notes": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

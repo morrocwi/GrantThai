@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/interview/question_set.schema.json",
+  "title": "GrantThai interview question set (interview/*.yaml)",
+  "description": "A questionnaire that drives Expert or Citizen Mode. Answers are written into project.yaml through mappings/modes/<mode>_to_core.yaml. No question text may quote a time-bound fund rule (those live only in fund profiles).",
+  "type": "object",
+  "required": ["schema", "version", "lang", "mode", "questions"],
+  "properties": {
+    "schema": {"const": "grantthai.interview.v0"},
+    "version": {"type": "string"},
+    "lang": {"type": "string", "enum": ["th", "en"]},
+    "mode": {"type": "string", "enum": ["expert", "citizen"]},
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "why_this_matters"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^Q[0-9A-Za-z_]+$"},
+          "text": {"type": "string", "minLength": 1},
+          "why_this_matters": {"type": "string"},
+          "help": {"type": "string"},
+          "optional": {"type": "boolean", "default": false}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!--
+  webform/index.html — Phase 0 stub.
+
+  This file is the offline, single-file, no-network, no-terminal editor for
+  project.yaml (the ONE canonical input — see
+  spec/contracts/one-input-one-output.md). It ships functionally in v0.1,
+  generated from registry/fields.jsonl. This Phase 0 version is a
+  placeholder: it explains the contract and makes no network calls, but
+  does not yet read the registry or export project.yaml.
+
+  Guarantees this file must keep once implemented (v0.1+):
+    - No network calls of any kind (no <script src="http...">, no fetch()).
+    - Works when opened directly via file:// (double-click), no server.
+    - Exports exactly one project.yaml, conforming to
+      spec/project/project.schema.json.
+    - Requires no AI model and no account.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GrantThai — offline form (Phase 0 stub)</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 2rem auto; line-height: 1.5; }
+  code { background: #f0f0f0; padding: 0.1rem 0.3rem; }
+</style>
+</head>
+<body>
+<h1>GrantThai — offline form (Phase 0 stub)</h1>
+<p>
+  This page is a placeholder. The working offline form (no AI, no network,
+  no account, no terminal) ships in v0.1, generated from
+  <code>registry/fields.jsonl</code>. It will let a lecturer fill in a
+  project entirely in the browser and export a single
+  <code>project.yaml</code> file — the one canonical input to
+  <code>grantthai build</code>, which produces the one canonical output,
+  <code>build/NRIIS_SUBMISSION.md</code>.
+</p>
+<p>
+  See the repository root <code>README.md</code> Quickstart section and
+  <code>spec/contracts/one-input-one-output.md</code> for the full
+  contract this page must satisfy once implemented.
+</p>
+<p><em>GrantThai is unofficial and not affiliated with NRCT, TSRI, any PMU,
+or NRIIS — see <code>NOTICE</code>.</em></p>
+</body>
+</html>

@@ -1,0 +1,53 @@
+# GrantThai review gates (spec/common/review_gates.yaml)
+# The "RG" prefix avoids a clash with the G001-G003 geography validation
+# rules. A missing gate NEVER blocks `build` or the concept note — it
+# downgrades claim strength and adds a hold_reason instead (docs/design/PLAN.md §E).
+schema: grantthai.review_gates.v0
+version: "0.1.0-draft"
+status: draft
+
+gates:
+  - id: RG0
+    name: "Intake complete"
+    checks: "Problem/Need populated; PriorKnowledge present; role declared."
+  - id: RG1
+    name: "Concept"
+    checks: "LocalTerm/AcademicConcept mapping resolved or explicitly deferred (own words + CONCEPT NEEDS_INPUT)."
+  - id: RG2
+    name: "Method"
+    checks: "Method, Activity, Data, Analysis chain present and internally consistent."
+  - id: RG3
+    name: "Claim"
+    checks: "Evidence supports Claim; evidence_role and source_type recorded."
+  - id: RG4
+    name: "Pre-lock"
+    checks: "All prior gates at HUMAN_REVIEWED or better; budget reconciled; fund profile ACTIVE and current."
+
+review_record:
+  description: >
+    A "named review record" is not a cryptographic signature. In v0.x it is
+    a plain, named record with these fields (the same list as the
+    `required` array of spec/common/review.schema.json). One record covers
+    exactly one gate; reviewing several gates means writing several records.
+  required_fields:
+    - gate_id          # exactly one of RG0-RG4
+    - reviewer_name
+    - reviewer_role
+    - scope           # which fields / chain nodes within the gate this record covers
+    - independence     # "self" | "independent"
+    - date
+    - object_sha256    # see spec/common/object-hash.md
+  no_signing: "There is no cryptographic signing of review records in v0.x."
+
+self_review:
+  allowed: true
+  disclosure_required: true
+  renders_as: AUTHOR_CHECKED
+  blocks_lock_when: "the bound fund profile sets independent_review_required: true"
+
+missing_gate_policy:
+  blocks_build: false
+  blocks_concept_note: false
+  effect:
+    - "downgrades claim strength (see validators/rules.yaml, CH003)"
+    - "adds an entry to hold_reasons in the rendered output"

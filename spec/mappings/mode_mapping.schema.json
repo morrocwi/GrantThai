@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/mappings/mode_mapping.schema.json",
+  "title": "GrantThai mode mapping (mappings/modes/*_to_core.yaml)",
+  "description": "Maps a questionnaire answer (interview/*.yaml question id) onto one authoring field in project.yaml. Mode mappings never create a second input: they write into the one project.yaml.",
+  "type": "object",
+  "required": ["schema", "version", "mode", "mappings"],
+  "properties": {
+    "schema": {"const": "grantthai.mode_mapping.v0"},
+    "version": {"type": "string"},
+    "mode": {"type": "string", "enum": ["expert", "citizen"]},
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question_id", "field_id"],
+        "properties": {
+          "question_id": {"type": "string", "pattern": "^Q[0-9A-Za-z_]+$"},
+          "field_id": {"type": "string", "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}$"},
+          "transform": {"type": "string", "enum": ["copy", "append", "list_item"], "default": "copy"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

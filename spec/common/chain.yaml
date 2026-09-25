@@ -1,0 +1,111 @@
+# GrantThai canonical chain (spec/common/chain.yaml)
+# Union of the handoff brief's chain (docs/design/PLAN.md §E "Chain": B:74-91,
+# P10, A:771-782, and the founder's letter §6).
+#
+# Two entry points merge at PROBLEM:
+#   Experience -> Observation -> Problem
+#   Need -> Problem
+# The shared spine continues from Problem to KR (key result).
+# `causal` edges must form a DAG (checked by rule CH001, and on this file
+# itself by tools/ci/check_schema_lint.py).
+# `feedback` edges may loop (KR->Need, Impact->KR) and are exempt from CH001.
+# Every edge endpoint must be a declared node (nodes.core, nodes.bridge,
+# nodes.container or nodes.actors); tools/ci/check_schema_lint.py enforces it.
+#
+# In v0.2, ontology/shapes.shacl.ttl is GENERATED from this file — never
+# hand-maintained (docs/design/PLAN.md §E, "Validation engines").
+schema: grantthai.chain.v0
+version: "0.2.0-draft"
+status: draft
+
+nodes:
+  core:                 # keys allowed under project.yaml `chain:`
+    - Experience
+    - Observation
+    - Problem
+    - Need
+    - PriorKnowledge
+    - Gap
+    - RQ                # Research Question
+    - Objective
+    - Framework
+    - Hypothesis
+    - Method
+    - EthicsRequirement
+    - Activity
+    - BudgetItem
+    - Data
+    - Analysis
+    - Evidence
+    - Claim
+    - Output
+    - User
+    - Adoption
+    - Outcome
+    - Beneficiary
+    - Impact
+    - KR                # Key Result / KPI-like closure back to Need
+  bridge:               # v0.2 KG bridge nodes; also allowed under `chain:`
+    - LivedExperience
+    - LocalTerm
+    - AcademicConcept
+    - Mapping
+    - ReviewRecord
+  container:            # the project object itself (project.yaml); not a `chain:` key
+    - Project
+  actors:               # people and organisations; records, not `chain:` keys
+    - Person
+    - Expert
+    - Institution
+
+edges:
+  causal:
+    - [Experience, Observation]
+    - [Observation, Problem]
+    - [Need, Problem]
+    - [Problem, PriorKnowledge]      # PriorKnowledge is required before Gap
+    - [PriorKnowledge, Gap]
+    - [Gap, RQ]
+    - [RQ, Objective]
+    - [Objective, Framework]
+    - [Framework, Hypothesis]
+    - [Hypothesis, Method]           # direction choice (plan §E)
+    - [Method, Activity]
+    - [Method, EthicsRequirement]    # direction choice (plan §E)
+    - [Activity, BudgetItem]         # direction choice (plan §E)
+    - [Activity, Data]
+    - [Data, Analysis]
+    - [Analysis, Evidence]
+    - [Evidence, Claim]
+    - [Claim, Output]
+    - [Output, User]
+    - [User, Adoption]
+    - [Adoption, Outcome]
+    - [Outcome, Beneficiary]
+    - [Outcome, Impact]
+    - [Outcome, KR]
+  feedback:
+    - [KR, Need]
+    - [Impact, KR]
+  human_direct:           # bypass edges: a human can reach the core without AI
+    - [Person, Project]        # Person authors the research project core directly
+    - [Person, Mapping]        # Person-proposesMapping
+    - [Person, Expert]         # Person-consults
+    - [Person, Institution]    # Person-partnersWith
+    - [Person, ReviewRecord]   # Person-seeksReview
+
+required_stages:
+  # CH002: a project must at minimum populate these before STRUCTURE_CHECKED.
+  - Problem
+  - PriorKnowledge
+  - Gap
+  - RQ
+  - Objective
+  - Method
+  - Evidence
+  - Claim
+
+notes:
+  - "AI translation is modelled as a Mapping with proposed_by.kind=ai, not as a distinct node type."
+  - "The 45-node full KG model (plan §E) is deferred. This file declares 25 core nodes, 5 bridge nodes, 1 container node and 3 actor nodes."
+  - "CH001 (DAG check) applies only to `causal` edges. `feedback` edges are expected loops."

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/common/provenance.schema.json",
+  "title": "GrantThai provenance record",
+  "description": "Provenance metadata attached to any authored value. Draft, Phase 0. derived_from: core/04@sha256:c23217441176d90f129e525248c24103575bcd85841020b2842fd237638d269a (provenance classes), core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 (field record base fields), amended per docs/design/PLAN.md section E.",
+  "type": "object",
+  "required": ["provenance_class", "source_type", "evidence_role", "authored_by"],
+  "properties": {
+    "provenance_class": {
+      "type": "string",
+      "enum": ["SOURCE", "INFERENCE", "DECISION", "DERIVED"],
+      "description": "The four unchanged provenance classes (plan section E)."
+    },
+    "source_type": {
+      "type": "string",
+      "description": "core/01 types plus the four GrantThai additions.",
+      "enum": [
+        "PUBLISHED_LITERATURE",
+        "PRIMARY_DATA",
+        "OFFICIAL_DOCUMENT",
+        "EXPERT_OPINION",
+        "PROJECT_DOCUMENT",
+        "LIVED_EXPERIENCE_ACCOUNT",
+        "PRACTITIONER_KNOWLEDGE",
+        "EXPERT_REVIEW_RECORD",
+        "AI_TRANSLATION_PROPOSAL"
+      ]
+    },
+    "evidence_role": {
+      "type": "string",
+      "enum": ["ORIENTING", "SUPPORTING"],
+      "description": "Lived experience is ORIENTING by default; becomes SUPPORTING only when re-collected under a declared method (P5)."
+    },
+    "authored_by": {
+      "type": "string",
+      "enum": ["human", "human_ai_assisted", "ai_draft", "imported"],
+      "description": "Self-declared and unverified. Never a quality signal on its own; the output disclaimer states this explicitly."
+    },
+    "derived_from": {
+      "type": "string",
+      "pattern": "^core/0[1-6]@sha256:[a-f0-9]{64}$",
+      "description": "Lineage back to a specific handoff-package core file, e.g. core/02@sha256:<hash>."
+    },
+    "guidance": {
+      "type": "object",
+      "description": "Replaces core/02's `ai_prompt` field name.",
+      "properties": {
+        "th": {"type": "string"},
+        "en": {"type": "string"}
+      }
+    },
+    "notes": {"type": "string"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"source_type": {"const": "AI_TRANSLATION_PROPOSAL"}}
+      },
+      "then": {
+        "properties": {
+          "provenance_class": {"const": "INFERENCE"}
+        },
+        "description": "Rule: AI_TRANSLATION_PROPOSAL is never SOURCE."
+      }
+    },
+    {
+      "if": {
+        "properties": {"source_type": {"const": "LIVED_EXPERIENCE_ACCOUNT"}}
+      },
+      "then": {
+        "description": "Rule: a citizen's account is SOURCE only for the narrow claim 'person reported X', never for the underlying fact itself."
+      }
+    }
+  ],
+  "additionalProperties": true
+}

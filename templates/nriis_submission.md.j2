@@ -1,0 +1,20 @@
+{#- templates/nriis_submission.md.j2 — Phase 0 stub.
+    output_kind: primary_submission
+    This is the ONE primary render template (see
+    spec/contracts/one-input-one-output.md and
+    spec/output/nriis-submission.contract.md). Implementation ships v0.1.
+    Do not add a second template tagged output_kind: primary_submission —
+    tools/ci/check_one_output.py fails the build if more than one exists.
+    `disclaimer` is the NOTICE constant, read byte for byte from
+    spec/output/notice_constant.txt; it must stay the first body line
+    (tools/ci/check_notice.py). -#}
+---
+grantthai_version: "{{ grantthai_version }}"
+project_id: "{{ project_id }}"
+disclaimer: "{{ disclaimer }}"
+---
+{{ disclaimer }}
+
+<!-- Phase 0 stub: sections (readiness summary, per-tab fields, machine
+     metadata, validation appendix) are implemented in v0.1. See
+     spec/output/nriis-submission.contract.md for the required order. -->

@@ -1,0 +1,52 @@
+# mappings/nriis/section_to_tab.yaml — the single versioned table from
+# handoff-package core/05 sections to NRIIS tabs. Every other section->tab
+# view (registry/nriis-fields.jsonl) is GENERATED from this file plus
+# registry/fields.jsonl by tools/registry/build_nriis_fields.py.
+#
+# NEEDS_VERIFICATION: the tab names, the tab order, and which section lands
+# on which tab come from the handoff package's compact field map (core/02
+# section 9), which describes ONE observed form. They are not confirmed from
+# a public call or TOR document (founder ruling K14, 2026-09-25: NRIIS labels
+# and tab order come later from public documents). Treat every entry as an
+# observed-form note, not as settled NRIIS fact.
+schema: grantthai.section_to_tab.v0
+version: "0.1.0-draft"
+derived_from: "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4"
+observed_form: "nrct-master-hss@NEEDS_VERIFICATION"
+status_marker: NEEDS_VERIFICATION
+tab_order: [GENERAL, PROJECT, WORKPLAN, UTILIZATION, ATTACHMENTS]   # NEEDS_VERIFICATION
+mappings:
+  - section: FundingContext
+    tab: GENERAL
+  - section: ProposalMeta
+    tab: GENERAL
+  - section: GeneralInformation
+    tab: GENERAL
+  - section: ResearchTeam
+    tab: GENERAL
+  - section: ResearchCore
+    tab: PROJECT
+  - section: ProjectNarrative
+    tab: PROJECT
+  - section: Methodology
+    tab: PROJECT
+  - section: Workplan
+    tab: WORKPLAN
+  - section: Geography
+    tab: WORKPLAN
+  - section: Budget
+    tab: WORKPLAN
+  - section: Compliance
+    tab: WORKPLAN
+  - section: Partners
+    tab: WORKPLAN
+  - section: Readiness
+    tab: WORKPLAN
+  - section: TranslationPathway
+    tab: UTILIZATION
+  - section: ResultsChain
+    tab: UTILIZATION
+  - section: Attachments
+    tab: ATTACHMENTS
+  - section: Audit
+    tab: ATTACHMENTS

@@ -1,0 +1,56 @@
+# GrantThai status vocabulary (spec/common/status.yaml)
+# Per docs/design/PLAN.md §E "Status vocabulary". These names deliberately
+# depart from the handoff package's core/01 naming (which let AI set
+# "checked" states) — see docs/deviations.md. Who may make each transition,
+# including regressions, is in spec/common/status_permissions.yaml.
+schema: grantthai.status.v0
+version: "0.2.0-draft"
+status: draft
+
+field_status_sequence:
+  - EMPTY
+  - NEEDS_INPUT
+  - DRAFT
+  - STRUCTURE_CHECKED   # schema-valid; source reference present and resolvable.
+                        # Does NOT mean the source supports the value.
+  - LOGIC_LINKED        # required chain links exist. Does NOT mean the method fits.
+  - HUMAN_REVIEWED
+  - VERIFIED            # rendered as AUTHOR_CHECKED when independence: self
+  - LOCKED
+  - SUBMITTED
+
+separate_markers:       # stored in a field record's `markers` list, never as a status
+  - NEEDS_VERIFICATION   # a Thai rule, label or fact tied to a date/edition, unconfirmed
+  - HOLD_FOR_VERIFICATION
+  - UI_DRIFT              # set when a browser-assist target UI changes (v0.4)
+
+missing_input_encoding: >
+  A value the person still has to supply is written as `value: null` with
+  `status: NEEDS_INPUT`. The literal string "NEEDS_INPUT" as a value is read
+  exactly the same way. The literal string "NEEDS_VERIFICATION" as a value is
+  read as `value: null` plus the NEEDS_VERIFICATION marker. See
+  spec/common/field_record.schema.json.
+
+lock_vs_field_locked:
+  note: >
+    Two different things. (1) A field's LOCKED status freezes that one field;
+    a named human may set it on a field that is HUMAN_REVIEWED or VERIFIED,
+    whether or not the project is locked. (2) The object LOCK
+    (`lock.locked: true` in project.yaml) is the project-level gate: it
+    needs BLOCK == 0, budget reconciled, every required field at
+    HUMAN_REVIEWED, VERIFIED or LOCKED, and the bound fund profile ACTIVE and
+    current. Applying the object LOCK does not change any field's status.
+    Any edit to any field clears the object LOCK and returns the edited
+    field to DRAFT (see status_permissions.yaml, regressions).
+
+rendering_rules:
+  - when: "status == VERIFIED and independence == self"
+    render_as: "AUTHOR_CHECKED"
+  - when: "status == VERIFIED and independence == independent"
+    render_as: "VERIFIED(independent: <reviewer_role>, <date>)"
+  - public_prose: "checked against GrantThai rules"
+  - restricted_term: >
+      The phrase "verified project object" is kept only in docs/lineage.md
+      (it is the founder's own term) and in the historical plan record
+      docs/design/PLAN.md; it must not appear in rendered output or other
+      public prose. See docs/lineage.md, "Banned wording".

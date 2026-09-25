@@ -1,0 +1,5 @@
+# mappings/modes/citizen_to_core.yaml — Phase 0 stub. Ships v0.2.
+schema: grantthai.mode_mapping.v0
+version: "0.1.0-draft"
+mode: citizen
+mappings: []

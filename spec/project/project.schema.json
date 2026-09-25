@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/project/project.schema.json",
+  "title": "GrantThai project.yaml — the one canonical input",
+  "description": "Draft (structure only; no validator/renderer implementation yet). This is the ONLY input `grantthai build` reads (spec/contracts/one-input-one-output.md). Every editor (webform, forms/*.md, interview questionnaires, `grantthai init`, optional AI assist) writes this same file. Identity and team data used in a submission live here, in PROFILE.* fields (copied from the optional profile.yaml at authoring time); build never reads profile.yaml. The fund profile is a bound reference looked up from fund_binding.fund_profile_id. derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512 (overall project object concept), core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 (field/tab structure), core/04@sha256:c23217441176d90f129e525248c24103575bcd85841020b2842fd237638d269a (lifecycle/provenance), core/06@sha256:e0f787dab03ef73c2596e91ca603f2bbdf598774c0f1623bae9e388413365d1d (DAG/KG shape).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project_id",
+    "mode",
+    "fields",
+    "chain",
+    "fund_binding"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0-draft"
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "expert",
+        "human_direct",
+        "citizen"
+      ],
+      "description": "All modes compile to this same project.yaml."
+    },
+    "authoring": {
+      "type": "object",
+      "description": "Self-declared, unverified (output contract frontmatter).",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "human",
+            "ai_assisted"
+          ],
+          "default": "human"
+        },
+        "tools_disclosed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "self_declared": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "fund_binding": {
+      "type": "object",
+      "required": [
+        "fund_profile_id"
+      ],
+      "properties": {
+        "fund_profile_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_\\-]+/[A-Za-z0-9_.\\-]+@\\d+\\.\\d+$",
+          "description": "<agency>/<call-id>@<major.minor>; the profile is read from funds/<fund_profile_id>/fund-profile.yaml (e.g. example/FICTIONAL_CALL@0.1). See spec/fund/fund-profile.schema.json."
+        }
+      },
+      "additionalProperties": false
+    },
+    "fields": {
+      "type": "array",
+      "description": "Project-level field records: every registry field whose chain_node is null (e.g. titles, keywords, team, requested budget).",
+      "items": {
+        "$ref": "#/$defs/field_record"
+      }
+    },
+    "chain": {
+      "type": "object",
+      "description": "Chain content keyed by a spec/common/chain.yaml core or bridge node. Each value is an array of field records.",
+      "propertyNames": {
+        "enum": [
+          "Experience",
+          "Observation",
+          "Problem",
+          "Need",
+          "PriorKnowledge",
+          "Gap",
+          "RQ",
+          "Objective",
+          "Framework",
+          "Hypothesis",
+          "Method",
+          "EthicsRequirement",
+          "Activity",
+          "BudgetItem",
+          "Data",
+          "Analysis",
+          "Evidence",
+          "Claim",
+          "Output",
+          "User",
+          "Adoption",
+          "Outcome",
+          "Beneficiary",
+          "Impact",
+          "KR",
+          "LivedExperience",
+          "LocalTerm",
+          "AcademicConcept",
+          "Mapping",
+          "ReviewRecord"
+        ]
+      },
+      "properties": {
+        "Evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/evidence.schema.json"
+          }
+        }
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/field_record"
+        }
+      }
+    },
+    "ecosystem_positions": {
+      "type": "array",
+      "description": "Optional, never forced (P8). See ecosystem/positions@2026-09.yaml.",
+      "items": {
+        "type": "object"
+      }
+    },
+    "review_records": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/review.schema.json"
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/mapping_proposal.schema.json"
+      }
+    },
+    "lock": {
+      "type": "object",
+      "description": "The object-level LOCK (not the same as a field's LOCKED status; see spec/common/status.yaml).",
+      "properties": {
+        "locked": {
+          "type": "boolean",
+          "default": false
+        },
+        "locked_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "locked_by": {
+          "type": "string"
+        },
+        "locked_object_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "See spec/common/object-hash.md."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "field_record": {
+      "$ref": "../common/field_record.schema.json",
+      "unevaluatedProperties": false
+    }
+  }
+}

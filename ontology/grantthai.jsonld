@@ -1,0 +1,7 @@
+{
+  "@context": "context.jsonld",
+  "@id": "https://github.com/morrocwi/GrantThai/ontology/grantthai.jsonld",
+  "@type": "Ontology",
+  "status": "draft-phase0-stub",
+  "note": "Populated in v0.1 from spec/common/chain.yaml core nodes. GrantThai contains no Toledo-registered equations or proofs."
+}

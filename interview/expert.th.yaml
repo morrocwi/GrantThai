@@ -1,0 +1,8 @@
+# interview/expert.th.yaml — Thai Expert Mode question set. Phase 0 stub.
+# Ships v0.1. Compiles to project.yaml (spec/project/project.schema.json)
+# via mappings/modes/expert_to_core.yaml.
+schema: grantthai.interview.v0
+version: "0.1.0-draft"
+lang: th
+mode: expert
+questions: []

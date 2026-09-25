@@ -1,0 +1,870 @@
+# validators/rules.yaml — the validation rule catalog, as data.
+# Structure is JSON Schema's job (spec/); these are the logic rules that
+# src/grantthai/validators implements. Schema: spec/validators/rule.schema.json.
+#
+# Sources: rule ids and wording follow the handoff package core/01 §28
+# (founder-owned, K13) and the design plan docs/design/PLAN.md §E "Rule
+# families". severity_basis: plan = the severity is stated or implied by the
+# plan; proposed_default = a scaffold default (INSTINCT) that a maintainer may
+# revise through a reviewed PR.
+#
+# Every BLOCK rule gets one failing fixture under negative_fixture when its
+# implementation ships (acceptance test AT-4). No rule here quotes a
+# time-bound fund value: thresholds, rates and eligibility live only in the
+# bound fund profile (P6).
+schema: grantthai.rules.v0
+version: 0.1.0-draft
+severity_levels:
+  BLOCK: Must be fixed before the project can be LOCKED; counted in validation_summary.block. A BLOCK
+    never stops `grantthai build` from rendering; it is listed in the readiness summary.
+  REVIEW: A human should look at it; counted in validation_summary.review.
+  INFO: Informational; counted in validation_summary.info.
+rule_families:
+- family: S
+  ships: v0.1
+  checks: structure
+  ids_status: enumerated
+- family: R
+  ships: v0.1
+  checks: research logic
+  ids_status: enumerated
+- family: W
+  ships: v0.1
+  checks: workplan, including progress weights summing to 100
+  ids_status: enumerated
+- family: B
+  ships: v0.1
+  checks: budget (line = qty x persons x times x unit; totals match)
+  ids_status: enumerated
+- family: T
+  ships: v0.1
+  checks: team contributions sum to 100
+  ids_status: enumerated
+- family: CH
+  ships: v0.1
+  checks: causal DAG, required stages (CH001-CH002); claim-strength downgrade (CH003, v0.2)
+  ids_status: enumerated
+- family: F
+  ships: v0.1
+  checks: fund rule has a source; staleness; profile ACTIVE; no historical rule reused
+  ids_status: enumerated
+- family: ELIG
+  ships: v0.1
+  checks: PI eligibility per the bound fund profile
+  ids_status: enumerated
+- family: E
+  ships: v0.2
+  checks: ethics; third parties, dual roles and vulnerable groups in experience accounts
+  ids_status: enumerated
+- family: U
+  ships: v0.2
+  checks: utilization
+  ids_status: enumerated
+- family: P
+  ships: v0.2
+  checks: policy
+  ids_status: enumerated
+- family: G
+  ships: v0.2
+  checks: geography
+  ids_status: enumerated
+- family: X
+  ships: v0.2
+  checks: misuse of experience, mappings, AI drafts and review records
+  ids_status: enumerated
+- family: ECO
+  ships: v0.2
+  checks: ecosystem checks for declared positions only
+  ids_status: NEEDS_INPUT
+- family: PARITY/DET
+  ships: ci_only
+  checks: build parity and determinism (CI tests, not project rules)
+  ids_status: ci_only
+rules:
+- id: S001
+  family: S
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: 'A required field (registry/fields.jsonl required: true) is missing or still NEEDS_INPUT.'
+  inputs:
+  - registry:required
+  chain_step: project
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.1 S001
+  negative_fixture: tests/fixtures/negative/S001/
+- id: S002
+  family: S
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A field value does not match the type declared in registry/fields.jsonl.
+  inputs:
+  - registry:types
+  chain_step: project
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.1 S002
+  negative_fixture: tests/fixtures/negative/S002/
+- id: S003
+  family: S
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A field value is not one of the allowed_values declared for that field.
+  inputs:
+  - registry:types
+  chain_step: project
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.1 S003
+  negative_fixture: tests/fixtures/negative/S003/
+- id: S004
+  family: S
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: The same field_id appears more than once where cardinality is 1.
+  inputs:
+  - registry:types
+  chain_step: project
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.1 S004
+  negative_fixture: tests/fixtures/negative/S004/
+- id: S005
+  family: S
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A conditional field (dependency of the form <field_id>=<value>) is required by its condition
+    but is empty, or is filled while its condition is false.
+  inputs:
+  - CORE.GENERAL.OTHER_FUNDER
+  - CORE.GENERAL.OTHER_FUNDER.AGENCY
+  - CORE.GENERAL.OTHER_FUNDER.TITLE
+  - CORE.GENERAL.OTHER_FUNDER.DIFF
+  chain_step: project
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.1 S005
+  negative_fixture: tests/fixtures/negative/S005/
+- id: R001
+  family: R
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The research problem has no supporting source reference.
+  inputs:
+  - CORE.RESEARCH.PROBLEM
+  chain_step: Problem
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.2 R001
+  negative_fixture: tests/fixtures/negative/R001/
+- id: R002
+  family: R
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The gap is not linked to prior knowledge (PriorKnowledge node) with a source.
+  inputs:
+  - CORE.RESEARCH.GAP
+  - chain:PriorKnowledge
+  chain_step: Gap
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.2 R002
+  negative_fixture: tests/fixtures/negative/R002/
+- id: R003
+  family: R
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: The primary research question is not linked to a gap.
+  inputs:
+  - CORE.RESEARCH.RQ.PRIMARY
+  - CORE.RESEARCH.GAP
+  chain_step: RQ
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.2 R003
+  negative_fixture: tests/fixtures/negative/R003/
+- id: R004
+  family: R
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: An objective is not linked to any research question.
+  inputs:
+  - CORE.RESEARCH.OBJECTIVES
+  - CORE.RESEARCH.RQ.PRIMARY
+  chain_step: Objective
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.2 R004; 05 VAL.004
+  negative_fixture: tests/fixtures/negative/R004/
+- id: R005
+  family: R
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: An objective is not linked to any method.
+  inputs:
+  - CORE.RESEARCH.OBJECTIVES
+  - METHOD.PLAN.DESIGN
+  chain_step: Objective
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.2 R005; 05 VAL.004
+  negative_fixture: tests/fixtures/negative/R005/
+- id: R006
+  family: R
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A method has no data collection linked to it.
+  inputs:
+  - METHOD.PLAN.DESIGN
+  - METHOD.PLAN.DATA_COLLECTION
+  chain_step: Method
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.2 R006
+  negative_fixture: tests/fixtures/negative/R006/
+- id: R007
+  family: R
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: The analysis plan names no data source.
+  inputs:
+  - METHOD.PLAN.ANALYSIS
+  - METHOD.PLAN.DATA_COLLECTION
+  chain_step: Analysis
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.2 R007
+  negative_fixture: tests/fixtures/negative/R007/
+- id: W001
+  family: W
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: An activity is not linked to any objective or method phase.
+  inputs:
+  - WORK.PLAN.ACTIVITIES
+  - CORE.RESEARCH.OBJECTIVES
+  chain_step: Activity
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.3 W001; 05 VAL.007
+  negative_fixture: tests/fixtures/negative/W001/
+- id: W002
+  family: W
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An activity has no responsible actor.
+  inputs:
+  - WORK.PLAN.ACTIVITIES
+  chain_step: Activity
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.3 W002
+  negative_fixture: tests/fixtures/negative/W002/
+- id: W003
+  family: W
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: plan
+  description_en: Workplan activity progress weights do not sum to 100.
+  inputs:
+  - WORK.PLAN.ACTIVITIES
+  chain_step: Activity
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.3 W003; 05 VAL.002; plan §E rule families
+  negative_fixture: tests/fixtures/negative/W003/
+- id: W004
+  family: W
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A deliverable (output) is not produced by any activity.
+  inputs:
+  - RESULTS.CHAIN.OUTPUTS
+  - WORK.PLAN.ACTIVITIES
+  chain_step: Output
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.3 W004
+  negative_fixture: tests/fixtures/negative/W004/
+- id: B001
+  family: B
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A budget line item is not linked to any activity.
+  inputs:
+  - BUDGET.PLAN.ITEMS
+  - WORK.PLAN.ACTIVITIES
+  chain_step: BudgetItem
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.4 B001; 05 VAL.006
+  negative_fixture: tests/fixtures/negative/B001/
+- id: B002
+  family: B
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: plan
+  description_en: A budget line total does not equal quantity x persons_or_items x times_or_months x unit_price,
+    or the calculated total does not match the requested and total project budget.
+  inputs:
+  - BUDGET.PLAN.ITEMS
+  - BUDGET.PLAN.TOTAL
+  - CORE.GENERAL.REQUESTED_BUDGET
+  - CORE.GENERAL.TOTAL_BUDGET
+  chain_step: BudgetItem
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.4 B002; 05 VAL.003; plan §E rule families
+  negative_fixture: tests/fixtures/negative/B002/
+- id: B003
+  family: B
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A budget rate is not supported by a current rule in the bound fund profile.
+  inputs:
+  - BUDGET.PLAN.ITEMS
+  - fund_profile
+  chain_step: BudgetItem
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.4 B003
+  negative_fixture: tests/fixtures/negative/B003/
+  notes: Rates live only in the dated fund profile (P6).
+- id: B004
+  family: B
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A budget item is a cost the bound fund profile lists as prohibited.
+  inputs:
+  - BUDGET.PLAN.ITEMS
+  - fund_profile
+  chain_step: BudgetItem
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.4 B004
+  negative_fixture: tests/fixtures/negative/B004/
+  notes: Only fires when the fund profile declares prohibited costs.
+- id: B005
+  family: B
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An equipment item has no stated necessity.
+  inputs:
+  - BUDGET.PLAN.EQUIPMENT
+  chain_step: BudgetItem
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.4 B005
+  negative_fixture: tests/fixtures/negative/B005/
+- id: B006
+  family: B
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: The calculated total exceeds a ceiling in the bound, ACTIVE fund profile.
+  inputs:
+  - BUDGET.PLAN.TOTAL
+  - fund_profile
+  chain_step: BudgetItem
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.4 B006
+  negative_fixture: tests/fixtures/negative/B006/
+- id: T001
+  family: T
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: plan
+  description_en: Research team contribution percentages do not sum to 100.
+  inputs:
+  - PROFILE.TEAM.MEMBERS
+  chain_step: project
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: 02 (team contribution rule); 05 VAL.001; plan §E rule families
+  negative_fixture: tests/fixtures/negative/T001/
+- id: CH001
+  family: CH
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: plan
+  description_en: The causal edges used by the project do not form a directed acyclic graph (feedback
+    edges are exempt).
+  inputs:
+  - project:chain_edges
+  chain_step: project
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E Chain; spec/common/chain.yaml
+  negative_fixture: tests/fixtures/negative/CH001/
+- id: CH002
+  family: CH
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: plan
+  description_en: A required chain stage (spec/common/chain.yaml required_stages) is not populated.
+  inputs:
+  - chain:Problem
+  - chain:PriorKnowledge
+  - chain:Gap
+  - chain:RQ
+  - chain:Objective
+  - chain:Method
+  - chain:Evidence
+  - chain:Claim
+  chain_step: project
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E Chain; spec/common/chain.yaml required_stages
+  negative_fixture: tests/fixtures/negative/CH002/
+- id: F001
+  family: F
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: plan
+  description_en: A fund-profile rule used by the project has no source_id.
+  inputs:
+  - fund_profile
+  chain_step: fund_profile
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (F001-F004)
+  negative_fixture: tests/fixtures/negative/F001/
+- id: F002
+  family: F
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A fund-profile rule used by the project is stale (verified_at older than the profile
+    allows, or past effective_to); it is listed in stale_rules.
+  inputs:
+  - fund_profile
+  chain_step: fund_profile
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (F001-F004)
+  negative_fixture: tests/fixtures/negative/F002/
+- id: F003
+  family: F
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: plan
+  description_en: The bound fund profile is not ACTIVE.
+  inputs:
+  - fund_profile
+  chain_step: fund_profile
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (F001-F004)
+  negative_fixture: tests/fixtures/negative/F003/
+- id: F004
+  family: F
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: plan
+  description_en: A rule from a historical (EXPIRED or superseded) fund profile is reused.
+  inputs:
+  - fund_profile
+  chain_step: fund_profile
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (F001-F004)
+  negative_fixture: tests/fixtures/negative/F004/
+- id: ELIG001
+  family: ELIG
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: plan
+  description_en: The declared PI does not meet the eligibility stated in the bound fund profile. GrantThai
+    holds no eligibility thresholds of its own.
+  inputs:
+  - PROFILE.TEAM.MEMBERS
+  - fund_profile
+  chain_step: fund_profile
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §B Roles; §E rule families
+  negative_fixture: tests/fixtures/negative/ELIG001/
+  notes: 'Sets submittable: false and a HOLD reason; the build still renders.'
+- id: CH003
+  family: CH
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: plan
+  description_en: A claim is stronger than its evidence path allows (e.g. supported only by an ACCEPTED_BY_REQUESTER
+    mapping or a missing review gate); claim strength is downgraded.
+  inputs:
+  - chain:Claim
+  - chain:Evidence
+  - project:mappings
+  chain_step: Claim
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: 02 claim-strength downgrade; plan §E
+  negative_fixture: tests/fixtures/negative/CH003/
+- id: E001
+  family: E
+  ships: v0.2
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: Human subjects or human-derived data are used but no ethics route is specified.
+  inputs:
+  - METHOD.PLAN.ETHICS
+  - COMP.STANDARD.HUMAN
+  chain_step: EthicsRequirement
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.5 E001
+  negative_fixture: tests/fixtures/negative/E001/
+- id: E002
+  family: E
+  ships: v0.2
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: Sensitive data is collected but no protection plan is given.
+  inputs:
+  - METHOD.PLAN.ETHICS
+  - COMP.STANDARD.HUMAN
+  chain_step: EthicsRequirement
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.5 E002
+  negative_fixture: tests/fixtures/negative/E002/
+- id: E003
+  family: E
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A dependent relationship exists between researcher and participants without a coercion
+    safeguard.
+  inputs:
+  - METHOD.PLAN.ETHICS
+  - COMP.STANDARD.HUMAN
+  chain_step: EthicsRequirement
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.5 E003
+  negative_fixture: tests/fixtures/negative/E003/
+- id: E004
+  family: E
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: Participant compensation is not explained.
+  inputs:
+  - METHOD.PLAN.ETHICS
+  - COMP.STANDARD.HUMAN
+  chain_step: EthicsRequirement
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.5 E004
+  negative_fixture: tests/fixtures/negative/E004/
+- id: E005
+  family: E
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A conflict of interest is not managed.
+  inputs:
+  - METHOD.PLAN.ETHICS
+  - COMP.STANDARD.HUMAN
+  chain_step: EthicsRequirement
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.5 E005
+  negative_fixture: tests/fixtures/negative/E005/
+- id: E006
+  family: E
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An experience account names or identifies third parties without their consent route.
+  inputs:
+  - chain:Experience
+  - METHOD.PLAN.ETHICS
+  chain_step: Experience
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (E006-E008)
+  negative_fixture: tests/fixtures/negative/E006/
+- id: E007
+  family: E
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A person holds dual roles (e.g. researcher and community member) that are not disclosed.
+  inputs:
+  - chain:Experience
+  - METHOD.PLAN.ETHICS
+  chain_step: Experience
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (E006-E008)
+  negative_fixture: tests/fixtures/negative/E007/
+- id: E008
+  family: E
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An experience account involves a vulnerable group without an ethics safeguard.
+  inputs:
+  - chain:Experience
+  - METHOD.PLAN.ETHICS
+  chain_step: Experience
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (E006-E008)
+  negative_fixture: tests/fixtures/negative/E008/
+- id: U001
+  family: U
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An output has no identified user.
+  inputs:
+  - RESULTS.CHAIN.OUTPUTS
+  - RESULTS.CHAIN.USERS
+  chain_step: Output
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.6 U001
+  negative_fixture: tests/fixtures/negative/U001/
+- id: U002
+  family: U
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A user has no adoption action.
+  inputs:
+  - RESULTS.CHAIN.USERS
+  - RESULTS.CHAIN.OUTCOME_PROCESS
+  chain_step: User
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.6 U002
+  negative_fixture: tests/fixtures/negative/U002/
+- id: U003
+  family: U
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An outcome has no adoption pathway.
+  inputs:
+  - RESULTS.CHAIN.OUTCOMES
+  - RESULTS.CHAIN.OUTCOME_PROCESS
+  chain_step: Outcome
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.6 U003
+  negative_fixture: tests/fixtures/negative/U003/
+- id: U004
+  family: U
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A beneficiary is not linked to any outcome.
+  inputs:
+  - RESULTS.CHAIN.BENEFICIARIES
+  - RESULTS.CHAIN.OUTCOMES
+  chain_step: Beneficiary
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.6 U004
+  negative_fixture: tests/fixtures/negative/U004/
+- id: U005
+  family: U
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An impact is not traceable to an outcome.
+  inputs:
+  - RESULTS.CHAIN.IMPACTS
+  - RESULTS.CHAIN.OUTCOMES
+  chain_step: Impact
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.6 U005
+  negative_fixture: tests/fixtures/negative/U005/
+- id: P001
+  family: P
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A policy is named but no mechanism links the project to it.
+  inputs:
+  - FUND.CALL.OBJECTIVES
+  - CORE.RESEARCH.NATIONAL_NEED
+  chain_step: Impact
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.7 P001
+  negative_fixture: tests/fixtures/negative/P001/
+- id: P002
+  family: P
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An impact or KR link is unsupported.
+  inputs:
+  - RESULTS.CHAIN.IMPACTS
+  - FUND.CALL.KEY_RESULTS
+  chain_step: Impact
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.7 P002
+  negative_fixture: tests/fixtures/negative/P002/
+- id: P003
+  family: P
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A national claim is made from a local pilot without a scaling path.
+  inputs:
+  - RESULTS.CHAIN.IMPACTS
+  - GEO.AREA.BENEFIT_AREAS
+  chain_step: Impact
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.7 P003
+  negative_fixture: tests/fixtures/negative/P003/
+- id: G001
+  family: G
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A research site has no activity.
+  inputs:
+  - GEO.AREA.RESEARCH_SITES
+  - WORK.PLAN.ACTIVITIES
+  chain_step: Beneficiary
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.8 G001; 05 VAL.011
+  negative_fixture: tests/fixtures/negative/G001/
+- id: G002
+  family: G
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A benefit area has no beneficiary.
+  inputs:
+  - GEO.AREA.BENEFIT_AREAS
+  - RESULTS.CHAIN.BENEFICIARIES
+  chain_step: Beneficiary
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.8 G002; 05 VAL.011
+  negative_fixture: tests/fixtures/negative/G002/
+- id: G003
+  family: G
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A nationwide benefit is inferred from digital reach only.
+  inputs:
+  - GEO.AREA.BENEFIT_AREAS
+  chain_step: Beneficiary
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.8 G003; 05 VAL.011
+  negative_fixture: tests/fixtures/negative/G003/
+- id: X001
+  family: X
+  ships: v0.2
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: Lived experience (evidence_role ORIENTING) is used as SUPPORTING evidence without re-collection
+    under a declared method.
+  inputs:
+  - chain:Evidence
+  chain_step: Evidence
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (X001-X006)
+  negative_fixture: tests/fixtures/negative/X001/
+- id: X002
+  family: X
+  ships: v0.2
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A PROPOSED mapping is used downstream.
+  inputs:
+  - project:mappings
+  chain_step: Claim
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (X001-X006)
+  negative_fixture: tests/fixtures/negative/X002/
+- id: X003
+  family: X
+  ships: v0.2
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: 'A value with authored_by: ai_draft is marked provenance_class SOURCE.'
+  inputs:
+  - chain:Evidence
+  chain_step: Evidence
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (X001-X006)
+  negative_fixture: tests/fixtures/negative/X003/
+- id: X004
+  family: X
+  ships: v0.2
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A claim has no evidence path.
+  inputs:
+  - chain:Claim
+  - chain:Evidence
+  chain_step: Claim
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (X001-X006)
+  negative_fixture: tests/fixtures/negative/X004/
+- id: X005
+  family: X
+  ships: v0.2
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A review record lacks scope, reviewer identity or date.
+  inputs:
+  - project:review_records
+  chain_step: project
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (X001-X006)
+  negative_fixture: tests/fixtures/negative/X005/
+- id: X006
+  family: X
+  ships: v0.2
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A review record is used as empirical evidence.
+  inputs:
+  - project:review_records
+  - chain:Evidence
+  chain_step: Evidence
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E rule families (X001-X006)
+  negative_fixture: tests/fixtures/negative/X006/

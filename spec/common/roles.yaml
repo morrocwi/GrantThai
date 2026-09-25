@@ -1,0 +1,46 @@
+# GrantThai role tags (spec/common/roles.yaml)
+# Roles are self-declared capability tags in profile.yaml. They are UX
+# defaults, NOT permissions (plan §B "Roles"). Status authority comes from
+# review_gates.yaml records, not from role tags, because GrantThai cannot
+# verify employment or degrees. PI eligibility is decided only by the
+# attached fund profile (rule ELIG001); the core holds no eligibility
+# thresholds itself.
+schema: grantthai.roles.v0
+version: "0.1.0-draft"
+status: draft
+
+roles:
+  - id: citizen
+    default_mode: citizen
+  - id: practitioner
+    default_mode: citizen
+  - id: civil_society
+    default_mode: citizen
+  - id: social_entrepreneur
+    default_mode: citizen_or_expert
+  - id: graduate_student
+    default_mode: expert
+  - id: lecturer
+    default_mode: expert
+  - id: university_researcher
+    default_mode: expert
+  - id: independent_researcher
+    default_mode: expert
+  - id: research_administrator
+    default_mode: review
+  - id: expert_reviewer
+    default_mode: review
+  - id: mentor
+    default_mode: review
+
+institution:
+  note: "Institution is a record (see profile.schema.json), not a person, and carries no role tag."
+
+eligibility:
+  note: >
+    PI eligibility is decided only by the bound fund profile (rule
+    ELIG001, see spec/fund/fund-profile.schema.json). This file defines no
+    eligibility thresholds. The Citizen "partner needed" gate text says
+    "the fund profile decides eligibility" and does not quote any specific
+    agency's thresholds (those are NEEDS_VERIFICATION until sourced from a
+    public TOR document).

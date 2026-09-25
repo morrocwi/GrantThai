@@ -1,0 +1,20 @@
+# examples/lecturer-no-ai/project.yaml — FICTIONAL. Phase 0 placeholder:
+# a minimal project.yaml that is valid against spec/project/project.schema.json
+# and binds the FICTIONAL fund profile. The full worked example (every chain
+# stage populated, BLOCK == 0) ships in v0.1.
+schema_version: "0.1.0-draft"
+project_id: "FICTIONAL-LECTURER-EXAMPLE-0001"
+mode: expert
+authoring:
+  mode: human
+  tools_disclosed: []
+  self_declared: true
+fund_binding:
+  fund_profile_id: "example/FICTIONAL_CALL@0.1"
+fields: []
+chain: {}
+ecosystem_positions: []
+review_records: []
+mappings: []
+lock:
+  locked: false

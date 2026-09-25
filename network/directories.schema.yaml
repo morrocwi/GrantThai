@@ -1,0 +1,7 @@
+# network/directories.schema.yaml — opt-in expert/mentor directory schema.
+# Ships EMPTY per the founder's letter section 14 (schema only); populated
+# only after K11 is decided (public opt-in directory vs schema-only).
+schema: grantthai.network_directory.v0
+version: "0.1.0-draft"
+status: schema_only_empty
+entries: []

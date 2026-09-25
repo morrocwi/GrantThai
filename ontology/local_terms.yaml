@@ -1,0 +1,8 @@
+# ontology/local_terms.yaml — human-curated, dated seed glossary. Phase 0
+# stub (empty). Ships v0.2. Curator and dating policy: see K16 in
+# docs/design/PLAN.md section K (open founder decision; GOVERNANCE.md log).
+schema: grantthai.local_terms.v0
+version: "0.1.0-draft"
+curated_by: "NEEDS_INPUT"
+dated: "NEEDS_INPUT"
+terms: []

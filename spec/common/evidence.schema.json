@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/common/evidence.schema.json",
+  "title": "GrantThai Evidence record",
+  "description": "Draft. One item under project.yaml `chain.Evidence`: a field record (spec/common/field_record.schema.json) in the CORE.EVIDENCE.* id space, plus the claim it supports and its strength cap. The statement is the record's `value`.",
+  "type": "object",
+  "allOf": [{"$ref": "field_record.schema.json"}],
+  "properties": {
+    "field_id": {"type": "string", "pattern": "^CORE\\.EVIDENCE\\.[A-Z0-9_]+(\\.[A-Z0-9_]+)*$"},
+    "supports_claim_id": {"type": "string", "pattern": "^CORE\\.CLAIM\\.[A-Z0-9_]+(\\.[A-Z0-9_]+)*$"},
+    "claim_strength_cap": {
+      "type": "string",
+      "enum": ["NONE", "CONTRIBUTORY", "FULL"],
+      "description": "Set to CONTRIBUTORY when the supporting mapping is ACCEPTED_BY_REQUESTER (rule CH003)."
+    }
+  },
+  "unevaluatedProperties": false
+}

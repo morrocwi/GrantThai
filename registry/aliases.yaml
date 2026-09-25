@@ -1,0 +1,5 @@
+# registry/aliases.yaml — renamed field-ID history (Phase 0 stub, empty).
+# Field IDs are NEVER reused; a rename appends an entry here instead.
+schema: grantthai.aliases.v0
+version: "0.1.0-draft"
+aliases: []

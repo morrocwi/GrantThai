@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/common/mapping_proposal.schema.json",
+  "title": "GrantThai Mapping (LocalTerm -> AcademicConcept bridge)",
+  "description": "Draft. Mapping exists only for the Stream-A/Stream-B bridge (docs/design/PLAN.md §E, 'Mappings'). An expert who already knows the academic concept needs no Mapping at all. Allowed states: a human-proposed mapping is PROPOSED, ACCEPTED_SELF (self-accepted, independence: self disclosed) or ACCEPTED_REVIEWED; an AI-proposed mapping is PROPOSED, ACCEPTED_BY_REQUESTER (caps any Claim it supports at CONTRIBUTORY and is listed in the readiness summary) or ACCEPTED_REVIEWED. ACCEPTED_REVIEWED always needs a review record whose reviewer is not the requester (the reviewer-differs check is done by the validator, rule X005). A PROPOSED mapping used downstream is blocked by rule X002.",
+  "type": "object",
+  "required": [
+    "id",
+    "local_term",
+    "academic_concept",
+    "proposed_by",
+    "acceptance_state"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^BRIDGE\\.MAPPING\\.[A-Z0-9_]+$"
+    },
+    "local_term": {
+      "type": "string"
+    },
+    "academic_concept": {
+      "type": "string"
+    },
+    "proposed_by": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "human",
+            "ai"
+          ]
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "The person who asked for (and may accept) an AI proposal."
+    },
+    "acceptance_state": {
+      "type": "string",
+      "enum": [
+        "PROPOSED",
+        "ACCEPTED_SELF",
+        "ACCEPTED_BY_REQUESTER",
+        "ACCEPTED_REVIEWED"
+      ]
+    },
+    "review": {
+      "$ref": "review.schema.json"
+    },
+    "downstream_limit": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "proposed_by": {
+            "properties": {
+              "kind": {
+                "const": "human"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "acceptance_state": {
+            "enum": [
+              "PROPOSED",
+              "ACCEPTED_SELF",
+              "ACCEPTED_REVIEWED"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "proposed_by": {
+            "properties": {
+              "kind": {
+                "const": "ai"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "acceptance_state": {
+            "enum": [
+              "PROPOSED",
+              "ACCEPTED_BY_REQUESTER",
+              "ACCEPTED_REVIEWED"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "acceptance_state": {
+            "const": "ACCEPTED_REVIEWED"
+          }
+        },
+        "required": [
+          "acceptance_state"
+        ]
+      },
+      "then": {
+        "required": [
+          "review"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "acceptance_state": {
+            "const": "ACCEPTED_BY_REQUESTER"
+          }
+        },
+        "required": [
+          "acceptance_state"
+        ]
+      },
+      "then": {
+        "required": [
+          "requested_by"
+        ]
+      }
+    }
+  ],
+  "additionalProperties": false
+}

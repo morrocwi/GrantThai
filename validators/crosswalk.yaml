@@ -1,0 +1,5 @@
+# validators/crosswalk.yaml — aliases mapping rule IDs from packages 02, 04,
+# 05 onto the canonical 01-family rule IDs. Phase 0 stub (empty). Ships v0.2.
+schema: grantthai.crosswalk.v0
+version: "0.1.0-draft"
+crosswalk: []

@@ -1,0 +1,19 @@
+# templates/project.blank.yaml — a blank starting point, valid against
+# spec/project/project.schema.json. Copy this file and
+# fill it in with any editor, the webform, or grantthai fill --interactive.
+schema_version: "0.1.0-draft"
+project_id: "NEEDS_INPUT"
+mode: expert
+authoring:
+  mode: human
+  tools_disclosed: []
+  self_declared: true
+fund_binding:
+  fund_profile_id: "example/FICTIONAL_CALL@0.1"
+fields: []
+chain: {}
+ecosystem_positions: []
+review_records: []
+mappings: []
+lock:
+  locked: false

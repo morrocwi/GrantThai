@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/common/field_record.schema.json",
+  "title": "GrantThai field record (one authored value in project.yaml)",
+  "description": "Draft. Shared shape for every authored value in project.yaml (under `fields` or `chain.<node>`). Missing input: write `value: null` with `status: NEEDS_INPUT`; the literal string \"NEEDS_INPUT\" as a value is read by the core exactly as value null + status NEEDS_INPUT. NEEDS_VERIFICATION is never a status: it is a marker in `markers`, and a literal \"NEEDS_VERIFICATION\" value is read as value null + that marker. Markers are never dropped by any tool (spec/output/nriis-submission.contract.md).",
+  "type": "object",
+  "required": ["field_id", "value", "status", "provenance"],
+  "properties": {
+    "field_id": {
+      "type": "string",
+      "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}$",
+      "description": "<NS>.<GROUP>[.<SUB>].<NAME>. Fields listed in registry/fields.jsonl use their registry id; chain content without a registry field uses CORE.<NODE>.<NAME> (e.g. CORE.EVIDENCE.E1). IDs are never reused; renames go through registry/aliases.yaml."
+    },
+    "value": {},
+    "status": {
+      "type": "string",
+      "enum": ["EMPTY", "NEEDS_INPUT", "DRAFT", "STRUCTURE_CHECKED", "LOGIC_LINKED", "HUMAN_REVIEWED", "VERIFIED", "LOCKED", "SUBMITTED"],
+      "description": "See spec/common/status.yaml and spec/common/status_permissions.yaml for who may set which status."
+    },
+    "markers": {
+      "type": "array",
+      "items": {"type": "string", "enum": ["NEEDS_VERIFICATION", "HOLD_FOR_VERIFICATION", "UI_DRIFT"]},
+      "uniqueItems": true,
+      "default": []
+    },
+    "hold_reason": {"type": "string", "description": "Plain-language reason, required when markers contains HOLD_FOR_VERIFICATION."},
+    "source_ids": {"type": "array", "items": {"type": "string"}},
+    "provenance": {"$ref": "provenance.schema.json"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"markers": {"contains": {"const": "HOLD_FOR_VERIFICATION"}}}, "required": ["markers"]},
+      "then": {"required": ["hold_reason"]}
+    }
+  ]
+}

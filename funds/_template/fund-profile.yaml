@@ -1,0 +1,23 @@
+# funds/_template/fund-profile.yaml — blank DRAFT template.
+# Copy this into funds/<agency>/<call-id>@<major.minor>/fund-profile.yaml,
+# set id to "<agency>/<call-id>@<major.minor>" (it must match the path), and
+# fill it in. It validates against spec/fund/fund-profile.schema.json as a
+# DRAFT: NEEDS_INPUT is allowed in dates and the source sha256 only while
+# status is DRAFT; an ACTIVE profile needs real dates and a real sha256.
+id: "NEEDS_INPUT/NEEDS_INPUT@0.1"
+status: DRAFT
+effective_from: "NEEDS_INPUT"
+verified_at: "NEEDS_INPUT"
+trust_level: COMMUNITY_EXTRACTED
+source_manifest:
+  title: "NEEDS_INPUT"
+  issuer: "NEEDS_INPUT"
+  edition: "NEEDS_INPUT"
+  url: "NEEDS_VERIFICATION"
+  sha256: "NEEDS_INPUT"
+  retrieval_date: "NEEDS_INPUT"
+rules: []
+eligibility:
+  pi_requires_partner_institution: true
+  notes_th: "the fund profile decides eligibility"
+independent_review_required: false
