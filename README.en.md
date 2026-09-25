@@ -211,6 +211,20 @@ work.yaml  --------->  grantthai build --route academic-article -->  build/ACADE
   route adds its own line: GrantThai is not affiliated with any journal or
   publisher. No second GrantThai-generated file is needed to use a route's
   output.
+- **7SSA structure profiles (academic-article).** For conceptual,
+  theory, philosophical, legal, integrative-review, formal, SoK and policy
+  articles, the article route offers four body layouts from the founder's
+  7SSA (seven-sector scholarly article) schema: `7ssa-world` (seven English
+  headings) and `7ssa-thai-7`, `7ssa-thai-5`, `7ssa-thai-4` (Thai headings).
+  The seven sectors are your own text; merging into five or four visible
+  sections is deterministic, keeps an `[S#]` marker per sector and drops
+  nothing. The tool lists candidates (INFO RT004) but **you select** the
+  profile (`routing.structure_profiles` in `work.yaml`, or
+  `--structure-profile`); with none selected the overview is unchanged.
+  `grantthai build --format tex` writes `build/ACADEMIC_ARTICLE.tex`
+  instead, from a sha256-pinned copy of the glosa GLOSA-7SSA LaTeX template
+  (English only; unfilled slots print `NEEDS_INPUT`). Example:
+  `examples/article-7ssa-fictional/`.
 
 The full contract is written down in
 [`spec/contracts/one-input-one-output.md`](./spec/contracts/one-input-one-output.md)

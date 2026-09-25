@@ -143,6 +143,15 @@ the same instruction.
    your `work.yaml`. For an article, `manuscript_ready` means only that no
    BLOCK is open, never accepted or publishable.
 
+For a conceptual, theory, philosophical, legal, review, formal, SoK or
+policy article the AI may also show you the 7SSA structure profiles
+(`grantthai route profiles work.yaml`: seven English sections, or seven,
+five or four Thai sections) and ask which one you want; it never picks one.
+With a profile it interviews you sector by sector
+(`reference/interview-7ssa.md`, in the suggested writing order 5 -> 4 -> 3
+-> 6 -> 2 -> 1 -> 7). Every sector is your own text; merging sections never
+drops a sector (each keeps its `[S#]` marker).
+
 Read the output's readiness summary and the "AI-drafted values (the
 researcher must confirm)" section before you use anything in it. Then read
 section 4.7, the AI Use Declaration (a GrantThai appendix, not an NRIIS
@@ -159,6 +168,9 @@ grantthai explain B002                                 # what a rule means
 grantthai build work.yaml --route nriis-proposal       # writes build/NRIIS_SUBMISSION.md
 grantthai build work.yaml --route academic-article     # writes build/ACADEMIC_ARTICLE.md
 grantthai fields --required --route academic-article   # the article route's fields, in placement order
+grantthai route profiles work.yaml                     # 7SSA structure profiles and the candidates (you choose)
+grantthai build work.yaml --structure-profile 7ssa-thai-5   # the article body in five Thai sections
+grantthai build work.yaml --format tex                 # build/ACADEMIC_ARTICLE.tex instead (needs a 7SSA profile)
 grantthai migrate project.yaml --dry-run               # what upgrading to work.yaml would make stale
 ```
 

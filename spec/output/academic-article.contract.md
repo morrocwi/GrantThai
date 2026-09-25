@@ -150,3 +150,41 @@ As for the NRIIS contract: a cold read by a human who did not write the
 example work object, against `docs/en/quality-gates.md`; an AI cold read is
 optional and never required. The shipped example for this route is
 fictional and names no real journal (`examples/article-fictional/`).
+
+## 7SSA structure profile (optional)
+
+When the researcher has selected a 7SSA structure profile
+(`routing.structure_profiles.academic-article` or `--structure-profile`;
+`routes/academic-article/profiles/`), the same one file additionally
+carries:
+
+- two frontmatter keys, `structure_profile` (the profile id) and
+  `structure_profile_renderer` (`article_7ssa.md.j2@0.1.0`); they are absent
+  when no profile is selected, so the plain overview is byte-identical to
+  a build without profiles;
+- the placement section "7SSA structure records" (also shown when
+  `ARTICLE.SSA.ARTICLE_TYPE` is set);
+- after the placed sections, "7SSA manuscript body": a sector map (visible
+  section, heading, sector, required slots filled or `NEEDS_INPUT`, the
+  compression rules that permit a merge), the body arranged into the
+  profile's visible sections with one `[S#]` marker per sector (an empty
+  sector prints `NEEDS_INPUT` under its marker), untagged body items (never
+  dropped), and the 7SSA audit table (answered from the work object yes/no,
+  never a verdict);
+- the SSA findings (7SSA-01..10, REVIEW/INFO) in the readiness summary.
+
+The arrangement is a pure, deterministic function of the work object and
+the profile: nothing is composed, summarised, reordered beyond the
+profile's sector map, or dropped.
+
+## Alternative format: `--format tex`
+
+`grantthai build --route academic-article --format tex` writes
+`build/ACADEMIC_ARTICLE.tex` **instead of** this Markdown file (still one
+file per build), from a sha256-pinned, byte-identical copy of the
+glosa-registered GLOSA-7SSA LaTeX template (`templates/tex/SOURCE.yaml`)
+through its fill map (`templates/tex/glosa_7ssa_v1.fillmap.yaml`). It needs
+a selected 7SSA profile, runs no LaTeX engine, is English only (a Thai
+value prints a `NEEDS_INPUT` note), never fills review or audit state, and
+prints `NEEDS_VERIFICATION` in the template's publisher-policy cells.
+

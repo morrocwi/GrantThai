@@ -123,6 +123,11 @@ skills/grantthai/reference/
    หรือ `build/RESEARCH_CONCEPT_NOTE.md`) และ `work.yaml` ของนักวิจัยคืนให้ สำหรับบทความ
    `manuscript_ready` แปลว่าไม่มี BLOCK ค้างเท่านั้น ไม่ได้แปลว่าส่งได้หรือตอบรับแล้ว
 
+ถ้าเป็นบทความเชิงแนวคิด ทฤษฎี ปรัชญา กฎหมาย การทบทวน เชิงรูปนัย SoK หรือเชิงนโยบาย AI อาจแสดงโปรไฟล์โครงสร้าง 7SSA
+(`grantthai route profiles work.yaml`: เจ็ดหัวข้อภาษาอังกฤษ หรือเจ็ด ห้า สี่หัวข้อภาษาไทย) แล้วถามว่าจะใช้แบบไหน
+AI ไม่เลือกแทน เมื่อเลือกแล้ว AI จะสัมภาษณ์ทีละส่วนตาม `reference/interview-7ssa.md` (ลำดับการเขียนที่แนะนำ 5 -> 4 -> 3
+-> 6 -> 2 -> 1 -> 7) เนื้อหาทุกส่วนเป็นของผู้วิจัย การรวมหัวข้อไม่ทำให้ส่วนใดหายไป ทุกส่วนมีเครื่องหมาย [S#] กำกับ
+
 ก่อนนำอะไรไปใช้ ให้อ่านส่วนสรุปความพร้อมในไฟล์ผลลัพธ์ และส่วน
 "AI-drafted values (the researcher must confirm)" ซึ่งเป็นรายการที่ AI ร่างไว้ให้ก่อน
 แล้วอ่านหัวข้อ 4.7 แบบแจ้งการใช้ AI (ภาคผนวกของ GrantThai ไม่ใช่ช่องของ NRIIS) ถ้าถูกต้องและครบแล้ว
@@ -138,6 +143,9 @@ grantthai explain B002                                 # ดูว่ากฎ�
 grantthai build work.yaml --route nriis-proposal       # สร้าง build/NRIIS_SUBMISSION.md
 grantthai build work.yaml --route academic-article     # สร้าง build/ACADEMIC_ARTICLE.md
 grantthai fields --required --route academic-article   # ช่องของเส้นทางบทความ เรียงตามลำดับในไฟล์ผลลัพธ์
+grantthai route profiles work.yaml                     # โปรไฟล์โครงสร้าง 7SSA และรายชื่อที่ระบบเสนอ (คุณเป็นคนเลือก)
+grantthai build work.yaml --structure-profile 7ssa-thai-5   # จัดเนื้อหาบทความเป็นห้าหัวข้อภาษาไทย
+grantthai build work.yaml --format tex                 # ได้ build/ACADEMIC_ARTICLE.tex แทน (ต้องเลือกโปรไฟล์ 7SSA ก่อน)
 grantthai migrate project.yaml --dry-run               # ดูว่าถ้าแปลงเป็น work.yaml จะมีการรีวิวไหนหมดอายุ
 ```
 

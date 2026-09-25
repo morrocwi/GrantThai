@@ -427,6 +427,72 @@ K-R6 (NOTICE wording), K-R7 (next routes: thesis proposal, conference
 abstract, final report; whether a dated, human-checked venue profile
 should ever exist), K-R8 (router first, TOKE rebased onto it).
 
+### v0.3 router: 7SSA structure profiles (academic-article; unreleased)
+
+Founder request (2026-09-25): "ให้ router ใช้เทมเพลทนี้เมื่อต้องทำงานประเภทนี้" —
+the router uses the 7SSA template for this kind of work. 7SSA (Seven-Section
+Scholarly Architecture) comes from the founder-authored 7SSA master schema
+v1.0 and the GLOSA-7SSA LaTeX template (registered in glosa). It is a third
+axis of the academic-article route next to the sub-profile: how the body is
+arranged, not which venue.
+
+**Deliverables (S1 data, S2 render):**
+- `routes/academic-article/profiles/`: `7ssa-world`, `7ssa-thai-7`,
+  `7ssa-thai-5`, `7ssa-thai-4` and `INDEX.yaml` (sectors S1-S7, their slots
+  with required/optional, the fields they read, writing order, compression
+  rules A-D, eight article-type overlays);
+  `spec/routes/structure_profile.schema.json`, linted by
+  `tools/ci/check_schema_lint.py`.
+- Registry: `ARTICLE.SSA.ARTICLE_TYPE`, `.GAP`, `.CONTRIBUTION`,
+  `.BEFORE_AFTER`, `ARTICLE.STATEMENT.OTHER` (`RECOMMENDED_EXTENSION`);
+  `ssa_sector` / `ssa_slot` on `ARTICLE.BODY.SECTIONS` items.
+- Selection: `routing.structure_profiles` (outside `content_sha256`) or
+  `--structure-profile`; the router lists candidates when `work_type` is
+  `academic_article` and `ARTICLE.SSA.ARTICLE_TYPE` is one of the eight
+  types (INFO RT004). Nothing ever writes the key but the researcher.
+- Rules 7SSA-01..7SSA-10 (family SSA, REVIEW/INFO; the rule schema refuses a
+  BLOCK from a 7SSA source), each with `tests/fixtures/negative/7SSA-NN/`;
+  Thai explanations in `skills/grantthai/reference/rules-th.md`.
+- Render: `templates/article_7ssa.md.j2` (a `route_partial` included by the
+  article template, still one `ACADEMIC_ARTICLE.md`);
+  `src/grantthai/render/ssa.py` compresses 7 -> 5 -> 4 visible sections as
+  a pure function that keeps an `[S#]` marker per sector and drops no
+  researcher text.
+- Export: `grantthai build --route academic-article --format tex` writes
+  one `build/ACADEMIC_ARTICLE.tex` from `templates/tex/glosa_7ssa_v1.tex`
+  (byte-identical glosa copy, sha256 in `templates/tex/SOURCE.yaml`) through
+  `templates/tex/glosa_7ssa_v1.fillmap.yaml` (212 rows, one per `[FILL`).
+  English only; review and audit state is always `NEEDS_INPUT`; the
+  publisher-policy cells print `NEEDS_VERIFICATION`.
+- Contradictions CX-7SSA-01..12 (`docs/contradictions.md`), deviations in
+  `docs/deviations.md`.
+
+**Acceptance (`tests/test_7ssa.py`):**
+- **AT-7SSA-1** `examples/article-7ssa-fictional` builds exactly one
+  `ACADEMIC_ARTICLE.md` with seven `[S#]` markers, the NOTICE on line 1,
+  BLOCK = 0 and no 7SSA finding, byte-identical across runs.
+- **AT-7SSA-2** the same object renders as thai-7, thai-5 and thai-4 with
+  the source's headings, all seven markers, byte-identical reruns, the same
+  `content_sha256` and the same multiset of researcher strings (plus a
+  seeded property test of the compression function).
+- **AT-7SSA-3** `--format tex` writes exactly one `.tex` from the pinned
+  template and compiles with `latexmk` when it is installed (otherwise the
+  test is skipped with that reason).
+- AT-R1/R2/R3 unchanged: with no profile selected every output is
+  byte-identical to the output before 7SSA.
+
+**Do NOT:** select a profile for the researcher; use any quartile as a gate
+or readiness input; store per-sector VERIFIED status or integrity booleans;
+use an AI simulation (desk reject, red team) as a review; compute the
+source's word budget, contribution density or formula-like labels (none is
+a registered equation); write bridging prose when merging sections; edit
+the vendored LaTeX template (re-vendor and re-pin instead).
+
+**Open founder decisions** (7SSA integration spec §4.2): K-S2 (the
+eight-section world layout), K-S5 (a XeLaTeX derivative for Thai), K-S7
+(glosa schema additions), K-S8 (origin `RECOMMENDED_EXTENSION` or a new
+founder-standard origin).
+
 ## v0.4 — interfaces
 
 **Status:** MCP and REST shipped early in v0.1.0 (founder scope change

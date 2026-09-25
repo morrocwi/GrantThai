@@ -121,6 +121,15 @@ leaves A's file byte-identical.
 | `academic-article` | `build/ACADEMIC_ARTICLE.md` (`spec/output/academic-article.contract.md`) | `manuscript_ready` — BLOCK = 0; never "accepted" or "publishable" | no |
 | `concept-note` | `build/RESEARCH_CONCEPT_NOTE.md` (`spec/output/research-concept-note.contract.md`) | `submittable: false` always, with a HOLD: a concept note enters no system | no |
 
+A route may declare optional alternative formats (`exports` in its
+`route.yaml`). `grantthai build --route academic-article --format tex`
+writes `build/ACADEMIC_ARTICLE.tex` **instead of** the Markdown file, so a
+build still writes exactly one file; the export filenames are unique too
+(`tools/ci/check_one_output.py`). A route's template may include tagged
+partials (`output_kind: route_partial`, e.g. `templates/article_7ssa.md.j2`
+for a selected 7SSA structure profile); the route still has one output
+template.
+
 Every output is a single, self-contained file with a readiness summary at
 the top (`BLOCK` / `REVIEW` / `INFO` findings, `NEEDS_INPUT`,
 `NEEDS_VERIFICATION`, holds) followed by the researcher's own values in

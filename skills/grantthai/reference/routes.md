@@ -81,6 +81,20 @@ leaves the other route's file byte-identical.
 | extra notice line | none | "GrantThai is not affiliated with any journal or publisher ..." under the NOTICE | "A concept note is a pre-proposal working document ..." |
 | no-invention rule adds | fund, NRIIS, institutional facts | **journal facts**: scope, indexing, word limits, fees, review time, template (all `NEEDS_VERIFICATION` unless the researcher supplies the venue's own document) | as nriis-proposal |
 
+## Structure profiles (academic-article only)
+
+A third choice on the article route, after the route and the sub-profile:
+how the body is arranged. The 7SSA profiles (`grantthai route profiles
+work.yaml`) are `7ssa-world` (seven English sections), `7ssa-thai-7`,
+`7ssa-thai-5` and `7ssa-thai-4` (Thai sections; five and four merge
+sectors but keep every sector's `[S#]` marker). The engine proposes them
+(INFO RT004) when `ARTICLE.SSA.ARTICLE_TYPE` is one of the eight 7SSA
+article types; the researcher chooses, recorded as `project.structure_profile`
+(written to `routing.structure_profiles`, outside `content_sha256`) or passed
+as `--structure-profile`. The SSA rules (7SSA-01..10) run only with a
+profile. `--format tex` writes `build/ACADEMIC_ARTICLE.tex` instead of the
+Markdown file (English only). Interview track: `reference/interview-7ssa.md`.
+
 The NOTICE constant itself is unchanged and stays line 1 of every route's
 output. Nothing here submits anything anywhere: not to NRIIS, not to a
 fund, not to a journal.

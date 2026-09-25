@@ -6,6 +6,9 @@ Worked, fully FICTIONAL example projects. Every file in every example carries a 
 |---|---|---|
 | `lecturer-no-ai/` | v0.1 | a hand-written, fully populated project |
 | `demo-seedbank/` | v0.2 | an AI-simulated interview run through the skill end to end, compared with real funded reports in `docs/demo/comparison.md` |
+| `article-fictional/` | v0.3 router | an empirical article object for the academic-article route (AT-R2) |
+| `both-routes-fictional/` | v0.3 router | one object built through the NRIIS, article and concept-note routes (AT-R3) |
+| `article-7ssa-fictional/` | v0.3 router, 7SSA | a conceptual article with body items tagged by 7SSA sector; builds with the 7SSA structure profiles and as LaTeX (AT-7SSA-1..3) |
 
 Planned later: citizen-no-ai, citizen-with-pi-partner (Citizen Mode, not yet built), citizen-ai-assisted (v0.3). See the repository root README.md and GRANTTHAI_STANDALONE.md
 for the full system description, and docs/design/PLAN.md for the

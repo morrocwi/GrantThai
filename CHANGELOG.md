@@ -6,6 +6,40 @@ SemVer from v0.1 onward.
 
 ## [Unreleased]
 
+### Added — 7SSA structure profiles on the academic-article route
+- Founder request (2026-09-25): "ให้ router ใช้เทมเพลทนี้เมื่อต้องทำงานประเภทนี้" —
+  the router uses the 7SSA (seven-sector scholarly article) template for
+  conceptual-family articles. Sources: the founder-authored 7SSA master
+  schema v1.0 and the glosa-registered GLOSA-7SSA LaTeX template, both
+  pinned by sha256.
+- `routes/academic-article/profiles/`: `7ssa-world`, `7ssa-thai-7`,
+  `7ssa-thai-5`, `7ssa-thai-4` and `INDEX.yaml` (sectors S1-S7 with slots,
+  required/optional, fields read, writing order, compression rules A-D,
+  eight article-type overlays); `spec/routes/structure_profile.schema.json`,
+  linted by `check_schema_lint`.
+- Registry: `ARTICLE.SSA.ARTICLE_TYPE`, `.GAP`, `.CONTRIBUTION`,
+  `.BEFORE_AFTER`, `ARTICLE.STATEMENT.OTHER` (`RECOMMENDED_EXTENSION`,
+  151 fields); `ssa_sector` / `ssa_slot` on body-section items.
+- `work.yaml` `routing.structure_profiles` (outside `content_sha256`) and
+  `--structure-profile` on `validate`, `route check`, `build`, `route
+  build`, the skill script, MCP and HTTP; `grantthai route profiles`, MCP
+  `grantthai_list_structure_profiles`, `GET /routes/{route}/profiles`. The
+  router lists candidates (INFO RT004); only the researcher selects.
+- Rules 7SSA-01..7SSA-10 (family SSA, REVIEW/INFO; the rule schema refuses
+  a BLOCK from a 7SSA source) with negative fixtures and Thai explanations.
+- Render: the 7SSA body (`templates/article_7ssa.md.j2`, included by the
+  article template; still one `ACADEMIC_ARTICLE.md`), compressed 7 -> 5 -> 4
+  by a pure function that keeps an `[S#]` marker per sector and drops no
+  text; placement sections may carry `when`.
+- `build --format tex`: `build/ACADEMIC_ARTICLE.tex` from a byte-identical,
+  sha256-pinned copy of the glosa template (`templates/tex/`, 212-row fill
+  map; English only; review and audit state always `NEEDS_INPUT`;
+  publisher-policy cells `NEEDS_VERIFICATION`). Route schema `exports`.
+- Contradictions CX-7SSA-01..12 (scoped to the article route), deviations,
+  `examples/article-7ssa-fictional/`, `tests/test_7ssa.py` (AT-7SSA-1..3).
+- Unchanged: every output built without a structure profile is
+  byte-identical to before (AT-R1 goldens; AT-R2/R3 outputs).
+
 ### Changed — the router: NRIIS is one route, not the core
 - Founder reframe (2026-09-25, verbatim): "การลงใน NRIIS ไม่ใช่แกนหลักอีกต่อไป
   แต่เป็นแค่ทางเลือกหนึ่งของ router เพราะเราจะเปิดให้ตั้งแต่การทำบทความวิชาการด้วย" —

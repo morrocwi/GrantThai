@@ -42,6 +42,7 @@ grantthai-api --port 9000 --workdir ~/my-grant   # or: python -m grantthai.api .
 | GET | `/openapi.yaml`, `/openapi.json` | This API's description | – |
 | GET | `/fields?tab=&required=true&route=` | The fields of one route: NRIIS boxes in entry order, then `NOT_ON_TAB` fields (default); another route's placement order, then `NOT_PLACED` | `list_fields` |
 | GET | `/routes` | Every output route; the list never chooses | `list_routes` |
+| GET | `/routes/{route}/profiles` | The route's 7SSA structure profiles; the list never chooses. Validate, check and build bodies take an optional `structure_profile`; build also takes `output_format` (`md` or `tex`) and `glosa_audit` | `list_structure_profiles` |
 | GET | `/rules/{rule_id}` | Explain one validator rule | `explain` |
 | POST | `/projects` | Create a blank work file: `work.yaml` with `work_type`, else a legacy `project.yaml`; no route is written | `new_work` / `new_project` |
 | GET | `/projects/{id}` | Read the work file as JSON | `load` |

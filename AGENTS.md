@@ -96,7 +96,17 @@ entering NRIIS is one route of the router, not the core.
   BLOCK, never "accepted"), `build/RESEARCH_CONCEPT_NOTE.md`
   (`spec/output/research-concept-note.contract.md`, never submittable).
   Each invocation writes exactly one file and leaves the other routes'
-  files byte-identical. No second GrantThai-generated file is needed to
+  files byte-identical. The academic-article route has **7SSA structure
+  profiles** (`routes/academic-article/profiles/`: `7ssa-world`,
+  `7ssa-thai-7`, `7ssa-thai-5`, `7ssa-thai-4`): a person selects one
+  (`routing.structure_profiles`, outside `content_sha256`, or
+  `--structure-profile`); the router only lists candidates (INFO RT004) and
+  no AI surface writes that key. A selected profile arranges the body into
+  sectors S1-S7 by a pure, deterministic function (every sector keeps its
+  `[S#]` marker; no text is composed or dropped) and turns on the SSA rules
+  7SSA-01..10 (REVIEW/INFO, never BLOCK). `build --format tex` writes
+  `build/ACADEMIC_ARTICLE.tex` instead, from a sha256-pinned copy of the
+  glosa GLOSA-7SSA template (`templates/tex/SOURCE.yaml`; English only). No second GrantThai-generated file is needed to
   use a route's output (attachments and figures are the person's own
   files, listed with their status).
 - `routing` is excluded from `content_sha256`: choosing a route never

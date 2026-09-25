@@ -95,6 +95,26 @@ The route decides the interview track: `nriis-proposal` and
 `concept-note` use `reference/interview.md`; `academic-article` uses
 `reference/interview-article.md`.
 
+**0a. On the article route, choose the structure profile with the
+researcher.** For a conceptual, theory, philosophical, legal, integrative
+review, formal, SoK or policy article (`ARTICLE.SSA.ARTICLE_TYPE`), show
+the 7SSA structure profiles and ask which layout they want; never choose:
+
+```bash
+grantthai route profiles work.yaml   # 7ssa-world | 7ssa-thai-7 | 7ssa-thai-5 | 7ssa-thai-4, and the candidates
+```
+
+Ask: "จะให้จัดเนื้อหาแบบเจ็ดหัวข้อภาษาอังกฤษ หรือหัวข้อภาษาไทยแบบเจ็ด ห้า หรือสี่หัวข้อ" / "Seven
+English sections, or seven, five or four Thai sections?" Record the answer as
+`project.structure_profile` in `answers.yaml` (with `project.route:
+academic-article`), or pass `--structure-profile ID` to `report`. A profile
+is optional: with none, the article overview is the plain one. With a
+profile, interview sector by sector with `reference/interview-7ssa.md`
+(tag each body item with `ssa_sector` and `ssa_slot`). The 7SSA findings
+(7SSA-01..10) are presence checks only; explain them with
+`reference/rules-th.md`. `--format tex` gives an English LaTeX draft
+(`build/ACADEMIC_ARTICLE.tex`) of the same sectors.
+
 ### 1. Set up (once)
 
 Check the engine is available:
@@ -294,6 +314,7 @@ date.
 |---|---|
 | `reference/routes.md` | the output routes, how a route is resolved, and step 0 (ask, never choose) |
 | `reference/interview.md` | question list (TH/EN) mapped to field ids, item keys and id prefixes; section 3a: what funded work usually has (routes `nriis-proposal`, `concept-note`) |
+| `reference/interview-7ssa.md` | the 7SSA track (a structure profile is selected): sector by sector in the writing order 5 -> 4 -> 3 -> 6 -> 2 -> 1 -> 7, each question mapped to a sector and slot; the source's quality conditions are questions to the researcher, never verdicts |
 | `reference/interview-article.md` | the article track: kind, venue with source, authors and roles, IMRaD from the researcher's results, ethics, AI-use placement, data-bearing figures (route `academic-article`) |
 | `reference/provenance.md` | how to record researcher statements, AI drafts, sources, unknowns |
 | `reference/answers-format.md` | the `answers.yaml` format for `scripts/grantthai_skill.py apply` |
