@@ -240,6 +240,18 @@ feature. Do NOT let `ai_assisted_fill` default to anything but `false`.
 
 ## v0.2 — "Citizen, no AI" + review + lock
 
+**Status of v0.2 (integration branch, 2026-09-25; not released).** Built:
+form profiles, the writing layer, and review/lock/diff (`grantthai link`,
+`review`, `accept-mapping`, `reject-mapping`, `lock`, `diff`, `explain
+FIELD_ID`, `profiles`), plus one AI-simulated demo
+(`examples/demo-seedbank/`, `docs/demo/`). **Not yet built** in v0.2
+(open, founder ruling needed to defer or schedule): Citizen Mode and the
+concept note, the lifecycle decision, bridge ontology and generated SHACL,
+classification rules C001–C003, the rule families listed below. So AT-1 is
+**not** passed; the demo is not an AT-1 run (its Gap/RQ text is simulated,
+not human-authored). AT-2 extended (validate → link → review RG0–RG4 →
+lock → build) is covered by `tests/test_lock.py`.
+
 **Carried into v0.2 from the v0.1.0 audit of the design sources** (recorded
 in `docs/deviations.md`):
 

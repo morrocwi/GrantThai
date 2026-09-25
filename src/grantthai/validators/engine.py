@@ -31,6 +31,9 @@ V01_NOT_EVALUATED = {
     "F004": "historical rule reuse needs rule lineage across profile versions, which v0.1 does not track (F003 still blocks a non-ACTIVE profile)",
 }
 
+# Rules shipped in v0.2 that this engine evaluates (not reported as INFO).
+V02_EVALUATED = frozenset({"W101", "W102"})
+
 TRUST_ORDER = ["FICTIONAL", "COMMUNITY_EXTRACTED", "HUMAN_VERIFIED", "SECOND_CHECKED"]
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$")
 CENT = Decimal("0.01")
@@ -542,6 +545,11 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
     _logic(c)
     hold, stale, trust = _fund(c)
 
+    # v0.2 writing layer: W101/W102 length findings (REVIEW only, report-only).
+    # Imported here: grantthai.guidance.writing imports this module.
+    from grantthai.guidance import writing as _W
+    c.findings.extend(_W.length_findings(c.doc))
+
     for rec, _ in P.iter_records(c.doc):
         if "HOLD_FOR_VERIFICATION" in (rec.get("markers") or []):
             hold.append(f"{rec.get('field_id')}: {rec.get('hold_reason') or 'HOLD_FOR_VERIFICATION'}")
@@ -549,6 +557,8 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
     # Account for every catalog rule not evaluated by v0.1 (no silent skip).
     for rid in c.rule_order:
         rule = c.rules[rid]
+        if rid in V02_EVALUATED:
+            continue
         if rid in V01_NOT_EVALUATED:
             reason = V01_NOT_EVALUATED[rid]
         elif rule.get("ships") != "v0.1":

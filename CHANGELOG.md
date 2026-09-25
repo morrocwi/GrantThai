@@ -4,6 +4,59 @@ All notable changes to GrantThai are documented in this file. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/); versions follow
 SemVer from v0.1 onward.
 
+## [Unreleased] — v0.2 (integration branch)
+
+Founder scope 2026-09-25: build v0.2, make our own fictional demo proposal
+end to end, and compare it with real, funded, publicly available research
+reports. Not released; the founder approves any release.
+
+### Added — writing layer
+- `guidance/writing_intent.yaml` (`spec/guidance/writing_intent.schema.json`):
+  purpose, micro-template, length target with a cited basis, keep-out list
+  and quality traits for 76 fields; completeness checklist WC01–WC14.
+- Rules W101/W102 (length above/below target), REVIEW only, evaluated on
+  every field with a length target. `grantthai explain FIELD_ID`.
+- Output section 4.6 "Completeness checklist".
+- Sources: core/01, core/02 and SD-4 are not in the public repo, so targets
+  citing them are relayed and `NEEDS_VERIFICATION`. The summary cap (at most
+  3000 words) and keyword cap (at most 5) were read on SD-5 p3.
+
+### Added — form profiles
+- `form_profile` (optional, top level, null = observed form) in
+  `project.yaml`; 8 profiles in `mappings/nriis/form_profiles/`
+  (`spec/mappings/form_profile.schema.json`), all `NEEDS_VERIFICATION`.
+- S001 reads the profile's required set; an unknown profile is a SCHEMA
+  BLOCK, never ignored. `grantthai profiles`.
+- Output: `form_profile` frontmatter key; subsection 1.8 lists unmapped
+  profile items and candidate budget rules (listed, never evaluated).
+- New public source SD-5 (FF full-proposal form, 2570 cycle) in
+  `docs/sources.md`. Two relayed readings were corrected against its page
+  text: the p1 "work being built on" block (prior work, TRL/SRL) applies
+  only when focus area 6 is chosen, so it is not required; the p9 20
+  percent equipment cap applies to the budget-receiving unit, not to a
+  single project. CX-09 gains SD-5's four-part reading; it stays OPEN.
+
+### Added — review, lock and diff
+- `grantthai link | review | accept-mapping | reject-mapping | lock | diff`
+  (local CLI only; MCP and REST cannot reach them). Named review records
+  per gate RG0–RG4 bound to `content_sha256`; self review renders
+  AUTHOR_CHECKED; the object LOCK breaks on any authored edit.
+- A missing or stale gate never blocks `build`; it adds a hold reason
+  (frontmatter `hold_reasons` and section 1).
+
+### Changed
+- Renderer `nriis_submission.md.j2@0.2.0`. The example build
+  (`examples/lecturer-no-ai`) is no longer byte-identical to v0.1.0: it
+  now carries `form_profile: null`, five gate hold reasons, 11 W102 REVIEW
+  findings (the example is deliberately terse) and the checklist. The
+  golden hash in `tests/test_form_profiles.py` was re-pinned for this
+  deliberate change. `tests/test_engine.py` now allows REVIEW findings on
+  the example only from W101/W102.
+
+### Not in this build (OPEN)
+- Citizen Mode, concept note, lifecycle, bridge ontology/SHACL, C001–C003
+  and the other v0.2 rule families. AT-1 is not passed.
+
 ## [0.1.0] — 2026-09-25
 
 Scope set by the founder on 2026-09-25: "เอาแค่ สกิล mcp และ api ที่นักวิจัยใช้เอไอ ดึงไปใช้สร้างไฟล์สำหรับวางภาพรวมได้" ("only the skill, MCP

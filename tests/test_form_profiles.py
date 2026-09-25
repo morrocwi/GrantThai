@@ -32,12 +32,15 @@ PROFILE_DIR = ROOT / "mappings/nriis/form_profiles"
 SOURCES = (ROOT / "docs/sources.md").read_text(encoding="utf-8")
 
 # sha256 of build/NRIIS_SUBMISSION.md for examples/lecturer-no-ai at
-# as_of 2026-09-25, produced by the v0.1.0 release (main bbe3f8c). With
-# form_profile absent the v0.2 engine must reproduce it byte for byte. If the
-# integrator changes the template or the output contract, regenerate this
-# constant in the same commit and say so in CHANGELOG.md.
-GOLDEN_V010_SHA256 = "2ca02132f04fc7d2257bf3cfb9e11ff3efb8afac20a819ac1dd376924c11a838"
-GOLDEN_V010_BYTES = 102026
+# as_of 2026-09-25. v0.1.0 (main bbe3f8c) gave 2ca02132...a838 (102026 bytes);
+# the v0.2 forms module reproduced it byte for byte with form_profile absent.
+# The v0.2 integration then changed the template and contract on purpose
+# (renderer 0.2.0: form_profile frontmatter key, review-gate hold reasons,
+# W101/W102 findings, section 4.6 completeness checklist), so the golden was
+# re-pinned in the same commit (CHANGELOG.md, v0.2). Regenerate it only for
+# a deliberate template or contract change, and say so in CHANGELOG.md.
+GOLDEN_V010_SHA256 = "2732f4a069ec57df568c35068d438a5ddb99550504560a578686d271785f1c96"
+GOLDEN_V010_BYTES = 109234
 
 EXPECTED_IDS = {
     "research@sd1-2566", "innovation@sd1-2566", "personnel_development@sd1-2566",
@@ -146,10 +149,13 @@ def test_required_changes_as_each_profile_says():
         assert v.tab_order == tuple(doc.get("tab_order") or P.tab_mapping()["tab_order"]), pid
         assert len(v.extra_items) == len(doc["extra_items"]) and len(v.budget_rules) == len(doc["budget_rules"])
     # the concrete claims of the shipped profiles
+    # SD-5 p1: the "work being built on" block is conditional (focus area 6
+    # only), so it is an extra item, never an unconditional requirement.
     ff = FP.view(FP.load("ff_full_proposal@nriis-2570"))
-    assert {"READY.TRL.CURRENT", "READY.TRL.TARGET", "READY.SRL.CURRENT", "READY.SRL.TARGET",
-            "CORE.GENERAL.PAST_PERFORMANCE"} <= ff.profile_required
-    assert [r["id"] for r in ff.budget_rules] == ["B101-candidate"]
+    assert ff.profile_required == frozenset()
+    assert any("focus area 6" in x["ref"] for x in ff.extra_items)
+    assert [r["id"] for r in ff.budget_rules] == ["B101-candidate", "B102-candidate", "B103-candidate"]
+    assert "not a per-project check" in ff.budget_rules[0]["text"]
     for pid in ("pmu_template@sd2-2564", "pmu_template@sd3-2569"):
         assert FP.view(FP.load(pid)).profile_required == frozenset({"DOC.ATTACHMENTS.DOCUMENTS"})
     for pid in ("research@sd1-2566", "innovation@sd1-2566", "personnel_development@sd1-2566",
@@ -211,11 +217,42 @@ def test_describe_is_deterministic():
 # Engine and build
 # --------------------------------------------------------------------------
 
-def test_example_build_without_profile_is_byte_identical_to_v010(tmp_path):
+def test_example_build_without_profile_matches_golden(tmp_path):
     shutil.copy(EXAMPLE, tmp_path / "project.yaml")
     out = api.build(tmp_path / "project.yaml", as_of=AS_OF).read_bytes()
     assert len(out) == GOLDEN_V010_BYTES
     assert hashlib.sha256(out).hexdigest() == GOLDEN_V010_SHA256
+
+
+def test_explicit_null_profile_renders_like_absent(tmp_path):
+    doc = P.load(EXAMPLE)
+    doc["form_profile"] = None
+    assert E.run(doc, tmp_path, as_of=AS_OF).report["summary"]["block"] == 0
+    from grantthai.render import submission as R
+    a, _ = R.render(P.load(EXAMPLE), tmp_path, AS_OF)
+    b, _ = R.render(doc, tmp_path, AS_OF)
+    # The key's presence is authored content (spec/common/object-hash.md), so
+    # only the two hash lines may differ.
+    strip = lambda t: [ln for ln in t.splitlines() if not ln.startswith(("project_content_sha256:", "project_state_sha256:"))]
+    assert strip(a) == strip(b)
+
+
+def test_profile_items_render_in_readiness_summary(tmp_path):
+    doc = P.load(EXAMPLE)
+    doc["form_profile"] = "ff_full_proposal@nriis-2570"
+    from grantthai.render import submission as R
+    text, res = R.render(doc, tmp_path, AS_OF)
+    assert res.report["summary"]["block"] == 0
+    assert not [f for f in res.findings if f.rule_id == "SCHEMA"]
+    assert "form_profile: ff_full_proposal@nriis-2570" in text
+    assert "### 1.8 Form profile `ff_full_proposal@nriis-2570` (NEEDS_VERIFICATION)" in text
+    assert "Unmapped profile items (NEEDS_VERIFICATION)" in text
+    assert "B101-candidate (p9)" in text
+    doc["form_profile"] = "pmu_template@sd2-2564"
+    doc["fields"] = [r for r in doc["fields"] if r.get("field_id") != "DOC.ATTACHMENTS.DOCUMENTS"]
+    text, res = R.render(doc, tmp_path, AS_OF)
+    assert "REQUIRED: true (form profile pmu_template@sd2-2564, NEEDS_VERIFICATION)" in text
+    assert "`DOC.ATTACHMENTS.DOCUMENTS`: NEEDS_INPUT" in text
 
 
 def test_engine_reads_profile_required(tmp_path):
@@ -225,16 +262,17 @@ def test_engine_reads_profile_required(tmp_path):
     assert _rules(base.report, rid="S001") == []
 
     doc2 = copy.deepcopy(doc)
-    doc2["form_profile"] = "ff_full_proposal@nriis-2570"
+    doc2["fields"] = [r for r in doc2["fields"] if r.get("field_id") != "DOC.ATTACHMENTS.DOCUMENTS"]
+    doc2["form_profile"] = "pmu_template@sd2-2564"
     res = E.run(doc2, tmp_path, as_of=AS_OF)
-    assert res.form_profile.profile_id == "ff_full_proposal@nriis-2570"
+    assert res.form_profile.profile_id == "pmu_template@sd2-2564"
     s001 = _rules(res.report, rid="S001")
     missing = {f["field_ids"][0] for f in s001}
     present = {r.get("field_id") for r, _ in P.iter_records(doc2) if r.get("value") not in (None, "NEEDS_INPUT")}
     assert missing == res.form_profile.profile_required - present
-    assert missing, "the example does not fill every READY.* field, so the profile must add S001 findings"
+    assert missing == {"DOC.ATTACHMENTS.DOCUMENTS"}
     for f in s001:
-        assert "form profile ff_full_proposal@nriis-2570" in f["message_en"]
+        assert "form profile pmu_template@sd2-2564" in f["message_en"]
         assert "NEEDS_VERIFICATION" in f["message_en"]
     # every S001 finding is BLOCK, as the catalog says
     assert all(f["severity"] == "BLOCK" for f in s001)

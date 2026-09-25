@@ -1,55 +1,66 @@
 # mappings/nriis/form_profiles/ff_full_proposal@nriis-2570.yaml — one proposal form type, read
 # from a public document (spec/mappings/form_profile.schema.json).
 #
-# STATUS: NEEDS_VERIFICATION throughout (founder ruling K14). SD-5 is a CANDIDATE source: a public full-proposal form for the
-# 2570 fiscal cycle, relayed to this build as report R0. It is not yet
-# listed in docs/sources.md (source.pending_registration: true) and
-# its sha256 is NEEDS_VERIFICATION; the document itself is never
-# committed (no licence statement). Every item below is relayed, not
-# read from the page by the author of this file, so each is a
-# candidate until a reader confirms it against the document.
-# Which registry fields each form type adds, drops or reorders is NOT
-# captured unless a line below cites the page it was read from; a profile
-# with empty `require`/`hide` and `render_only: null` records only that the
-# form type exists, and behaves exactly like the observed form
-# (mappings/nriis/section_to_tab.yaml). Contradiction CX-09 (form parts
-# and their order) stays OPEN; no profile resolves it.
+# STATUS: NEEDS_VERIFICATION throughout (founder ruling K14). Source SD-5
+# (docs/sources.md): the public blank Fundamental Fund full-proposal form for
+# the 2570 fiscal cycle (52 PDF pages). The document has no licence
+# statement and is never committed. The page facts below were read from the
+# document's text layer at integration (v0.2); they describe one edition and
+# are candidates until a person confirms them against the current call.
+#
+# Corrections made at integration against the page text (the module first
+# carried relayed readings):
+# - p1: the "work being built on" block (prior result, owner, affiliation,
+#   year, TRL/SRL) is asked ONLY when focus area 6 is chosen. It is therefore
+#   not an unconditional requirement: `require` is empty and the block is an
+#   extra_item with that condition.
+# - p9: the 20 percent equipment cap is a share of the budget-receiving
+#   unit's research and innovation budget, not of one project's budget. It is
+#   not a per-project check and is listed only.
+#
+# Contradiction CX-09 (form parts and their order) stays OPEN: SD-5 shows
+# four parts (p1, p3, p6, p12); no tab_order override is set.
 #
 # No amount, rate or ceiling is evaluated from here: `budget_rules` are
 # candidates only (`evaluable: false`). Evaluated fund rules live in a
 # dated fund profile (funds/).
 schema: grantthai.form_profile.v0
-version: "0.1.0-draft"
+version: "0.2.0-draft"
 id: ff_full_proposal@nriis-2570
-title_en: "Fundamental Fund full proposal form, 2570 cycle (candidate source SD-5 / R0)"
+title_en: "Fundamental Fund full proposal form, 2570 cycle (SD-5)"
 title_th: NEEDS_VERIFICATION
 status_marker: NEEDS_VERIFICATION
-source: {sd: SD-5, page: 1, pending_registration: true, note: "R0 as relayed; four-part structure (page 1) is a new reading for CX-09, not a resolution."}
-derived_from: "sourcedoc/SD-5@sha256:NEEDS_VERIFICATION"
-note: "R0 describes a four-part form. How its four parts map onto GrantThai's five observed tabs is NEEDS_VERIFICATION, so no tab_order override is set. The summary length cap R0 states (p3) belongs to the writing layer (guidance/writing_intent.yaml), not here."
-require:
-  - CORE.GENERAL.PAST_PERFORMANCE
-  - READY.TRL.CURRENT
-  - READY.TRL.TARGET
-  - READY.SRL.CURRENT
-  - READY.SRL.TARGET
-require_basis:
-  CORE.GENERAL.PAST_PERFORMANCE: {ref: "R0 part 1 item 6: prior work", page: 1, note: "Relayed reading; whether the item is mandatory for a new project is NEEDS_VERIFICATION."}
-  READY.TRL.CURRENT: {ref: "R0 part 1 item 6: TRL", page: 1, note: "Relayed reading."}
-  READY.TRL.TARGET: {ref: "R0 part 1 item 6: TRL", page: 1, note: "Relayed reading."}
-  READY.SRL.CURRENT: {ref: "R0 part 1 item 6: SRL", page: 1, note: "Relayed reading."}
-  READY.SRL.TARGET: {ref: "R0 part 1 item 6: SRL", page: 1, note: "Relayed reading."}
+source: {sd: SD-5, page: 1, note: "Four parts: part 1 general p1, part 2 project p3, part 3 workplan p6, part 4 outputs/outcomes/impacts p12. A new reading for CX-09, not a resolution."}
+derived_from: "sourcedoc/SD-5@sha256:f212e61beb19aea74b203bdc80d68d935f508006358fa4bf92d50adee90621ec"
+note: "SD-5 describes a four-part form. How its four parts map onto GrantThai's five observed tabs is NEEDS_VERIFICATION, so no tab_order override is set. The summary cap (at most 3000 words, p3) and the keyword cap (at most 5, p3) belong to the writing layer (guidance/writing_intent.yaml)."
+require: []
+require_basis: {}
 render_only: null
 hide: []
 extra_items:
-  - ref: "R0 part 1 item 6: prior work together with TRL/SRL as one item"
+  - ref: "SD-5 part 1: fund focus areas 1-6, at most 2 per project"
     page: 1
-    note: "R0 asks for prior work and readiness levels in one item. GrantThai holds them in separate fields (listed under nearest_field_ids); the combined narrative has no single registry field."
+    note: "Focus areas 3-6 need at least one choice; 1-2 are cross-cutting and optional. GrantThai has no focus-area field; CORE.ALIGNMENT.FUND_SELECTION is the nearest free-text home."
     status: NEEDS_VERIFICATION
-    nearest_field_ids: [CORE.GENERAL.PAST_PERFORMANCE, READY.TRL.CURRENT, READY.TRL.TARGET, READY.SRL.CURRENT, READY.SRL.TARGET]
+    nearest_field_ids: [CORE.ALIGNMENT.FUND_SELECTION]
+  - ref: "SD-5 part 1: work being built on (only if focus area 6 is chosen)"
+    page: 1
+    note: "Prior result (at most 100 words), project name, owner, owner's affiliation, year, TRL/SRL of that work. GrantThai holds these in separate fields; the combined item has no single registry field."
+    status: NEEDS_VERIFICATION
+    nearest_field_ids: [CORE.GENERAL.PAST_PERFORMANCE, READY.TRL.CURRENT, READY.SRL.CURRENT]
 budget_rules:
   - id: B101-candidate
-    text: "Equipment share of the total budget at most 20 percent (as relayed from R0 p9)."
+    text: "Equipment at most 20 percent of the budget-receiving unit's research and innovation budget (a unit-level cap, not a per-project check)."
     page: 9
     evaluable: false
-    note: "Listed only. An evaluable ceiling belongs in a dated fund profile with a cited public call (funds/README.md)."
+    note: "Listed only. An evaluable rule belongs in a dated fund profile with a cited public call (funds/README.md)."
+  - id: B102-candidate
+    text: "No institutional overhead is supported."
+    page: 9
+    evaluable: false
+    note: "Listed only."
+  - id: B103-candidate
+    text: "Project total rounded to whole hundreds (currency units); line items broken down by multiplication, for the requested year only."
+    page: 9
+    evaluable: false
+    note: "Listed only. B001/B002 already check line arithmetic; the rounding rule is not evaluated."

@@ -21,8 +21,9 @@
 #   registry, so every target that cites them is NEEDS_VERIFICATION, and a
 #   target GrantThai set itself says `proposed_default`.
 # - The 3,000-word cap on the summary and rationale comes from the registry
-#   guidance (core/05, "observed instruction") and is NEEDS_VERIFICATION; the
-#   public-form page for it has not been read here.
+#   guidance (core/05, "observed instruction") and is NEEDS_VERIFICATION. For
+#   the summary it was read at v0.2 integration on SD-5 p3 (one form, one
+#   edition); the keyword cap (at most 5) comes from the same page.
 # - `seen_in` on a quality trait may only cite a real, publicly available
 #   funded report by id and PDF page (R1 p8) — never quoted text. No reader
 #   has recorded such pages yet, so every seen_in is NEEDS_INPUT.
@@ -165,14 +166,14 @@ fields:
   CORE.GENERAL.KEYWORDS_TH:
     purpose: {en: "Thai keywords a reviewer would search for: object, method, site or group.", th: NEEDS_INPUT}
     micro_template: {en: "[<object>, <method>, <site or group>, <outcome>]", th: NEEDS_INPUT}
-    length_target: {unit: items, min: 3, max: 8, basis: "proposed_default; NEEDS_VERIFICATION (no public page read for a keyword count)"}
+    length_target: {unit: items, min: 3, max: 5, basis: "SD-5 p3 (at most 5 keywords, FF full-proposal form 2570); proposed_default minimum 3; NEEDS_VERIFICATION for other forms and editions"}
     keep_out: ["whole sentences as keywords", "keywords absent from the title and objectives"]
     quality_traits: [{trait: "each keyword appears in the title, objectives or method", seen_in: NEEDS_INPUT}]
     derived_from: registry/fields.jsonl
   CORE.GENERAL.KEYWORDS_EN:
     purpose: {en: "The same keywords in English, one to one with the Thai list.", th: NEEDS_INPUT}
     micro_template: {en: "[<object>, <method>, <site or group>, <outcome>]", th: NEEDS_INPUT}
-    length_target: {unit: items, min: 3, max: 8, basis: "proposed_default; NEEDS_VERIFICATION (no public page read for a keyword count)"}
+    length_target: {unit: items, min: 3, max: 5, basis: "SD-5 p3 (at most 5 keywords, FF full-proposal form 2570); proposed_default minimum 3; NEEDS_VERIFICATION for other forms and editions"}
     keep_out: ["a different number of keywords from the Thai list"]
     quality_traits: [{trait: "one-to-one with the Thai list", seen_in: NEEDS_INPUT}]
     derived_from: registry/fields.jsonl
@@ -374,7 +375,7 @@ fields:
   CORE.NARRATIVE.SUMMARY:
     purpose: {en: "The summary box: need, problem, gap, objectives, design and outputs in the order the core records give them.", th: NEEDS_INPUT}
     micro_template: {en: "<need> <problem> <gap> Objectives: <OBJ list>. Design: <design_type>. Outputs: <OUT list>.", th: NEEDS_INPUT}
-    length_target: {unit: words, min: 100, max: 3000, basis: "registry:CORE.NARRATIVE.SUMMARY guidance (observed instruction, not more than 3,000 words); NEEDS_VERIFICATION (relayed as R0 p3, page not read here)"}
+    length_target: {unit: words, min: 100, max: 3000, basis: "registry:CORE.NARRATIVE.SUMMARY guidance (observed instruction, not more than 3,000 words); SD-5 p3 (FF full-proposal form 2570, at most 3000 words, read at v0.2 integration); NEEDS_VERIFICATION for other forms and editions"}
     keep_out: ["content absent from the render_from records", "results that have not happened yet stated as findings"]
     quality_traits: [{trait: "every sentence traces to a render_from record", seen_in: NEEDS_INPUT}]
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4

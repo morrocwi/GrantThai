@@ -17,6 +17,8 @@ Guard: the data contracts hold, not only parse.
        mappings/nriis/section_to_tab.yaml   -> spec/mappings/section_to_tab.schema.json
        mappings/modes/*.yaml                -> spec/mappings/mode_mapping.schema.json
        interview/*.yaml                     -> spec/interview/question_set.schema.json
+       mappings/nriis/form_profiles/*.yaml  -> spec/mappings/form_profile.schema.json (v0.2)
+       guidance/writing_intent.yaml         -> spec/guidance/writing_intent.schema.json (v0.2)
   5. Cross-file checks: every chain.yaml edge endpoint is a declared node,
      no edge is listed twice, causal edges form a DAG; every fund profile id
      matches its path and its trust level is not above its rules'; every
@@ -506,6 +508,10 @@ def main() -> int:
             validate(violations, registry, schemas, "mappings/mode_mapping.schema.json", get(rel), rel)
         if rel.startswith("interview/") and rel.endswith(".yaml"):
             validate(violations, registry, schemas, "interview/question_set.schema.json", get(rel), rel)
+        if rel.startswith("mappings/nriis/form_profiles/") and rel.endswith(".yaml"):
+            validate(violations, registry, schemas, "mappings/form_profile.schema.json", get(rel), rel)
+        if rel == "guidance/writing_intent.yaml":
+            validate(violations, registry, schemas, "guidance/writing_intent.schema.json", get(rel), rel)
 
     # 5. Cross-file checks
     chain = get("spec/common/chain.yaml")

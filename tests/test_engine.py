@@ -74,12 +74,16 @@ def test_e2e_example_builds_exactly_one_file_block_zero(tmp_path):
 def test_report_matches_schema_and_accounts_for_every_rule():
     rep = api.validate(EXAMPLE, as_of=AS_OF)
     assert P.schema_errors(rep, P.REPORT_SCHEMA_ID) == []
-    assert rep["summary"]["block"] == 0 and rep["summary"]["review"] == 0
+    assert rep["summary"]["block"] == 0
+    # v0.2: the only REVIEW findings on the (deliberately terse) example are
+    # writing-length guidance (W101/W102), never a structural or logic finding.
+    assert {f["rule_id"] for f in rep["findings"] if f["severity"] == "REVIEW"} <= {"W101", "W102"}
     catalog = [r["id"] for r in P.rules_catalog()["rules"]]
     not_eval = set(_rules(rep, "INFO"))
     for rid in catalog:
         rule = P.rules_catalog()["rules"][catalog.index(rid)]
-        evaluated = rule["ships"] == "v0.1" and rid not in E.V01_NOT_EVALUATED
+        evaluated = ((rule["ships"] == "v0.1" and rid not in E.V01_NOT_EVALUATED)
+                     or rid in E.V02_EVALUATED)
         assert evaluated != (rid in not_eval), rid       # evaluated XOR reported as not evaluated
 
 

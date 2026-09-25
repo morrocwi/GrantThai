@@ -4,9 +4,12 @@
     grantthai set FIELD_ID VALUE [--project PATH] [--string] [--chain-node NODE]
                   [--source-id SRC-..]... [--provenance-class C] [--ai --tool NAME]
     grantthai validate [PATH] [--json] [--as-of YYYY-MM-DD]
-    grantthai explain RULE_ID
+    grantthai explain RULE_ID|FIELD_ID
+    grantthai explain-field FIELD_ID
     grantthai build [PATH] [--out DIR] [--as-of YYYY-MM-DD]
     grantthai fields [--tab TAB] [--required]
+    grantthai profiles
+    grantthai link | review | accept-mapping | reject-mapping | lock | diff   (v0.2, named human only)
 
 This package MUST NEVER import grantthai.assist, grantthai.mcp,
 grantthai.api, or any LLM SDK. Enforced by tools/ci/check_no_ai_import.py.
@@ -19,6 +22,7 @@ import sys
 
 from grantthai import __version__
 from grantthai import api_py as api
+from grantthai.cli import cmd_explain_field, cmd_review
 from grantthai.core.object_hash import load_project_text
 
 
@@ -58,8 +62,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--json", action="store_true")
     p.add_argument("--as-of")
 
-    p = sub.add_parser("explain", help="explain a rule id")
-    p.add_argument("rule_id")
+    p = sub.add_parser("explain", help="explain a rule id or a field id")
+    p.add_argument("rule_id", metavar="RULE_ID|FIELD_ID")
 
     p = sub.add_parser("build", help="render build/NRIIS_SUBMISSION.md")
     p.add_argument("path", nargs="?", default="project.yaml")
@@ -70,8 +74,22 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--tab")
     p.add_argument("--required", action="store_true")
 
+    sub.add_parser("profiles", help="list form profiles (every one NEEDS_VERIFICATION)")
+    cmd_explain_field.register(sub)
+    cmd_review.register(sub)
+
     a = ap.parse_args(argv)
     try:
+        rc = cmd_review.run(a)
+        if rc is not None:
+            return rc
+        if a.cmd == "explain-field":
+            return cmd_explain_field.run(a)
+        if a.cmd == "profiles":
+            from grantthai.mapping import form_profile as FP
+            for pid in FP.profile_ids():
+                print(json.dumps(FP.describe(pid), ensure_ascii=False))
+            return 0
         if a.cmd == "init":
             api.new_project(a.project_id, a.fund, a.mode, path=a.path)
             print(f"wrote {a.path}")
@@ -95,7 +113,7 @@ def main(argv: list[str] | None = None) -> int:
                         print(f"  {f['severity']} {f['rule_id']}: {f['message_en']}")
             return 1 if rep["summary"]["block"] else 0
         if a.cmd == "explain":
-            print(json.dumps(api.explain(a.rule_id), ensure_ascii=False, indent=2))
+            print(json.dumps(cmd_explain_field.explain_any(a.rule_id), ensure_ascii=False, indent=2))
             return 0
         if a.cmd == "build":
             out = api.build(a.path, out_dir=a.out, as_of=a.as_of)
@@ -106,7 +124,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{f['tab']}.{f['entry_order']}\t{f['field_id']}\t{f['type']}\t"
                       f"{'required' if f['required'] else 'optional'}\t{f['label_en']}")
             return 0
-    except (ValueError, KeyError, FileExistsError, FileNotFoundError, RuntimeError) as exc:
+    except (ValueError, KeyError, FileExistsError, FileNotFoundError, RuntimeError, PermissionError) as exc:
         print(f"grantthai: error: {exc}", file=sys.stderr)
         return 2
     return 2

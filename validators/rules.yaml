@@ -30,7 +30,7 @@ rule_families:
   ids_status: enumerated
 - family: W
   ships: v0.1
-  checks: workplan, including progress weights summing to 100
+  checks: workplan, including progress weights summing to 100; writing length targets (W101-W102, v0.2)
   ids_status: enumerated
 - family: B
   ships: v0.1
@@ -486,6 +486,44 @@ rules:
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
     locator: 02 §10.3 V-I07
   negative_fixture: test:tests/test_rules_added.py::test_W005_and_B007_partner_checks
+- id: W101
+  family: W
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A non-empty value is above its writing length target (guidance/writing_intent.yaml
+    length_target.max). Guidance only; never a fund rule.
+  inputs:
+  - CORE.NARRATIVE.SUMMARY
+  - CORE.NARRATIVE.RATIONALE
+  - CORE.NARRATIVE.METHOD
+  - CORE.RESEARCH.OBJECTIVES
+  - CORE.ALIGNMENT.STATEMENT
+  chain_step: project
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: "§4A.2 compression targets (relayed, NEEDS_VERIFICATION); reference implementation src/grantthai/guidance/writing.py"
+  negative_fixture: test:tests/test_writing_intent.py::test_length_findings_over_max
+  notes: Evaluated on every field that has a length_target in guidance/writing_intent.yaml; inputs lists representative fields only.
+- id: W102
+  family: W
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A non-empty value is below its writing length target (length_target.min). Not raised
+    for Thai-script prose (token counts undercount). Guidance only.
+  inputs:
+  - CORE.NARRATIVE.SUMMARY
+  - CORE.NARRATIVE.RATIONALE
+  - CORE.NARRATIVE.METHOD
+  - CORE.RESEARCH.OBJECTIVES
+  - CORE.ALIGNMENT.STATEMENT
+  chain_step: project
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: "§4A.2 compression targets (relayed, NEEDS_VERIFICATION); reference implementation src/grantthai/guidance/writing.py"
+  negative_fixture: test:tests/test_writing_intent.py::test_length_findings_under_min
+  notes: Evaluated on every field that has a length_target in guidance/writing_intent.yaml; inputs lists representative fields only.
 - id: B001
   family: B
   ships: v0.1
