@@ -4,7 +4,30 @@ All notable changes to GrantThai are documented in this file. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/); versions follow
 SemVer from v0.1 onward.
 
-## [Unreleased] — Phase 0
+## [Unreleased] — v0.1 engine
+
+### Added
+
+- `src/grantthai/core/project.py`: load/save `project.yaml`, schema
+  validation through a local `$id` registry of `spec/**/*.schema.json`
+  (never fetches a URL), `new_project`, `set_field` under the status hard
+  ceiling (never above `DRAFT`; an AI draft is `ai_draft`/`INFERENCE`, never
+  `SOURCE`).
+- `src/grantthai/validators/engine.py`: report-only validator for the v0.1
+  rule families (S, R, W, B, T, CH, F, ELIG); every other catalog rule is
+  reported as an explicit INFO "not evaluated" finding (B003, B004, F004 and
+  all v0.2 rules).
+- `src/grantthai/render/submission.py` + `templates/nriis_submission.md.j2`:
+  renders exactly one `build/NRIIS_SUBMISSION.md` per the output contract;
+  deterministic (byte-identical for the same input and `--as-of` date).
+- `src/grantthai/api_py.py`: `new_project`, `set_field`, `validate`,
+  `build`, `explain`, `list_fields` — the one surface the skill, MCP server
+  and HTTP API wrap.
+- CLI `grantthai` (`init`, `set`, `validate`, `explain`, `build`, `fields`).
+- `tests/test_engine.py`: end-to-end, determinism, negative cases, hard
+  ceiling.
+
+## [0.0.0] — Phase 0
 
 ### Added
 
