@@ -1,0 +1,31 @@
+# mappings/nriis/form_profiles/promotion_activity@sd1-2566.yaml — one proposal form type, read
+# from a public document (spec/mappings/form_profile.schema.json).
+#
+# STATUS: NEEDS_VERIFICATION throughout (founder ruling K14). SD-1 (researcher's manual, edition 2566) p47 lists five proposal
+# form types; this file is one of them. Its Thai name as printed on
+# p47 is not transcribed here (NEEDS_VERIFICATION) and its English
+# title is GrantThai's description, never an official label.
+# Which registry fields each form type adds, drops or reorders is NOT
+# captured unless a line below cites the page it was read from; a profile
+# with empty `require`/`hide` and `render_only: null` records only that the
+# form type exists, and behaves exactly like the observed form
+# (mappings/nriis/section_to_tab.yaml). Contradiction CX-09 (form parts
+# and their order) stays OPEN; no profile resolves it.
+#
+# No amount, rate or ceiling is evaluated from here: `budget_rules` are
+# candidates only (`evaluable: false`). Evaluated fund rules live in a
+# dated fund profile (funds/).
+schema: grantthai.form_profile.v0
+version: "0.1.0-draft"
+id: promotion_activity@sd1-2566
+title_en: "Promotion activity proposal form (SD-1 p47 form type 5 of 5)"
+title_th: NEEDS_VERIFICATION
+status_marker: NEEDS_VERIFICATION
+source: {sd: SD-1, page: 47}
+derived_from: "sourcedoc/SD-1@sha256:98423019ad17f0f0aafc3863840e9d7aaa81007a84f3ddd64a10aab689a4b52e"
+note: "Field-level differences from the research form are NEEDS_VERIFICATION; none recorded."
+require: []
+render_only: null
+hide: []
+extra_items: []
+budget_rules: []

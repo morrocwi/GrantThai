@@ -21,6 +21,7 @@ from typing import Any
 from grantthai.core import links
 from grantthai.core import project as P
 from grantthai.core.object_hash import content_sha256, state_sha256
+from grantthai.mapping import form_profile as FP
 
 # Rules whose ids ship in v0.1 but which this build does not evaluate, with
 # the reason printed in their INFO finding.
@@ -67,6 +68,9 @@ class Result:
     trust_level: str
     real_world_verified: bool
     submittable: bool
+    # v0.2: the form profile in force (grantthai.mapping.form_profile.ProfileView);
+    # the renderer reads .rendered, .tab_order, .extra_items, .budget_rules.
+    form_profile: Any = None
 
 
 def q(x) -> Decimal:
@@ -96,6 +100,19 @@ class _Ctx:
         self.source_problems = links.resolve_sources(self.doc, project_dir)
         self.fund, self.fund_id, self.fund_problems = P.load_fund_profile(self.doc)
         self.findings: list[Finding] = []
+        # v0.2 form profile (mappings/nriis/form_profiles/): absent or null =
+        # the observed form. An unknown or malformed profile id falls back to
+        # the observed form AND is reported (never a silent fallback).
+        self.profile_problem: str | None = None
+        try:
+            self.profile = FP.resolve(self.doc)
+        except FP.FormProfileNotFound:
+            self.profile = FP.view(None)
+            self.profile_problem = (f"form_profile {FP.selected(self.doc)!r} is not a shipped profile "
+                                    f"(known: {', '.join(FP.profile_ids()) or 'none'}).")
+        except FP.FormProfileError as e:
+            self.profile = FP.view(None)
+            self.profile_problem = f"form_profile {FP.selected(self.doc)!r} fails its contract: {e}"
         rules = P.rules_catalog()["rules"]
         self.rules = {r["id"]: r for r in rules}
         self.rule_order = [r["id"] for r in rules]
@@ -167,11 +184,18 @@ def _structure(c: _Ctx):
             c.add("X003", f"{fid}: an AI draft (authored_by ai_draft) is marked provenance_class SOURCE.",
                   [fid], "Record it as INFERENCE, or have the researcher adopt the wording and cite their "
                          "own source (authored_by human or human_ai_assisted).")
-    # S001 required fields
+    # S001 required fields: the registry's required flags, widened or narrowed
+    # by the project's form profile (grantthai.mapping.form_profile.ProfileView).
     for r in P.registry():
-        if r.get("required") and c.value(r["field_id"]) is None:
-            c.add("S001", f"Required field {r['field_id']} ({r['label_en']}) is missing or NEEDS_INPUT.",
-                  [r["field_id"]], f"Fill it: grantthai set {r['field_id']} <value> (or edit project.yaml).")
+        fid = r["field_id"]
+        if fid in c.profile.required and c.value(fid) is None:
+            if fid in c.profile.profile_required:
+                c.add("S001", f"Required field {fid} ({r['label_en']}) is missing or NEEDS_INPUT "
+                              f"(required by form profile {c.profile.profile_id}, NEEDS_VERIFICATION).",
+                      [fid], f"Fill it: grantthai set {fid} <value> (or edit project.yaml).")
+            else:
+                c.add("S001", f"Required field {fid} ({r['label_en']}) is missing or NEEDS_INPUT.",
+                      [fid], f"Fill it: grantthai set {fid} <value> (or edit project.yaml).")
     for rec, _ in P.iter_records(c.doc):
         fid, v = rec.get("field_id"), rec.get("value")
         reg = c.reg.get(fid)
@@ -510,6 +534,10 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
     for e in schema_errs:
         c.findings.append(Finding("SCHEMA", "BLOCK", f"project.yaml: {e}", [],
                                   "Fix project.yaml so it validates against spec/project/project.schema.json."))
+    if c.profile_problem:
+        c.findings.append(Finding("SCHEMA", "BLOCK", f"project.yaml: {c.profile_problem}", [],
+                                  "Set form_profile to a shipped profile id "
+                                  "(mappings/nriis/form_profiles/) or remove it."))
     _structure(c)
     _logic(c)
     hold, stale, trust = _fund(c)
@@ -549,6 +577,7 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
         fund_profile=c.fund, fund_profile_id=c.fund_id, hold_reasons=hold, stale_rules=stale,
         trust_level=trust, real_world_verified=rwv,
         submittable=(summary["block"] == 0 and not hold),
+        form_profile=c.profile,
     )
 
 
