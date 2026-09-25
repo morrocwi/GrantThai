@@ -32,10 +32,10 @@ routes:
     note: "Wraps the existing NRIIS assets in place; nothing moved in v0.3."
   - id: academic-article
     version: "0.1.0-draft"
-    status: planned
+    status: draft
     path: routes/academic-article/route.yaml
     output_filename: ACADEMIC_ARTICLE.md
-    note: "Route file, placement and sub-profiles (thai-journal, international-journal; both NEEDS_VERIFICATION) ship with the article work package. The registry already carries its 24 ARTICLE.* fields."
+    note: "Route file, placement and sub-profiles (thai-journal, international-journal; both NEEDS_VERIFICATION). The registry carries its 24 ARTICLE.* fields."
   - id: concept-note
     version: "0.1.0-draft"
     status: draft
