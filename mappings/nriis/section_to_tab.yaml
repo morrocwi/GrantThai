@@ -62,3 +62,5 @@ not_on_tab:
     reason: "System-assigned identifiers (core/02 §5 02.01): shown by the funder system, not typed by the applicant."
   - section: Audit
     reason: "GrantThai-internal revision log (core/02 §5 10.03); never entered in NRIIS."
+  - section: Article
+    reason: "Academic-article route fields (origin VENUE_NATIVE, routes/INDEX.yaml); never an NRIIS field, never entered in NRIIS."

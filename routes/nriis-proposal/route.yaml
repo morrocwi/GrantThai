@@ -1,0 +1,42 @@
+# routes/nriis-proposal/route.yaml — the NRIIS research-proposal route.
+#
+# This file only POINTS at the assets that already exist; nothing moved in
+# v0.3. `grantthai build` with no route on a legacy 0.2 project.yaml, or
+# `build --route nriis-proposal`, or `route build --route nriis-proposal`
+# must produce a byte-identical build/NRIIS_SUBMISSION.md (acceptance
+# AT-R1, golden snapshot in tests/golden/routes/). Moving these assets under
+# routes/ is deferred and needs its own decision (guards and docs cite them).
+#
+# The route is chosen by the researcher, never by an AI. NRIIS is one route
+# of the router, not the core (founder reframe 2026-09-25).
+schema: grantthai.route.v0
+id: nriis-proposal
+version: "0.1.0-draft"
+status: draft
+title_en: "NRIIS research proposal (one-file submission draft)"
+title_th: NEEDS_INPUT
+accepts_work_types: [research_proposal, thesis_proposal]
+default_for_work_types: [research_proposal]
+needs_fund_binding: true
+output:
+  filename: NRIIS_SUBMISSION.md
+  template: templates/nriis_submission.md.j2      # tagged output_kind: primary_submission (accepted as the alias of route_output for this route)
+  renderer_version: "nriis_submission.md.j2@0.3.0"
+  contract: spec/output/nriis-submission.contract.md
+placement: mappings/nriis/section_to_tab.yaml      # section -> NRIIS tab (NEEDS_VERIFICATION, K14)
+sub_profiles:
+  dir: mappings/nriis/form_profiles
+  default: null                                     # null = the observed form (section_to_tab.yaml); also read from legacy top-level form_profile
+labels: mappings/nriis/labels@nrct-manual-2566.yaml
+required_fields: registry                           # S001 set = registry `required` flags plus the bound form profile, exactly as today
+rules:
+  include_families: [SCHEMA, S, R, W, B, T, CH, F, ELIG, E, U, P, G, X, C, FW, AI, OK, ECO]
+  exclude_ids: []
+readiness:
+  sections: [block, review, needs_input, needs_verification, ai_drafted_values, hold]
+  ready_flag: submittable                           # against the bound fund profile only; never "accepted"
+disclosure_blocks: [notice, ai_use_declaration, core_epistemic_note]
+needs_verification_policy:
+  nriis_label_without_public_document: NEEDS_VERIFICATION
+  form_profile: NEEDS_VERIFICATION
+advisories: [toke-infra, knowledge-commons]         # printed only when their fields are filled; never decide

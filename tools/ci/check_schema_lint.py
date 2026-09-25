@@ -76,7 +76,7 @@ STRUCTURED_REL = "registry/structured_fields.schema.json"
 SKIP_DIRS = {".git", ".venv", "venv", "node_modules", ".pytest_cache"}
 TRUST_ORDER = ["FICTIONAL", "COMMUNITY_EXTRACTED", "HUMAN_VERIFIED", "SECOND_CHECKED"]
 FIELD_ID_PREFIXES = ("PROFILE.", "FUND.", "CORE.", "METHOD.", "WORK.", "GEO.", "BUDGET.",
-                     "COMP.", "READY.", "RESULTS.", "DOC.", "AUDIT.", "BRIDGE.")
+                     "COMP.", "READY.", "RESULTS.", "DOC.", "AUDIT.", "BRIDGE.", "ARTICLE.")
 
 
 def is_within_negative_fixtures(rel_parts) -> bool:

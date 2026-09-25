@@ -1,0 +1,136 @@
+# routes/INDEX.yaml — the router's route list and the registry partition.
+#
+# "Router" here means a deterministic OUTPUT ROUTE chosen by a person
+# (the researcher), never a choice made by an AI. One work object
+# (work.yaml, or a legacy project.yaml) can be built through any route;
+# each build writes exactly one file, build/<output_filename>. NRIIS is one
+# route among several (founder reframe 2026-09-25: entering NRIIS is no
+# longer the core; GrantThai opens to academic articles as well).
+#
+# Lint (tests/test_routes_schema.py): route ids are unique, output
+# filenames are unique, every `path` whose status is not `planned` exists
+# and validates against spec/routes/route.schema.json, and the id inside
+# the route file equals the id here.
+#
+# `partition` is the single input of tools/registry/partition.py, which
+# writes `scope` and `route_ids` onto every registry/fields.jsonl record:
+#   scope: shared  = the field is in `shared_core` (authored once, placed
+#                    by more than one route);
+#   scope: route   = the field exists for one route's output only.
+#   route_ids      = every route whose `body` selector includes the field.
+# Invariant (pinned by tests/test_registry.py): shared <=> len(route_ids) >= 2.
+schema: grantthai.routes_index.v0
+version: "0.1.0-draft"
+status: draft
+
+routes:
+  - id: nriis-proposal
+    version: "0.1.0-draft"
+    status: draft
+    path: routes/nriis-proposal/route.yaml
+    output_filename: NRIIS_SUBMISSION.md
+    note: "Wraps the existing NRIIS assets in place; nothing moved in v0.3."
+  - id: academic-article
+    version: "0.1.0-draft"
+    status: planned
+    path: routes/academic-article/route.yaml
+    output_filename: ACADEMIC_ARTICLE.md
+    note: "Route file, placement and sub-profiles (thai-journal, international-journal; both NEEDS_VERIFICATION) ship with the article work package. The registry already carries its 24 ARTICLE.* fields."
+  - id: concept-note
+    version: "0.1.0-draft"
+    status: draft
+    path: routes/concept-note/route.yaml
+    output_filename: RESEARCH_CONCEPT_NOTE.md
+    note: "The former 'one exception' of the one-input-one-output contract is now an ordinary route. Never submittable."
+
+partition:
+  # Fields that belong to the work object itself and are placed by more
+  # than one route. Chain records (Evidence, Claim, Data, Analysis ...),
+  # the sources manifest and `authoring` are object-level and shared by
+  # construction; they are not registry fields and are not listed here.
+  shared_core:
+    # ResearchCore (14)
+    - CORE.RESEARCH.NATIONAL_NEED
+    - CORE.RESEARCH.PROBLEM
+    - CORE.RESEARCH.GAP
+    - CORE.RESEARCH.RQ.PRIMARY
+    - CORE.RESEARCH.RQ.SECONDARY
+    - CORE.RESEARCH.OBJECTIVES
+    - CORE.RESEARCH.CONSTRUCTS
+    - CORE.RESEARCH.RELATIONSHIPS
+    - CORE.RESEARCH.HYPOTHESES
+    - CORE.RESEARCH.INNOVATION
+    - CORE.RESEARCH.FEASIBILITY
+    - CORE.RESEARCH.THEORETICAL_FOUNDATIONS
+    - CORE.RESEARCH.PROPOSITIONS
+    - CORE.RESEARCH.BOUNDARY_CONDITIONS
+    # Methodology (11)
+    - METHOD.PLAN.DESIGN
+    - METHOD.PLAN.POPULATION
+    - METHOD.PLAN.SAMPLE
+    - METHOD.PLAN.RECRUITMENT
+    - METHOD.PLAN.INTERVENTION
+    - METHOD.PLAN.VARIABLES
+    - METHOD.PLAN.INSTRUMENTS
+    - METHOD.PLAN.DATA_COLLECTION
+    - METHOD.PLAN.ANALYSIS
+    - METHOD.PLAN.QUALITY
+    - METHOD.PLAN.ETHICS
+    # Compliance (5)
+    - COMP.STANDARD.RESEARCH_ETHICS
+    - COMP.STANDARD.HUMAN
+    - COMP.STANDARD.BIOSAFETY
+    - COMP.STANDARD.ANIMAL
+    - COMP.STANDARD.CHEMICAL
+    # Team (3)
+    - PROFILE.TEAM.MEMBERS
+    - PROFILE.TEAM.EXPERTISE
+    - PROFILE.TEAM.CREDENTIALS
+    # Titles and keywords (4)
+    - CORE.GENERAL.TITLE_TH
+    - CORE.GENERAL.TITLE_EN
+    - CORE.GENERAL.KEYWORDS_TH
+    - CORE.GENERAL.KEYWORDS_EN
+    # References (1) and revision log (1)
+    - CORE.NARRATIVE.REFERENCES
+    - AUDIT.REVISION.LOG
+
+  # A field-id namespace owned by exactly one route: every field in it is
+  # scope: route for that route, whatever the body selectors say.
+  route_namespaces:
+    ARTICLE: academic-article
+
+  # Which registry fields each route places in its body.
+  #   shared_core: true  -> every shared_core field
+  #   namespaces: [...]  -> every field whose <NS> (first id token) is listed
+  #   field_ids: [...]   -> these exact fields
+  body:
+    nriis-proposal:
+      shared_core: true
+      namespaces: [PROFILE, FUND, CORE, METHOD, WORK, GEO, BUDGET, COMP, READY, RESULTS, DOC, AUDIT, BRIDGE]
+    academic-article:
+      shared_core: true
+      namespaces: [ARTICLE]
+    concept-note:
+      # exactly the fields routes/concept-note/placement.yaml orders; a test
+      # keeps the two lists equal. All are shared_core.
+      field_ids:
+        - CORE.GENERAL.TITLE_TH
+        - CORE.GENERAL.TITLE_EN
+        - CORE.GENERAL.KEYWORDS_TH
+        - CORE.GENERAL.KEYWORDS_EN
+        - PROFILE.TEAM.MEMBERS
+        - CORE.RESEARCH.NATIONAL_NEED
+        - CORE.RESEARCH.PROBLEM
+        - CORE.RESEARCH.GAP
+        - CORE.RESEARCH.RQ.PRIMARY
+        - CORE.RESEARCH.RQ.SECONDARY
+        - CORE.RESEARCH.OBJECTIVES
+        - CORE.RESEARCH.INNOVATION
+        - CORE.RESEARCH.FEASIBILITY
+        - METHOD.PLAN.DESIGN
+        - METHOD.PLAN.POPULATION
+        - METHOD.PLAN.DATA_COLLECTION
+        - METHOD.PLAN.ANALYSIS
+        - METHOD.PLAN.ETHICS
+        - CORE.NARRATIVE.REFERENCES
