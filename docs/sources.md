@@ -84,7 +84,14 @@ Prince of Songkla University knowledge bank). They are cited there by the
 title and first author their repository record gives, with contract or
 handle, year, page count, sha256 and record page; the same metadata is in
 `docs/demo/corpus-100.csv`. Their PDFs are never committed and no text is
-reproduced; files are treated as all rights reserved. The e-Library of the
+reproduced; files are treated as all rights reserved. The HSRI repository's
+own metadata states "Creative Commond (CC BY-NC-SA 3.0 TH)" (sic) on its
+community records and names the institute in item-level `dc.rights`; this
+is recorded as metadata only, not relied on. `kb.hsri.or.th/robots.txt`
+redirects to the repository home page, so HSRI serves no robots file;
+`kb.psu.ac.th/robots.txt` disallows `/search`, which was not used. Both
+repositories' terms statements are still to be read and recorded by a
+person (`OPEN`, see `docs/demo/corpus-100.md` §2). The e-Library of the
 national research funding agency was not used, because its own download
 link requires a login.
 

@@ -181,10 +181,15 @@ MENTIONS = OrderedDict([
     ("budget_amount",(r"งบประมาณ[^\n]{0,40}\d[\d,]*\s*บาท|\d[\d,]{3,}\s*บาท", ["CORE.GENERAL.TOTAL_BUDGET", "BUDGET.PLAN.TOTAL"])),
 ])
 
-# Funder names are matched by their full Thai / English names only. Short
-# agency acronyms are deliberately not listed: this repository keeps them out
-# of code and docs (tools/ci/check_no_hardcoded_rules.py), and a full name is
-# the stronger evidence anyway. Codes are this tool's own labels.
+# Funder names are matched by full Thai / English name and, for some codes,
+# by acronym as well (HSRI, TRF_SRI, THAIHEALTH, NIEMS and NHSO patterns
+# include their short forms). The acronyms on the guard list in
+# tools/ci/check_no_hardcoded_rules.py (the national research council's and
+# the successor fund's current short forms, Thai and English) are NOT listed:
+# this repository keeps them out of code and docs. Detection is therefore
+# uneven across codes: NRC and TRF_SRI are found by full name (or an older
+# short form) only and are probably undercounted relative to HSRI or NHSO.
+# Do not add the guarded acronyms here. Codes are this tool's own labels.
 FUNDER_PATTERNS = OrderedDict([
     ("HSRI", r"สถาบันวิจัยระบบสาธารณสุข|\(?สวรส\.?\)?|Health Systems Research Institute|\bHSRI\b"),
     ("TRF_SRI", r"สำนักงานการวิจัยแห่งชาติ\s*\(?สกว|สำนักงานกองทุนสนับสนุนการวิจัย|สกว\.|สำนักงานคณะกรรมการส่งเสริมวิทยาศาสตร์\s*วิจัยและนวัตกรรม|Thailand Research Fund|Thailand Science Research and Innovation|\bTRF\b"),
@@ -654,10 +659,12 @@ def cmd_stats(a):
     for r in rows:
         for x in set((r["funders_in_funding_statement"] + ";" + r["funders_named_first20pages"]).split(";")) - {""}:
             fs[x] += 1
-    print("- documents naming each funder code (funding statement or first 20 pages):", dict(fs.most_common()))
+    print("- documents naming each funder code (funding statement or first 20 pages;"
+          " acronym coverage differs by code, NRC and TRF_SRI likely undercounted):", dict(fs.most_common()))
     print("- funding statement found:", sum(int(r["funding_statement_found"]) for r in rows))
     named = [r for r in rows if r["funders_in_funding_statement"] or r["funders_named_first20pages"]]
-    print("- some funder code found in the file:", len(named),
+    print("- an agency name (or a funding phrase naming an uncoded body) found in the funding statement"
+          " or first 20 pages:", len(named),
           "; none found:", [r["id"] for r in rows if r not in named])
     print("- HSRI named in file:", sum("HSRI" in (r["funders_in_funding_statement"] + r["funders_named_first20pages"]) for r in rows))
     print("- repository-record funder:", dict(Counter(r["funder_repository_record"][:40] for r in rows).most_common(6)))

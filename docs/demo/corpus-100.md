@@ -1,4 +1,4 @@
-# 100 funded Thai research reports, compared with GrantThai
+# 100 funded Thai research documents (97 reports, 3 forum proceedings), compared with GrantThai
 
 > **No document text is reproduced here, and no PDF is included in this
 > repository.** This file and `docs/demo/corpus-100.csv` hold only
@@ -21,7 +21,8 @@ Thai version: [`corpus-100.th.md`](corpus-100.th.md).
 
 The v0.2 comparison (`docs/demo/comparison.md`) set the demo against three
 funded reports. That is too few to say what funded Thai research documents
-usually contain. This corpus has 100 funded research documents, so section
+usually contain. This corpus has 100 funded research documents (97 technical reports and 3
+forum proceedings, §3), so section
 frequencies can be counted instead of guessed.
 
 ## 2. Sources, terms and how the files were fetched
@@ -50,10 +51,11 @@ used. Both repositories serve their full texts from the public record page.
 - One further national repository was excluded earlier on its terms: full
   texts need membership and are watermarked with the downloader's name.
 - From the two repositories above, a catalogue of 213 rows yielded 135
-  candidates (87 HSRI, 48 PSU). All 135 were fetched; 35 were not used:
-  23 had fewer than 20 pages, 5 had no text layer (scanned), 4 had a text
-  layer that a legacy font made unreadable, and 3 were too large to fetch
-  politely. The 100 documents below are all that remained, not a sample
+  candidates (87 HSRI, 48 PSU). All 135 were requested; 132 were
+  downloaded, and the other 3 were stopped because they were too large to
+  fetch politely. 35 were not used: 23 had fewer than 20 pages, 5 had no
+  text layer (scanned), 4 had a text layer that a legacy font made
+  unreadable, and the 3 too-large files. The 100 documents below are all that remained, not a sample
   chosen by content.
 
 **How files were fetched.** One request at a time, at least 2 seconds apart,
@@ -61,11 +63,19 @@ one connection, a User-Agent that names the project, and a stop rule on HTTP
 429 or 403 (neither occurred). The PDFs were kept on the maintainer's own
 machine only, outside the repository, and are not published.
 
-**Terms.** No reuse licence was checked for or relied on. The files are
-treated as all rights reserved: they are cited, counted and linked, never
-copied. Each row below links the public record page. `OPEN`: a person
-should read each repository's terms statement once and record it here
-before this file is pushed.
+**Terms.** No reuse licence is relied on. The files are treated as all
+rights reserved: they are cited, counted and linked, never copied. Each row
+below links the public record page. What the repositories' own metadata
+says (`VERIFIED` from the records fetched for the catalogue): the HSRI
+community records carry `dc.rights` "Creative Commond (CC BY-NC-SA 3.0 TH)"
+(sic), its collection records carry "Creative Commond", and item records
+carry `dc.rights` naming the institute itself. This is recorded as
+metadata only; the all-rights-reserved treatment remains the safe default.
+Robots: `kb.hsri.or.th/robots.txt` answers with a 301 redirect to the
+repository home page, so HSRI serves no robots file (`VERIFIED`, re-checked
+2026-09-25); `kb.psu.ac.th/robots.txt` disallows `/search`, which was not
+used. `OPEN`: before this file is pushed, a person should read both
+repositories' terms statements and record them here.
 
 ## 3. What the corpus is, and is not
 
@@ -80,23 +90,35 @@ before this file is pushed.
 | Pages | median 92.5 (IQR 60–158, range 21–1,067) | `VERIFIED` |
 | Funder in the repository record | 82 (70 name HSRI alone; 12 name other or co-funders); not recorded for 18 (16 PSU, 2 HSRI) | `VERIFIED` |
 | Funding statement found in the file | 80 | `VERIFIED` |
-| A funding body named in the file (funding statement or first 20 pages) | 95. None was found in 5: HSRI-011, HSRI-024, HSRI-067, HSRI-070 (their repository records name HSRI) and PSU-044 (its record names a national environment-policy office). For these 5, "funded" rests on the repository record only | `VERIFIED` |
-| Title in the record found on the first 3 pages | 83 (marked † in the table when not found: usually a font that breaks Thai text extraction, not a wrong title) | `VERIFIED` |
+| An agency name found in the funding statement or first 20 pages (as funder, publisher, staff affiliation or other mention; a funding phrase naming a body outside the coded list also counts) | 95. None was found in 5: HSRI-011, HSRI-024, HSRI-067, HSRI-070 (their repository records name HSRI) and PSU-044 (its record names a national environment-policy office). For these 5, "funded" rests on the repository record only | `VERIFIED` |
+| Title in the record found on the first 3 pages | 83 (marked † in the table when not found) | `VERIFIED` |
+| Why a † title was not found | a font that breaks Thai text extraction, or a wording difference between the record and the cover (HSRI-010: the record's "ระยะเวลาการมารับ" against the printed "ระยะเวลาในการมารับ", p1) | `INSTINCT` for the split; HSRI-010 `VERIFIED` |
 | Discipline | Health systems (HSRI) 83; science, engineering, agriculture, social science and linguistics (PSU) 17 (by source, not coded per document) | `VERIFIED` (proxy) |
 
 **Consequences.**
 
 1. The corpus leans heavily toward health systems research.
-2. It has no documents from the national research funding agency's
-   e-Library, and few from BE 2563 on, when key-result and readiness-level
-   language came into common use in Thai funding (relayed, not checked
-   here), so it **cannot test** GrantThai's key-result, TRL, SRL or strategy
-   alignment fields (`OPEN`).
+2. 39 documents are from BE 2563 on, but none comes from the national
+   research funding agency's e-Library, whose calls use key-result and
+   readiness-level language (relayed, not checked here); TRL and SRL
+   markers are 0% in this corpus (§4). So it **cannot test** GrantThai's
+   key-result, TRL, SRL or strategy alignment fields (`OPEN`).
 3. A section that is missing from a *final report* says nothing about
    whether a *proposal* needs it. Budget, workplan and ethics approval are
    proposal- or contract-stage items and are often dropped from reports.
-4. A funding body named on the first 20 pages may be the publisher rather
-   than the funder. The HSRI name appears in 74 files.
+4. An agency named on the first 20 pages may be the publisher, or the
+   affiliation of a team member, or only mentioned in the text, rather
+   than the funder (HSRI-057 names the health promotion fund on p3 only as
+   a team member's affiliation, and the national health security office
+   only in the forum's discussion, p6 and p8). The HSRI name appears in 74
+   files.
+5. Funder codes are not detected evenly. Some codes also match the
+   agency's acronym (HSRI, NHSO, THAIHEALTH, NIEMS, and an older short form
+   for TRF_SRI); the current acronyms of the national research council and
+   of the successor fund are kept out of this repository and are not
+   matched. Per-code counts (HSRI 74, NHSO 28, THAIHEALTH 14, NRC 5,
+   TRF_SRI 3; funding statement or first 20 pages) are therefore not
+   comparable across codes, and NRC and TRF_SRI are probably undercounted.
 
 ## 4. Section presence in the 100 documents
 
@@ -190,14 +212,16 @@ non-whitespace characters in `examples/demo-seedbank/project.yaml`
 | `CORE.NARRATIVE.METHOD` | 466 | methods 4,371 | thin |
 | `CORE.NARRATIVE.REFERENCES` | empty | 78% have a list; median 40.5 entries | **missing** |
 
-The demo is **stronger** than typical funded reports in two places
-(`VERIFIED` from `project.yaml`):
+The demo has an explicit research question and a linked results chain;
+reports rarely show these as headings. That is a report-versus-proposal
+difference, not a ranking (`INSTINCT`; the facts about `project.yaml` and
+the rates below are `VERIFIED`):
 
-- An explicit primary research question and two secondary ones. Only 4% of
-  the reports have a research-question heading.
-- A linked results chain: a research user (`USR1`), an outcome (`OC1`) and an
-  impact (`IMP1`), with objectives linked to method and output ids. Only 10%
-  of the reports reach even the impact-pathway proxy.
+- The demo has an explicit primary research question and two secondary
+  ones. 4% of the reports have a research-question heading.
+- The demo has a linked results chain: a research user (`USR1`), an outcome
+  (`OC1`) and an impact (`IMP1`), with objectives linked to method and
+  output ids. 10% of the reports reach the impact-pathway proxy.
 
 **Key finding (`VERIFIED`).** The demo's findings line reads BLOCK 0 /
 REVIEW 0 (`NRIIS_SUBMISSION.md`, line 65), although its required theory box
@@ -220,8 +244,7 @@ flags a theory statement that cites nothing.
 | Results 85%, discussion 90%, appendix 66%, acknowledgement 62% | none, or `DOC.ATTACHMENTS` | expected: these are report-stage sections |
 
 Two report-stage elements have no proposal field and could feed one:
-**stated limitations** (15% of reports say so in words; most discussion
-chapters touch on it) and **recommendations for further work** (41% have a
+**stated limitations** (15% of reports say so in words) and **recommendations for further work** (41% have a
 recommendations section). `METHOD.PLAN.QUALITY` is the natural home for the
 first. Its registry guidance (`guidance.en`) is empty, as it is for 81 of the
 122 registry fields; `guidance/writing_intent.yaml` gives it a purpose and a
@@ -301,8 +324,8 @@ by this change.
 
 **Do not act on** the rarity of RQ, ethics, workplan, budget and alignment
 sections in reports: that is the report-versus-proposal difference (§6b).
-The demo's explicit RQ and results chain go beyond typical funded reports
-and should stay.
+The demo's explicit RQ and results chain are proposal-stage content that
+reports rarely show as headings, and should stay (`INSTINCT`).
 
 ## 9. Limitations
 
@@ -341,10 +364,16 @@ matching. Funder codes are this project's labels for a name found in the
 file's funding statement or first 20 pages: HSRI = Health Systems Research
 Institute; NHSO = National Health Security Office; THAIHEALTH = Thai Health
 Promotion Foundation; NIEMS = National Institute for Emergency Medicine;
-NRC = the national research council (full name matched); TRF_SRI = the
-national research fund or its successor (full name matched); GOV_BUDGET =
-government budget; UNIV_INCOME = university income or research grant;
-OTHER_FUND = a funding phrase with no named body. The same data, with every
+NRC = the national research council (full name only; its current
+acronym is not matched); TRF_SRI = the national research fund or its
+successor (full name or the fund's older short form; the successor's
+acronym is not matched); GOV_BUDGET = government budget; UNIV_INCOME =
+university income or research grant; OTHER_FUND = a funding phrase whose
+body is not one of the coded names (HSRI-008: a university research centre
+named on its opening pages). HSRI, NHSO, THAIHEALTH and NIEMS are also
+matched by acronym, so codes are detected unevenly (§3, consequence 5).
+A code shows that the name was found, not that the body funded the work: it
+may be a publisher, an affiliation or another mention. The same data, with every
 structural flag, is in [`corpus-100.csv`](corpus-100.csv).
 
 | Id | Title (repository record) | First author (repository record) | Institution (record) | Funder (record) | Funder named in the file | Contract / handle | Year (BE) | Type | Pages | sha256 | Record page |
