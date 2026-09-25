@@ -4,6 +4,30 @@ All notable changes to GrantThai are documented in this file. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/); versions follow
 SemVer from v0.1 onward.
 
+## [Unreleased]
+
+### Added — funded-document corpus (n=100)
+- `docs/demo/corpus-100.md` (English) and `docs/demo/corpus-100.th.md`
+  (Thai): 100 funded Thai research documents that anyone can download
+  without an account (83 from the Health Systems Research Institute
+  repository, 17 from the Prince of Songkla University repository),
+  compared with the fictional demo and the field registry: method, sources
+  and terms, metadata for every document, section frequencies, a close
+  reading of 8 documents, 14 ranked improvements, and limitations. No
+  document text is reproduced and no PDF is committed.
+- `docs/demo/corpus-100.csv`: metadata (as each repository records it),
+  sha256, page count and structural flags per document.
+- `tools/corpus/corpus_extract.py`: the structural extractor (`extract`,
+  local PDFs only, never downloads), plus `publish` (builds the CSV) and
+  `stats` (recomputes every number in the corpus documents from the CSV).
+- Key finding: the demo passes with BLOCK 0 / REVIEW 0 although its
+  required theory box cites nothing and its references box is empty; 78% of
+  the funded reports have a reference list. The proposed rule is listed,
+  not implemented.
+- The national research funding agency's e-Library was not used: its own
+  download link requires a login. 53 of its records are set aside pending a
+  founder decision.
+
 ## [0.2.0] — 2026-09-25
 
 Founder scope 2026-09-25: build v0.2, make our own fictional demo proposal

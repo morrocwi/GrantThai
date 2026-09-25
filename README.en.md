@@ -285,6 +285,10 @@ intentionally departs from the original handoff package.
   table, rule catalog (data).
 - `docs/th/`, `docs/en/` — role-specific guides (stubs in v0.1.0).
 - `docs/design/PLAN.md` — the founder's design plan (historical record).
+- `docs/demo/` — the fictional demo's comparisons with funded public work:
+  `comparison.md` (3 reports) and `corpus-100.md` / `corpus-100.th.md`
+  (100 funded Thai research documents, metadata and structural statistics
+  only, no PDFs; data in `corpus-100.csv`, extractor in `tools/corpus/`).
 - `skills/grantthai/` — the agent skill (SKILL.md, references, helper script).
 - `src/grantthai/` — the library (`api_py.py` is the one Python surface); `core`, `validators`, `review`,
   `fund`, `mapping`, `render`, `interview`, `cli` are AI-free by construction

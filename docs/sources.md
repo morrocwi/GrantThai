@@ -77,6 +77,17 @@ used only as structure comparators in `docs/demo/comparison.md` (R1–R3)
 are cited there by title, first author and contract or handle; their PDFs
 are never committed either.
 
+**Funded-document corpus (added after v0.2.0).** `docs/demo/corpus-100.md`
+compares the demo with 100 funded Thai research documents from two public
+repositories (the Health Systems Research Institute knowledge bank and the
+Prince of Songkla University knowledge bank). They are cited there by the
+title and first author their repository record gives, with contract or
+handle, year, page count, sha256 and record page; the same metadata is in
+`docs/demo/corpus-100.csv`. Their PDFs are never committed and no text is
+reproduced; files are treated as all rights reserved. The e-Library of the
+national research funding agency was not used, because its own download
+link requires a login.
+
 Page numbers cited anywhere in this repository are **PDF page numbers**. In
 SD-1 and SD-4 the printed page number equals the PDF page; in SD-3 the
 printed number is one lower (PDF p2 = printed p1).
