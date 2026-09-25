@@ -4,7 +4,7 @@ All notable changes to GrantThai are documented in this file. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/); versions follow
 SemVer from v0.1 onward.
 
-## [Unreleased] — v0.2 (integration branch)
+## [0.2.0] — 2026-09-25
 
 Founder scope 2026-09-25: build v0.2, make our own fictional demo proposal
 end to end, and compare it with real, funded, publicly available research

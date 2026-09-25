@@ -1,6 +1,6 @@
 [project]
 name = "grantthai"
-version = "0.2.0.dev0"
+version = "0.2.0"
 description = "GrantThai — open, unofficial research infrastructure. One project.yaml in, one build/NRIIS_SUBMISSION.md out."
 readme = "README.md"
 license = { text = "Apache-2.0" }

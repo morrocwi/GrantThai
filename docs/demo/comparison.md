@@ -35,7 +35,7 @@ at most 15 words. No ethics approval numbers, team rosters or other
 personal data are copied. sha256 values were computed on the downloaded
 files (`VERIFIED`, 2026-09-25). Page counts were checked with `pdfinfo` on
 the files with these hashes by an independent reviewer (2026-09-25).
-**Access and licence status is `relayed` from the v0.2 research notes and
+**Access status of R1–R3 was re-checked on 2026-09-25 (see rows); licence wording is
 is `OPEN`:** a re-check on 2026-09-25 could not re-open the landing pages
 (one returned a login page, one a server error). A human reader must open
 each landing page and record its terms statement, URL and date before
@@ -45,8 +45,8 @@ not reproduced, and quotes are at most 15 words.
 | Id | Title (as printed) | First author (public) | Funder / contract or handle | Type, PDF pages | Access and licence | sha256 |
 |---|---|---|---|---|---|---|
 | R0 | Blank Fundamental Fund full-proposal form, 2570 cycle (title as printed: `SD-5` in `docs/sources.md`) | none | public download page of nriis.go.th; `SD-5` in `docs/sources.md` | blank form, 52 | public; no licence statement: cite only | `f212e61beb19aea74b203bdc80d68d935f508006358fa4bf92d50adee90621ec` |
-| R1 | การสังเคราะห์รูปแบบการสร้างความเข้มแข็งของชุมชนบนฐานการทำนาจังหวัดนราธิวาส | พรพันธุ์ เขมคุณาศัย | Thailand Research Fund, contract RDG60S0001 (January 2563) | final report, 139 | e-Library of Thailand Science Research and Innovation, full text, no login; only a copyright line, no licence (relayed, OPEN): treat as all rights reserved, short quotes only | `609c78be14b7fa0a05ab09d3a99473baddbdd3f01b6c21f1e1a63fcb4c4a2712` |
-| R2 | การดูแลผู้สูงอายุที่มีภาวะพึ่งพิงแบบบูรณาการโดยการมีส่วนร่วมของชุมชนเพื่อเตรียมรับการระบาดซ้ำของโรคติดเชื้อไวรัสโคโรนา 2019 | สุพิชญา หวังปิติพาณิชย์ | Health Systems Research Institute, handle `hdl.handle.net/11228/5712` | final report, 130 | the institute's repository; the item's licence file is an unedited placeholder, so no licence is granted (relayed, OPEN): treat as all rights reserved | `25874ac8c86d97af2782f32df5a591724dda6937450c07d5bec0d402da84faa8` |
+| R1 | การสังเคราะห์รูปแบบการสร้างความเข้มแข็งของชุมชนบนฐานการทำนาจังหวัดนราธิวาส | พรพันธุ์ เขมคุณาศัย | Thailand Research Fund, contract RDG60S0001 (January 2563) | final report, 139 | e-Library of Thailand Science Research and Innovation, full text, no login; public full-text download re-checked 2026-09-25 (HTTP 200, no login); the e-Library shows only a copyright line and no licence (VERIFIED): treat as all rights reserved, short quotes only | `609c78be14b7fa0a05ab09d3a99473baddbdd3f01b6c21f1e1a63fcb4c4a2712` |
+| R2 | การดูแลผู้สูงอายุที่มีภาวะพึ่งพิงแบบบูรณาการโดยการมีส่วนร่วมของชุมชนเพื่อเตรียมรับการระบาดซ้ำของโรคติดเชื้อไวรัสโคโรนา 2019 | สุพิชญา หวังปิติพาณิชย์ | Health Systems Research Institute, handle `hdl.handle.net/11228/5712` | final report, 130 | the institute's repository; the repository record was re-checked 2026-09-25 (HTTP 200); no licence is granted (VERIFIED): treat as all rights reserved | `25874ac8c86d97af2782f32df5a591724dda6937450c07d5bec0d402da84faa8` |
 | R3 | โครงการการสังเคราะห์งานวิจัยภายใต้กรอบการวิจัยการพัฒนาคน ชุมชน และสังคมไทย | สมจิต แดนสีแก้ว | National Research Council of Thailand and Thailand Research Fund, contract RDG5840049 (May 2561) | final report, 101 | same terms as R1 | `054e1678a577a626691b534a00e6ed11e8efc37a3d6776f35fe6e1c0db79c0ec` |
 | R4 (withdrawn; not used) | Outcome and impact evaluation of a large research and innovation programme: Genomics Thailand (English description; the Thai cover title names the funder by acronym) | not recorded | Thailand Science Research and Innovation, contract ORG65F3010 | evaluation report, 137 (`pdfinfo`, independent reviewer) | relayed, OPEN; withdrawn as the D7 anchor until its terms and contents are re-checked | `6b0408b1e93e18146bf31858c7f7292ddfea4e1efb95223a6bc15d5a7b04cc0a` |
 
