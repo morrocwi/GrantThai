@@ -13,3 +13,8 @@ builds the same inputs through `build`, `build --route nriis-proposal`,
 `route build --route nriis-proposal` and `api_py.build(route=...)`, and
 requires each result to equal these files byte for byte. Refresh them only
 through a reviewed decision that the NRIIS output is meant to change.
+
+AT-R1 compares against these files only. `examples/*/build/` is
+git-ignored and may hold a stale local build from an older version (for
+example `grantthai_version 0.1.0`); rebuild or delete it before comparing
+anything by hand, or it will look like a regression that is not there.

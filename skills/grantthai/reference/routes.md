@@ -31,9 +31,11 @@ In this order, and only from what a person declared:
    HTTP / Python call);
 2. `routing.default_route` in `work.yaml`;
 3. a legacy `project.yaml` (schema 0.2) is always `nriis-proposal`;
-4. exactly one route names the file's `work_type` in its
-   `default_for_work_types`;
-5. otherwise the engine stops with exit 2 (the skill's `report` prints the
+4. the one route in `routing.declared_routes` (several declared and no
+   `default_route`: stop and list them);
+5. only when nothing is declared: exactly one route names the file's
+   `work_type` in its `default_for_work_types`;
+6. otherwise the engine stops with exit 2 (the skill's `report` prints the
    candidates; MCP and HTTP return them). **Nobody picks.**
 
 `work_type` sets defaults only. Any route can build from any object; a

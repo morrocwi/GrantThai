@@ -328,7 +328,8 @@ TOOLS_BY_NAME = {t["name"]: t for t in TOOL_SPECS}
 
 RESOURCE_SPECS: list[dict] = [
     {"uri": NOTICE_URI, "name": "notice", "mimeType": "text/plain",
-     "description": "The independence notice printed on line 1 of every NRIIS_SUBMISSION.md body."},
+     "description": "The independence notice printed on line 1 of every route output body (NRIIS_SUBMISSION.md, "
+                    "ACADEMIC_ARTICLE.md, RESEARCH_CONCEPT_NOTE.md)."},
     {"uri": FIELDS_URI, "name": "fields", "mimeType": "application/json",
      "description": "The whole field registry, NRIIS boxes first in entry order (same data as grantthai_list_fields)."},
     {"uri": ROUTES_URI, "name": "routes", "mimeType": "application/json",

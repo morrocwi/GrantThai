@@ -238,16 +238,20 @@ def test_academic_article_route_assets_agree():
     assert ids == {"thai-journal", "international-journal"} and route["sub_profiles"]["default"] in ids
     for p in sp_dir.glob("*.yaml"):
         sp = yaml.safe_load(p.read_text(encoding="utf-8"))
-        assert sp["status_marker"] == "NEEDS_VERIFICATION" and sp["source"] is None and sp["route"] == "academic-article"
-        assert sp["length_targets"] == []
-        assert "proposed_default" in sp["keywords"]["basis"] and "NEEDS_VERIFICATION" in sp["keywords"]["basis"]
+        assert sp["status"] == "NEEDS_VERIFICATION" and sp["route"] == "academic-article"
+        assert sp["id"] == p.stem
+        for req in sp["requirements"]:          # GrantThai defaults only: no researcher-supplied venue fact
+            assert req["status"] == "NEEDS_VERIFICATION" and req["basis"] == "proposed_default", req
+        assert not [r for r in sp["requirements"] if r["item"] in ("abstract_max_words", "body_max_words")]
 
 
 def test_academic_article_placement_covers_every_article_field_once():
     placement = yaml.safe_load((ROUTE_DIR / "placement.yaml").read_text(encoding="utf-8"))
     assert placement["route"] == "academic-article"
-    assert [s["section"] for s in placement["sections"]] == placement["section_order"]
-    placed = [f["field_id"] for s in placement["sections"] for f in s["fields"]]
+    assert placement["not_placed_policy"] == "appendix"
+    ids = [s["id"] for s in placement["sections"]]
+    assert len(ids) == len(set(ids))
+    placed = [f["field_id"] if isinstance(f, dict) else f for s in placement["sections"] for f in s["fields"]]
     assert len(placed) == len(set(placed))
     art_defs = json.loads((ROOT / "spec/registry/structured_fields.schema.json").read_text(encoding="utf-8"))["$defs"]
     art_structured = {k for k in art_defs if k.startswith("ARTICLE.")}
@@ -258,7 +262,7 @@ def test_academic_article_placement_covers_every_article_field_once():
             assert fid in reg and reg[fid]["field_id"] == fid, fid
     for s in placement["sections"]:
         assert s["title_th"] == "NEEDS_INPUT"
-        for f in s["fields"]:
+        for f in (x for x in s["fields"] if isinstance(x, dict)):
             for src in f.get("render_from") or []:
                 assert src.startswith("chain:") or src in reg, (f["field_id"], src)
             if f.get("fallback_copy_from"):

@@ -74,7 +74,7 @@ the project's own drafts, never reviewing someone else's work.
 | Analysis | pre-process data, pre-analyse large data, draft visualisations, under control (MAY, p.24, p.29) | analyse data or images without checking, or publish unchecked results (MUST NOT, p.25); forget that both random and systematic error occur, and that two runs that agree can mislead (MUST be careful, p.24-25) | GrantThai does no analysis; it holds only the analysis plan. Out of scope for the engine; the stage is declared if used. Stage `analysis`. |
 | Writing | help with language and find suitable references (MAY, p.25) | leave AI text unchecked; delegate checking to AI or automated tools; lack real human contribution (inside a framework the researcher MAY consider, p.25-26, whose items are worded as MUST); automated plagiarism (MUST prevent, p.26) | Narrative boxes are written from the researcher's records (`RENDER_FROM`); GrantThai never composes them. Stages `writing`, `language_editing`. |
 | Review | nothing, for others' work | upload any part of someone else's manuscript (MUST NOT, p.27); use AI to evaluate or translate it (SHOULD NOT, p.27); in grant review, upload or use AI for any judgement (SHOULD NOT, p.27) | **Stricter:** GrantThai and its skill must never be used to process someone else's proposal or manuscript for evaluation (MUST NOT). GrantThai serves applicants only. |
-| Publication | disclose use (MUST, p.10, p.26); illustrations if the journal allows, never mistakable for data, disclosed (MAY with conditions, p.11) | illustrations that could affect key scientific content (MUST NOT, p.25 item 4); GenAI images without disclosure or without a copyright check (Don't, p.29) | GrantThai stops at a worksheet the researcher copies by hand; it submits and publishes nothing. Out of scope. Stage `publication` if declared. |
+| Publication | disclose use (MUST, p.10, p.26); illustrations if the journal allows, never mistakable for data, disclosed (MAY with conditions, p.11) | illustrations that could affect key scientific content (MUST NOT, p.25 item 4); GenAI images without disclosure or without a copyright check (Don't, p.29) | The academic-article route prepares a manuscript overview (`build/ACADEMIC_ARTICLE.md`) that the researcher writes the article from; GrantThai submits and publishes nothing. ART005 asks for the in-text AI-use statement, ART009 flags a data-bearing AI illustration, ART011 an undisclosed AI illustration caption, ART007 (BLOCK) an AI listed as an author. The venue's own rules are `NEEDS_VERIFICATION`. Stage `publication` if declared. |
 
 Across every stage, a named human checks every AI output before it is used
 or released (G: MUST, p.6 item 1.5; p.9 calls human checking a
@@ -123,9 +123,13 @@ Lines that hold at every stage:
   research, without disadvantage to those who disclose (p.7 item 4.6, p.22
   item 6); Appendix A (p.34) is a sample form that funders or institutions
   MAY adapt, kept as evidence for later audit. GrantThai renders the
-  declaration as section 4.7 of `build/NRIIS_SUBMISSION.md`, a GrantThai
-  appendix, not an NRIIS field (whether NRIIS or a call asks for it is
-  `NEEDS_VERIFICATION`). **Stricter:** always rendered when AI was used.
+  declaration as a GrantThai appendix in every route output: section 4.7
+  of `build/NRIIS_SUBMISSION.md` (not an NRIIS field; whether NRIIS or a
+  call asks for it is `NEEDS_VERIFICATION`), section 4.7 of
+  `build/ACADEMIC_ARTICLE.md` (beside the manuscript's own in-text
+  statement, `ARTICLE.STATEMENT.AI_USE`, rule ART005) and section 4.5 of
+  `build/RESEARCH_CONCEPT_NOTE.md`. **Stricter:** always rendered when AI
+  was used.
 - **C4. AI is never an author, co-author or credited contributor.** G: an
   AI cannot be an author or co-author because it cannot take responsibility
   (p.23); naming it an author is generally not accepted, and use may be
@@ -136,7 +140,10 @@ Lines that hold at every stage:
   (non-negotiable 6), which no CI can enforce.
 - **Captions on AI images and slides** (G: MUST, p.12 item 3) and
   **journal AI rules** (G: MUST check, p.27; if none, disclose by risk,
-  p.12 item 6) apply at publication, outside GrantThai.
+  p.12 item 6) apply at publication. GrantThai submits and publishes
+  nothing; the academic-article route only reminds the researcher (ART005,
+  ART011, and the sub-profile notes, all `NEEDS_VERIFICATION`: the
+  journal's own GenAI rule comes first).
 - Do not disclose prompts that contain sensitive data (G: SHOULD NOT,
   p.12). The declaration asks for the **type** of data, never the data
   (p.34 item 5), and `log_ref` points to the log instead of holding it.
@@ -340,7 +347,7 @@ of the extraction (points on p.24-25 the first pass left out).
 | N15 | 12 | MUST caption AI-made slides, posters and images; SHOULD check the licence; MUST check for copying | GrantThai makes no slides or images | out of scope |
 | N16 | 12 | MUST give enough detail to reproduce without revealing sensitive prompts; the user MUST confirm the output was checked | `declaration_confirmed_by_human`; AI001 | new |
 | N17 | 12 | a team SHOULD agree in writing on AI use and disclosure before starting | C14; human duty (no field) | out of scope |
-| N18 | 12, 27 | authors MUST check the journal's GenAI rules (p.27); if there are none, disclose by risk (p.12) | publication is outside GrantThai; the call's own rules are `NEEDS_VERIFICATION` | out of scope |
+| N18 | 12, 27 | authors MUST check the journal's GenAI rules (p.27); if there are none, disclose by risk (p.12) | GrantThai submits and publishes nothing. The academic-article route prepares a manuscript overview only: ART005 asks for the in-text AI-use statement and cites p.27; the thai-journal and international-journal sub-profiles say the journal's own GenAI rule comes first. The journal's and the call's own rules are `NEEDS_VERIFICATION` | partial |
 | N19 | 12-13 | SHOULD record tool version and date, prompts and outputs, validation evidence and key changes | `tools[].version`, `tools[].used_on`, `log_ref`; C7 | partial |
 | N20 | 14 | MUST assess data risk before use, choose a suitable model, check the output's lawfulness, and protect sensitive data and IP under Thai law | data warning (section 5.1); `data_handling` | new |
 | N21 | 14, 28 | entering data into public GenAI is like sending it to a third party | stated in the data warning | new |

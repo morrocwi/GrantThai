@@ -55,7 +55,7 @@ def render(raw: dict, project_dir: Path | None = None, *, route, sub_profile=Non
     }
     context = {k: ctx[k] for k in ("summary", "hold_reasons", "blocks", "reviews", "infos", "needs_input",
                                    "record_needs_input", "marked", "ai_drafts", "sections", "meta_yaml", "gates",
-                                   "sources", "unresolved", "unmapped", "ai_decl", "trust_level")}
+                                   "sources", "unresolved", "unmapped", "ai_decl", "trust_level", "fictional")}
     context.update({
         "frontmatter_yaml": yaml.safe_dump(frontmatter, sort_keys=False, allow_unicode=True,
                                            width=10**6).rstrip("\n"),

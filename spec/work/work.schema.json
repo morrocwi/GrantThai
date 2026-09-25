@@ -28,6 +28,10 @@
     "work_type": {
       "$ref": "#/$defs/work_type"
     },
+    "fictional": {
+      "type": "boolean",
+      "description": "Optional, default false. true marks a fictional example object (every shipped example): the article and concept-note outputs print a FICTIONAL banner. An explicit marker, never inferred from work_id. Part of content_sha256."
+    },
     "mode": {
       "type": "string",
       "enum": [

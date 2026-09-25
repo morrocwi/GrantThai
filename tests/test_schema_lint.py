@@ -30,6 +30,10 @@ def test_schema_lint_fails_on_invalid_instances():
     assert r.returncode != 0
     assert "must equal its path id" in r.stdout
     assert "fund_binding/fund_profile_id" in r.stdout
+    # route data files are instances too (placement, sub-profile)
+    assert "routes/bad-route/placement.yaml" in r.stdout and "not_placed_policy" in r.stdout
+    assert "routes/bad-route/sub_profiles/bad-sub.yaml" in r.stdout
+    assert "must equal its file name" in r.stdout
 
 
 def test_chain_check_catches_undeclared_duplicate_and_cycle():

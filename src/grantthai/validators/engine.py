@@ -67,6 +67,8 @@ ROUTER_FINDINGS = {
              "from any object; this only says the route was not designed for this kind of work.",
     "RT002": "Catalog rules that declare this route (or all routes) but that the route's own `rules` block "
              "(include_families / exclude_ids) does not evaluate, counted in one line.",
+    "RT003": "The route in force is not among the routes the researcher declared in routing.declared_routes. "
+             "The build still renders; this only says the output differs from the declared intent.",
 }
 
 # An item number in an objectives narrative: 1) 2) / (1) (2) / 1. 2. / ข้อ 1,
@@ -834,6 +836,13 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None,
                                   f"accepts_work_types ({', '.join(rt.accepts_work_types)}); the build still "
                                   "renders every field and shows what is missing.", [],
                                   "Keep the route if it is the output you want, or choose another with --route."))
+    # RT003: the route in force is not one the researcher declared (never a refusal).
+    declared = [r for r in P.work_view(raw)["declared_routes"] if isinstance(r, str) and r.strip()]
+    if declared and rt.id not in declared:
+        c.findings.append(Finding("RT003", "INFO", f"Route {rt.id} is not in routing.declared_routes "
+                                  f"({', '.join(declared)}); the build still renders.", [],
+                                  f"Add {rt.id} to routing.declared_routes if this is an output you intend, or "
+                                  "choose a declared route with --route."))
     # RT002: rules that declare this route but the route's config filters out.
     filtered = [rid for rid in c.rule_order
                 if RTR.rule_declares(rt, c.rules[rid]) and not RTR.route_config_admits(rt, c.rules[rid])]

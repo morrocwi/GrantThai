@@ -108,6 +108,42 @@ def test_ambiguity_raises_with_candidates_and_cli_exits_2(tmp_path, capsys, two_
     assert [p.name for p in (tmp_path / "build").iterdir()] == ["NRIIS_SUBMISSION.md"]
 
 
+def test_declared_routes_are_honoured_before_the_work_type_default(tmp_path, capsys, two_routes):
+    # research_proposal defaults to nriis-proposal, but the person declared only concept-note.
+    doc = _work(work_type="research_proposal", routing={"declared_routes": ["concept-note"]})
+    assert RS.resolve_route(doc) == "concept-note"
+    P.save(doc, tmp_path / "work.yaml")
+    assert main(["build", str(tmp_path), "--as-of", AS_OF]) == 0
+    assert [p.name for p in (tmp_path / "build").iterdir()] == ["RESEARCH_CONCEPT_NOTE.md"]
+
+
+def test_several_declared_routes_without_default_raise_with_the_declared_list(tmp_path, capsys, two_routes):
+    doc = _work(work_type="research_proposal",
+                routing={"declared_routes": ["nriis-proposal", "concept-note"]})
+    with pytest.raises(RS.AmbiguousRoute) as ei:
+        RS.resolve_route(doc)
+    assert ei.value.candidates == ["nriis-proposal", "concept-note"]
+    assert "never picks a route" in str(ei.value)
+    P.save(doc, tmp_path / "work.yaml")
+    assert main(["build", str(tmp_path), "--as-of", AS_OF]) == 2
+    assert "choose one with --route" in capsys.readouterr().err
+    assert not (tmp_path / "build").exists()
+    # default_route and an explicit --route still decide
+    doc["routing"]["default_route"] = "concept-note"
+    assert RS.resolve_route(doc) == "concept-note"
+    assert RS.resolve_route(doc, "nriis-proposal") == "nriis-proposal"
+
+
+def test_explicit_route_outside_declared_routes_is_an_info_finding(two_routes):
+    doc = _work(work_type="research_proposal", routing={"declared_routes": ["concept-note"]})
+    from grantthai.validators import engine as E
+    out = E.run(doc, None, AS_OF, route="nriis-proposal")
+    rt3 = [f for f in out.findings if f.rule_id == "RT003"]
+    assert len(rt3) == 1 and rt3[0].severity == "INFO"
+    out = E.run(doc, None, AS_OF, route="concept-note")
+    assert not [f for f in out.findings if f.rule_id == "RT003"]
+
+
 def test_unknown_route_exits_2(capsys):
     assert main(["route", "build", "--route", "no-such-route", str(LECTURER), "--as-of", AS_OF]) == 2
     assert "unknown route" in capsys.readouterr().err

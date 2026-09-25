@@ -76,8 +76,9 @@ fictional work object prints a FICTIONAL banner after them.
    Each finding carries a plain-language next step. The summary states
    `manuscript_ready` and that human final approval is always required.
 2. **Manuscript overview by section**, in the order of
-   `routes/academic-article/placement.yaml` (`FRONT_MATTER`, `ABSTRACT`,
-   `BODY`, `STATEMENTS`, `FIGURES_TABLES`, `REFERENCES`, `VENUE`). Section
+   `routes/academic-article/placement.yaml` (`front_matter`, `abstract`,
+   `body`, `statements`, `figures_tables`, `references`, `venue`; file
+   order, schema `spec/routes/placement.schema.json`). Section
    names are GrantThai's own descriptive headings, never a venue's; their
    Thai titles are `NEEDS_INPUT`. Each field block gives: label (EN, plus
    `LABEL_TH: NEEDS_VERIFICATION`), a fenced plain value, `FIELD_ID`
@@ -98,8 +99,11 @@ fictional work object prints a FICTIONAL banner after them.
      (rule S006).
    - **Authors.** Personal data (`full_name`, affiliation) renders only
      into the private `build/` directory (`PRIVACY.md`). An author entry
-     whose name matches a disclosed AI tool is a BLOCK finding (ART007) and
-     still prints, marked, so the researcher sees it.
+     whose name matches a disclosed AI tool (either name inside the
+     other), or whose member full_name matches a generic AI-tool name
+     pattern (`validators/ai_tool_name_patterns.yaml`) even when nothing
+     is disclosed, is a BLOCK finding (ART007) and still prints, marked,
+     so the researcher sees it.
    - **Venue.** Each `stated_requirements` item prints with its
      `source_ref`; an item without one prints `NEEDS_VERIFICATION` (ART010).
 3. **Machine field metadata.** A YAML block mirroring section 2.

@@ -4,7 +4,12 @@ Resolution order (spec §2.3):
   1. the explicit route (--route / route=);
   2. routing.default_route in the work object;
   3. a legacy 0.2 project.yaml -> nriis-proposal;
-  4. exactly one route lists the object's work_type in default_for_work_types;
+  3a. routing.declared_routes, when the researcher declared any: exactly one
+      declared route -> that route; several -> stop and list the declared
+      routes (AmbiguousRoute). The work_type default never overrides what a
+      person declared (clarification of spec §2.3, docs/deviations.md);
+  4. only when nothing is declared: exactly one route lists the object's
+     work_type in default_for_work_types;
   5. otherwise stop and list the candidates (AmbiguousRoute; CLI exit 2).
 The tool never picks between routes: that choice is the researcher's.
 """
@@ -31,6 +36,15 @@ def resolve_route(doc: dict, route: str | None = None) -> str:
     if view["default_route"]:
         R.load(view["default_route"])
         return view["default_route"]
+    declared = [r for r in view["declared_routes"] if isinstance(r, str) and r.strip()]
+    if len(declared) == 1:
+        R.load(declared[0])
+        return declared[0]
+    if declared:
+        raise AmbiguousRoute(
+            f"no route chosen for {view['work_id']}: routing.declared_routes lists {', '.join(declared)} and "
+            "no routing.default_route; choose one with --route or set routing.default_route; GrantThai never "
+            "picks a route", declared)
     wt = view["work_type"]
     ids = R.route_ids()
     defaults = [rid for rid in ids if wt in R.load(rid).default_for_work_types]

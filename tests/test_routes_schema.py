@@ -182,7 +182,8 @@ def test_work_schema_keeps_every_project_key_and_adds_the_router_keys():
     p = SCHEMAS["project/project.schema.json"]
     w = SCHEMAS["work/work.schema.json"]
     assert set(p["properties"]) <= set(w["properties"])
-    assert set(w["properties"]) - set(p["properties"]) == {"work_id", "work_type", "routing"}
+    # `fictional` (explicit FICTIONAL-banner marker for route outputs, docs/deviations.md)
+    assert set(w["properties"]) - set(p["properties"]) == {"work_id", "work_type", "routing", "fictional"}
     assert "fund_binding" not in w["required"] and "fund_binding" in p["required"]
     assert w["properties"]["schema_version"]["const"] == "0.3.0-draft"
     assert w["$defs"]["ai_use_declaration"] == p["$defs"]["ai_use_declaration"]

@@ -170,6 +170,25 @@ def test_at_r3_routing_edits_do_not_change_content_sha256(tmp_path):
 
 # ----------------------------------------------------------- concept note --
 
+def test_concept_note_required_fields_are_checked_by_S001():
+    doc = P.load(BOTH_EX)
+
+    def drop(node):
+        if isinstance(node, dict):
+            for v in node.values():
+                drop(v)
+        elif isinstance(node, list):
+            node[:] = [x for x in node if not (isinstance(x, dict) and x.get("field_id") == "CORE.RESEARCH.PROBLEM"
+                                               and "value" in x)]
+            for x in node:
+                drop(x)
+    drop(doc)
+    rep = api.validate(doc, as_of=AS_OF, route="concept-note")
+    s001 = [f for f in rep["findings"] if f["rule_id"] == "S001"]
+    assert s001 and "CORE.RESEARCH.PROBLEM" in " ".join(" ".join(f.get("field_ids") or []) + f["message_en"]
+                                                      for f in s001)
+
+
 def test_concept_note_route_builds_one_file_and_always_holds(tmp_path):
     out = api.build(BOTH_EX, route="concept-note", out_dir=tmp_path, as_of=AS_OF)
     assert sorted(p.name for p in tmp_path.iterdir()) == ["RESEARCH_CONCEPT_NOTE.md"]
@@ -202,6 +221,35 @@ def test_art_negative_fixture_fires(d):
     others = {f["rule_id"] for f in rep["findings"] if f["rule_id"].startswith("ART")} - {d.name}
     assert not others, others
     assert rep["summary"]["block"] == (len(hits) if exp["must_fire_severity"] == "BLOCK" else 0)
+
+
+ART_VARIANT_DIRS = sorted(d for d in NEG.glob("ART0*/*") if (d / "work.yaml").is_file())
+
+
+@pytest.mark.parametrize("d", ART_VARIANT_DIRS, ids=lambda d: f"{d.parent.name}/{d.name}")
+def test_art_negative_fixture_variants_fire(d):
+    """Extra cases of one rule (e.g. ART007 partial_name, undisclosed)."""
+    exp = json.loads((d / "expected.json").read_text(encoding="utf-8"))
+    assert exp["rule_id"] == d.parent.name
+    rep = api.validate(d / "work.yaml", as_of=exp["as_of"], route=exp["route"])
+    hits = [f for f in rep["findings"] if f["rule_id"] == exp["rule_id"]]
+    assert hits and all(f["severity"] == exp["must_fire_severity"] for f in hits), d
+    others = {f["rule_id"] for f in rep["findings"] if f["rule_id"].startswith("ART")} - {exp["rule_id"]}
+    assert not others, others
+
+
+def test_art007_variants_exist():
+    assert {d.name for d in ART_VARIANT_DIRS if d.parent.name == "ART007"} >= {"partial_name", "undisclosed"}
+
+
+def test_art007_generic_pattern_spares_person_names_and_organizations():
+    from grantthai.validators import article as ART
+    for name in ("Ai Nakamura", "FICTIONAL Lecturer A", "Kaiwan Srisai", "Aiyana Brown"):
+        assert not ART._generic_ai_name(name), name
+    for name in ("FICTIONAL ChatBot", "FICTIONAL-GPT", "FICTIONAL AI assistant", "a large language model", "ปัญญาประดิษฐ์"):
+        assert ART._generic_ai_name(name), name
+    assert ART._names_tool("Tool X", "Tool X (model Y)") and ART._names_tool("Tool X (v2)", "Tool X")
+    assert not ART._names_tool("FICTIONAL Lecturer A", "FICTIONAL text-editing assistant")
 
 
 def test_art_rules_do_not_run_on_the_nriis_route():

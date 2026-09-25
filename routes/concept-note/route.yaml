@@ -24,7 +24,7 @@ placement: routes/concept-note/placement.yaml
 sub_profiles: null
 required_fields: [CORE.GENERAL.TITLE_TH, CORE.RESEARCH.PROBLEM, CORE.RESEARCH.RQ.PRIMARY]
 rules:
-  include_families: [SCHEMA, R, CH, X, AI, FW]
+  include_families: [SCHEMA, S, R, CH, X, AI, FW]   # S: S001 reads required_fields above; S002-S008, S011 check links and sources
   exclude_ids: [FW002]
 readiness:
   sections: [block, review, needs_input, needs_verification, ai_drafted_values, hold]

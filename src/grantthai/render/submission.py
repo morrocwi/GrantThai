@@ -1,4 +1,4 @@
-"""grantthai.render.submission — renders the one output,
+"""grantthai.render.submission — renders the one output of the nriis-proposal route,
 build/NRIIS_SUBMISSION.md, per spec/output/nriis-submission.contract.md.
 
 Deterministic: no timestamps, no set/dict-order dependence, every list in

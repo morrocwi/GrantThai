@@ -38,31 +38,21 @@ GATES = ("RG0", "RG1", "RG2", "RG3", "RG4")
 
 
 # --------------------------------------------------------------------------
-# placement (both the route-schema shape and the shipped article shape)
+# placement (spec/routes/placement.schema.json; sections in file order)
 # --------------------------------------------------------------------------
 
 def read_placement(route) -> dict:
     """{sections: [{id, title_en, title_th, note, fields: [{field_id,
-    shared, render_from, fallback_copy_from}]}], appendix_shared: [...]}."""
+    shared, render_from, fallback_copy_from}]}], appendix_shared: [...]}.
+    A bare field id reads as {field_id: id}."""
     rel = route.placement
     doc = (P._read_yaml(rel) or {}) if rel else {}
-    order = list(doc.get("section_order") or [])
     secs = []
     for s in doc.get("sections") or []:
-        if not isinstance(s, dict):
-            continue
-        fields = []
-        for f in s.get("fields") or []:
-            if isinstance(f, str):
-                fields.append({"field_id": f})
-            elif isinstance(f, dict) and f.get("field_id"):
-                fields.append(dict(f))
-        secs.append({"id": s.get("id") or s.get("section"), "title_en": s.get("title_en") or "",
+        fields = [{"field_id": f} if isinstance(f, str) else dict(f) for f in s.get("fields") or []]
+        secs.append({"id": s["id"], "title_en": s.get("title_en") or "",
                      "title_th": s.get("title_th") or "NEEDS_INPUT", "note": s.get("note") or "",
                      "fields": fields})
-    if order:
-        pos = {sid: i for i, sid in enumerate(order)}
-        secs.sort(key=lambda s: pos.get(s["id"], len(order)))
     return {"sections": secs, "appendix_shared": list(doc.get("appendix_shared") or [])}
 
 
@@ -300,9 +290,11 @@ def common_context(raw: dict, result: E.Result, route, *, placement: dict) -> di
         "gates": gates, "sources": sources, "unresolved": unresolved_rows,
         "project_conflicts": project_conflicts, "unmapped": unmapped, "shared_records": shared_records,
         "ai_decl": S.ai_declaration_context(raw, doc),
-        # A fictional banner prints when the object's id says FICTIONAL (every
-        # shipped example does); a real object never carries that word.
-        "trust_level": "FICTIONAL" if "FICTIONAL" in P.work_id(raw) else result.trust_level,
+        "trust_level": result.trust_level,
+        # The FICTIONAL banner prints only on the explicit marker
+        # `fictional: true` in the work object (every shipped example sets
+        # it), never on a substring of the researcher's own work_id.
+        "fictional": raw.get("fictional") is True,
     }
 
 
@@ -392,7 +384,7 @@ def render(raw: dict, project_dir: Path | None = None, *, route, sub_profile=Non
     context = {k: ctx[k] for k in ("summary", "hold_reasons", "blocks", "reviews", "infos", "needs_input",
                                    "record_needs_input", "marked", "ai_drafts", "sections", "meta_yaml", "gates",
                                    "sources", "unresolved", "project_conflicts", "unmapped", "shared_records",
-                                   "ai_decl", "trust_level")}
+                                   "ai_decl", "trust_level", "fictional")}
     context.update({
         "frontmatter_yaml": yaml.safe_dump(frontmatter, sort_keys=False, allow_unicode=True,
                                            width=10**6).rstrip("\n"),

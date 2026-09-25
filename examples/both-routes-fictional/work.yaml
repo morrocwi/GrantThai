@@ -15,6 +15,7 @@
 schema_version: 0.3.0-draft
 work_id: FICTIONAL-BOTH-ROUTES-EXAMPLE-0001
 work_type: research_proposal
+fictional: true            # explicit marker: outputs print the FICTIONAL banner
 mode: expert
 authoring:
   mode: human
@@ -24,6 +25,7 @@ routing:
   declared_routes:
   - nriis-proposal
   - academic-article
+  - concept-note          # also built by the one-output guard's runtime check
   default_route: nriis-proposal
   sub_profiles:
     academic-article: thai-journal

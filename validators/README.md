@@ -13,6 +13,10 @@
   and the academic-article-only ART family, ART001–ART011: REVIEW except
   ART007, the one BLOCK, an AI tool listed as an author). Structure checks
   are JSON Schema's job. A route is chosen by a person, never by an AI.
+- `ai_tool_name_patterns.yaml` — generic AI-tool name patterns (data, no
+  product or vendor names) that ART007 matches against an author member's
+  full_name, so an AI listed as an author is caught even when no tool was
+  disclosed. A bare "AI" token is not a pattern: it is also a given name.
 - `crosswalk.yaml` — every validation code of the handoff package (core/02
   §10: 37, core/04 §30: 41, core/05: 12 VAL.* codes) mapped to GrantThai
   rule ids, with coverage `full` / `partial` / `none` and a note wherever

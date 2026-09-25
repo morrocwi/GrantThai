@@ -24,9 +24,10 @@ schema: grantthai.placement.v0
 version: "0.1.0-draft"
 route: academic-article
 status_marker: NEEDS_VERIFICATION
-section_order: [FRONT_MATTER, ABSTRACT, BODY, STATEMENTS, FIGURES_TABLES, REFERENCES, VENUE]
+not_placed_policy: appendix   # every other filled registry field is listed in a "records not placed" appendix, never dropped silently
+# Sections print in file order.
 sections:
-  - section: FRONT_MATTER
+  - id: front_matter
     title_en: "Front matter"
     title_th: NEEDS_INPUT
     fields:
@@ -38,13 +39,13 @@ sections:
       - {field_id: ARTICLE.FRONT.CONTRIBUTIONS}
       - {field_id: CORE.GENERAL.KEYWORDS_TH, shared: true}
       - {field_id: CORE.GENERAL.KEYWORDS_EN, shared: true}
-  - section: ABSTRACT
+  - id: abstract
     title_en: "Abstract"
     title_th: NEEDS_INPUT
     fields:
       - {field_id: ARTICLE.FRONT.ABSTRACT_TH}
       - {field_id: ARTICLE.FRONT.ABSTRACT_EN}
-  - section: BODY
+  - id: body
     title_en: "Body"
     title_th: NEEDS_INPUT
     note: "IMRaD sections for kind empirical_research; ARTICLE.BODY.SECTIONS for review, conceptual, case_study, short_communication and other (rule ART003)."
@@ -56,7 +57,7 @@ sections:
       - {field_id: ARTICLE.SECTION.CONCLUSION, render_from: ["chain:Claim"]}
       - {field_id: ARTICLE.SECTION.LIMITATIONS, render_from: [METHOD.PLAN.QUALITY]}
       - {field_id: ARTICLE.BODY.SECTIONS}
-  - section: STATEMENTS
+  - id: statements
     title_en: "Statements"
     title_th: NEEDS_INPUT
     fields:
@@ -66,18 +67,18 @@ sections:
       - {field_id: ARTICLE.STATEMENT.CONFLICT_OF_INTEREST}
       - {field_id: ARTICLE.STATEMENT.FUNDING}
       - {field_id: ARTICLE.BACK.ACKNOWLEDGEMENTS}
-  - section: FIGURES_TABLES
+  - id: figures_tables
     title_en: "Figures and tables"
     title_th: NEEDS_INPUT
     fields:
       - {field_id: ARTICLE.BODY.FIGURES_TABLES}
-  - section: REFERENCES
+  - id: references
     title_en: "References"
     title_th: NEEDS_INPUT
     fields:
       - {field_id: ARTICLE.META.REFERENCE_STYLE}
       - {field_id: CORE.NARRATIVE.REFERENCES, shared: true}
-  - section: VENUE
+  - id: venue
     title_en: "Target venue (researcher-supplied, NEEDS_VERIFICATION)"
     title_th: NEEDS_INPUT
     note: "When the TOKE field RESULTS.PATHWAY.ACADEMIC_PATHWAY is registered (scope shared), it is placed here next to ARTICLE.VENUE.TARGET (spec §2.4). Not listed until it exists in registry/fields.jsonl."

@@ -1568,9 +1568,12 @@ rules:
   routes: [academic-article]
   severity: BLOCK
   severity_basis: plan
-  description_en: An ARTICLE.FRONT.AUTHORS or ARTICLE.FRONT.CONTRIBUTIONS entry names a disclosed AI tool (the referenced
-    PROFILE.TEAM.MEMBERS full_name or organization, or affiliation_as_typed, matches an authoring.ai_use_declaration
-    tools[].name or authoring.tools_disclosed entry, case-insensitive). An AI is never an author.
+  description_en: An ARTICLE.FRONT.AUTHORS or ARTICLE.FRONT.CONTRIBUTIONS entry names an AI tool. Either the referenced
+    PROFILE.TEAM.MEMBERS full_name or organization, or affiliation_as_typed, and an authoring.ai_use_declaration
+    tools[].name or authoring.tools_disclosed entry contain one another as whole words (case-insensitive, both
+    directions, a parenthetical in the tool name also tried on its own and removed); or, whether or not anything
+    was disclosed, the member's full_name matches a generic AI-tool name pattern in
+    validators/ai_tool_name_patterns.yaml (data, no product names). An AI is never an author.
   inputs:
   - project:authoring
   - ARTICLE.FRONT.AUTHORS

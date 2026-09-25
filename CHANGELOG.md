@@ -55,6 +55,17 @@ SemVer from v0.1 onward.
   an author) BLOCK. No rule rests on a journal fact; GrantThai ships no
   venue registry (ART010). Rules carry `routes:` and the engine evaluates
   only the families in the chosen route's scope (RT001/RT002 INFO).
+- Review fixes: route resolution honours `routing.declared_routes` before
+  the `work_type` default (several declared and no `default_route`: stop
+  and list them; RT003 INFO when the route in force is not declared).
+  ART007 matches a disclosed tool name in both directions (a parenthetical
+  is tried on its own and removed) and, even when nothing is disclosed,
+  a member full_name against generic AI-tool name patterns
+  (`validators/ai_tool_name_patterns.yaml`, no product names). Route data
+  files now validate against their schemas and the schema-lint guard
+  checks them; the FICTIONAL banner rests on an explicit `fictional: true`
+  key; the concept-note route evaluates the S family so its
+  `required_fields` are checked (`docs/deviations.md`).
 - `build/ACADEMIC_ARTICLE.md` (`spec/output/academic-article.contract.md`,
   `templates/academic_article.md.j2`, `render/article.py`) and
   `build/RESEARCH_CONCEPT_NOTE.md` as a route

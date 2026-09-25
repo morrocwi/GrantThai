@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/morrocwi/GrantThai/spec/routes/placement.schema.json",
   "title": "GrantThai route placement (routes/<id>/placement.yaml)",
-  "description": "Draft 0.1.0. The field -> section order of one route's output body, the route-level analogue of mappings/nriis/section_to_tab.yaml. Every field id must exist in registry/fields.jsonl and appear at most once; the set of placed fields must equal the route's body selector in routes/INDEX.yaml (partition.body.<route>). Section titles are GrantThai's descriptive headings, never a venue's or a funder's; title_th is NEEDS_INPUT until a person writes it. A filled registry field that is not placed is listed in a 'records not placed' appendix (not_placed_policy: appendix), never dropped silently.",
+  "description": "Draft 0.1.0. The field -> section order of one route's output body, the route-level analogue of mappings/nriis/section_to_tab.yaml. Every field id must exist in registry/fields.jsonl and appear at most once; the set of placed fields must equal the route's body selector in routes/INDEX.yaml (partition.body.<route>). Section titles are GrantThai's descriptive headings, never a venue's or a funder's; title_th is NEEDS_INPUT until a person writes it. A filled registry field that is not placed is listed in a 'records not placed' appendix (not_placed_policy: appendix), never dropped silently. A field entry is either a bare field id or an object {field_id, shared, render_from, fallback_copy_from}: `shared: true` marks a shared-core field read as-is; `render_from` is informational (the records the researcher writes the section from, field ids or 'chain:<Node>'); `fallback_copy_from` names the shared field whose value is copied, never composed, when the route field is empty. Sections print in file order.",
   "type": "object",
   "required": [
     "schema",
@@ -78,12 +78,61 @@
             "type": "array",
             "uniqueItems": true,
             "items": {
-              "type": "string",
-              "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE|ARTICLE)(\\.[A-Z0-9_]+){2,}$"
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE|ARTICLE)(\\.[A-Z0-9_]+){2,}$"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "field_id"
+                  ],
+                  "properties": {
+                    "field_id": {
+                      "type": "string",
+                      "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE|ARTICLE)(\\.[A-Z0-9_]+){2,}$"
+                    },
+                    "shared": {
+                      "type": "boolean"
+                    },
+                    "render_from": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "string",
+                        "pattern": "^(chain:[A-Z][A-Za-z]+|(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE|ARTICLE)(\\.[A-Z0-9_]+){2,})$"
+                      }
+                    },
+                    "fallback_copy_from": {
+                      "type": "string",
+                      "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE|ARTICLE)(\\.[A-Z0-9_]+){2,}$"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
             }
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": false
+      }
+    },
+    "status_marker": {
+      "const": "NEEDS_VERIFICATION",
+      "description": "Optional. Section names and order are GrantThai's own descriptive headings; a venue's structure is NEEDS_VERIFICATION."
+    },
+    "appendix_shared": {
+      "type": "array",
+      "uniqueItems": true,
+      "description": "Shared-core fields this route reads but does not place in a section; printed in an appendix 'Shared records read by this route'.",
+      "items": {
+        "type": "string",
+        "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE|ARTICLE)(\\.[A-Z0-9_]+){2,}$"
       }
     }
   },

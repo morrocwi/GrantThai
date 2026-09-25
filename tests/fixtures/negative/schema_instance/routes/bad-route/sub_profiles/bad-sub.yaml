@@ -1,0 +1,12 @@
+# Seeded bad fixture (schema-lint guard): a sub-profile in the old shipped
+# shape (status_marker instead of status, no languages / requirements),
+# whose id does not equal its file name.
+schema: grantthai.sub_profile.v0
+version: "0.1.0-draft"
+route: bad-route
+id: other-id
+title_en: "Seeded bad sub-profile"
+title_th: NEEDS_INPUT
+status_marker: NEEDS_VERIFICATION
+keywords: {languages: [en], min: 3, max: 6}
+notes: "not a list"

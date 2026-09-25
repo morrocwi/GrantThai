@@ -84,8 +84,9 @@ entering NRIIS is one route of the router, not the core.
 - **One command per route:** `grantthai build <work.yaml> --route <id>`
   (`route build`). The route comes from `--route`, else
   `routing.default_route`, else the legacy file → `nriis-proposal`, else
-  the single route whose `default_for_work_types` lists the object's
-  `work_type`; otherwise the tool lists the candidates and stops. **The
+  the one route in `routing.declared_routes` (several declared: stop and
+  list them), else, only when nothing is declared, the single route whose
+  `default_for_work_types` lists the object's `work_type`; otherwise the tool lists the candidates and stops. **The
   tool never picks a route**, and neither does an AI surface: MCP and HTTP
   return the candidates for the researcher to choose from.
 - **One output per route:** `build/NRIIS_SUBMISSION.md`

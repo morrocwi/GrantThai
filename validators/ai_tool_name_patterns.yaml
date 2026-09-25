@@ -1,0 +1,44 @@
+# validators/ai_tool_name_patterns.yaml — generic AI-tool name patterns
+# read by rule ART007 (grantthai.validators.article).
+#
+# ART007 (BLOCK) stops an AI tool from being listed as an author or a
+# credited contributor (AGENTS.md non-negotiable 4). It already matches the
+# tools the researcher disclosed (authoring.ai_use_declaration tools[].name,
+# authoring.tools_disclosed). These patterns catch the same thing when
+# nothing was disclosed: a PROFILE.TEAM.MEMBERS full_name referenced by an
+# author or contribution entry that reads as an AI tool rather than a
+# person.
+#
+# Scope and limits:
+# - Applied to the member's full_name only. An organization or affiliation
+#   may legitimately contain these words (a human author can work in a
+#   language-model lab), so they are not matched against it.
+# - Generic, technical terms only. No product, model or vendor name is
+#   shipped here: GrantThai keeps no such list. A tool name the researcher
+#   discloses is matched through the disclosure itself.
+# - Deliberately conservative: a bare "AI" token is NOT listed, because it
+#   is also a personal given name. A miss is possible; a false BLOCK on a
+#   real person's name must not be.
+# - Each entry is a Python regular expression, matched case-insensitively
+#   anywhere in the name after whitespace folding.
+schema: grantthai.ai_tool_name_patterns.v0
+version: "0.1.0-draft"
+patterns:
+  - pattern: 'language[ -]?model'
+    note: "language model, large language model"
+  - pattern: '(?<![a-z])llms?(?![a-z])'
+    note: "LLM abbreviation"
+  - pattern: 'chat[ -]?bot'
+    note: "chatbot"
+  - pattern: 'gpt'
+    note: "generative pre-trained transformer, the model-architecture term"
+  - pattern: 'artificial intelligence'
+    note: "spelled out"
+  - pattern: '(?<![a-z])(generative|gen)[ -]?ai(?![a-z])'
+    note: "generative AI, GenAI"
+  - pattern: '(?<![a-z])ai[ -](assistant|tool|model|agent|writer|system)(?![a-z])'
+    note: "AI assistant / tool / model / agent / writer / system"
+  - pattern: 'ปัญญาประดิษฐ์'
+    note: "Thai: artificial intelligence"
+  - pattern: 'เอไอ'
+    note: "Thai transliteration of AI"

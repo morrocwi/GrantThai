@@ -151,7 +151,9 @@ def validate(project: str | Path | dict, *, as_of: str | None = None, route: str
              sub_profile: str | None = None) -> dict:
     """Validation report (spec/common/validation_report.schema.json) for
     one route. With no route: routing.default_route, a legacy project.yaml
-    -> nriis-proposal, the single default route for work_type, else
+    -> nriis-proposal, the one routing.declared_routes entry (several:
+    AmbiguousRoute listing them), the single default route for work_type
+    (only when nothing is declared), else
     AmbiguousRoute (a ValueError listing the candidates). Report-only:
     never changes the work file."""
     raw, folder = _loaded(project)
@@ -207,13 +209,9 @@ def explain(rule_id: str) -> dict:
 def _placement_fields(route: "_RT.Route") -> list[tuple[str, str, int]]:
     """(field_id, section id, position) in the route's placement order."""
     doc = _P._read_yaml(route.placement) or {}
-    secs = doc.get("sections") or []
-    if isinstance(secs, dict):
-        order = doc.get("section_order") or list(secs)
-        secs = [dict(secs[k] or {}, id=k) for k in order if k in secs]
     out = []
-    for sec in secs:
-        sid = sec.get("id") or sec.get("section")
+    for sec in doc.get("sections") or []:
+        sid = sec.get("id")
         for i, f in enumerate(sec.get("fields") or [], start=1):
             fid = f.get("field_id") if isinstance(f, dict) else f
             if isinstance(fid, str):

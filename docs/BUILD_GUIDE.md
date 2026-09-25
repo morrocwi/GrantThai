@@ -390,7 +390,9 @@ GrantThai opens to academic articles as well. "Router" here means a
 
 **Route resolution (the tool never picks):** `--route`; else
 `routing.default_route`; else a legacy 0.2 file → `nriis-proposal`; else
-the single route whose `default_for_work_types` lists the `work_type`;
+the one route in `routing.declared_routes` (several declared: exit 2
+listing them); else, only when nothing is declared, the single route whose
+`default_for_work_types` lists the `work_type`;
 else exit 2 with the candidates (`AmbiguousRoute`; MCP and HTTP return the
 list). A directory with both `work.yaml` and `project.yaml` exits 2.
 

@@ -191,7 +191,7 @@ work.yaml  --------->  grantthai build --route academic-article -->  build/ACADE
   the only input `grantthai build` reads. The Markdown forms, the
   questionnaires, `grantthai init`/`set`, and any optional AI assistant are
   all just *editors* of that one file. Your name, team and institution are
-  stored in it too (`PROFILE.*`, `ARTICLE.AUTHORS`); an optional local
+  stored in it too (`PROFILE.*`, `ARTICLE.FRONT.AUTHORS`); an optional local
   `profile.yaml` can pre-fill them while you edit, but `build` never reads
   it. The fund profile is a bound reference named inside the file, needed
   only by routes that declare `needs_fund_binding` (the NRIIS route). If a
@@ -298,7 +298,7 @@ machine-readable version (populated from v0.3 onward; empty in v0.1.0).
 | LocalTerm → AcademicConcept proposal | glossary lookup + human `proposesMapping`, or "own words + CONCEPT NEEDS_INPUT" |
 | critique | `grantthai validate` + a named expert review record |
 | fund-fit check | `grantthai fund check` |
-| handoff package | `NRIIS_SUBMISSION.md` (the one output); `GRANTTHAI_STANDALONE.md` is reference documentation |
+| handoff package | one file per chosen route (`NRIIS_SUBMISSION.md` / `ACADEMIC_ARTICLE.md` / `RESEARCH_CONCEPT_NOTE.md`); `GRANTTHAI_STANDALONE.md` is reference documentation |
 | MCP (v0.1.0) / browser-assist (v0.4) | human copy/paste |
 
 AI output is never `SOURCE` and never moves a field above `DRAFT` on its

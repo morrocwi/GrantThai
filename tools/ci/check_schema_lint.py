@@ -19,6 +19,10 @@ Guard: the data contracts hold, not only parse.
        interview/*.yaml                     -> spec/interview/question_set.schema.json
        mappings/nriis/form_profiles/*.yaml  -> spec/mappings/form_profile.schema.json (v0.2)
        guidance/writing_intent.yaml         -> spec/guidance/writing_intent.schema.json (v0.2)
+       routes/*/route.yaml                  -> spec/routes/route.schema.json (v0.3)
+       routes/**/placement.yaml             -> spec/routes/placement.schema.json (v0.3)
+       routes/*/sub_profiles/*.yaml         -> spec/routes/sub_profile.schema.json (v0.3;
+                                               id must equal the file name, route the folder)
   5. Cross-file checks: every chain.yaml edge endpoint is a declared node,
      no edge is listed twice, causal edges form a DAG; every fund profile id
      matches its path and its trust level is not above its rules'; every
@@ -512,6 +516,20 @@ def main() -> int:
             validate(violations, registry, schemas, "mappings/form_profile.schema.json", get(rel), rel)
         if rel == "guidance/writing_intent.yaml":
             validate(violations, registry, schemas, "guidance/writing_intent.schema.json", get(rel), rel)
+        if rel.startswith("routes/"):
+            parts = rel.split("/")
+            if len(parts) == 3 and parts[2] == "route.yaml":
+                validate(violations, registry, schemas, "routes/route.schema.json", get(rel), rel)
+            elif parts[-1] == "placement.yaml":
+                validate(violations, registry, schemas, "routes/placement.schema.json", get(rel), rel)
+            elif len(parts) == 4 and parts[2] == "sub_profiles" and rel.endswith(".yaml"):
+                validate(violations, registry, schemas, "routes/sub_profile.schema.json", get(rel), rel)
+                doc = get(rel)
+                if isinstance(doc, dict):
+                    if doc.get("id") != parts[3][:-len(".yaml")]:
+                        violations.append(f"{rel}: id {doc.get('id')!r} must equal its file name")
+                    if doc.get("route") != parts[1]:
+                        violations.append(f"{rel}: route {doc.get('route')!r} must equal its folder {parts[1]!r}")
 
     # 5. Cross-file checks
     chain = get("spec/common/chain.yaml")

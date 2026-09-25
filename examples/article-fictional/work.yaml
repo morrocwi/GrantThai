@@ -21,6 +21,7 @@
 schema_version: "0.3.0-draft"
 work_id: "FICTIONAL-ARTICLE-EXAMPLE-0001"
 work_type: academic_article
+fictional: true            # explicit marker: outputs print the FICTIONAL banner
 mode: expert
 authoring:
   mode: ai_assisted

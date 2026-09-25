@@ -1,7 +1,9 @@
 """GrantThai — open, unofficial research infrastructure.
 
 v0.1: the AI-free engine (core, validators, render, cli) and the thin
-Python API grantthai.api_py: project.yaml -> build/NRIIS_SUBMISSION.md.
+Python API grantthai.api_py: one work.yaml (or legacy project.yaml) -> one
+file per chosen route (build/NRIIS_SUBMISSION.md, build/ACADEMIC_ARTICLE.md
+or build/RESEARCH_CONCEPT_NOTE.md).
 
 Hard rule (see spec/common/status_permissions.yaml, README "AI is optional
 everywhere"): the AI-free core packages below (core, validators, review,

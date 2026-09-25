@@ -82,8 +82,11 @@ routes:
 1. `--route` on the command line;
 2. `routing.default_route` in the object;
 3. a legacy 0.2 `project.yaml` → `nriis-proposal`;
-4. exactly one route lists the object's `work_type` in
-   `default_for_work_types` → that route;
+3a. `routing.declared_routes`, when the researcher declared any: exactly
+   one declared route → that route; several → exit 2 listing the declared
+   routes. The `work_type` default never overrides a declaration;
+4. only when nothing is declared: exactly one route lists the object's
+   `work_type` in `default_for_work_types` → that route;
 5. otherwise exit 2, listing the candidates (the Python API raises
    `AmbiguousRoute`; MCP and HTTP return the candidate list).
 

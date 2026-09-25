@@ -15,24 +15,28 @@ route: academic-article
 id: thai-journal
 title_en: "Thai-language or bilingual journal — GrantThai defaults, not a venue profile"
 title_th: NEEDS_INPUT
-status_marker: NEEDS_VERIFICATION
-source: null           # no public document read; nothing here is a venue fact
-abstract:
-  languages: [th, en]  # ART001 looks for an abstract in each listed language
-  basis: "proposed_default (bilingual abstract); NEEDS_VERIFICATION against the venue's own author guidelines"
-title:
-  languages: [th, en]
-  basis: "proposed_default (bilingual title); NEEDS_VERIFICATION"
-keywords:
-  languages: [th, en]
-  min: 3
-  max: 6
-  basis: "proposed_default (corpus-100 FWP-12 shows keyword presence in 50/100 funded final reports, not a count, and not for articles; SD-5 p3 gives at most 5 for one NRIIS proposal form, which is not a journal); NEEDS_VERIFICATION; a VENUE.stated_requirements item with a source overrides this band (ART002)"
-length_targets: []     # none shipped: W101/W102 apply to article fields only with a sourced target (spec §4.3)
-statements:
-  expected: [ETHICS, AI_USE, DATA_AVAILABILITY, CONFLICT_OF_INTEREST, FUNDING]
-  basis: "proposed_default; GenAI research-ethics guideline 2569 (National Research Council of Thailand) p.27 (authors check the journal's own GenAI rules first); NEEDS_VERIFICATION"
-reference_style:
-  value: null          # the researcher's declared label (ARTICLE.META.REFERENCE_STYLE); GrantThai never reformats citations
-  basis: "proposed_default: none"
-notes: "Defaults only. Whether a venue is indexed anywhere, and by whom, is a venue fact GrantThai never states (OK003: hosting is not indexing). Word limits, scope, fees and review time are NEEDS_VERIFICATION unless the researcher supplies the venue's own document."
+status: NEEDS_VERIFICATION
+# ART001 looks for an abstract in each `abstract` language; ART002 counts
+# keywords in each `keywords` language. No public document was read for
+# these defaults: nothing here is a venue fact.
+languages:
+  title: [th, en]
+  abstract: [th, en]
+  keywords: [th, en]
+requirements:
+  - item: keyword_count_min
+    value: 3
+    status: NEEDS_VERIFICATION
+    basis: proposed_default
+    note_en: "proposed_default: corpus-100 FWP-12 shows keyword presence in 50/100 funded final reports, not a count, and not for articles; SD-5 p3 gives at most 5 for one NRIIS proposal form, which is not a journal. A VENUE.stated_requirements item with a source overrides this band (ART002)."
+  - item: keyword_count_max
+    value: 6
+    status: NEEDS_VERIFICATION
+    basis: proposed_default
+    note_en: "Upper end of the same proposed_default band; NEEDS_VERIFICATION."
+notes:
+  - "Bilingual title, abstract and keywords (Thai and English) are GrantThai's proposed_default reading of common practice, NEEDS_VERIFICATION against the venue's own author guidelines (spec decision K-R5)."
+  - "Statements the overview lists as commonly expected (presence only, no wording): ethics, AI use, data availability, conflict of interest, funding. Basis: proposed_default; GenAI research-ethics guideline 2569 (National Research Council of Thailand) p.27, authors check the journal's own GenAI rules first. NEEDS_VERIFICATION."
+  - "No length targets are shipped: W101/W102 apply to article fields only with a sourced target (spec §4.3)."
+  - "No reference style is shipped: the researcher declares a label in ARTICLE.META.REFERENCE_STYLE; GrantThai never reformats citations."
+  - "Defaults only. Whether a venue is indexed anywhere, and by whom, is a venue fact GrantThai never states (OK003: hosting is not indexing). Word limits, scope, fees and review time are NEEDS_VERIFICATION unless the researcher supplies the venue's own document."

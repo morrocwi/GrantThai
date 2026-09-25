@@ -4,8 +4,8 @@ Use this when the AI you are talking to cannot run programs or read files
 (a plain chat window in any product). Copy everything between the two
 `=====` lines into the chat as your first message. The AI will interview
 you and give you a `project.yaml` to save. You (or anyone with a computer)
-then run `grantthai build project.yaml` to get the one output file,
-`build/NRIIS_SUBMISSION.md`.
+then run `grantthai build project.yaml` to get one output file for the
+route you chose (for this variant, the NRIIS route, `build/NRIIS_SUBMISSION.md`).
 
 This packet is the **research proposal (NRIIS route)** variant. For an
 **academic article** (route `academic-article`, output

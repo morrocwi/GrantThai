@@ -94,9 +94,60 @@ def _mentions(text: str, name: str) -> bool:
     return re.search(r"(?<!\w)" + re.escape(n) + r"(?!\w)", t) is not None
 
 
+_PAREN_RE = re.compile(r"[\(\[][^\)\]]*[\)\]]")
+_PAREN_INNER_RE = re.compile(r"[\(\[]([^\)\]]*)[\)\]]")
+
+
+def _tool_variants(name: str) -> list[str]:
+    """A disclosed tool name, the name with any parenthetical removed, and
+    each parenthetical on its own: 'Tool X (model Y)' -> ['Tool X (model Y)',
+    'Tool X', 'model Y']."""
+    out = [name]
+    bare = " ".join(_PAREN_RE.sub(" ", name).split())
+    out.append(bare)
+    out += [" ".join(m.split()) for m in _PAREN_INNER_RE.findall(name)]
+    seen, res = set(), []
+    for v in out:
+        k = _norm(v)
+        if len(k) >= 3 and k not in seen:
+            seen.add(k)
+            res.append(v)
+    return res
+
+
+def _names_tool(text: str, tool: str) -> bool:
+    """An author-side string and a disclosed tool name refer to the same
+    thing: either contains the other as a whole-word run (after removing
+    parentheticals from the tool name), case-insensitive. Both directions,
+    so 'Tool X' as a member matches a disclosed 'Tool X (model Y)'."""
+    if len(_norm(text)) < 3:
+        return False
+    return any(_mentions(text, v) or _mentions(v, text) for v in _tool_variants(tool))
+
+
+@lru_cache(maxsize=None)
+def _generic_patterns() -> tuple:
+    """validators/ai_tool_name_patterns.yaml, compiled (data, not code)."""
+    path = P.DATA_ROOT / "validators" / "ai_tool_name_patterns.yaml"
+    if not path.is_file():
+        return ()
+    doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    out = []
+    for it in doc.get("patterns") or []:
+        pat = it.get("pattern") if isinstance(it, dict) else None
+        if isinstance(pat, str) and pat:
+            out.append(re.compile(pat, re.IGNORECASE))
+    return tuple(out)
+
+
+def _generic_ai_name(full_name: str) -> bool:
+    t = _norm(full_name)
+    return bool(t) and any(p.search(t) for p in _generic_patterns())
+
+
 # --------------------------------------------------------------------------
-# sub-profile (tolerant reader: both the route-schema shape and the shipped
-# data shape are read; every value is a proposed_default, NEEDS_VERIFICATION)
+# sub-profile (spec/routes/sub_profile.schema.json shape; every value is a
+# proposed_default, NEEDS_VERIFICATION)
 # --------------------------------------------------------------------------
 
 @lru_cache(maxsize=None)
@@ -128,25 +179,16 @@ def sub_profile_view(route, sp_id: str | None) -> dict:
         return out
     out["found"] = True
     langs = doc.get("languages") if isinstance(doc.get("languages"), dict) else {}
-
-    def _langs(key):
+    for key, slot in (("abstract", "abstract_langs"), ("keywords", "keyword_langs")):
         v = langs.get(key)
-        if v is None and isinstance(doc.get(key), dict):
-            v = doc[key].get("languages")
-        return [x for x in v if x in ("th", "en")] if isinstance(v, list) else None
-
-    out["abstract_langs"] = _langs("abstract") or out["abstract_langs"]
-    out["keyword_langs"] = _langs("keywords") or out["keyword_langs"]
-    kw = doc.get("keywords") if isinstance(doc.get("keywords"), dict) else {}
-    for key, slot in (("min", "kw_min"), ("max", "kw_max")):
-        if isinstance(kw.get(key), int) and not isinstance(kw.get(key), bool):
-            out[slot] = kw[key]
+        if isinstance(v, list) and [x for x in v if x in ("th", "en")]:
+            out[slot] = [x for x in v if x in ("th", "en")]
     for req in doc.get("requirements") or []:
-        if not isinstance(req, dict) or isinstance(req.get("value"), bool):
+        if not isinstance(req, dict) or isinstance(req.get("value"), bool) or not isinstance(req.get("value"), int):
             continue
-        if req.get("item") == "keyword_count_min" and isinstance(req.get("value"), int):
+        if req.get("item") == "keyword_count_min":
             out["kw_min"] = req["value"]
-        if req.get("item") == "keyword_count_max" and isinstance(req.get("value"), int):
+        if req.get("item") == "keyword_count_max":
             out["kw_max"] = req["value"]
     return out
 
@@ -299,20 +341,28 @@ def check(c) -> None:
                       "role.", [AUTHORS, CONTRIB],
                       f"Add a {CONTRIB} entry with at least one role for {a.get('member_id')}.")
 
-    # ART007 BLOCK: an AI tool is never an author
+    # ART007 BLOCK: an AI tool is never an author. Matched against the
+    # disclosed tools (both directions, parentheticals removed) and, whether
+    # or not anything was disclosed, against the generic AI-tool name
+    # patterns in validators/ai_tool_name_patterns.yaml (full_name only).
     tools = _disclosed_tools(c)
-    if tools:
-        names = _member_names(c)
-        for fid, entries, extra in ((AUTHORS, authors, ("affiliation_as_typed",)), (CONTRIB, contribs, ())):
-            for e in entries:
-                texts = list(names.get(e.get("member_id"), [])) + [str(e.get(k)) for k in extra if _filled(e.get(k))]
-                hit = next((t for t in tools for s in texts if _mentions(s, t)), None)
-                if hit:
-                    c.add("ART007", f"{fid} entry {e.get('id')} names the disclosed AI tool {hit!r}. An AI tool is "
-                          "never an author or a credited contributor (AGENTS.md non-negotiable 4; GenAI guideline "
-                          "2569 p.5, p.23).", [fid],
-                          f"Remove entry {e.get('id')} from {fid}. Disclose the tool's use in {AI_USE} and "
-                          "authoring.ai_use_declaration instead.")
+    names = _member_names(c)
+    full = {m.get("id"): str(m.get("full_name")) for m in c.items(TEAM) if _filled(m.get("full_name"))}
+    for fid, entries, extra in ((AUTHORS, authors, ("affiliation_as_typed",)), (CONTRIB, contribs, ())):
+        for e in entries:
+            texts = list(names.get(e.get("member_id"), [])) + [str(e.get(k)) for k in extra if _filled(e.get(k))]
+            hit = next((t for t in tools for s in texts if _names_tool(s, t)), None)
+            if hit:
+                what = f"the disclosed AI tool {hit!r}"
+            elif _generic_ai_name(full.get(e.get("member_id"), "")):
+                what = (f"a member whose full_name reads as an AI tool ({e.get('member_id')}; generic pattern in "
+                        "validators/ai_tool_name_patterns.yaml, whether or not the tool was disclosed)")
+            else:
+                continue
+            c.add("ART007", f"{fid} entry {e.get('id')} names {what}. An AI tool is never an author or a "
+                  "credited contributor (AGENTS.md non-negotiable 4; GenAI guideline 2569 p.5, p.23).", [fid],
+                  f"Remove entry {e.get('id')} from {fid}. Disclose the tool's use in {AI_USE} and "
+                  "authoring.ai_use_declaration instead. If the member is a person, correct the full_name.")
 
     # ART008 ethics statement
     human = c.value("COMP.STANDARD.HUMAN")
