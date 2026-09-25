@@ -12,8 +12,9 @@ canonical output** of GrantThai's one-input, one-output pipeline — see
 | `schema_version` | string | `project.schema.json` version used |
 | `renderer_version` | string | templates version |
 | `project_id` | string | from `project.yaml` |
-| `project_object_sha256` | string | computed as defined in `spec/common/object-hash.md` |
-| `project_locked` | boolean | `lock.locked` from `project.yaml`; when false, the hash is of the current, unlocked object |
+| `project_content_sha256` | string | `content_sha256` of `project.yaml` (`spec/common/object-hash.md`): authored content only, so it equals the hash current review records and the lock bind to |
+| `project_state_sha256` | string | `state_sha256`: the whole file as rendered, statuses and reviews included |
+| `project_locked` | boolean | `lock.locked` from `project.yaml`, true only while `lock.locked_content_sha256` equals `project_content_sha256` |
 | `fund_profile` | string | `<agency>/<call-id>@<major.minor>` |
 | `fund_profile_trust_level` | string | `FICTIONAL` < `COMMUNITY_EXTRACTED` < `HUMAN_VERIFIED` < `SECOND_CHECKED` (ordered). The rendered value is the **lowest** trust level among the profile itself and every rule the project used |
 | `nriis_mapping` | string | `<form>@<observed-date>`; today `nrct-master-hss@NEEDS_VERIFICATION` |
@@ -53,6 +54,13 @@ template puts it there.
    `DEPENDENCIES`, `SOURCE_IDS`, `VALIDATION`, `AUTHORED_BY`, and an
    arithmetic-check line where one applies (e.g. workplan-sums-to-100,
    budget line totals).
+   - **Structured fields** (`array<object>`, `object`,
+     `rich_text|object`; value contracts in
+     `spec/registry/structured_fields.schema.json`) render as a table,
+     one row per item in `id` order as written, one column per declared
+     key in schema order; `*_ids` columns print the referenced ids
+     comma-separated, and an unresolved id is printed with the marker
+     `UNRESOLVED` (rule S006).
    - **Attachments tab.** NRIIS attachments are uploaded files, which a
      Markdown file cannot contain. This section lists each required or
      declared attachment (`DOC.ATTACHMENTS.DOCUMENTS`) with its status
@@ -61,8 +69,19 @@ template puts it there.
      attachments.
 3. **Machine field metadata.** A structured block (YAML) mirroring section
    2 for programmatic re-reading.
-4. **Validation and provenance appendix.** Gate records (RG0–RG4), the
-   source manifest (no personal data), and the conflict log.
+4. **Validation and provenance appendix**, in this order:
+   1. gate records RG0–RG4, each marked `current` or `stale`
+      (`spec/common/object-hash.md`);
+   2. the source manifest, exactly as defined in
+      `spec/common/links-and-sources.md` §3 ("Source manifest in the
+      output"; entries with `contains_personal_data: true` print only
+      `source_id`, `kind` and `[private]`);
+   3. unresolved references: every `source_ids` entry (S008) and every
+      link reference (S006) that did not resolve, with the field id or
+      item id that holds it.
+
+   (Version 0.1 of this contract also listed a "conflict log". Nothing
+   defined it, so it is removed; see `docs/deviations.md`.)
 
 ## Invariants
 

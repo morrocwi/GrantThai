@@ -7,7 +7,7 @@
   "allOf": [{"$ref": "field_record.schema.json"}],
   "properties": {
     "field_id": {"type": "string", "pattern": "^CORE\\.EVIDENCE\\.[A-Z0-9_]+(\\.[A-Z0-9_]+)*$"},
-    "supports_claim_id": {"type": "string", "pattern": "^CORE\\.CLAIM\\.[A-Z0-9_]+(\\.[A-Z0-9_]+)*$"},
+    "supports_claim_id": {"type": "string", "pattern": "^CORE\\.CLAIM\\.[A-Z0-9_]+(\\.[A-Z0-9_]+)*$", "description": "A causal reference Evidence -> Claim; must resolve to a record under chain.Claim (spec/common/links-and-sources.md, rule S006)."},
     "claim_strength_cap": {
       "type": "string",
       "enum": ["NONE", "CONTRIBUTORY", "FULL"],

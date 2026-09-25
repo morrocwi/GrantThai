@@ -68,7 +68,10 @@ No other command produces the NRIIS-facing output. The full command list
 
 ## ONE OUTPUT
 
-`build/NRIIS_SUBMISSION.md` — a single, self-contained file containing:
+`build/NRIIS_SUBMISSION.md` — a single, self-contained file containing
+(`build/` is the directory next to the `project.yaml` that was built, i.e.
+`<directory of project.yaml>/build/NRIIS_SUBMISSION.md`, unless `--out`
+names another directory):
 
 - a readiness summary at the top (`BLOCK` / `REVIEW` / `INFO` findings,
   `NEEDS_INPUT`, `NEEDS_VERIFICATION`, holds), and

@@ -99,9 +99,11 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: A field value does not match the type declared in registry/fields.jsonl.
+  description_en: 'A field value does not match the type declared in registry/fields.jsonl (semantics:
+    spec/registry/types.yaml); for a structured field, the value does not validate against spec/registry/structured_fields.schema.json#/$defs/<field_id>.'
   inputs:
   - registry:types
+  - registry:structured
   chain_step: project
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -125,7 +127,9 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: The same field_id appears more than once where cardinality is 1.
+  description_en: A registry field_id appears as more than one record in project.yaml (each registry field
+    is at most one record; for array types the registry cardinality bounds the number of items in that
+    record's value, e.g. 1..N needs at least one item).
   inputs:
   - registry:types
   chain_step: project
@@ -150,14 +154,59 @@ rules:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.1 S005
   negative_fixture: tests/fixtures/negative/S005/
+- id: S006
+  family: S
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: 'A reference (an item *_id / *_ids key, a record links key, or an evidence supports_claim_id)
+    does not resolve: no node has that id, the node is not one of the key''s targets, or a record links
+    key is used on a record whose chain node is not in its source_types.'
+  inputs:
+  - registry:structured
+  - project:chain_edges
+  chain_step: project
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: '02 §04.05-§09.06 linked_*_ids (link model: spec/common/links-and-sources.md §2)'
+  negative_fixture: tests/fixtures/negative/S006/
+- id: S007
+  family: S
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: Two nodes in project.yaml share one id (item ids must be unique across the whole file).
+  inputs:
+  - registry:structured
+  chain_step: project
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: '02 item ids (link model: spec/common/links-and-sources.md §1)'
+  negative_fixture: tests/fixtures/negative/S007/
+- id: S008
+  family: S
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: A source_ids entry is not resolvable offline (spec/common/links-and-sources.md §3),
+    or a record with provenance_class SOURCE has no resolvable source.
+  inputs:
+  - project:sources
+  chain_step: project
+  source:
+    derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
+    locator: 01 §28.2 (source references); spec/common/links-and-sources.md §3
+  negative_fixture: tests/fixtures/negative/S008/
 - id: R001
   family: R
   ships: v0.1
   severity: REVIEW
   severity_basis: proposed_default
-  description_en: The research problem has no supporting source reference.
+  description_en: The research problem record has no resolvable source reference (source_ids resolving
+    into project.yaml sources; spec/common/links-and-sources.md §3).
   inputs:
   - CORE.RESEARCH.PROBLEM
+  - project:sources
   chain_step: Problem
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -168,10 +217,13 @@ rules:
   ships: v0.1
   severity: REVIEW
   severity_basis: proposed_default
-  description_en: The gap is not linked to prior knowledge (PriorKnowledge node) with a source.
+  description_en: The Gap record has no incoming causal edge from a PriorKnowledge record (Gap links.prior_knowledge_ids),
+    or a linked PriorKnowledge record has no resolvable source reference.
   inputs:
   - CORE.RESEARCH.GAP
   - chain:PriorKnowledge
+  - project:chain_edges
+  - project:sources
   chain_step: Gap
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -182,10 +234,12 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: The primary research question is not linked to a gap.
+  description_en: The primary research question record has no incoming causal edge from the CORE.RESEARCH.GAP
+    record (RQ record links.gap_ids).
   inputs:
   - CORE.RESEARCH.RQ.PRIMARY
   - CORE.RESEARCH.GAP
+  - project:chain_edges
   chain_step: RQ
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -196,10 +250,13 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: An objective is not linked to any research question.
+  description_en: An objective item (CORE.RESEARCH.OBJECTIVES) has no incoming causal edge from a research-question
+    record (objective rq_ids).
   inputs:
   - CORE.RESEARCH.OBJECTIVES
   - CORE.RESEARCH.RQ.PRIMARY
+  - CORE.RESEARCH.RQ.SECONDARY
+  - project:chain_edges
   chain_step: Objective
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -210,10 +267,12 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: An objective is not linked to any method.
+  description_en: An objective item has no outgoing causal edge to METHOD.PLAN.DESIGN or one of its method-phase
+    items (objective method_ids).
   inputs:
   - CORE.RESEARCH.OBJECTIVES
   - METHOD.PLAN.DESIGN
+  - project:chain_edges
   chain_step: Objective
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -224,10 +283,12 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: A method has no data collection linked to it.
+  description_en: A method-phase item of METHOD.PLAN.DESIGN (or the design record itself when it has no
+    phases) has no outgoing causal edge to a METHOD.PLAN.DATA_COLLECTION item (data-collection method_ids).
   inputs:
   - METHOD.PLAN.DESIGN
   - METHOD.PLAN.DATA_COLLECTION
+  - project:chain_edges
   chain_step: Method
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -238,10 +299,12 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: The analysis plan names no data source.
+  description_en: The analysis plan (METHOD.PLAN.ANALYSIS) has no incoming causal edge from a data-collection
+    item (analysis data_ids).
   inputs:
   - METHOD.PLAN.ANALYSIS
   - METHOD.PLAN.DATA_COLLECTION
+  - project:chain_edges
   chain_step: Analysis
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -252,10 +315,13 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: An activity is not linked to any objective or method phase.
+  description_en: An activity item has no incoming causal edge from an objective item, METHOD.PLAN.DESIGN
+    or a method-phase item (activity objective_ids / method_ids, or objective activity_ids).
   inputs:
   - WORK.PLAN.ACTIVITIES
   - CORE.RESEARCH.OBJECTIVES
+  - METHOD.PLAN.DESIGN
+  - project:chain_edges
   chain_step: Activity
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -266,9 +332,11 @@ rules:
   ships: v0.1
   severity: REVIEW
   severity_basis: proposed_default
-  description_en: An activity has no responsible actor.
+  description_en: An activity item has no resolved responsible_person_ids entry (a PROFILE.TEAM.MEMBERS
+    item).
   inputs:
   - WORK.PLAN.ACTIVITIES
+  - PROFILE.TEAM.MEMBERS
   chain_step: Activity
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -279,7 +347,8 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: plan
-  description_en: Workplan activity progress weights do not sum to 100.
+  description_en: The weight_percent values of the WORK.PLAN.ACTIVITIES items do not sum to 100 (compared
+    after quantising to 0.01), or an activity has no weight_percent.
   inputs:
   - WORK.PLAN.ACTIVITIES
   chain_step: Activity
@@ -292,10 +361,12 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: A deliverable (output) is not produced by any activity.
+  description_en: An output item (RESULTS.CHAIN.OUTPUTS) has no incoming causal edge from an activity
+    item (activity output_ids or output activity_ids).
   inputs:
   - RESULTS.CHAIN.OUTPUTS
   - WORK.PLAN.ACTIVITIES
+  - project:chain_edges
   chain_step: Output
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -306,10 +377,12 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: A budget line item is not linked to any activity.
+  description_en: A budget line item (BUDGET.PLAN.ITEMS) has no incoming causal edge from an activity
+    item (budget activity_ids or activity budget_item_ids).
   inputs:
   - BUDGET.PLAN.ITEMS
   - WORK.PLAN.ACTIVITIES
+  - project:chain_edges
   chain_step: BudgetItem
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
@@ -320,8 +393,10 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: plan
-  description_en: A budget line total does not equal quantity x persons_or_items x times_or_months x unit_price,
-    or the calculated total does not match the requested and total project budget.
+  description_en: A budget line_total does not equal quantity x persons_or_items x times_or_months x unit_price
+    (any of them missing counts as a mismatch), or the sum of line_total over BUDGET.PLAN.ITEMS does not
+    equal BUDGET.PLAN.TOTAL, CORE.GENERAL.REQUESTED_BUDGET and CORE.GENERAL.TOTAL_BUDGET (money compared
+    after quantising to 0.01).
   inputs:
   - BUDGET.PLAN.ITEMS
   - BUDGET.PLAN.TOTAL
@@ -394,7 +469,8 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: plan
-  description_en: Research team contribution percentages do not sum to 100.
+  description_en: The contribution_percent values of the PROFILE.TEAM.MEMBERS items do not sum to 100
+    (compared after quantising to 0.01), or a member has no contribution_percent.
   inputs:
   - PROFILE.TEAM.MEMBERS
   chain_step: project
@@ -402,13 +478,28 @@ rules:
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
     locator: 02 (team contribution rule); 05 VAL.001; plan §E rule families
   negative_fixture: tests/fixtures/negative/T001/
+- id: T002
+  family: T
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: PROFILE.TEAM.MEMBERS does not have exactly one member with project_role PI.
+  inputs:
+  - PROFILE.TEAM.MEMBERS
+  chain_step: project
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: 02 §03 research_team.project_role; plan §B Roles
+  negative_fixture: tests/fixtures/negative/T002/
+  notes: ELIG001 reads the one PI; with none or several it cannot run.
 - id: CH001
   family: CH
   ships: v0.1
   severity: BLOCK
   severity_basis: plan
-  description_en: The causal edges used by the project do not form a directed acyclic graph (feedback
-    edges are exempt).
+  description_en: The causal edges of project:chain_edges (derived from resolved references as defined
+    in spec/common/links-and-sources.md §2) do not form a directed acyclic graph. Feedback edges (impact
+    kr_ids, Need links.kr_ids) are exempt.
   inputs:
   - project:chain_edges
   chain_step: project
@@ -494,7 +585,8 @@ rules:
   ships: v0.1
   severity: BLOCK
   severity_basis: plan
-  description_en: The declared PI does not meet the eligibility stated in the bound fund profile. GrantThai
+  description_en: The declared PI (the one PROFILE.TEAM.MEMBERS item with project_role PI) does not meet
+    the eligibility stated in the bound fund profile, judged from that member's eligibility_facts. GrantThai
     holds no eligibility thresholds of its own.
   inputs:
   - PROFILE.TEAM.MEMBERS

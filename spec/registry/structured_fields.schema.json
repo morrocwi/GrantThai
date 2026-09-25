@@ -1,0 +1,2535 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/registry/structured_fields.schema.json",
+  "title": "GrantThai structured-field value contracts",
+  "description": "Draft. One value schema per registry field whose type is array<object>, object or rich_text|object, keyed by field_id under $defs; plus the record-level `links` object. A field record's non-null `value` must validate against $defs[<field_id>] (rule S002; tools/ci/check_schema_lint.py checks shipped examples). Keys are derived from the handoff package core/02 (founder-owned, K13) with the renames stated in each description; see spec/common/links-and-sources.md for the link model. Annotation keywords: x-grantthai-node (on an item schema: id_prefix, node_type), x-grantthai-ref (on every *_id / *_ids property: targets, edge, direction, source_types), x-grantthai-derived-from (lineage). Drafting rule: every key except `id` may be omitted or null while drafting; a rule that needs a missing key reports its own finding and never treats the key as zero or as a default.",
+  "x-grantthai-nonchain-node-types": [
+    "Attachment",
+    "AuditEntry",
+    "BenefitArea",
+    "BudgetYear",
+    "Equipment",
+    "ExpertContact",
+    "FundObjective",
+    "Partner",
+    "Person",
+    "PlannedExpert",
+    "Site",
+    "Stakeholder",
+    "UserArea"
+  ],
+  "$defs": {
+    "_node_id": {
+      "type": "string",
+      "pattern": "^([A-Z]{1,5}[0-9]{1,4}|(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,})$",
+      "description": "A node id: an item id (prefix + digits) or a field record's field_id."
+    },
+    "_money": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Thai baht. At most 2 fractional digits; validators convert with Decimal(repr(value)) and compare after quantising to 0.01."
+    },
+    "_percent": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percent 0-100; sums are compared after quantising to 0.01."
+    },
+    "_quantity": {
+      "type": "number",
+      "minimum": 0
+    },
+    "_date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Quoted YYYY-MM-DD string (spec/common/object-hash.md)."
+    },
+    "record_links": {
+      "type": "object",
+      "description": "Record-level links on a field record (spec/common/field_record.schema.json `links`). Each key is allowed only on records whose chain node is in its x-grantthai-ref.source_types.",
+      "properties": {
+        "gap_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "CORE.RESEARCH.GAP"
+            ],
+            "edge": "causal",
+            "direction": "target_to_source",
+            "source_types": [
+              "RQ"
+            ]
+          },
+          "description": "On an RQ record: the gap this question addresses (R003)."
+        },
+        "prior_knowledge_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "chain:PriorKnowledge"
+            ],
+            "edge": "causal",
+            "direction": "target_to_source",
+            "source_types": [
+              "Gap"
+            ]
+          },
+          "description": "On the Gap record: the prior-knowledge records it rests on (R002)."
+        },
+        "problem_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "CORE.RESEARCH.PROBLEM"
+            ],
+            "edge": "causal",
+            "direction": "target_to_source",
+            "source_types": [
+              "PriorKnowledge"
+            ]
+          },
+          "description": "On a PriorKnowledge record."
+        },
+        "need_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "CORE.RESEARCH.NATIONAL_NEED"
+            ],
+            "edge": "causal",
+            "direction": "target_to_source",
+            "source_types": [
+              "Problem"
+            ]
+          },
+          "description": "On the Problem record."
+        },
+        "observation_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "chain:Observation"
+            ],
+            "edge": "causal",
+            "direction": "target_to_source",
+            "source_types": [
+              "Problem"
+            ]
+          },
+          "description": "On the Problem record (Citizen Mode, v0.2)."
+        },
+        "experience_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "chain:Experience"
+            ],
+            "edge": "causal",
+            "direction": "target_to_source",
+            "source_types": [
+              "Observation"
+            ]
+          },
+          "description": "On an Observation record (Citizen Mode, v0.2)."
+        },
+        "analysis_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "METHOD.PLAN.ANALYSIS"
+            ],
+            "edge": "causal",
+            "direction": "target_to_source",
+            "source_types": [
+              "Evidence"
+            ]
+          },
+          "description": "On an Evidence record: the analysis that produced it."
+        },
+        "output_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "RESULTS.CHAIN.OUTPUTS"
+            ],
+            "edge": "causal",
+            "direction": "source_to_target",
+            "source_types": [
+              "Claim"
+            ]
+          },
+          "description": "On a Claim record: the outputs that carry the claim."
+        },
+        "kr_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "FUND.CALL.KEY_RESULTS"
+            ],
+            "edge": "feedback",
+            "direction": "target_to_source",
+            "source_types": [
+              "Need"
+            ]
+          },
+          "description": "On the Need record: feedback edge KR -> Need; exempt from CH001."
+        }
+      },
+      "additionalProperties": false
+    },
+    "FUND.CALL.OBJECTIVES": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^FO[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix FO)."
+          },
+          "code": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "target_population_or_system": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "FO",
+          "node_type": "FundObjective"
+        }
+      },
+      "description": "Funding-call objectives, copied from the call. Renamed: objective_id -> id, objective_code -> code.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §01.03"
+    },
+    "FUND.CALL.KEY_RESULTS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^KR[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix KR)."
+          },
+          "code": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "numeric_target": {
+            "$ref": "#/$defs/_quantity"
+          },
+          "target_unit": {
+            "type": "string"
+          },
+          "target_period": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "KR",
+          "node_type": "KR"
+        }
+      },
+      "description": "Funding-call key results (chain node KR). Renamed: kr_id -> id, kr_code -> code.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §01.04"
+    },
+    "PROFILE.TEAM.MEMBERS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^TM[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix TM)."
+          },
+          "full_name": {
+            "type": "string",
+            "description": "Personal data: rendered only into the private build/ directory (PRIVACY.md)."
+          },
+          "organization": {
+            "type": "string"
+          },
+          "project_role": {
+            "type": "string",
+            "enum": [
+              "PI",
+              "CO_PI",
+              "CO_RESEARCHER",
+              "ADVISOR",
+              "RESEARCH_ASSISTANT",
+              "OTHER"
+            ],
+            "description": "GrantThai role code. Exactly one member has PI (rule T002); rule ELIG001 reads that member. The official NRIIS role labels are NEEDS_VERIFICATION (K14); the renderer prints the code plus that marker."
+          },
+          "contribution_percent": {
+            "$ref": "#/$defs/_percent"
+          },
+          "registration_status": {
+            "type": "string",
+            "description": "Funder-system registration/verification status as the person states it. NEEDS_VERIFICATION."
+          },
+          "orcid": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$"
+          },
+          "responsibilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "eligibility_facts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            },
+            "description": "Facts the bound fund profile's eligibility rules ask for, keyed by the profile's own fact names (e.g. highest degree). GrantThai holds no thresholds (ELIG001)."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "TM",
+          "node_type": "Person"
+        }
+      },
+      "minItems": 1,
+      "description": "Research team. Renamed: person_id -> id, nriis_or_nrct_verification_status -> registration_status. Added: orcid, eligibility_facts (GrantThai DECISION).",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §03; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e TEAM.MEMBERS"
+    },
+    "CORE.RESEARCH.OBJECTIVES": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^OBJ[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix OBJ)."
+          },
+          "statement": {
+            "type": "string"
+          },
+          "rq_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "CORE.RESEARCH.RQ.PRIMARY",
+                "CORE.RESEARCH.RQ.SECONDARY"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "Research question(s) this objective answers (R004)."
+          },
+          "method_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "METHOD.PLAN.DESIGN"
+              ],
+              "edge": "causal",
+              "direction": "source_to_target"
+            },
+            "description": "METHOD.PLAN.DESIGN or its phase items (MPn) that serve this objective (R005)."
+          },
+          "activity_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "WORK.PLAN.ACTIVITIES"
+              ],
+              "edge": "causal",
+              "direction": "source_to_target"
+            }
+          },
+          "output_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.OUTPUTS"
+              ],
+              "edge": "causal",
+              "direction": "source_to_target"
+            }
+          },
+          "kr_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "FUND.CALL.KEY_RESULTS"
+              ],
+              "edge": "causal",
+              "direction": "source_to_target"
+            },
+            "description": "Funding KRs this objective contributes to."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "OBJ",
+          "node_type": "Objective"
+        }
+      },
+      "minItems": 1,
+      "description": "Objectives. Renamed: objective_id -> id, linked_research_questions -> rq_ids, linked_method_ids -> method_ids, linked_activity_ids -> activity_ids, linked_output_ids -> output_ids, linked_funding_kr_ids -> kr_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §04.05; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e CORE.OBJECTIVES"
+    },
+    "CORE.RESEARCH.CONSTRUCTS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^CON[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix CON)."
+          },
+          "name": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          },
+          "operational_definition": {
+            "type": "string"
+          },
+          "indicators": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "CON",
+          "node_type": "Framework"
+        }
+      },
+      "description": "Constructs of the conceptual framework. Renamed: construct_id -> id.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §04.06"
+    },
+    "CORE.RESEARCH.RELATIONSHIPS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^REL[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix REL)."
+          },
+          "from_construct_id": {
+            "$ref": "#/$defs/_node_id",
+            "x-grantthai-ref": {
+              "targets": [
+                "CORE.RESEARCH.CONSTRUCTS"
+              ],
+              "edge": "attribute"
+            }
+          },
+          "relation": {
+            "type": "string"
+          },
+          "to_construct_id": {
+            "$ref": "#/$defs/_node_id",
+            "x-grantthai-ref": {
+              "targets": [
+                "CORE.RESEARCH.CONSTRUCTS"
+              ],
+              "edge": "attribute"
+            }
+          },
+          "rationale": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "REL",
+          "node_type": "Framework"
+        }
+      },
+      "description": "Relationships between constructs. Renamed: from_construct -> from_construct_id, to_construct -> to_construct_id; id added (GrantThai DECISION).",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §04.06"
+    },
+    "CORE.RESEARCH.HYPOTHESES": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^HYP[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix HYP)."
+          },
+          "statement": {
+            "type": "string"
+          },
+          "construct_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "CORE.RESEARCH.CONSTRUCTS"
+              ],
+              "edge": "attribute"
+            }
+          },
+          "objective_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "CORE.RESEARCH.OBJECTIVES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            }
+          },
+          "proposed_test": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "HYP",
+          "node_type": "Hypothesis"
+        }
+      },
+      "description": "Hypotheses. Renamed: hypothesis_id -> id, variables_or_constructs -> construct_ids. Added: objective_ids (GrantThai DECISION).",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §04.07"
+    },
+    "CORE.RESEARCH.FEASIBILITY": {
+      "type": "object",
+      "properties": {
+        "participant_access": {
+          "type": "string"
+        },
+        "data_access": {
+          "type": "string"
+        },
+        "field_access": {
+          "type": "string"
+        },
+        "infrastructure": {
+          "type": "string"
+        },
+        "expertise": {
+          "type": "string"
+        },
+        "time_feasibility": {
+          "type": "string"
+        },
+        "budget_feasibility": {
+          "type": "string"
+        },
+        "major_risks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mitigation": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Feasibility. Keys as core/02.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §04.09"
+    },
+    "METHOD.PLAN.DESIGN": {
+      "type": "object",
+      "properties": {
+        "paradigm": {
+          "type": "string"
+        },
+        "design_type": {
+          "type": "string"
+        },
+        "approach": {
+          "type": "string"
+        },
+        "quantitative_component": {
+          "type": "string"
+        },
+        "qualitative_component": {
+          "type": "string"
+        },
+        "mixed_methods_strategy": {
+          "type": "string"
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^MP[0-9]{1,4}$",
+                "description": "Item id, unique in the whole project.yaml (prefix MP)."
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "objective_ids": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/_node_id"
+                },
+                "uniqueItems": true,
+                "x-grantthai-ref": {
+                  "targets": [
+                    "CORE.RESEARCH.OBJECTIVES"
+                  ],
+                  "edge": "causal",
+                  "direction": "target_to_source"
+                }
+              }
+            },
+            "additionalProperties": false,
+            "x-grantthai-node": {
+              "id_prefix": "MP",
+              "node_type": "Method"
+            }
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Research design. `phases` (a string list in core/02) becomes a list of method-phase items with ids (MPn) so activities and data collection can link to them (GrantThai DECISION).",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.01"
+    },
+    "METHOD.PLAN.POPULATION": {
+      "type": "object",
+      "properties": {
+        "population_definition": {
+          "type": "string"
+        },
+        "estimated_population_size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "inclusion_criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclusion_criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Population. core/02 §05.02 holds population and sample together; GrantThai splits them along the core/05 fields METHOD.POPULATION / METHOD.SAMPLE.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.02"
+    },
+    "METHOD.PLAN.SAMPLE": {
+      "type": "object",
+      "properties": {
+        "sampling_method": {
+          "type": "string"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^SG[0-9]{1,4}$",
+                "description": "Item id, unique in the whole project.yaml (prefix SG)."
+              },
+              "description": {
+                "type": "string"
+              },
+              "target_n": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false,
+            "x-grantthai-node": {
+              "id_prefix": "SG",
+              "node_type": "Method"
+            }
+          }
+        },
+        "sample_size_justification": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Sample. Renamed: groups[].group_id -> id, group_description -> description.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.02"
+    },
+    "METHOD.PLAN.RECRUITMENT": {
+      "type": "object",
+      "properties": {
+        "recruitment_channels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recruiter": {
+          "type": "string"
+        },
+        "consent_process": {
+          "type": "string"
+        },
+        "coercion_prevention": {
+          "type": "string"
+        },
+        "conflict_of_interest_controls": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Recruitment and consent. Keys as core/02.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.03"
+    },
+    "METHOD.PLAN.INTERVENTION": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "duration": {
+          "type": "string"
+        },
+        "frequency": {
+          "type": "string"
+        },
+        "delivery_mode": {
+          "type": "string"
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Intervention / procedure. Renamed: phases -> steps (to avoid confusion with METHOD.PLAN.DESIGN phases).",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.04"
+    },
+    "METHOD.PLAN.VARIABLES": {
+      "type": "object",
+      "properties": {
+        "independent": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dependent": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mediators": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "moderators": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "qualitative_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Variables. Keys as core/02.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.05"
+    },
+    "METHOD.PLAN.INSTRUMENTS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^INS[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix INS)."
+          },
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "construct_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "CORE.RESEARCH.CONSTRUCTS"
+              ],
+              "edge": "attribute"
+            }
+          },
+          "construct_measured": {
+            "type": "string",
+            "description": "Free-text construct name when no CONSTRUCTS item exists."
+          },
+          "instrument_type": {
+            "type": "string"
+          },
+          "validity_method": {
+            "type": "string"
+          },
+          "reliability_method": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "INS",
+          "node_type": "Method"
+        }
+      },
+      "minItems": 1,
+      "description": "Instruments. Renamed: instrument_id -> id. Added: construct_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.06"
+    },
+    "METHOD.PLAN.DATA_COLLECTION": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^DC[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix DC)."
+          },
+          "source": {
+            "type": "string"
+          },
+          "collection_method": {
+            "type": "string"
+          },
+          "timing": {
+            "type": "string"
+          },
+          "method_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "METHOD.PLAN.DESIGN"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "The method (design or phase MPn) this data collection carries out (R006)."
+          },
+          "instrument_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "METHOD.PLAN.INSTRUMENTS"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            }
+          },
+          "activity_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "WORK.PLAN.ACTIVITIES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            }
+          },
+          "responsible_person_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "PROFILE.TEAM.MEMBERS"
+              ],
+              "edge": "attribute"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "DC",
+          "node_type": "Data"
+        }
+      },
+      "minItems": 1,
+      "description": "Data collection. Renamed: data_id -> id, linked_instrument_id -> instrument_ids, responsible_person -> responsible_person_ids. Added: method_ids, activity_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.07"
+    },
+    "METHOD.PLAN.ANALYSIS": {
+      "type": "object",
+      "properties": {
+        "quantitative_methods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "qualitative_method": {
+          "type": "string"
+        },
+        "coding_strategy": {
+          "type": "string"
+        },
+        "mixed_methods_integration": {
+          "type": "string"
+        },
+        "software_or_tools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "data_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "METHOD.PLAN.DATA_COLLECTION"
+            ],
+            "edge": "causal",
+            "direction": "target_to_source"
+          },
+          "description": "The data this analysis uses (R007)."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Data analysis. Added: data_ids (GrantThai DECISION).",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.08"
+    },
+    "METHOD.PLAN.QUALITY": {
+      "type": "object",
+      "properties": {
+        "validity_strategy": {
+          "type": "string"
+        },
+        "reliability_strategy": {
+          "type": "string"
+        },
+        "triangulation": {
+          "type": "string"
+        },
+        "inter_rater_strategy": {
+          "type": "string"
+        },
+        "audit_trail": {
+          "type": "string"
+        },
+        "member_check": {
+          "type": "string"
+        },
+        "reproducibility": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Research quality. Keys as core/02.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.09"
+    },
+    "METHOD.PLAN.ETHICS": {
+      "type": "object",
+      "properties": {
+        "human_participants": {
+          "type": "boolean"
+        },
+        "informed_consent": {
+          "type": "string"
+        },
+        "privacy": {
+          "type": "string"
+        },
+        "confidentiality": {
+          "type": "string"
+        },
+        "withdrawal": {
+          "type": "string"
+        },
+        "compensation": {
+          "type": "string"
+        },
+        "risk_level": {
+          "type": "string"
+        },
+        "risk_management": {
+          "type": "string"
+        },
+        "vulnerable_groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conflict_of_interest": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Ethics design. Keys as core/02; human_participants is a boolean.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §05.10"
+    },
+    "WORK.PLAN.ACTIVITIES": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ACT[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix ACT)."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Project year index (1 = first project year)."
+          },
+          "name": {
+            "type": "string"
+          },
+          "months": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "uniqueItems": true,
+            "description": "Months 1-12 within `year` in which the activity runs."
+          },
+          "weight_percent": {
+            "$ref": "#/$defs/_percent",
+            "description": "Progress weight; all activities sum to 100 (W003)."
+          },
+          "objective_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "CORE.RESEARCH.OBJECTIVES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "W001"
+          },
+          "method_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "METHOD.PLAN.DESIGN"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "Method design or phase (MPn) this activity carries out (W001)."
+          },
+          "output_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.OUTPUTS"
+              ],
+              "edge": "causal",
+              "direction": "source_to_target"
+            },
+            "description": "W004"
+          },
+          "budget_item_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "BUDGET.PLAN.ITEMS"
+              ],
+              "edge": "causal",
+              "direction": "source_to_target"
+            },
+            "description": "B001"
+          },
+          "depends_on_activity_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "WORK.PLAN.ACTIVITIES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "Activities that must finish first; a cycle here is a CH001 finding."
+          },
+          "responsible_person_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "PROFILE.TEAM.MEMBERS"
+              ],
+              "edge": "attribute"
+            },
+            "description": "W002"
+          },
+          "deliverables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "ACT",
+          "node_type": "Activity"
+        }
+      },
+      "minItems": 1,
+      "description": "Workplan activities. Renamed: activity_id -> id, activity -> name, progress_percent -> weight_percent, linked_objective_ids -> objective_ids, linked_method_phase_ids -> method_ids, linked_output_ids -> output_ids, linked_budget_item_ids -> budget_item_ids, dependencies -> depends_on_activity_ids, responsible_person_ids kept.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §06.01; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e WORK.ACTIVITIES"
+    },
+    "GEO.AREA.RESEARCH_SITES": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^SITE[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix SITE)."
+          },
+          "location_type": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "province": {
+            "type": "string"
+          },
+          "place_name": {
+            "type": "string"
+          },
+          "site_role": {
+            "type": "string"
+          },
+          "activity_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "WORK.PLAN.ACTIVITIES"
+              ],
+              "edge": "attribute"
+            },
+            "description": "G001 (v0.2)"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "SITE",
+          "node_type": "Site"
+        }
+      },
+      "minItems": 1,
+      "description": "Research sites. Renamed: site_id -> id, linked_activity_ids -> activity_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §06.02"
+    },
+    "GEO.AREA.BENEFIT_AREAS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^BA[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix BA)."
+          },
+          "location_type": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "province": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "beneficiary_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.BENEFICIARIES"
+              ],
+              "edge": "attribute"
+            },
+            "description": "G002 (v0.2)"
+          },
+          "expected_benefit": {
+            "type": "string"
+          },
+          "evidence_of_reach": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "BA",
+          "node_type": "BenefitArea"
+        }
+      },
+      "description": "Benefit areas. Renamed: benefit_area_id -> id, linked_beneficiary_ids -> beneficiary_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §06.03"
+    },
+    "GEO.AREA.RESEARCH_USERS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^RUA[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix RUA)."
+          },
+          "location_type": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "province": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "user_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.USERS"
+              ],
+              "edge": "attribute"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "RUA",
+          "node_type": "UserArea"
+        }
+      },
+      "description": "Areas where research users are located. core/05 gives no sub-keys; keys follow the benefit-area pattern (INFERENCE, GrantThai DECISION).",
+      "x-grantthai-derived-from": "core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e GEO.RESEARCH_USERS"
+    },
+    "BUDGET.PLAN.YEARS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^BY[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix BY)."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Project year index."
+          },
+          "planned_total": {
+            "$ref": "#/$defs/_money"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "BY",
+          "node_type": "BudgetYear"
+        }
+      },
+      "minItems": 1,
+      "description": "Budget by project year. core/05 gives no sub-keys (INFERENCE, GrantThai DECISION).",
+      "x-grantthai-derived-from": "core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e BUDGET.YEARS"
+    },
+    "BUDGET.PLAN.ITEMS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^BI[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix BI)."
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "budget_type": {
+            "type": "string",
+            "description": "E.g. personnel / operating / investment. Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+          },
+          "category": {
+            "type": "string",
+            "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+          },
+          "subcategory": {
+            "type": "string",
+            "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+          },
+          "item_label": {
+            "type": "string",
+            "description": "The funder-system item label. Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+          },
+          "description": {
+            "type": "string"
+          },
+          "quantity": {
+            "$ref": "#/$defs/_quantity"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "persons_or_items": {
+            "$ref": "#/$defs/_quantity"
+          },
+          "times_or_months": {
+            "$ref": "#/$defs/_quantity"
+          },
+          "unit_price": {
+            "$ref": "#/$defs/_money"
+          },
+          "line_total": {
+            "$ref": "#/$defs/_money",
+            "description": "Must equal quantity x persons_or_items x times_or_months x unit_price (B002)."
+          },
+          "activity_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "WORK.PLAN.ACTIVITIES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "B001"
+          },
+          "objective_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "CORE.RESEARCH.OBJECTIVES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            }
+          },
+          "justification": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "BI",
+          "node_type": "BudgetItem"
+        }
+      },
+      "minItems": 1,
+      "description": "Budget lines. Renamed: budget_item_id -> id, official_nriis_item_label -> item_label, calculated_total -> line_total, linked_activity_ids -> activity_ids, linked_objective_ids -> objective_ids. Not carried over: allowability_status, funding_ceiling_rule, evidence_required (fund rules live only in the bound fund profile, P6).",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §06.04; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e BUDGET.ITEMS"
+    },
+    "BUDGET.PLAN.EQUIPMENT": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^EQ[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix EQ)."
+          },
+          "name": {
+            "type": "string"
+          },
+          "specification": {
+            "type": "string"
+          },
+          "quantity": {
+            "$ref": "#/$defs/_quantity"
+          },
+          "unit_price": {
+            "$ref": "#/$defs/_money"
+          },
+          "total": {
+            "$ref": "#/$defs/_money"
+          },
+          "justification": {
+            "type": "string"
+          },
+          "existing_equipment_check": {
+            "type": "string"
+          },
+          "budget_item_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "BUDGET.PLAN.ITEMS"
+              ],
+              "edge": "attribute"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "EQ",
+          "node_type": "Equipment"
+        }
+      },
+      "description": "Equipment. Renamed: equipment_id -> id. Added: budget_item_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §06.05"
+    },
+    "COMP.STANDARD.RESEARCH_ETHICS": {
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+        },
+        "approval_number": {
+          "type": "string"
+        },
+        "approval_date": {
+          "$ref": "#/$defs/_date"
+        },
+        "attachment_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "DOC.ATTACHMENTS.DOCUMENTS"
+            ],
+            "edge": "attribute"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Research ethics. Renamed: approval_id -> approval_number (not a link), attachment -> attachment_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §07.01"
+    },
+    "COMP.STANDARD.HUMAN": {
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+        },
+        "committee": {
+          "type": "string"
+        },
+        "protocol_number": {
+          "type": "string"
+        },
+        "approval_date": {
+          "$ref": "#/$defs/_date"
+        },
+        "attachment_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "DOC.ATTACHMENTS.DOCUMENTS"
+            ],
+            "edge": "attribute"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Human research standard. Renamed: certificate_file -> attachment_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §07.02"
+    },
+    "COMP.STANDARD.BIOSAFETY": {
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+        },
+        "committee": {
+          "type": "string"
+        },
+        "attachment_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "DOC.ATTACHMENTS.DOCUMENTS"
+            ],
+            "edge": "attribute"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Biosafety. Renamed: certificate_file -> attachment_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §07.03"
+    },
+    "COMP.STANDARD.ANIMAL": {
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+        },
+        "license_or_protocol": {
+          "type": "string"
+        },
+        "attachment_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "DOC.ATTACHMENTS.DOCUMENTS"
+            ],
+            "edge": "attribute"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Animal research. Renamed: certificate_file -> attachment_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §07.04"
+    },
+    "COMP.STANDARD.CHEMICAL": {
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "researcher_training_certificate": {
+          "type": "string"
+        },
+        "laboratory_registration_number": {
+          "type": "string"
+        },
+        "laboratory_name": {
+          "type": "string"
+        },
+        "laboratory_location": {
+          "type": "string"
+        },
+        "attachment_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/_node_id"
+          },
+          "uniqueItems": true,
+          "x-grantthai-ref": {
+            "targets": [
+              "DOC.ATTACHMENTS.DOCUMENTS"
+            ],
+            "edge": "attribute"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Chemical laboratory safety. Renamed: certificate_file -> attachment_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §07.05"
+    },
+    "WORK.PARTNERS.ORGANIZATIONS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^PTN[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix PTN)."
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "organization_type": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "collaboration_role": {
+            "type": "string"
+          },
+          "activity_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "WORK.PLAN.ACTIVITIES"
+              ],
+              "edge": "attribute"
+            }
+          },
+          "in_cash": {
+            "$ref": "#/$defs/_money"
+          },
+          "in_kind": {
+            "$ref": "#/$defs/_money"
+          },
+          "total_contribution": {
+            "$ref": "#/$defs/_money"
+          },
+          "support_attachment_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "DOC.ATTACHMENTS.DOCUMENTS"
+              ],
+              "edge": "attribute"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "PTN",
+          "node_type": "Partner"
+        }
+      },
+      "description": "Partners / co-investment. Renamed: partner_id -> id, linked_activity_ids -> activity_ids, support_evidence -> support_attachment_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §06.06; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e PARTNERS"
+    },
+    "READY.TRL.CURRENT": {
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9,
+          "description": "Readiness level 1-9. The level definitions a funder uses are NEEDS_VERIFICATION."
+        },
+        "evidence": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Current TRL. Split from core/02 trl{current_level,current_evidence}.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §07.06"
+    },
+    "READY.TRL.TARGET": {
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9,
+          "description": "Readiness level 1-9. The level definitions a funder uses are NEEDS_VERIFICATION."
+        },
+        "expected_evidence": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Target TRL. Split from core/02 trl{target_level,expected_target_evidence}.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §07.06"
+    },
+    "READY.SRL.CURRENT": {
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9,
+          "description": "Readiness level 1-9. The level definitions a funder uses are NEEDS_VERIFICATION."
+        },
+        "evidence": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Current SRL. Split from core/02 srl.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §07.07"
+    },
+    "READY.SRL.TARGET": {
+      "type": "object",
+      "properties": {
+        "applicable": {
+          "type": "boolean"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9,
+          "description": "Readiness level 1-9. The level definitions a funder uses are NEEDS_VERIFICATION."
+        },
+        "expected_evidence": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Target SRL. Split from core/02 srl.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §07.07"
+    },
+    "RESULTS.PATHWAY.EXPERTS": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "existing": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^EXC[0-9]{1,4}$",
+                    "description": "Item id, unique in the whole project.yaml (prefix EXC)."
+                  },
+                  "expert_name": {
+                    "type": "string",
+                    "description": "Personal data (PRIVACY.md)."
+                  },
+                  "field": {
+                    "type": "string"
+                  },
+                  "institution": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "contribution": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "x-grantthai-node": {
+                  "id_prefix": "EXC",
+                  "node_type": "ExpertContact"
+                }
+              }
+            },
+            "planned": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^EXP[0-9]{1,4}$",
+                    "description": "Item id, unique in the whole project.yaml (prefix EXP)."
+                  },
+                  "target_expert_or_network": {
+                    "type": "string"
+                  },
+                  "purpose": {
+                    "type": "string"
+                  },
+                  "timing": {
+                    "type": "string"
+                  },
+                  "engagement_method": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "x-grantthai-node": {
+                  "id_prefix": "EXP",
+                  "node_type": "PlannedExpert"
+                }
+              }
+            },
+            "future_research_team_plan": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ],
+      "description": "Expert connections: free text (rich_text) OR this object. ids added to existing/planned entries (GrantThai DECISION).",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §08.01"
+    },
+    "RESULTS.PATHWAY.STAKEHOLDERS": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "stakeholders": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^STK[0-9]{1,4}$",
+                    "description": "Item id, unique in the whole project.yaml (prefix STK)."
+                  },
+                  "organization_or_group": {
+                    "type": "string"
+                  },
+                  "sector": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  },
+                  "engagement_stage": {
+                    "type": "string"
+                  },
+                  "output_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/_node_id"
+                    },
+                    "uniqueItems": true,
+                    "x-grantthai-ref": {
+                      "targets": [
+                        "RESULTS.CHAIN.OUTPUTS"
+                      ],
+                      "edge": "attribute"
+                    }
+                  }
+                },
+                "additionalProperties": false,
+                "x-grantthai-node": {
+                  "id_prefix": "STK",
+                  "node_type": "Stakeholder"
+                }
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      ],
+      "description": "Stakeholder engagement: free text (rich_text) OR an object wrapping core/02's list under `stakeholders`. Renamed: stakeholder_id -> id, linked_output_ids -> output_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §08.02"
+    },
+    "RESULTS.CHAIN.USERS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^USR[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix USR)."
+          },
+          "user_group": {
+            "type": "string",
+            "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+          },
+          "user_group_name": {
+            "type": "string"
+          },
+          "target_number": {
+            "$ref": "#/$defs/_quantity"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "intended_use": {
+            "type": "string"
+          },
+          "output_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.OUTPUTS"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "U001 (v0.2)"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "USR",
+          "node_type": "User"
+        }
+      },
+      "description": "Users of outputs. Renamed: user_id -> id, linked_output_ids -> output_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §08.03; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e RESULTS.USERS"
+    },
+    "RESULTS.CHAIN.BENEFICIARIES": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^BEN[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix BEN)."
+          },
+          "beneficiary_group": {
+            "type": "string",
+            "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+          },
+          "benefit_description": {
+            "type": "string"
+          },
+          "target_number": {
+            "$ref": "#/$defs/_quantity"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "outcome_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.OUTCOMES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "U004 (v0.2)"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "BEN",
+          "node_type": "Beneficiary"
+        }
+      },
+      "description": "Beneficiaries. Renamed: beneficiary_id -> id, linked_outcome_ids -> outcome_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §09.05; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e RESULTS.BENEFICIARIES"
+    },
+    "RESULTS.CHAIN.OUTPUTS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^OUT[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix OUT)."
+          },
+          "output_type": {
+            "type": "string",
+            "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+          },
+          "quantity": {
+            "$ref": "#/$defs/_quantity"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "objective_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "CORE.RESEARCH.OBJECTIVES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            }
+          },
+          "activity_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "WORK.PLAN.ACTIVITIES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "W004"
+          },
+          "user_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.USERS"
+              ],
+              "edge": "causal",
+              "direction": "source_to_target"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "OUT",
+          "node_type": "Output"
+        }
+      },
+      "minItems": 1,
+      "description": "Outputs. Renamed: output_id -> id, linked_objective_ids -> objective_ids, linked_activity_ids -> activity_ids, linked_user_ids -> user_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §09.02; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e RESULTS.OUTPUTS"
+    },
+    "RESULTS.CHAIN.OUTCOME_PROCESS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^PW[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix PW)."
+          },
+          "output_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.OUTPUTS"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            }
+          },
+          "process": {
+            "type": "string"
+          },
+          "quantity": {
+            "$ref": "#/$defs/_quantity"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "brief_description": {
+            "type": "string"
+          },
+          "user_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.USERS"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "Responsible users (U002, v0.2)."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "PW",
+          "node_type": "Adoption"
+        }
+      },
+      "description": "Output-to-outcome process (chain node Adoption). Renamed: pathway_id -> id, source_output_ids -> output_ids, responsible_user_ids -> user_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §09.03; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e RESULTS.OUTCOME_PROCESS"
+    },
+    "RESULTS.CHAIN.OUTCOMES": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^OC[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix OC)."
+          },
+          "expected_change": {
+            "type": "string"
+          },
+          "indicator": {
+            "type": "string"
+          },
+          "baseline": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "measurement_period": {
+            "type": "string"
+          },
+          "pathway_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.OUTCOME_PROCESS"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "U003 (v0.2)"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "OC",
+          "node_type": "Outcome"
+        }
+      },
+      "description": "Outcomes (core/02 RECOMMENDED_EXTENSION). Renamed: outcome_id -> id, linked_pathway_ids -> pathway_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §09.04"
+    },
+    "RESULTS.CHAIN.IMPACTS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^IMP[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix IMP)."
+          },
+          "expected_impact": {
+            "type": "string"
+          },
+          "impact_description": {
+            "type": "string"
+          },
+          "outcome_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "RESULTS.CHAIN.OUTCOMES"
+              ],
+              "edge": "causal",
+              "direction": "target_to_source"
+            },
+            "description": "U005 (v0.2)"
+          },
+          "kr_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "uniqueItems": true,
+            "x-grantthai-ref": {
+              "targets": [
+                "FUND.CALL.KEY_RESULTS"
+              ],
+              "edge": "feedback",
+              "direction": "source_to_target"
+            },
+            "description": "Feedback edge Impact -> KR (chain.yaml edges.feedback); exempt from CH001."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "IMP",
+          "node_type": "Impact"
+        }
+      },
+      "description": "Impacts. Renamed: impact_id -> id, linked_outcome_ids -> outcome_ids, linked_funding_kr_ids -> kr_ids.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §09.06; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e RESULTS.IMPACTS"
+    },
+    "DOC.ATTACHMENTS.DOCUMENTS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ATT[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix ATT)."
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "document_type": {
+            "type": "string",
+            "description": " Official NRIIS option list: NEEDS_VERIFICATION (K14); free text until captured from a public document."
+          },
+          "file_type": {
+            "type": "string"
+          },
+          "related_section": {
+            "type": "string"
+          },
+          "required_status": {
+            "type": "string",
+            "enum": [
+              "REQUIRED",
+              "OPTIONAL",
+              "UNKNOWN"
+            ]
+          },
+          "supplied": {
+            "type": "boolean"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "ATT",
+          "node_type": "Attachment"
+        }
+      },
+      "description": "Attachments the person uploads themselves (GrantThai never generates them). Renamed: attachment_id -> id. Added: supplied.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §10.01; core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e ATTACHMENTS"
+    },
+    "AUDIT.REVISION.LOG": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^LOG[0-9]{1,4}$",
+            "description": "Item id, unique in the whole project.yaml (prefix LOG)."
+          },
+          "date": {
+            "$ref": "#/$defs/_date"
+          },
+          "actor_role": {
+            "type": "string"
+          },
+          "changed_field": {
+            "type": "string",
+            "description": "field_id of the changed field (a plain value, not a link)."
+          },
+          "old_value": {
+            "type": "string"
+          },
+          "new_value": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "LOG",
+          "node_type": "AuditEntry"
+        }
+      },
+      "description": "Revision log. Renamed: log_id added as id; timestamp -> date (a quoted YYYY-MM-DD string); actor -> actor_role (no personal names); field_id -> changed_field. Not carried over: evidence.",
+      "x-grantthai-derived-from": "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4 §10.03"
+    }
+  }
+}

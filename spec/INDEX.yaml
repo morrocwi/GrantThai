@@ -5,11 +5,11 @@
 # v0.4, v0.5. tools/ci/check_schema_lint.py confirms every listed path
 # exists, every schema is a valid JSON Schema, and instances validate.
 schema: grantthai.spec_index.v0
-version: "0.2.0-draft"
+version: "0.3.0-draft"
 
 contracts:
   - path: spec/contracts/one-input-one-output.md
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/chain.yaml
@@ -17,15 +17,15 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/common/status.yaml
-    version: "0.2.0-draft"
+    version: "0.3.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/status_permissions.yaml
-    version: "0.2.0-draft"
+    version: "0.3.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/review_gates.yaml
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/roles.yaml
@@ -37,7 +37,7 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/common/object-hash.md
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/provenance.schema.json
@@ -45,11 +45,11 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/common/field_record.schema.json
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/review.schema.json
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/mapping_proposal.schema.json
@@ -61,15 +61,33 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/common/validation_report.schema.json
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/registry/field.schema.json
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: phase0
-  - path: spec/validators/rule.schema.json
+  - path: spec/common/links-and-sources.md
     version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+    note: "Link model, derived project:chain_edges, resolvable sources. Reference implementation src/grantthai/core/links.py."
+  - path: spec/common/source.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+  - path: spec/registry/structured_fields.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+    note: "Value contract per structured registry field; lint-enforced for every array<object>/object/rich_text|object field."
+  - path: spec/registry/types.yaml
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+  - path: spec/validators/rule.schema.json
+    version: "0.2.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/mappings/section_to_tab.schema.json
@@ -89,7 +107,7 @@ contracts:
     status: draft
     needed_by: v0.1
   - path: spec/project/project.schema.json
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: v0.1
   - path: spec/fund/fund-profile.schema.json
@@ -101,7 +119,7 @@ contracts:
     status: draft
     needed_by: v0.1
   - path: spec/output/nriis-submission.contract.md
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: v0.1
   - path: spec/output/notice_constant.txt

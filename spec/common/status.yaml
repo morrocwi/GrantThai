@@ -4,7 +4,7 @@
 # "checked" states) — see docs/deviations.md. Who may make each transition,
 # including regressions, is in spec/common/status_permissions.yaml.
 schema: grantthai.status.v0
-version: "0.2.0-draft"
+version: "0.3.0-draft"
 status: draft
 
 field_status_sequence:
@@ -13,11 +13,36 @@ field_status_sequence:
   - DRAFT
   - STRUCTURE_CHECKED   # schema-valid; source reference present and resolvable.
                         # Does NOT mean the source supports the value.
+                        # Precise criterion: structure_checked_criterion below.
   - LOGIC_LINKED        # required chain links exist. Does NOT mean the method fits.
+                        # Precise criterion: logic_linked_criterion below.
   - HUMAN_REVIEWED
   - VERIFIED            # rendered as AUTHOR_CHECKED when independence: self
   - LOCKED
   - SUBMITTED
+
+structure_checked_criterion: >
+  A deterministic validator run sets STRUCTURE_CHECKED on a DRAFT field
+  record when all of these hold: (1) the record is valid against
+  spec/common/field_record.schema.json and, for a structured field, its
+  non-null value is valid against
+  spec/registry/structured_fields.schema.json#/$defs/<field_id> (no S002,
+  S003 finding on it); (2) every `source_ids` entry on it is resolvable
+  (spec/common/links-and-sources.md §3; no S008 finding); (3) if its
+  provenance_class is SOURCE, it has at least one resolvable source; (4)
+  every reference written on it or inside its value resolves (no S006
+  finding) and none of its item ids is duplicated (no S007 finding).
+  Records whose provenance_class is DECISION, INFERENCE or DERIVED need no
+  source.
+
+logic_linked_criterion: >
+  A validator run sets LOGIC_LINKED on a STRUCTURE_CHECKED field record
+  when no BLOCK finding of rule families R, W, B, T or CH names it. A
+  record that no link rule reads (for example a chain_node: null field
+  such as a title) therefore becomes LOGIC_LINKED in the same run that
+  makes it STRUCTURE_CHECKED. Both statuses are persisted in project.yaml
+  by `grantthai validate` (local CLI only); they are state, not content,
+  so they never change content_sha256 (spec/common/object-hash.md).
 
 separate_markers:       # stored in a field record's `markers` list, never as a status
   - NEEDS_VERIFICATION   # a Thai rule, label or fact tied to a date/edition, unconfirmed

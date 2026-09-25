@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/common/source.schema.json",
+  "title": "GrantThai source entry (one item of project.yaml `sources`)",
+  "description": "Draft. The project's own source registry. A field record's `source_ids` entry is RESOLVABLE when it names exactly one entry here and that entry passes the offline checks in spec/common/links-and-sources.md. GrantThai never fetches `url` (no network, ever); a URL is recorded for the human reader only.",
+  "type": "object",
+  "required": ["source_id", "kind", "citation", "contains_personal_data"],
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "pattern": "^SRC-[A-Z0-9][A-Z0-9-]{0,62}$",
+      "description": "Unique within project.yaml, e.g. SRC-1 or SRC-SURVEY-2025."
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "PUBLISHED_LITERATURE",
+        "PRIMARY_DATA",
+        "OFFICIAL_DOCUMENT",
+        "EXPERT_OPINION",
+        "PROJECT_DOCUMENT",
+        "LIVED_EXPERIENCE_ACCOUNT",
+        "PRACTITIONER_KNOWLEDGE",
+        "EXPERT_REVIEW_RECORD"
+      ],
+      "description": "Same vocabulary as provenance source_type, minus AI_TRANSLATION_PROPOSAL (an AI proposal is never a source)."
+    },
+    "citation": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable reference: enough for another person to find the source without GrantThai."
+    },
+    "locator": {"type": "string", "description": "Page, section, table or timestamp inside the source."},
+    "url": {"type": "string", "description": "Recorded, never fetched or checked for reachability."},
+    "file": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*\\.\\.)[^\\\\:]+$",
+      "description": "Optional local copy, as a path relative to the directory that contains project.yaml. When present it must exist (offline check)."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Optional. When `file` is present too, the file's sha256 must equal this value."
+    },
+    "accessed": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "contains_personal_data": {
+      "type": "boolean",
+      "description": "True for interview notes, lived-experience accounts and anything else naming or identifying a person. The output source manifest then prints only source_id, kind and '[private]'."
+    },
+    "notes": {"type": "string"}
+  },
+  "additionalProperties": false
+}

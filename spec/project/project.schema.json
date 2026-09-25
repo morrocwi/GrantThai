@@ -15,7 +15,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "0.1.0-draft"
+      "const": "0.2.0-draft"
     },
     "project_id": {
       "type": "string",
@@ -128,6 +128,13 @@
         }
       }
     },
+    "sources": {
+      "type": "array",
+      "description": "The project's source registry (spec/common/source.schema.json). `source_ids` in field records resolve here; see spec/common/links-and-sources.md.",
+      "items": {
+        "$ref": "../common/source.schema.json"
+      }
+    },
     "ecosystem_positions": {
       "type": "array",
       "description": "Optional, never forced (P8). See ecosystem/positions@2026-09.yaml.",
@@ -162,10 +169,10 @@
         "locked_by": {
           "type": "string"
         },
-        "locked_object_sha256": {
+        "locked_content_sha256": {
           "type": "string",
           "pattern": "^[a-f0-9]{64}$",
-          "description": "See spec/common/object-hash.md."
+          "description": "content_sha256 at lock time (spec/common/object-hash.md). The lock is broken when the current content_sha256 differs."
         }
       },
       "additionalProperties": false

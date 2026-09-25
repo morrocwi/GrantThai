@@ -47,7 +47,7 @@
         "inputs": {
           "type": "array",
           "minItems": 1,
-          "items": {"type": "string", "pattern": "^((PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}|chain:[A-Za-z]+|fund_profile|registry:required|registry:types|project:review_records|project:mappings|project:chain_edges)$"}
+          "items": {"type": "string", "pattern": "^((PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}|chain:[A-Za-z]+|fund_profile|registry:required|registry:types|project:review_records|project:mappings|project:chain_edges|project:sources|registry:structured)$"}
         },
         "chain_step": {"type": "string", "description": "A node in spec/common/chain.yaml, or 'project' / 'fund_profile'."},
         "source": {

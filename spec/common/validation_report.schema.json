@@ -4,19 +4,54 @@
   "title": "GrantThai validation report (output of `grantthai validate`)",
   "description": "Draft. A report of rule findings. Producing a report never changes any status by itself. Only the deterministic validator, run by the core library for a local CLI user, may persist STRUCTURE_CHECKED / LOGIC_LINKED; a report returned over MCP/REST is report-only (see spec/mcp/tools.schema.json and spec/common/status_permissions.yaml).",
   "type": "object",
-  "required": ["project_id", "project_object_sha256", "rules_version", "summary", "findings"],
+  "required": [
+    "project_id",
+    "project_content_sha256",
+    "project_state_sha256",
+    "rules_version",
+    "summary",
+    "findings"
+  ],
   "properties": {
-    "project_id": {"type": "string"},
-    "project_object_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$", "description": "See spec/common/object-hash.md."},
-    "rules_version": {"type": "string"},
-    "fund_profile": {"type": "string"},
+    "project_id": {
+      "type": "string"
+    },
+    "project_content_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "See spec/common/object-hash.md."
+    },
+    "project_state_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "See spec/common/object-hash.md."
+    },
+    "rules_version": {
+      "type": "string"
+    },
+    "fund_profile": {
+      "type": "string"
+    },
     "summary": {
       "type": "object",
-      "required": ["block", "review", "info"],
+      "required": [
+        "block",
+        "review",
+        "info"
+      ],
       "properties": {
-        "block": {"type": "integer", "minimum": 0},
-        "review": {"type": "integer", "minimum": 0},
-        "info": {"type": "integer", "minimum": 0}
+        "block": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "review": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "info": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
       "additionalProperties": false
     },
@@ -24,15 +59,41 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["rule_id", "severity", "message_en"],
+        "required": [
+          "rule_id",
+          "severity",
+          "message_en"
+        ],
         "properties": {
-          "rule_id": {"type": "string"},
-          "severity": {"type": "string", "enum": ["BLOCK", "REVIEW", "INFO"]},
-          "field_ids": {"type": "array", "items": {"type": "string"}},
-          "message_en": {"type": "string"},
-          "message_th": {"type": "string"},
-          "next_step_en": {"type": "string"},
-          "next_step_th": {"type": "string"}
+          "rule_id": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "BLOCK",
+              "REVIEW",
+              "INFO"
+            ]
+          },
+          "field_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "message_en": {
+            "type": "string"
+          },
+          "message_th": {
+            "type": "string"
+          },
+          "next_step_en": {
+            "type": "string"
+          },
+          "next_step_th": {
+            "type": "string"
+          }
         },
         "additionalProperties": false
       }

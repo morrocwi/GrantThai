@@ -1,0 +1,26 @@
+# spec/registry/types.yaml — what each registry `type` means for a value
+# in project.yaml (field_record `value`). Rule S002 checks values against
+# this table; structured types are checked against
+# spec/registry/structured_fields.schema.json#/$defs/<field_id>.
+# A null value is always allowed and means "not supplied yet" (status
+# NEEDS_INPUT or EMPTY); these semantics apply to non-null values.
+schema: grantthai.types.v0
+version: "0.1.0-draft"
+status: draft
+types:
+  string:          {json: string, notes: "One line. No length limit is set by GrantThai; a funder's limit lives in the fund profile."}
+  text:            {json: string, notes: "Multi-line plain text."}
+  rich_text:       {json: string, notes: "Multi-line text; Markdown allowed. Rendered as written."}
+  integer:         {json: integer, notes: "JSON integer (no fractional part)."}
+  money:           {json: number, notes: "Thai baht, >= 0, at most 2 fractional digits. Compare via Decimal(repr(value)) quantised to 0.01; never compare binary floats directly."}
+  datetime:        {json: string, format: "YYYY-MM-DD or YYYY-MM-DDTHH:MM (quoted)", notes: "Always a quoted string (spec/common/object-hash.md)."}
+  boolean:         {json: boolean, notes: "true or false only."}
+  enum:            {json: string, notes: "One of the field's allowed_values when the registry lists them; when allowed_values is null the official option list is NEEDS_VERIFICATION and any non-empty string is accepted."}
+  reference:       {json: string, notes: "An identifier chosen from a list the funder system provides (e.g. a plan name). Treated like enum."}
+  "enum|string":   {json: string, notes: "An allowed value or free text."}
+  "boolean|string": {json: [boolean, string], notes: "true/false, or free text when the answer needs explaining."}
+  "array<string>": {json: array, items: string}
+  "array<text>":   {json: array, items: string}
+  "array<object>": {json: array, items: object, contract: "spec/registry/structured_fields.schema.json#/$defs/<field_id>"}
+  object:          {json: object, contract: "spec/registry/structured_fields.schema.json#/$defs/<field_id>"}
+  "rich_text|object": {json: [string, object], contract: "spec/registry/structured_fields.schema.json#/$defs/<field_id>"}

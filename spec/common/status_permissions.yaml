@@ -11,7 +11,7 @@
 #   named_human         - a person acting through a named review record
 #   core                - automatic regression applied by src/grantthai/core
 schema: grantthai.status_permissions.v0
-version: "0.2.0-draft"
+version: "0.3.0-draft"
 status: draft
 
 transitions:
@@ -37,7 +37,7 @@ transitions:
   - from: LOGIC_LINKED
     to: [HUMAN_REVIEWED, VERIFIED]
     allowed_actors: [named_human]
-    requires: "a review record (spec/common/review.schema.json) with scope and independence (self or independent) whose object_sha256 matches the current object"
+    requires: "a review record (spec/common/review.schema.json) with scope and independence (self or independent) whose content_sha256 matches the current content_sha256 (spec/common/object-hash.md)"
 
   - from: HUMAN_REVIEWED
     to: VERIFIED
@@ -56,7 +56,7 @@ transitions:
     notes: "Recorded by a named human after the external submission act. GrantThai never submits."
 
 regressions:
-  - trigger: "a field's value, provenance or markers are edited"
+  - trigger: "a field's value, provenance, markers, hold_reason, links or source_ids are edited"
     from: [STRUCTURE_CHECKED, LOGIC_LINKED, HUMAN_REVIEWED, VERIFIED, LOCKED]
     to: DRAFT
     applies_to: "the edited field only"
@@ -69,7 +69,7 @@ regressions:
     to: DRAFT
     applies_to: "each field named in the finding"
     actor: deterministic_validator
-  - trigger: "the project object hash changes after a review record was written"
+  - trigger: "the project content_sha256 changes after a review record was written (an authored change; status changes, review records and the lock are excluded from content_sha256)"
     effect: "the review record becomes stale (spec/common/object-hash.md); it no longer counts toward its gate. Field statuses it set are rendered with the basis 'review stale' until a new record is written"
     actor: core
   - trigger: "a value is cleared (set to null or the literal NEEDS_INPUT)"

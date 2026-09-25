@@ -3,7 +3,7 @@
 # rules. A missing gate NEVER blocks `build` or the concept note — it
 # downgrades claim strength and adds a hold_reason instead (docs/design/PLAN.md §E).
 schema: grantthai.review_gates.v0
-version: "0.1.0-draft"
+version: "0.2.0-draft"
 status: draft
 
 gates:
@@ -36,7 +36,7 @@ review_record:
     - scope           # which fields / chain nodes within the gate this record covers
     - independence     # "self" | "independent"
     - date
-    - object_sha256    # see spec/common/object-hash.md
+    - content_sha256   # see spec/common/object-hash.md (excludes statuses, reviews, lock)
   no_signing: "There is no cryptographic signing of review records in v0.x."
 
 self_review:
