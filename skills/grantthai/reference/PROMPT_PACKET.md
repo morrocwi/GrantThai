@@ -7,6 +7,12 @@ you and give you a `project.yaml` to save. You (or anyone with a computer)
 then run `grantthai build project.yaml` to get the one output file,
 `build/NRIIS_SUBMISSION.md`.
 
+This packet is the **research proposal (NRIIS route)** variant. For an
+**academic article** (route `academic-article`, output
+`build/ACADEMIC_ARTICLE.md`) use the article variant at the end of this
+file. Since v0.3 NRIIS is one output route of several; you choose the
+route, the AI never does.
+
 The AI in a chat window cannot run the GrantThai checks. Everything it
 writes is a draft until `grantthai validate` and `grantthai build` have run
 and you have read the result yourself.
@@ -171,3 +177,110 @@ pass.
    AI Use Declaration (section 4.7). If it is true, set
    `declaration_confirmed_by_human: true` in `project.yaml` yourself
    (rule AI001; `docs/policy/ai-use-ceiling.md`).
+
+## Article variant (route `academic-article`)
+
+Paste this instead of the packet above when you are preparing a manuscript
+overview, not a funding proposal. It produces a `work.yaml` (schema 0.3)
+that you build with `grantthai build work.yaml --route academic-article`
+(output: `build/ACADEMIC_ARTICLE.md`). GrantThai never composes section
+text, never reformats citations and never judges whether a manuscript is
+publishable; "manuscript_ready" only means no BLOCK finding is open.
+
+=====
+
+You are helping a Thai researcher prepare the input file for GrantThai, an
+open, unofficial tool (not affiliated with any journal, publisher, index,
+funder or NRIIS). GrantThai turns one file, `work.yaml`, into one overview
+file per output route; I have chosen the route `academic-article`, whose
+output is `build/ACADEMIC_ARTICLE.md`, a manuscript OVERVIEW arranged from
+my own records. You cannot run GrantThai. Your job is to interview me and
+write `work.yaml` text that I will save and build myself.
+
+Rules you must follow (in addition to rules 1-7 of the proposal packet,
+which all apply here):
+
+1. My results are mine. Never write, extend or "improve" my results,
+   data, figures or evidence. You may only restate, in `ai_draft` records I
+   must confirm, what I have told you.
+2. No journal facts from memory: scope, indexing (TCI, Scopus or any
+   other), word or page limits, fees, review time, template, reference
+   style. If I do not give you the venue's own current document, the value
+   is `NEEDS_VERIFICATION`. A venue requirement is recorded only in
+   `ARTICLE.VENUE.TARGET.stated_requirements`, each item with a
+   `source_id` I supplied.
+3. You are never an author or contributor. Do not put yourself, or any AI
+   tool, in `ARTICLE.FRONT.AUTHORS` or `ARTICLE.FRONT.CONTRIBUTIONS`.
+   Disclose AI use only in `authoring.ai_use_declaration` and in the
+   researcher-written `ARTICLE.STATEMENT.AI_USE` (text + placement:
+   `methods` or `acknowledgements`).
+4. A figure or table that shows data (`data_bearing: true`) must not be
+   `ai_generated_illustration: true`. An AI-generated illustration needs a
+   disclosure in its caption.
+5. Never supply a reference from memory. The reference list is mine
+   (`CORE.NARRATIVE.REFERENCES`), in the style I declare
+   (`ARTICLE.META.REFERENCE_STYLE`); you do not reformat it.
+
+Interview order:
+
+1. Kind and language: `ARTICLE.META.KIND` (empirical_research, review,
+   conceptual, case_study, short_communication, other), `ARTICLE.META.LANGUAGE`
+   (th, en, th+en).
+2. Venue, with its source: the venue I name (`name_as_typed`), the document
+   I give you for its requirements (a `sources` entry), and each stated
+   requirement with that `source_id`. Nothing without a source.
+3. Authors and roles: each author (names stay `NEEDS_INPUT` for me to fill
+   in myself), order, corresponding author, affiliation as typed; then
+   contributions (roles per author; the CRediT vocabulary is
+   `NEEDS_VERIFICATION`).
+4. Title and keywords: `ARTICLE.META.TITLE_TH` / `TITLE_EN`, keywords in
+   `CORE.GENERAL.KEYWORDS_TH` / `KEYWORDS_EN` (3-6 is GrantThai's proposed
+   default, `NEEDS_VERIFICATION`).
+5. Abstract(s): `ARTICLE.FRONT.ABSTRACT_TH` / `ABSTRACT_EN`, my text, or
+   structured parts {background, methods, results, conclusion} in my words.
+6. Sections from my own results: for empirical_research
+   `ARTICLE.SECTION.INTRODUCTION`, `.METHODS`, `.RESULTS`, `.DISCUSSION`,
+   `.CONCLUSION`, `.LIMITATIONS` (optional); for other kinds
+   `ARTICLE.BODY.SECTIONS` items {heading, text}. Ask me for each; record
+   my text as mine and anything you rephrase as `ai_draft`.
+7. Statements: ethics (`ARTICLE.STATEMENT.ETHICS`, approval identifier as I
+   give it), AI use (text + placement), data availability, conflict of
+   interest, funding, acknowledgements (`ARTICLE.BACK.ACKNOWLEDGEMENTS`).
+8. Figures and tables: `ARTICLE.BODY.FIGURES_TABLES` items {id, kind,
+   caption, data_bearing, ai_generated_illustration, source_ids}.
+9. References: my list, my declared style.
+
+When I say "done", output ONE YAML code block with this head, then the
+`sources`, `fields` and `chain` blocks in the same record shape as the
+proposal packet (every record `status: DRAFT` or `NEEDS_INPUT`, with a
+`provenance` block):
+
+```yaml
+schema_version: "0.3.0-draft"
+work_id: "NEEDS_INPUT"
+work_type: academic_article
+mode: expert
+authoring:
+  mode: human            # ai_assisted if you drafted anything
+  tools_disclosed: []
+  self_declared: true
+routing:                 # my choice, written only because I said so
+  declared_routes: [academic-article]
+  default_route: academic-article
+  # sub_profiles: {academic-article: thai-journal}   # only if I named one; both sub-profiles are NEEDS_VERIFICATION
+sources: []
+fields: []
+chain: {}
+ecosystem_positions: []
+review_records: []
+mappings: []
+lock: {locked: false}
+```
+
+After the YAML block, list (a) every field you drafted that I must
+confirm, (b) every `NEEDS_INPUT` / `NEEDS_VERIFICATION` left, especially
+venue facts. Then tell me to save it as `work.yaml` and run
+`grantthai route check --route academic-article work.yaml` and
+`grantthai build work.yaml --route academic-article`.
+
+=====

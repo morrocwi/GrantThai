@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/morrocwi/GrantThai/spec/mcp/tools.schema.json",
-  "title": "GrantThai MCP tools (implemented in v0.1, grantthai.mcp)",
-  "description": "The MCP tool surface, a one-to-one wrapper over the same library functions the CLI uses (grantthai.api_py). Implemented in src/grantthai/mcp (docs/mcp.md); the `examples` entry below is the implemented tool list and tests/mcp checks the server against it. Hard rules: (1) no MCP tool may set any field's status above DRAFT (spec/common/status_permissions.yaml, hard_ceiling); (2) no MCP tool can submit anything to NRIIS or any fund; (3) validation over MCP is REPORT-ONLY (status_effect: none); (4) every value written over MCP is recorded as AI-assisted and can never be provenance_class SOURCE. (5) every value written over MCP records the AI tool (name, version, stage) in authoring.ai_use_declaration.tools; it never sets declaration_confirmed_by_human, which only the researcher sets (docs/policy/ai-use-ceiling.md). The CLI and MCP share the same checking code, so the findings are identical.",
+  "title": "GrantThai MCP tools (implemented in v0.1, extended for the v0.3 router; grantthai.mcp)",
+  "description": "Version 0.4.0-draft. The MCP tool surface, a one-to-one wrapper over the same library functions the CLI uses (grantthai.api_py). Implemented in src/grantthai/mcp (docs/mcp.md); the `examples` entry below is the implemented tool list and tests/mcp checks the server against it. Hard rules: (1) no MCP tool may set any field's status above DRAFT (spec/common/status_permissions.yaml, hard_ceiling); (2) no MCP tool can submit anything to NRIIS or any fund; (3) validation over MCP is REPORT-ONLY (status_effect: none); (4) every value written over MCP is recorded as AI-assisted and can never be provenance_class SOURCE. (5) every value written over MCP records the AI tool (name, version, stage) in authoring.ai_use_declaration.tools; it never sets declaration_confirmed_by_human, which only the researcher sets (docs/policy/ai-use-ceiling.md). The CLI and MCP share the same checking code, so the findings are identical. (6) v0.3 router: the output route is the researcher's choice. grantthai_build and grantthai_validate take an optional `route`; with none, the server resolves it only from what a person declared (routing.default_route, a legacy project.yaml, the one default route of the work_type). When that does not decide, the tool returns the candidate list and builds nothing; the server MUST NOT default the route. grantthai_list_routes lists, grantthai_check_route reports for an explicit route, grantthai_new_project takes an optional work_type (writes work.yaml 0.3). Every tool stays capped at DRAFT.",
   "type": "object",
   "properties": {
     "tools": {
@@ -61,8 +61,8 @@
           "max_status_ceiling": "DRAFT",
           "status_effect": "draft_only",
           "can_submit": false,
-          "input_schema_ref": "../project/project.schema.json",
-          "output_schema_ref": "../project/project.schema.json"
+          "input_schema_ref": "../work/work.schema.json",
+          "output_schema_ref": "../work/work.schema.json"
         },
         {
           "name": "grantthai_list_fields",
@@ -105,7 +105,24 @@
           "status_effect": "none",
           "can_submit": false,
           "input_schema_ref": "../project/project.schema.json",
-          "output_schema_ref": "../output/nriis-submission.contract.md"
+          "output_schema_ref": "../routes/route.schema.json"
+        },
+        {
+          "name": "grantthai_list_routes",
+          "wraps_cli_command": "grantthai route list",
+          "max_status_ceiling": "DRAFT",
+          "status_effect": "none",
+          "can_submit": false,
+          "output_schema_ref": "../../routes/INDEX.yaml"
+        },
+        {
+          "name": "grantthai_check_route",
+          "wraps_cli_command": "grantthai route check",
+          "max_status_ceiling": "DRAFT",
+          "status_effect": "none",
+          "can_submit": false,
+          "input_schema_ref": "../work/work.schema.json",
+          "output_schema_ref": "../common/validation_report.schema.json"
         }
       ]
     }

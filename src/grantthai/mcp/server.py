@@ -196,7 +196,7 @@ def serve_sdk(ctx: T.Context) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="grantthai-mcp",
-                                 description="GrantThai MCP server (stdio): project.yaml -> build/NRIIS_SUBMISSION.md")
+                                 description="GrantThai MCP server (stdio): one work object -> one output route (the researcher's choice) -> one file")
     ap.add_argument("--root", default=".", help="folder all project paths are resolved in (default: cwd)")
     ap.add_argument("--transport", choices=("auto", "sdk", "builtin"), default="auto")
     a = ap.parse_args(argv)

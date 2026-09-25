@@ -15,15 +15,23 @@ provenance and validation decision is made by the GrantThai engine.
         Show it to the researcher BEFORE accepting any research data
         (docs/policy/ai-use-ceiling.md, section 5).
 
-    python grantthai_skill.py apply ANSWERS.yaml [--project project.yaml] [--init]
+    python grantthai_skill.py apply ANSWERS.yaml [--project work.yaml] [--init] [--route ID]
         Write the interview answers (and the researcher's sources) into
-        project.yaml through api_py.set_field. --init creates project.yaml
-        first when it does not exist yet.
+        the work file (work.yaml 0.3, or a legacy project.yaml) through
+        api_py.set_field. --init creates the file first when it does not
+        exist yet (work.yaml when `project.work_type` is given, else a
+        legacy project.yaml). --route ID (or `project.route` in the answers
+        file) records the output route THE RESEARCHER CHOSE as
+        routing.default_route; never write one they did not choose.
 
-    python grantthai_skill.py report [--project project.yaml] [--as-of YYYY-MM-DD] [--json]
-        Validate, explain every BLOCK and REVIEW finding in plain Thai
-        (from reference/rules-th.md), then build the one output file
-        build/NRIIS_SUBMISSION.md and print its path.
+    python grantthai_skill.py report [--project work.yaml] [--route ID] [--sub-profile SP]
+                                      [--as-of YYYY-MM-DD] [--json]
+        Validate for one route, explain every BLOCK and REVIEW finding in
+        plain Thai (from reference/rules-th.md), then build that route's one
+        output file (build/NRIIS_SUBMISSION.md, ACADEMIC_ARTICLE.md or
+        RESEARCH_CONCEPT_NOTE.md) and print its path. With no --route the
+        route comes only from the researcher's declaration; when that does
+        not decide, the candidates are printed, nothing is built, exit 2.
 
 The answers file format is described in reference/answers-format.md.
 
@@ -63,6 +71,11 @@ BY_VALUES = {
 }
 SOURCE_KEYS = {"source_id", "kind", "citation", "locator", "url", "file", "sha256",
                "accessed", "contains_personal_data"}
+# Keys of the answers file's `project` block. `route` and `sub_profile` are
+# the researcher's choice of output route (v0.3 router); the script records
+# them and never decides them.
+PROJECT_KEYS = {"project_id", "work_id", "work_type", "fund_profile_id", "mode", "form_profile", "route",
+                "sub_profile"}
 # Keys of the answers file's ai_use_declaration block. The researcher's
 # confirmation (declaration_confirmed_by_human, confirmed_by, confirmed_on)
 # is refused here: only the researcher sets it, in project.yaml.
@@ -145,27 +158,67 @@ def _upsert_sources(doc: dict, sources: list[dict]) -> None:
             by_id[s["source_id"]] = s
 
 
-def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = False) -> list[str]:
-    """Apply an answers document to project.yaml. Returns one line per field."""
+def _is_work(doc: dict) -> bool:
+    return str(doc.get("schema_version", "")).startswith("0.3")
+
+
+def set_route(doc: dict, route: str, sub_profile: str | None = None) -> str:
+    """Record the output route the researcher chose (routing.default_route,
+    plus declared_routes and, when given, sub_profiles[route]) on a work.yaml
+    0.3 object. A legacy 0.2 project.yaml has no `routing` key: refuse and
+    point at `grantthai migrate`. The route id itself is checked by the
+    engine at validate/build time (an unknown id is reported there)."""
+    if not _is_work(doc):
+        raise ValueError("this is a legacy project.yaml (0.2): it has no routing block. Build it with "
+                         "`--route ID` instead, or run `grantthai migrate --rename` to get a work.yaml first")
+    routing = doc.setdefault("routing", {})
+    declared = list(routing.get("declared_routes") or [])
+    if route not in declared:
+        declared.append(route)
+    routing["declared_routes"] = declared
+    routing["default_route"] = route
+    if sub_profile:
+        routing.setdefault("sub_profiles", {})[route] = sub_profile
+    return f"routing.default_route: {route} (the researcher's choice; not part of content_sha256)"
+
+
+def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = False,
+                  route: str | None = None) -> list[str]:
+    """Apply an answers document to the work file. Returns one line per field."""
+    meta = answers_doc.get("project") or {}
+    extra = set(meta) - PROJECT_KEYS
+    if extra:
+        raise ValueError(f"project: unknown keys {sorted(extra)}")
     if not project_path.exists():
         if not init:
             raise FileNotFoundError(f"{project_path} does not exist (use --init to create it)")
-        meta = answers_doc.get("project") or {}
-        api.new_project(project_id=meta.get("project_id", "NEEDS_INPUT"),
-                        fund_profile_id=meta.get("fund_profile_id", "example/FICTIONAL_CALL@0.1"),
-                        mode=meta.get("mode", "expert"), path=project_path)
+        wid = meta.get("work_id", meta.get("project_id", "NEEDS_INPUT"))
+        if meta.get("work_type"):
+            api.new_work(wid, meta["work_type"], fund_profile_id=meta.get("fund_profile_id"),
+                         mode=meta.get("mode", "expert"), path=project_path)
+        else:
+            api.new_project(project_id=wid,
+                            fund_profile_id=meta.get("fund_profile_id", "example/FICTIONAL_CALL@0.1"),
+                            mode=meta.get("mode", "expert"), path=project_path)
     doc = api.load(project_path)
-    meta = answers_doc.get("project") or {}
+    lines = []
     if "form_profile" in meta:
         # v0.2: the proposal form type (mappings/nriis/form_profiles/; every
         # profile is NEEDS_VERIFICATION). The engine reports an unknown id.
-        doc["form_profile"] = meta["form_profile"]
+        if _is_work(doc):
+            doc.setdefault("routing", {}).setdefault("sub_profiles", {})["nriis-proposal"] = meta["form_profile"]
+        else:
+            doc["form_profile"] = meta["form_profile"]
+    chosen = route or meta.get("route")
+    if chosen:
+        lines.append(set_route(doc, chosen, meta.get("sub_profile")))
+    elif meta.get("sub_profile"):
+        raise ValueError("project.sub_profile needs project.route (the route it belongs to)")
     _upsert_sources(doc, answers_doc.get("sources") or [])
     source_kind = {s.get("source_id"): s.get("kind") for s in doc.get("sources") or []}
     tool = answers_doc.get("tool")
     tool_version = answers_doc.get("tool_version")
     tool_stage = answers_doc.get("tool_stage")
-    lines = []
     for i, a in enumerate(answers_doc.get("answers") or []):
         extra = set(a) - ANSWER_KEYS
         if extra:
@@ -276,8 +329,21 @@ def authored_by_any_human_ai(doc: dict) -> bool:
 # --------------------------------------------------------------------------
 # report
 # --------------------------------------------------------------------------
-def report(api, project_path: Path, *, as_of: str | None = None) -> dict:
-    rep = api.validate(project_path, as_of=as_of)
+def report(api, project_path: Path, *, as_of: str | None = None, route: str | None = None,
+           sub_profile: str | None = None) -> dict:
+    """Validate and build ONE route. The route is --route, else what the
+    researcher declared in the file (routing.default_route; a legacy
+    project.yaml is nriis-proposal; else the one default route of the
+    work_type). When none of these decides, nothing is validated or built
+    and the result carries `candidates` for the researcher to choose from."""
+    try:
+        rid = api.resolve_route(project_path, route)
+    except api.AmbiguousRoute as exc:
+        return {"route": None, "candidates": list(exc.candidates), "summary": None, "findings": [],
+                "output": None, "ai_drafts_to_confirm": [],
+                "note": "ยังไม่ได้เลือกเส้นทางผลลัพธ์ ให้ถามผู้วิจัยว่าจะให้สร้างไฟล์แบบไหน แล้วรันใหม่ด้วย --route "
+                        "(GrantThai และ AI ไม่เลือกเส้นทางแทนผู้วิจัย)"}
+    rep = api.validate(project_path, as_of=as_of, route=rid, sub_profile=sub_profile)
     th = load_rules_th()
     explained = []
     for f in rep["findings"]:
@@ -286,18 +352,25 @@ def report(api, project_path: Path, *, as_of: str | None = None) -> dict:
         explained.append({**f, "explain_th": th.get(f["rule_id"],
                           "ยังไม่มีคำอธิบายภาษาไทยสำหรับกฎนี้ ดูคำอธิบายภาษาอังกฤษด้วยคำสั่ง "
                           f"`grantthai explain {f['rule_id']}`")})
-    out = api.build(project_path, as_of=as_of)
+    out = api.build(project_path, route=rid, sub_profile=sub_profile, as_of=as_of)
     ai_drafts = []
     doc = api.load(project_path)
     for rec in list(doc.get("fields") or []) + [r for rs in (doc.get("chain") or {}).values() for r in rs or []]:
         if (rec.get("provenance") or {}).get("authored_by") == "ai_draft":
             ai_drafts.append(rec["field_id"])
-    return {"summary": rep["summary"], "findings": explained, "output": str(out),
-            "ai_drafts_to_confirm": ai_drafts}
+    return {"route": rid, "candidates": [], "summary": rep["summary"], "findings": explained,
+            "output": str(out), "ai_drafts_to_confirm": ai_drafts}
 
 
 def _print_report(r: dict) -> None:
+    if r.get("candidates"):
+        print(r["note"])
+        print("เส้นทางที่เลือกได้ (ดูรายละเอียดด้วย `grantthai route list`):")
+        for rid in r["candidates"]:
+            print(f"  - {rid}")
+        return
     s = r["summary"]
+    print(f"เส้นทางผลลัพธ์: {r['route']}")
     print(f"ผลตรวจ: BLOCK {s['block']} / REVIEW {s['review']} / INFO {s['info']}")
     # One Thai explanation per rule, then every finding of that rule.
     by_rule: dict[str, list[dict]] = {}
@@ -319,6 +392,21 @@ def _print_report(r: dict) -> None:
     print(f"ไฟล์ผลลัพธ์ (ไฟล์เดียว): {r['output']}")
 
 
+def _discover(api) -> Path:
+    """The one canonical input in the current folder (work.yaml first, then
+    project.yaml); both present is refused by the engine."""
+    from grantthai.core import project as P  # type: ignore
+    return P.discover(None)
+
+
+def _discover_or_new(api, answers: dict) -> Path:
+    try:
+        return _discover(api)
+    except FileNotFoundError:
+        meta = answers.get("project") or {}
+        return Path("work.yaml" if meta.get("work_type") else "project.yaml")
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="grantthai_skill")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -326,10 +414,13 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("warning")
     p = sub.add_parser("apply")
     p.add_argument("answers")
-    p.add_argument("--project", default="project.yaml")
+    p.add_argument("--project", default=None, help="work.yaml / project.yaml (default: the one in the current folder)")
     p.add_argument("--init", action="store_true")
+    p.add_argument("--route", default=None, help="the output route the RESEARCHER chose (recorded as routing.default_route)")
     p = sub.add_parser("report")
-    p.add_argument("--project", default="project.yaml")
+    p.add_argument("--project", default=None, help="work.yaml / project.yaml (default: the one in the current folder)")
+    p.add_argument("--route", default=None, help="the output route the RESEARCHER chose")
+    p.add_argument("--sub-profile", default=None)
     p.add_argument("--as-of")
     p.add_argument("--json", action="store_true")
     a = ap.parse_args(argv)
@@ -349,15 +440,19 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if a.cmd == "apply":
             answers = _yaml().safe_load(Path(a.answers).read_text(encoding="utf-8")) or {}
-            for line in apply_answers(api, Path(a.project), answers, init=a.init):
+            project = Path(a.project) if a.project else _discover_or_new(api, answers)
+            for line in apply_answers(api, project, answers, init=a.init, route=a.route):
                 print(line)
             return 0
         if a.cmd == "report":
-            r = report(api, Path(a.project), as_of=a.as_of)
+            project = Path(a.project) if a.project else _discover(api)
+            r = report(api, project, as_of=a.as_of, route=a.route, sub_profile=a.sub_profile)
             if a.json:
                 print(json.dumps(r, ensure_ascii=False, indent=2))
             else:
                 _print_report(r)
+            if r.get("candidates"):
+                return 2
             return 1 if r["summary"]["block"] else 0
     except (ValueError, KeyError, FileExistsError, FileNotFoundError) as exc:
         print(f"grantthai_skill: error: {exc}", file=sys.stderr)
