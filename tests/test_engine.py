@@ -66,7 +66,7 @@ def test_e2e_example_builds_exactly_one_file_block_zero(tmp_path):
     # the methodology is one NRIIS box; its structured records sit in the appendix
     sec2 = body[body.index("## 2. Copy/paste"):body.index("## 3. Machine field metadata")]
     assert "`METHOD.PLAN." not in sec2 and sec2.count("FIELD_ID: `CORE.NARRATIVE.METHOD`") == 1
-    appendix = body[body.index("### 4.4 Project records not placed on any NRIIS tab"):]
+    appendix = body[body.index("### 4.5 Project records not placed on any NRIIS tab"):]
     assert "`METHOD.PLAN.DESIGN` (ORIGIN: AUTHORING_CORE" in appendix
     assert "ARITHMETIC CHECK: sum(weight_percent) = 100.00 (must be 100.00): OK" in body
 

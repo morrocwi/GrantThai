@@ -228,6 +228,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
             "provenance": (f"provenance_class={prov.get('provenance_class')}, source_type={prov.get('source_type')}, "
                            f"evidence_role={prov.get('evidence_role')}") if prov else "none (no record)",
             "render_from": ", ".join(n.get("render_from") or []),
+            "conflicts": ", ".join(r.get("conflicts") or []),
             "status": status,
             "basis": basis,
             "markers": markers,
@@ -274,6 +275,36 @@ def build_context(raw: dict, result: E.Result) -> dict:
                  "feeds": ", ".join(feeds.get(rec.get("field_id"), [])),
                  "value": _any(rec.get("value"))}
                 for rec, key in P.iter_records(doc) if rec.get("field_id") not in mapped]
+
+    # Conflicts and open contradictions: every package-level entry (all are
+    # OPEN; none is resolved by GrantThai) with the project records it
+    # touches, then every conflict the researcher recorded on a record.
+    present = {rec.get("field_id") for rec, _ in P.iter_records(doc)}
+    package_conflicts = []
+    for cx in P.contradictions():
+        aff = cx.get("affects") or {}
+        touched = sorted(f for f in aff.get("fields") or [] if f in present)
+        package_conflicts.append({
+            "id": cx.get("id"), "title": cx.get("title"), "status": cx.get("status"),
+            "readings": [f"{x.get('source')}: {x.get('says')}" for x in cx.get("readings") or []],
+            "handling": cx.get("current_handling"),
+            "touched": ", ".join(touched) or "no record of this project (affects "
+                       + ", ".join((aff.get("files") or []) + (aff.get("fields") or [])) + ")",
+        })
+    project_conflicts = []
+    for rec, _ in P.iter_records(doc):
+        for c in rec.get("conflicts") or []:
+            if isinstance(c, dict):
+                project_conflicts.append({
+                    "field_id": rec.get("field_id"), "id": c.get("conflict_id"), "status": c.get("status"),
+                    "description": c.get("description"),
+                    "readings": [(x.get("says") or "") + (f" (sources: {', '.join(x.get('source_ids') or [])})"
+                                                           if x.get("source_ids") else "")
+                                 for x in c.get("readings") or [] if isinstance(x, dict)],
+                    "decision_note": c.get("decision_note") or "",
+                })
+    open_conflicts = sum(1 for c in package_conflicts if c["status"] == "OPEN") + \
+        sum(1 for c in project_conflicts if c["status"] == "OPEN")
 
     # Readiness summary
     marked = [(rec.get("field_id"), m, rec.get("hold_reason"))
@@ -376,6 +407,9 @@ def build_context(raw: dict, result: E.Result) -> dict:
         "sources": sources,
         "unresolved": unresolved_rows,
         "unmapped": unmapped,
+        "package_conflicts": package_conflicts,
+        "project_conflicts": project_conflicts,
+        "open_conflicts": open_conflicts,
         "fund_profile": result.fund_profile_id or "NEEDS_INPUT",
         "trust_level": result.trust_level,
     }

@@ -27,6 +27,8 @@ mappings:
     tab: GENERAL
   - section: GeneralInformation
     tab: GENERAL
+  - section: FundingAlignment      # core/02 02.03; SD-4 p40 item 1.1
+    tab: GENERAL
   - section: ResearchTeam
     tab: GENERAL
   - section: ResearchCore
@@ -50,6 +52,8 @@ mappings:
   - section: TranslationPathway
     tab: UTILIZATION
   - section: ResultsChain
+    tab: UTILIZATION
+  - section: Entrepreneur          # SD-1 p18 part 4; placement NEEDS_VERIFICATION (CX-09)
     tab: UTILIZATION
   - section: Attachments
     tab: ATTACHMENTS

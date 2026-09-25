@@ -1,9 +1,84 @@
 # ecosystem/positions@2026-09.yaml — optional ecosystem/policy position
-# picklist. RELAYED and dated (plan section B, P8: never forced). Ships v0.2.
-# Phase 0 stub: no positions populated yet.
+# picklist. RELAYED and dated (plan section B, P8: never forced).
+#
+# Content is RELAYED from the handoff package core/02 (founder-owned, K13):
+# the six broad policy lenses of core/02 §4A.1 and the eleven potential
+# ecosystem positions of core/02 §4G. It is a design vocabulary, not a
+# statement of any current Thai policy, plan, programme or key result: every
+# entry is NEEDS_VERIFICATION against current public policy documents before
+# anyone relies on it.
+#
+# How it is used:
+#   - `lenses[].code` is the option list of CORE.ALIGNMENT.POLICY_PATHWAY and
+#     CORE.ALIGNMENT.SECONDARY_PATHWAYS (registry/fields.jsonl). Pick ONE
+#     primary lens, and at most two secondary lenses only if necessary
+#     (core/02 §4A.1). A lens is proven by the project's causal chain, not by
+#     naming it (core/02 §4A.1 "Policy alignment rule", §4D).
+#   - `positions[].id` may be listed in project.yaml `ecosystem_positions`.
+#     A project selects only the positions it actually participates in
+#     (core/02 §4G). Choosing none is always valid (P8).
 schema: grantthai.ecosystem_positions.v0
 version: "0.1.0-draft"
 dated: "2026-09"
 trust_level: RELAYED
-derived_from: "core/03@sha256:8bdf055edc0b61d744337bdcbd664a19af581fead6ad335a6c77eb82585d4ef3"
-positions: []
+markers: [NEEDS_VERIFICATION]
+derived_from: "core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4"
+also_informed_by: "core/03@sha256:8bdf055edc0b61d744337bdcbd664a19af581fead6ad335a6c77eb82585d4ef3"
+
+lenses:
+  - code: TALENT_BRAIN_POWER
+    name_en: "Talent / brain power"
+    question: "How does this project increase or improve high-skill people, research capability, or talent circulation?"
+    typical_outputs: [researcher_competency, high_skill_personnel, curriculum_or_training_model, research_network, mobility_pathway]
+    source: "core/02 §4A.1"
+    trust_level: RELAYED
+    markers: [NEEDS_VERIFICATION]
+  - code: RESEARCH_KNOWLEDGE
+    name_en: "Research knowledge"
+    question: "What new, validated, reusable knowledge or method does the project create?"
+    typical_outputs: [evidence, dataset, framework, model, method, publication]
+    source: "core/02 §4A.1"
+    trust_level: RELAYED
+    markers: [NEEDS_VERIFICATION]
+  - code: INNOVATION_TRANSLATION
+    name_en: "Innovation translation"
+    question: "How does knowledge move toward validation, adoption, commercialization, or scale?"
+    typical_outputs: [prototype, validated_process, IP, licensing_path, spin_off, implementation_model]
+    source: "core/02 §4A.1"
+    trust_level: RELAYED
+    markers: [NEEDS_VERIFICATION]
+  - code: AREA_SOCIETAL
+    name_en: "Area-based / societal"
+    question: "What real problem in a place, community, public system, or social group is being solved with users involved?"
+    typical_outputs: [social_innovation, service_model, local_mechanism, living_lab, community_capacity, policy_tool]
+    source: "core/02 §4A.1"
+    trust_level: RELAYED
+    markers: [NEEDS_VERIFICATION]
+  - code: CREATIVE_ECONOMY
+    name_en: "Creative economy"
+    question: "How are cultural, creative, design, local-knowledge, IP, or digital assets converted into measurable value?"
+    typical_outputs: [creative_IP, product_or_service, design_framework, cultural_database, market_or_place_value]
+    source: "core/02 §4A.1"
+    trust_level: RELAYED
+    markers: [NEEDS_VERIFICATION]
+  - code: MISSION_SECTOR
+    name_en: "Mission / sector"
+    question: "Which national or sector mission does the project directly strengthen?"
+    typical_domains: [health, AI, semiconductor, food, agritech, climate, net_zero, advanced_industry, other_current_mission]
+    note: "The domain list is the package's example list, not a current mission list (NEEDS_VERIFICATION)."
+    source: "core/02 §4A.1"
+    trust_level: RELAYED
+    markers: [NEEDS_VERIFICATION]
+
+positions:
+  - {id: TALENT_BRAIN_POWER, name_en: "Talent / Brain Power", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: UNIVERSITY_TRANSFORMATION, name_en: "University Transformation", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: RESEARCH_CAPACITY, name_en: "Research Capacity", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: INNOVATION_COMMERCIALIZATION, name_en: "Innovation / Commercialization", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: UHC_VENTURE_CAPITAL_BRIDGE, name_en: "UHC / Venture / Capital Bridge", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: SCIENCE_PARK_INNOVATION_DISTRICT, name_en: "Science Park / Innovation District", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: AREA_BASED_DEVELOPMENT, name_en: "Area-based Development", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: CIVIL_SOCIETY_PRACTITIONER_RESEARCH, name_en: "Civil Society / Practitioner Research", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: CREATIVE_ECONOMY, name_en: "Creative Economy", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: MISSION_SECTOR_ECOSYSTEM, name_en: "Mission / Sector Ecosystem", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}
+  - {id: INTERNATIONAL_RI_NETWORK, name_en: "International Research / Innovation Network", source: "core/02 §4G", trust_level: RELAYED, markers: [NEEDS_VERIFICATION]}

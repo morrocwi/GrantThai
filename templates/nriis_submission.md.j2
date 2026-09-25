@@ -28,6 +28,7 @@ This file is the researcher's own information, arranged for copy/paste into NRII
   - {{ h }}
 {% endfor %}
 {% endif %}
+- Open contradictions and conflicts: {{ open_conflicts }} (listed in section 4.4; none is resolved by GrantThai).
 - Human final approval is always required before anything is entered into NRIIS.
 
 ### 1.1 BLOCK findings (fix before the project can be locked)
@@ -120,6 +121,9 @@ LABEL_TH: {{ f.label_th }}
 - DEPENDENCIES: {{ f.dependencies }}
 - SOURCE_IDS: {{ f.source_ids }}
 - VALIDATION: {{ f.validation }}
+{% if f.conflicts %}
+- CONFLICTS: {{ f.conflicts }} (OPEN; see section 4.4)
+{% endif %}
 - AUTHORED_BY: {{ f.authored_by }}
 {% if f.arith %}
 - ARITHMETIC CHECK: {{ f.arith }}
@@ -162,7 +166,38 @@ LABEL_TH: {{ f.label_th }}
 - None.
 {% endif %}
 
-### 4.4 Project records not placed on any NRIIS tab
+### 4.4 Conflicts and open contradictions
+
+Conflicts are surfaced, never merged. Every reading is printed; the "GrantThai today" line is a working default, not a decision.
+
+#### 4.4.1 Contradictions between the design sources (registry/contradictions.yaml)
+{% for c in package_conflicts %}
+
+- **{{ c.id }}** ({{ c.status }}): {{ c.title }}
+{% for r in c.readings %}
+  - Reading: {{ r }}
+{% endfor %}
+  - GrantThai today: {{ c.handling }}
+  - In this project: {{ c.touched }}
+{% endfor %}
+
+#### 4.4.2 Conflicts recorded in project.yaml
+{% if project_conflicts %}
+{% for c in project_conflicts %}
+
+- **{{ c.id }}** on `{{ c.field_id }}` ({{ c.status }}): {{ c.description }}
+{% for r in c.readings %}
+  - Reading: {{ r }}
+{% endfor %}
+{% if c.decision_note %}
+  - Researcher's note: {{ c.decision_note }}
+{% endif %}
+{% endfor %}
+{% else %}
+- None recorded.
+{% endif %}
+
+### 4.5 Project records not placed on any NRIIS tab
 
 These records are not NRIIS fields (origin AUTHORING_CORE, FUND_PROFILE, DERIVED or RECOMMENDED_EXTENSION, or a system-assigned section). Do not paste them as NRIIS boxes; where `feeds` is shown, they are what the listed narrative box is written from.
 {% if unmapped %}

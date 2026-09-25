@@ -87,6 +87,12 @@ def tab_mapping() -> dict:
 
 
 @lru_cache(maxsize=None)
+def contradictions() -> tuple[dict, ...]:
+    """registry/contradictions.yaml: package-level contradictions, all kept OPEN."""
+    return tuple((_read_yaml("registry/contradictions.yaml") or {}).get("contradictions") or [])
+
+
+@lru_cache(maxsize=None)
 def notice_constant() -> str:
     raw = (DATA_ROOT / "spec/output/notice_constant.txt").read_text(encoding="utf-8")
     return raw.rstrip("\n")

@@ -1,0 +1,133 @@
+# registry/contradictions.yaml — the contradiction register, as data.
+#
+# Every contradiction found between the handoff package files (core/01-06)
+# and the public source documents SD-1..SD-4 (docs/sources.md) that touches
+# GrantThai's data. Nothing here is resolved: each entry keeps BOTH readings,
+# says how GrantThai currently behaves, and stays OPEN until a person with
+# the authority to decide records a decision (GOVERNANCE.md). The human-
+# readable version is docs/contradictions.md; tests/test_contradictions.py
+# keeps the two in step and checks that every `conflicts` id in
+# registry/fields.jsonl is listed here.
+#
+# The renderer prints every OPEN entry that touches a field of the project in
+# the output section "Conflicts and open contradictions"
+# (spec/output/nriis-submission.contract.md).
+schema: grantthai.contradictions.v0
+version: "0.1.0-draft"
+contradictions:
+  - id: CX-01
+    title: "Research Core and Methodology: authoring fields or observed NRIIS fields?"
+    status: OPEN
+    readings:
+      - source: "core/02 §1 R4, §5 04 and 05"
+        says: "Research Core (04) and Methodology (05) are AUTHORING_CORE. R4: never present AUTHORING_CORE fields as if they were official NRIIS fields; they reach NRIIS through the narrative renderer (§6)."
+      - source: "core/05 (CORE.*, METHOD.* records)"
+        says: "source_status OBSERVED on every CORE.* and METHOD.* record, i.e. observed on the NRIIS form."
+    current_handling: "origin AUTHORING_CORE (never placed on a tab); source_status kept exactly as core/05 wrote it. The narrative boxes carry render_from."
+    affects:
+      files: [registry/fields.jsonl, registry/nriis-fields.jsonl]
+      sections: [ResearchCore, Methodology]
+  - id: CX-02
+    title: "Need, Problem, Gap and Innovation: plain text or structured objects?"
+    status: OPEN
+    readings:
+      - source: "core/05 CORE.NATIONAL_NEED, CORE.PROBLEM, CORE.GAP, CORE.INNOVATION"
+        says: "type text."
+      - source: "core/02 §5 04.01, 04.02, 04.03, 04.08"
+        says: "objects with named keys (statement, context, evidence, what_is_known, what_is_new, ...)."
+    current_handling: "type rich_text|object: plain text or an object with the core/02 keys are both valid."
+    affects:
+      fields: [CORE.RESEARCH.NATIONAL_NEED, CORE.RESEARCH.PROBLEM, CORE.RESEARCH.GAP, CORE.RESEARCH.INNOVATION]
+  - id: CX-03
+    title: "Direction of the Budget-Activity, Ethics-Method and Sites/Partners-Activity edges"
+    status: OPEN
+    readings:
+      - source: "core/06 §3 (top-level architecture) and core/02 §11 (cross-field consistency graph)"
+        says: "BUDGET -> ACTIVITIES, ETHICS/COMPLIANCE -> METHODOLOGY, SITES/PARTNERS -> ACTIVITIES."
+      - source: "core/06 §4 (proposal entity graph) and §12 (budget graph)"
+        says: "ACTIVITY -> BUDGET_ITEM, METHODOLOGY -> ETHICS_REQUIREMENT (RESEARCH_SITE -> ACTIVITY and PARTNER -> ACTIVITY agree with §3)."
+    current_handling: "spec/common/chain.yaml uses Activity -> BudgetItem and Method -> EthicsRequirement (core/06 §4/§12). Sites and partners are attribute links, not causal edges."
+    affects:
+      files: [spec/common/chain.yaml]
+      fields: [BUDGET.PLAN.ITEMS, WORK.PLAN.ACTIVITIES, METHOD.PLAN.ETHICS]
+  - id: CX-04
+    title: "Does Impact follow Beneficiary, or do both follow Outcome?"
+    status: OPEN
+    readings:
+      - source: "core/06 §3"
+        says: "OUTCOMES -> BENEFICIARIES -> IMPACTS -> FUNDING KR (a line)."
+      - source: "core/02 §11 and core/06 §4"
+        says: "Outcome -> Beneficiary and Outcome -> Impact (a fan-out); Impact -> Funding KR."
+    current_handling: "spec/common/chain.yaml fans out from Outcome (core/02 §11, core/06 §4)."
+    affects:
+      files: [spec/common/chain.yaml]
+      fields: [RESULTS.CHAIN.BENEFICIARIES, RESULTS.CHAIN.IMPACTS]
+  - id: CX-05
+    title: "Project characteristic: new project only, or new or continuing?"
+    status: OPEN
+    readings:
+      - source: "core/05 GEN.CHARACTERISTIC"
+        says: "allowed_values [\"New Project\"] (one observed form)."
+      - source: "SD-1 (edition 2566) p15, part 1 item 3"
+        says: "a new project, or a project continuing from an earlier fiscal year, with a past-performance table for a continuing project."
+    current_handling: "allowed_values keeps \"New Project\"; \"Continuing Project\" is a candidate value (NEEDS_VERIFICATION) that is accepted with a REVIEW finding (S011). CORE.GENERAL.PAST_PERFORMANCE holds the table."
+    affects:
+      fields: [CORE.GENERAL.CHARACTERISTIC, CORE.GENERAL.PAST_PERFORMANCE]
+  - id: CX-06
+    title: "Two different full names for one funding-unit abbreviation"
+    status: OPEN
+    readings:
+      - source: "SD-1 (edition 2566) p5"
+        says: "gives one full name for the unit (exact string in docs/sources.md, SD-1 note)."
+      - source: "SD-3 (revision 3, edition 2569) PDF p1"
+        says: "gives a different full name for the same abbreviation (exact string in docs/sources.md, SD-3 note)."
+    current_handling: "Not resolved here. GrantThai names no funding unit in its data; the difference is recorded in docs/sources.md only."
+    affects:
+      files: [docs/sources.md]
+  - id: CX-07
+    title: "Expert connections and stakeholder engagement: which tab?"
+    status: OPEN
+    readings:
+      - source: "core/02 §9 compact field map"
+        says: "08 Utilization and Translation Pathway -> NRIIS UTILIZATION / RESULTS."
+      - source: "SD-1 (edition 2566) p17, part 3 item 9"
+        says: "listed under part 3 (the plan section), items 9.1 and 9.2, together with post-project continuation by users."
+    current_handling: "mappings/nriis/section_to_tab.yaml keeps TranslationPathway on UTILIZATION, marked NEEDS_VERIFICATION."
+    affects:
+      files: [mappings/nriis/section_to_tab.yaml]
+      fields: [RESULTS.PATHWAY.EXPERTS, RESULTS.PATHWAY.STAKEHOLDERS]
+  - id: CX-08
+    title: "Expected outcomes: an NRIIS form item or a recommended extension?"
+    status: OPEN
+    readings:
+      - source: "core/02 §5 09.04; core/05 RESULTS.OUTCOMES"
+        says: "RECOMMENDED_EXTENSION (core/02) / INFERRED_SCHEMA_EXTENSION (core/05): not confirmed as a native field."
+      - source: "SD-1 (edition 2566) p18, part 5 item 4"
+        says: "expected outcomes from users' use of the outputs are a numbered form item."
+    current_handling: "origin NRIIS_NATIVE (placed on the UTILIZATION tab), source_status kept as core/05 wrote it, marker NEEDS_VERIFICATION."
+    affects:
+      fields: [RESULTS.CHAIN.OUTCOMES]
+  - id: CX-09
+    title: "How many form parts (tabs), and in what order?"
+    status: OPEN
+    readings:
+      - source: "core/02 §9 compact field map"
+        says: "five: GENERAL, PROJECT, WORKPLAN, UTILIZATION, ATTACHMENTS/VALIDATION."
+      - source: "SD-1 (edition 2566) p15-18; SD-4 p164 and p166"
+        says: "part 1 general, 2 project, 3 plan, 4 entrepreneur information (if any), 5 output/outcome/impact; SD-4 adds part 5 attachments and part 6 a validation page (its numbering differs from SD-1)."
+    current_handling: "five tabs kept (NEEDS_VERIFICATION). Entrepreneur information is placed on UTILIZATION. The validation page is not modelled (the worksheet's readiness summary plays that role). Multi-form profiles are deferred to v0.2."
+    affects:
+      files: [mappings/nriis/section_to_tab.yaml]
+      sections: [Entrepreneur]
+      fields: [RESULTS.ENTREPRENEUR.PROFILE]
+  - id: CX-10
+    title: "OECD primary/secondary or main/sub field?"
+    status: OPEN
+    readings:
+      - source: "core/05 GEN.OECD.PRIMARY, GEN.OECD.SECONDARY"
+        says: "a primary and a secondary OECD research field, no option list."
+      - source: "SD-1 (edition 2566) p15 item 6 and p20"
+        says: "main/sub OECD field ('หลัก/ย่อย'), with a list of 6 main groups and their sub-fields on p20."
+    current_handling: "PRIMARY takes a main-group candidate code (1-6), SECONDARY a sub-field candidate code (e.g. 6.3); the list is a candidate (NEEDS_VERIFICATION) and a value outside it gets a REVIEW finding (S011), never a BLOCK."
+    affects:
+      fields: [CORE.GENERAL.OECD.PRIMARY, CORE.GENERAL.OECD.SECONDARY]
