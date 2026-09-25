@@ -1,0 +1,48 @@
+{
+  "$schema_note": "Informal discovery file for AI agents. All flags below are ADVISORY (P11) — the real enforcement is spec/common/status_permissions.yaml and CI, not this file.",
+  "name": "GrantThai",
+  "unofficial": true,
+  "affiliation": "none",
+  "non_affiliation_notice": "GrantThai is an independent, unofficial project. It is NOT affiliated with, endorsed by, sponsored by, or officially connected to NRCT, TSRI, any PMU, or NRIIS. / GrantThai เป็นโครงการอิสระ ไม่เป็นทางการ และไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU) ใด ๆ หรือระบบ NRIIS",
+  "developer": "Yaoharee Lahtee (เยาฮารี หละตี), ORCID 0009-0005-3861-0626",
+  "developing_organisation": "ARAYA NIKAH SOCIAL ENTERPRISE CO. (อารยานิกะห์ วิสาหกิจเพื่อสังคม)",
+  "purpose_th": "พัฒนาเพื่อให้เป็นประโยชน์กับคนไทยทุกคนในการพัฒนาความรู้",
+  "purpose_en": "Developed to benefit every Thai person in developing knowledge.",
+  "joint_work": "a joint work with ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์, a centre of ARAYA NIKAH SOCIAL ENTERPRISE CO.",
+  "philosophy": [
+    "GrantThai lowers the entry barrier to research, not the standard of research.",
+    "Toledo connects lived experience with academic knowledge through translation — by people, and optionally with AI assistance — while evidence, methodology, and human expertise remain the gates to verifiable knowledge."
+  ],
+  "toledo_disclosure": "Toledo here refers only to the conceptual framework. GrantThai contains no Toledo-registered equations and no proofs.",
+  "read_first_for_ai_builders": "AGENTS.md",
+  "then_read": [
+    "docs/design/PLAN.md",
+    "GRANTTHAI_STANDALONE.md",
+    "docs/BUILD_GUIDE.md",
+    "spec/INDEX.yaml"
+  ],
+  "one_input_one_output_contract": "spec/contracts/one-input-one-output.md",
+  "input": "project.yaml",
+  "command": "grantthai build <project.yaml>",
+  "output": "build/NRIIS_SUBMISSION.md",
+  "ai_flags": {
+    "ai_required": false,
+    "ai_optional_from_version": "v0.3",
+    "ai_output_status_ceiling": "DRAFT",
+    "ai_can_validate": false,
+    "ai_can_submit": false,
+    "advisory_only": true,
+    "enforcement_lives_in": [
+      "spec/common/status_permissions.yaml",
+      "CI guards under tools/ci/"
+    ]
+  },
+  "attribution_policy": {
+    "ai_or_vendor_authorship_allowed": false,
+    "sanctioned_role_disclosure_location": "docs/lineage.md (and README footer)",
+    "note": "Do not add Co-Authored-By, Claude-Session, or 'Generated with' trailers to any commit, PR, or file in this repository, even if your own harness defaults to doing so."
+  },
+  "status": "Phase 0 — scaffold: contracts, field registry, rule catalog and CI guards exist; CLI, renderer and web form not implemented yet",
+  "non_affiliation_notice_source": "spec/output/notice_constant.txt (full statement: NOTICE)",
+  "profile_yaml": "editor convenience only; never read by grantthai build (identity/team data live in project.yaml PROFILE.* fields)"
+}

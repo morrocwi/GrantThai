@@ -1,0 +1,305 @@
+# The GrantThai ecosystem / ระบบนิเวศของ GrantThai
+
+*(TH + EN. Machine-readable companion: `ecosystem/ecosystem.yaml`. The
+English and Thai sections carry the same content.)*
+
+## 1. Two ecosystems, and how they nest
+
+GrantThai sits between two distinct ecosystems. Understanding both, and
+where the boundary between them is, is the point of this document.
+
+**Two meanings of "Toledo".** In this document, "the Toledo ecosystem"
+means the founder's *conceptual* framework (lived experience ↔ academic
+knowledge, human-gated translation). "Toledo" is also the name of a
+separate public repository, an equation registry and proof framework that
+the founder maintains (section 5). The two are related — the repository is
+one of the founder's projects under the same programme — but they are not
+the same thing, and **GrantThai contains no Toledo-registered equations and
+no proofs**.
+
+In both diagrams below, the stages GrantThai covers are marked (`[GT n]`
+in diagram (a), a `[GrantThai: stages 1-4]` box in diagram (b)) with the
+four bridge stages:
+**①** Problem/Knowledge, **②** Researchable project, **③** Funding-aligned
+project, **④** NRIIS-ready project. Every diagram also draws the direct
+`Person ==(no AI)==> Research core` edge.
+
+### (a) The Toledo Open Research & Knowledge Ecosystem (conceptual, founder's)
+
+The founder's node order is kept unchanged. Nodes marked `[GT n]` are the
+ones GrantThai covers (stage n); unmarked nodes are outside GrantThai.
+
+```
+ People / Practitioners              Academic knowledge
+ (lived experience, Stream A)        (Stream B)
+        \                                  /
+         v                                v
+              Real-world problems                    [GT 1] Problem/Knowledge
+                     |
+                     v
+     TRANSLATION (by people; AI optional, never required)   [GT 2]
+                     |
+                     v
+  Person ==(no AI)==> Research core                   [GT 2] Researchable project
+                     |
+                     v
+  Experts / Universities / Institutions / Research networks
+     (GrantThai only records their named reviews, v0.2)
+                     |
+                     v
+              Quality assurance
+                     |
+                     v
+              Verified knowledge
+                     |
+                     v
+              Research project                        [GT 3] Funding-aligned project
+                     |                                [GT 4] NRIIS-ready project
+                     |                                       (build/NRIIS_SUBMISSION.md)
+                     v
+                 Innovation (social or other)
+                     |
+                     v
+                  Outcome
+                     |
+                     v
+                  Impact
+                     |
+                     `---------(feedback)---------> back to real-world problems
+```
+
+### (b) The Thailand Research & Innovation (R&I) ecosystem — national/sector
+
+Time-sensitive Thai facts in this section (agency names, programmes,
+funds) are **RELAYED and dated only** (`ecosystem/positions@2026-09.yaml`,
+`ecosystem/ecosystem.yaml`). Verify against a current public source before
+relying on any specific name or figure — see `docs/sources.md`.
+
+```
+ National/sector need  <------------------------------------------+
+         |                                                        |
+         v                                                        |
+ Policy / plan / KR (key result)                                  |
+         |                                                        |
+         v                                                        |
+ Fund / PMU (Program Management Unit) -- publishes a call         |
+         |           (read by GrantThai as a dated fund profile)  |
+         v                                                        |
+ +---------------------------------------------------------+      |
+ | [GrantThai: stages 1-4]                                  |      |
+ |  (1) Problem/Knowledge                                   |      |
+ |  Person ==(no AI)==> Research core                       |      |
+ |  (2) Researchable project                                |      |
+ |  (3) Funding-aligned project (bound to the fund profile) |      |
+ |  (4) NRIIS-ready project: build/NRIIS_SUBMISSION.md      |      |
+ +---------------------------|-----------------------------+      |
+                             v  a person submits; GrantThai never does   |
+ Research institution / network (endorsement, submission)         |
+         |                                                        |
+         v                                                        |
+       Project (funded)                                           |
+         |                                                        |
+         v                                                        |
+       Output --> User --> Outcome --> Impact ---(feedback)-------+
+```
+
+## 2. Where GrantThai sits
+
+GrantThai is the bridge across exactly four stages, and nowhere else:
+
+```
+(1) Problem / Knowledge --> (2) Researchable project --> (3) Funding-aligned project --> (4) NRIIS-ready project
+                                                                                                |
+                                                                                                v
+                                                    [ one project.yaml IN --> one build/NRIIS_SUBMISSION.md OUT ]
+```
+
+How the four stages map onto the nodes of each ecosystem (also in
+`ecosystem/ecosystem.yaml`, `grantthai_position.stages[].maps_to`):
+
+| Stage | Toledo ecosystem node(s) | Thailand R&I node(s) |
+|---|---|---|
+| (1) Problem / Knowledge | real-world problems; people/practitioners; academic knowledge | national/sector need (as the person's problem statement) |
+| (2) Researchable project | translation; research core | — (before any fund is involved) |
+| (3) Funding-aligned project | research project | fund/PMU (read only, as a dated fund profile); policy/plan/KR (as declared positions) |
+| (4) NRIIS-ready project | research project (rendered) | project (only once a person submits it and it is funded — outside GrantThai) |
+
+```
+                 +-------------------------------------------------------+
+                 |                       GrantThai                       |
+                 |                                                       |
+                 |   Person ==(no AI)==> project.yaml                    |
+   project.yaml  |   spec/ (contracts) -> validators -> review gates ->  |  build/NRIIS_SUBMISSION.md
+   (one input) --+-> render (Jinja2, deterministic)                      +--> (one output)
+                 |                                                       |
+                 |   AI assist (v0.3+, OPTIONAL, never SOURCE,           |
+                 |   never above DRAFT)                                  |
+                 +-------------------------------------------------------+
+```
+
+**Inside the GrantThai box:** the project object, the rule engine, the
+review-gate bookkeeping, the renderer, and (v0.3+) an optional AI
+assistant that can only ever propose, never check or approve.
+
+**Outside the GrantThai box, and never entered by GrantThai:** NRIIS
+itself (GrantThai never submits — see `NOTICE`), any fund/PMU's internal
+review process, any institution's own approval chain, and any human's
+final judgment about whether and what to submit.
+
+## 3. Actors
+
+See `ecosystem/ecosystem.yaml` (`actors:`) for the machine-readable form.
+
+| Actor | Brings | GrantThai gives them | AI |
+|---|---|---|---|
+| Citizen | lived experience | guided questionnaire + concept-note path (v0.2) | optional |
+| Practitioner | field knowledge | same as citizen, plus local-terms glossary | optional |
+| Civil society | community representation | same as citizen | optional |
+| Social entrepreneur | applied problem framing | Expert or Citizen mode | optional |
+| Graduate student | partial academic training | Expert Mode guidance | optional |
+| Lecturer | academic expertise | the full no-AI Expert path (v0.1) | none required |
+| University / independent researcher | academic or applied expertise | the full no-AI Expert path (v0.1) | none required |
+| Research administrator | institutional process knowledge | review + lock workflow (v0.2) | none |
+| Expert reviewer | independent judgment | named review-record tooling | none |
+| Mentor | guidance | review view | none |
+| Institution | affiliation record | partner/eligibility context | none |
+| Research network | partner matching | directory pointers (v0.5, opt-in) | none |
+| Fund / PMU | a dated fund profile | nothing — GrantThai only reads the profile | none |
+| NRIIS | the external render target | nothing — GrantThai never submits to it | none |
+| User / adopter | downstream use of the output | nothing directly | none |
+
+AI's column is always "optional" or "none" — never "required". This is not
+a simplification; it is the enforced ceiling (`spec/common/status_permissions.yaml`).
+
+## 4. Flows
+
+- **Knowledge flow.** Lived experience (Stream A) and academic knowledge
+  (Stream B) meet at TRANSLATION. A human can always cross this bridge
+  alone; a `Mapping` (LocalTerm → AcademicConcept) records the crossing
+  and its provenance (`spec/common/mapping_proposal.schema.json`).
+- **Checking flow.** Only deterministic validators set
+  `STRUCTURE_CHECKED`/`LOGIC_LINKED`; only a named human review record sets
+  `HUMAN_REVIEWED`/`VERIFIED`; only a named human sets `LOCKED`/`SUBMITTED`.
+  **AI never sets any status above `DRAFT`** (`spec/common/status_permissions.yaml`).
+- **Funding flow.** A dated `funds/<agency>/<call-id>@<ver>/` profile is
+  bound at build time; it decides eligibility (`ELIG001`) and rule content.
+  GrantThai's core schema holds no eligibility thresholds of its own.
+- **Output → user → outcome → impact flow.** Mirrors both ecosystem
+  diagrams above; GrantThai's own responsibility ends at rendering
+  `build/NRIIS_SUBMISSION.md` — everything from submission onward is a
+  human, and later a funder/institution/user, decision.
+- **Feedback loop.** Both ecosystem diagrams draw impact feeding back into
+  new problems/needs. In the chain contract (`spec/common/chain.yaml`)
+  this is modelled explicitly as the `feedback` edges `KR -> Need` and
+  `Impact -> KR`, which are allowed to loop (unlike `causal` edges, which
+  must form a DAG, rule `CH001`).
+
+## 5. Sibling infrastructure (pointers only — no content copied)
+
+- **Toledo (repository)** — the equation registry and proof framework the
+  founder also maintains; related to, but not the same as, the conceptual
+  Toledo ecosystem in section 1(a). GrantThai contains none of its content.
+  <https://github.com/morrocwi/toledo> — DOI
+  [10.5281/zenodo.22537318](https://doi.org/10.5281/zenodo.22537318)
+- **glosa** — human-AI knowledge co-production methodology (maker/checker
+  discipline, claim cards). <https://github.com/morrocwi/glosa>
+- **main.hub** — routing layer across the founder's public Human-AI
+  Readout Programme repos. <https://github.com/morrocwi/main.hub>
+
+## 6. Boundaries — what GrantThai does NOT do
+
+- It does not submit anything to NRIIS, ever (`NOTICE`,
+  `submission_mode.direct_submit: false`, always).
+- It does not decide PI eligibility — that is the bound fund profile's job
+  (`ELIG001`).
+- It does not grant any certification or official/compatible status. Its
+  own output says "checked against GrantThai rules", never "verified" in
+  any sense that implies an outside authority signed off
+  (`spec/common/status.yaml`).
+- Time-sensitive Thai ecosystem facts (funds, PMUs, programmes) appear only
+  as dated `RELAYED` entries, carrying `derived_from: core/03@sha256:...`
+  lineage — never as settled truth.
+
+---
+
+## ภาษาไทย
+
+### 1. ระบบนิเวศสองชั้นและความสัมพันธ์
+
+GrantThai อยู่ระหว่างระบบนิเวศสองชั้น
+
+**คำว่า "Toledo" มีสองความหมาย** ในเอกสารนี้ "ระบบนิเวศ Toledo" หมายถึงกรอบแนวคิดของผู้ก่อตั้ง
+(เชื่อมประสบการณ์ตรงของผู้คนกับความรู้เชิงวิชาการ ผ่านการแปลที่มีมนุษย์เป็นผู้กำกับ) ส่วน
+"Toledo" อีกความหมายหนึ่งคือ repository สาธารณะแยกต่างหาก ซึ่งเป็นคลังสมการและกรอบการพิสูจน์
+ที่ผู้ก่อตั้งดูแลอยู่ (ข้อ 5) ทั้งสองเกี่ยวข้องกันเพราะอยู่ในโครงการเดียวกันของผู้ก่อตั้ง แต่ไม่ใช่สิ่งเดียวกัน
+และ **GrantThai ไม่มีสมการที่ลงทะเบียนใน Toledo และไม่มีบทพิสูจน์ใด ๆ**
+
+ในแผนภาพทั้งสองข้างต้น ขั้นตอนที่ GrantThai ดูแลมีเครื่องหมายกำกับ (`[GT n]` ในแผนภาพ (a)
+และกรอบ `[GrantThai: stages 1-4]` ในแผนภาพ (b)) พร้อมหมายเลข
+สี่ขั้นของสะพาน ได้แก่ (1) ปัญหา/ความรู้ (2) โครงการที่วิจัยได้ (3) โครงการที่สอดคล้องกับแหล่งทุน
+(4) โครงการพร้อมเข้า NRIIS ทุกแผนภาพมีเส้นตรง `บุคคล ==(ไม่ใช้ AI)==> แกนวิจัย` เสมอ
+
+- **(ก) ระบบนิเวศวิจัยและความรู้เปิดของ Toledo (เชิงแนวคิด):** ผู้คน/ผู้ปฏิบัติงาน และความรู้เชิงวิชาการ
+  → ปัญหาจริง [GT 1] → การแปล (โดยมนุษย์ AI เป็นทางเลือก ไม่บังคับ) [GT 2] → แกนวิจัย [GT 2]
+  → ผู้เชี่ยวชาญ/มหาวิทยาลัย/สถาบัน/เครือข่ายวิจัย → การประกันคุณภาพ → ความรู้ที่ผ่านการตรวจสอบ
+  → โครงการวิจัย [GT 3, GT 4] → นวัตกรรม → ผลลัพธ์ → ผลกระทบ → (ย้อนกลับ) ปัญหาจริง
+- **(ข) ระบบนิเวศวิจัยและนวัตกรรมของประเทศไทย (ระดับชาติ/ภาคส่วน):** ความต้องการของประเทศ/ภาคส่วน
+  → นโยบาย/แผน/KR → แหล่งทุน/หน่วยบริหารจัดการทุน (PMU) → [GrantThai ขั้น 1–4] → สถาบัน/เครือข่ายวิจัย
+  → โครงการ → ผลผลิต → ผู้ใช้ → ผลลัพธ์ → ผลกระทบ → (ย้อนกลับ) ความต้องการของประเทศ
+  ข้อเท็จจริงที่ผูกกับเวลา เช่น ชื่อหน่วยงาน ทุน หรือโปรแกรม ระบุแบบ RELAYED และมีวันที่กำกับเสมอ
+  ไม่ถือเป็นความจริงตายตัว
+
+### 2. ตำแหน่งของ GrantThai
+
+GrantThai เป็นสะพานผ่านสี่ขั้นตอนเท่านั้น: (1) ปัญหา/ความรู้ → (2) โครงการที่วิจัยได้ →
+(3) โครงการที่สอดคล้องกับแหล่งทุน → (4) โครงการพร้อมเข้า NRIIS โดยมี **input ทางเดียว
+(project.yaml) และ output ทางเดียว (build/NRIIS_SUBMISSION.md)** ตารางในข้อ 2 ภาษาอังกฤษ
+แสดงว่าแต่ละขั้นตรงกับส่วนใดของระบบนิเวศทั้งสอง
+
+### 3. ผู้มีบทบาท (actors)
+
+| ผู้มีบทบาท | สิ่งที่นำมา | สิ่งที่ GrantThai ให้ | AI |
+|---|---|---|---|
+| ประชาชน | ประสบการณ์ตรง | แบบสอบถามนำทาง + เส้นทางบันทึกแนวคิดโครงการ (v0.2) | เลือกใช้ได้ |
+| ผู้ปฏิบัติงาน | ความรู้จากการทำงานจริง | เหมือนประชาชน และมีอภิธานศัพท์ท้องถิ่น | เลือกใช้ได้ |
+| ภาคประชาสังคม | การเป็นตัวแทนชุมชน | เหมือนประชาชน | เลือกใช้ได้ |
+| ผู้ประกอบการสังคม | การตั้งโจทย์เชิงประยุกต์ | โหมดผู้เชี่ยวชาญหรือโหมดประชาชน | เลือกใช้ได้ |
+| นักศึกษาบัณฑิตศึกษา | การฝึกฝนทางวิชาการบางส่วน | คำแนะนำในโหมดผู้เชี่ยวชาญ | เลือกใช้ได้ |
+| อาจารย์ | ความเชี่ยวชาญทางวิชาการ | เส้นทางโหมดผู้เชี่ยวชาญเต็มรูปแบบโดยไม่ใช้ AI (v0.1) | ไม่ต้องใช้ |
+| นักวิจัยในมหาวิทยาลัย/นักวิจัยอิสระ | ความเชี่ยวชาญทางวิชาการหรือเชิงประยุกต์ | เส้นทางโหมดผู้เชี่ยวชาญเต็มรูปแบบโดยไม่ใช้ AI (v0.1) | ไม่ต้องใช้ |
+| ผู้บริหารงานวิจัย | ความรู้ด้านกระบวนการของสถาบัน | ขั้นตอนทบทวนและล็อก (v0.2) | ไม่ใช้ |
+| ผู้ทรงคุณวุฒิ | การตัดสินอย่างอิสระ | เครื่องมือบันทึกการทบทวนแบบระบุชื่อ | ไม่ใช้ |
+| พี่เลี้ยง | คำแนะนำ | มุมมองสำหรับการทบทวน | ไม่ใช้ |
+| สถาบัน | ข้อมูลสังกัด | บริบทหุ้นส่วนและคุณสมบัติ | ไม่ใช้ |
+| เครือข่ายวิจัย | การจับคู่หุ้นส่วน | ตัวชี้ไปยังทำเนียบรายชื่อ (v0.5, สมัครใจ) | ไม่ใช้ |
+| แหล่งทุน/PMU | โปรไฟล์ทุนที่มีวันที่กำกับ | ไม่มี — GrantThai แค่อ่านโปรไฟล์ | ไม่ใช้ |
+| NRIIS | ระบบปลายทางภายนอก | ไม่มี — GrantThai ไม่ส่งข้อมูลเข้าระบบ | ไม่ใช้ |
+| ผู้ใช้/ผู้นำไปใช้ | การนำผลผลิตไปใช้ต่อ | ไม่มีโดยตรง | ไม่ใช้ |
+
+ช่อง AI เป็น "เลือกใช้ได้" หรือ "ไม่ใช้" เสมอ ไม่เคยเป็น "ต้องใช้" และบังคับจริงด้วย
+`spec/common/status_permissions.yaml` (AI ตั้งสถานะได้ไม่เกิน DRAFT)
+
+### 4. การไหล (flows)
+
+- **ความรู้:** ประสบการณ์ตรงและความรู้เชิงวิชาการมาพบกันที่ขั้นการแปล มนุษย์ข้ามสะพานนี้เองได้เสมอ
+- **การตรวจ:** ตัวตรวจแบบกำหนดแน่นอน (deterministic validator) เท่านั้นที่ตั้งสถานะ STRUCTURE_CHECKED/LOGIC_LINKED
+  บันทึกการทบทวนที่ระบุชื่อบุคคลเท่านั้นที่ตั้ง HUMAN_REVIEWED/VERIFIED และ AI ตั้งสถานะได้ไม่เกิน DRAFT
+- **ทุน:** โปรไฟล์ทุนที่มีวันที่กำกับถูกผูกตอน build และเป็นผู้ตัดสินคุณสมบัติ (ELIG001)
+- **ผลผลิต → ผู้ใช้ → ผลลัพธ์ → ผลกระทบ:** หน้าที่ของ GrantThai จบที่การสร้างไฟล์ build/NRIIS_SUBMISSION.md
+- **วงย้อนกลับ:** ผลกระทบย้อนกลับไปเป็นปัญหา/ความต้องการใหม่ (`feedback` edges ใน `spec/common/chain.yaml`)
+
+### 5. โครงสร้างพื้นฐานพี่น้อง (ตัวชี้เท่านั้น ไม่คัดลอกเนื้อหา)
+
+Toledo (repository คลังสมการ), glosa (ระเบียบวิธีผลิตความรู้ร่วมมนุษย์-AI) และ main.hub
+(ชั้นนำทางระหว่าง repository สาธารณะของผู้ก่อตั้ง) — ลิงก์อยู่ในข้อ 5 ภาษาอังกฤษ
+
+### 6. ขอบเขต — สิ่งที่ GrantThai ไม่ทำ
+
+- ไม่ส่งข้อมูลใด ๆ เข้า NRIIS เองเลย (`direct_submit: false` เสมอ)
+- ไม่ตัดสินคุณสมบัติหัวหน้าโครงการ — เป็นหน้าที่ของโปรไฟล์ทุนที่ผูกไว้ (ELIG001)
+- ไม่มอบการรับรองหรือสถานะทางการใด ๆ ผลลัพธ์ของ GrantThai บอกเพียงว่า "ตรวจตามกฎของ GrantThai แล้ว"
+  ไม่เคยอ้างว่ามีหน่วยงานภายนอกรับรอง
+- ข้อเท็จจริงเกี่ยวกับระบบนิเวศของไทยที่ผูกกับเวลา แสดงเป็นรายการ RELAYED ที่มีวันที่กำกับเท่านั้น
+  ไม่ถือเป็นความจริงตายตัว
+
+การตัดสินใจสุดท้ายเป็นของมนุษย์เสมอ

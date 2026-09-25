@@ -1,0 +1,107 @@
+# GrantThai — full discovery text for AI agents
+
+> GrantThai is an independent, unofficial project. It is NOT affiliated with, endorsed by, sponsored by, or officially connected to NRCT, TSRI, any PMU, or NRIIS. / GrantThai เป็นโครงการอิสระ ไม่เป็นทางการ และไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU) ใด ๆ หรือระบบ NRIIS
+>
+> See NOTICE for the full statement.
+
+## What this is
+
+GrantThai helps any person turn a real problem into one research project
+object, checked against GrantThai's own rules (planned for v0.1), then
+renders it to one file: `build/NRIIS_SUBMISSION.md`. Status: Phase 0
+scaffold; the CLI, renderer and web form are not implemented yet.
+It never submits anything automatically; a human always makes the final
+decision and performs the final submission.
+
+Developer / maintainer: Yaoharee Lahtee (เยาฮารี หละตี), ORCID
+0009-0005-3861-0626. Developing organisation: ARAYA NIKAH SOCIAL
+ENTERPRISE CO. (อารยานิกะห์ วิสาหกิจเพื่อสังคม). Purpose: "พัฒนาเพื่อให้เป็น
+ประโยชน์กับคนไทยทุกคนในการพัฒนาความรู้" / "Developed to benefit every Thai
+person in developing knowledge." Joint work: ผลงานร่วมกับ
+ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์ ซึ่งเป็นศูนย์ของ อารยานิกะห์ วิสาหกิจเพื่อสังคม
+(a joint work with ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์, a centre of ARAYA
+NIKAH SOCIAL ENTERPRISE CO.).
+
+## Philosophy (verbatim)
+
+1. "GrantThai lowers the entry barrier to research, not the standard of research."
+2. "Toledo connects lived experience with academic knowledge through
+   translation — by people, and optionally with AI assistance — while
+   evidence, methodology, and human expertise remain the gates to
+   verifiable knowledge."
+
+"Toledo" here means the conceptual framework only. GrantThai contains no
+Toledo-registered equations and no proofs — see docs/lineage.md.
+
+## The one-input, one-output contract
+
+- ONE INPUT: `project.yaml` (spec/project/project.schema.json) is the only
+  canonical input. The offline web form, Markdown forms, Citizen/Expert
+  questionnaires, and any optional AI assistant are all editors of this
+  one file, never separate inputs.
+- ONE COMMAND: `grantthai build <project.yaml>`.
+- ONE OUTPUT: `build/NRIIS_SUBMISSION.md` — a single, self-contained,
+  copy/paste-ready file with a readiness summary at the top. No second
+  GrantThai-generated file is needed to enter NRIIS (attachments are the
+  person's own uploaded files, listed with their status). Identity and
+  team data live in project.yaml (PROFILE.* fields); an optional local
+  profile.yaml only pre-fills them and is never read by build. See
+  spec/contracts/one-input-one-output.md for the full contract, including
+  the one clearly-optional exception (Citizen Mode's
+  build/RESEARCH_CONCEPT_NOTE.md, v0.2, never part of the NRIIS entry
+  path).
+
+## AI is optional everywhere (never required)
+
+Every AI-assisted convenience has a human-only equivalent that ships in
+the same or an earlier version (spec/common/parity.yaml, README.md parity
+table). AI output is never SOURCE and never moves a field above DRAFT on
+its own (spec/common/status_permissions.yaml, "hard_ceiling"). AI critique
+is never recorded as an independent review of a research project. These are ADVISORY flags in this file and
+in ai.json (principle P11) — the actual enforcement lives in the status
+permission code and CI (tools/ci/check_no_ai_import.py and the other
+guards), not in this text.
+
+## No AI/vendor attribution, anywhere
+
+No Co-Authored-By trailer naming an AI vendor, no Claude-Session line, no
+"Generated with ..." footer, in any commit, PR, file, or release note.
+.githooks/commit-msg enforces this at commit time; tools/ci/check_attribution.py
+enforces it in CI, across full git history, tracked files, and PR
+title/body. The only sanctioned place any AI model is named is the Core
+Epistemic Structure role-disclosure block in docs/lineage.md and the
+README footer — role disclosure only, never authorship.
+
+## For an AI builder starting from zero
+
+Read, in order: AGENTS.md → docs/design/PLAN.md (historical design plan)
+→ GRANTTHAI_STANDALONE.md → docs/BUILD_GUIDE.md → spec/INDEX.yaml → the
+specific spec/** files needed → docs/deviations.md.
+Do not invent Thai facts (agency rules, NRIIS labels) from training-data
+recall; write NEEDS_VERIFICATION and cite docs/sources.md instead.
+
+## Ecosystem position
+
+GrantThai bridges Problem/Knowledge → Researchable project →
+Funding-aligned project → NRIIS-ready project, between the founder's
+conceptual Toledo Open Research & Knowledge Ecosystem and the
+national/sector Thailand Research & Innovation ecosystem. See
+docs/ecosystem.md (TH+EN) and ecosystem/ecosystem.yaml. GrantThai never
+submits to NRIIS, never decides PI eligibility (that is the bound fund
+profile's job, rule ELIG001), and never grants any certification or
+official status.
+
+## Sibling infrastructure (pointers only, no content copied)
+
+- Toledo equation registry: https://github.com/morrocwi/toledo — DOI 10.5281/zenodo.22537318
+- glosa methodology: https://github.com/morrocwi/glosa
+- main.hub routing: https://github.com/morrocwi/main.hub
+
+## Full document index
+
+README.md, GRANTTHAI_STANDALONE.md, GOVERNANCE.md, NOTICE, PRIVACY.md,
+SECURITY.md, CODE_OF_CONDUCT.md, CONTRIBUTING.md, CITATION.cff, LICENSE,
+LICENSES/, REUSE.toml, AGENTS.md, docs/BUILD_GUIDE.md, docs/ecosystem.md,
+docs/sources.md, docs/deviations.md, docs/lineage.md, docs/design/PLAN.md,
+registry/fields.jsonl, validators/rules.yaml, spec/INDEX.yaml and
+every file it lists, ai.json, llms.txt (short form of this file).

@@ -1,0 +1,53 @@
+# GrantThai
+
+> GrantThai is an independent, unofficial project. It is NOT affiliated with, endorsed by, sponsored by, or officially connected to NRCT, TSRI, any PMU, or NRIIS. / GrantThai เป็นโครงการอิสระ ไม่เป็นทางการ และไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU) ใด ๆ หรือระบบ NRIIS
+>
+> See NOTICE for the full statement.
+
+GrantThai helps a person turn a real problem into one research project
+object, checked against GrantThai's own rules (planned for v0.1), then
+renders it to one file: `build/NRIIS_SUBMISSION.md`. Status: Phase 0
+scaffold; the CLI, renderer and web form are not implemented yet.
+
+Philosophy:
+1. "GrantThai lowers the entry barrier to research, not the standard of research."
+2. "Toledo connects lived experience with academic knowledge through
+   translation — by people, and optionally with AI assistance — while
+   evidence, methodology, and human expertise remain the gates to
+   verifiable knowledge."
+
+GrantThai contains no Toledo-registered equations and no proofs. AI is
+optional at every step (advisory flags only — see spec/common/status_permissions.yaml
+for the real enforcement, per principle P11).
+
+Developer / maintainer: Yaoharee Lahtee (เยาฮารี หละตี), ORCID
+0009-0005-3861-0626. Developing organisation: ARAYA NIKAH SOCIAL
+ENTERPRISE CO. (อารยานิกะห์ วิสาหกิจเพื่อสังคม). Purpose: "พัฒนาเพื่อให้เป็น
+ประโยชน์กับคนไทยทุกคนในการพัฒนาความรู้" / "Developed to benefit every Thai
+person in developing knowledge." Joint work: ผลงานร่วมกับ
+ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์ ซึ่งเป็นศูนย์ของ อารยานิกะห์ วิสาหกิจเพื่อสังคม
+(a joint work with ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์, a centre of ARAYA
+NIKAH SOCIAL ENTERPRISE CO.).
+
+## For an AI builder
+
+- [AGENTS.md](./AGENTS.md): read this first — non-negotiables and read order.
+- [docs/BUILD_GUIDE.md](./docs/BUILD_GUIDE.md): phase-by-phase build plan.
+- [spec/INDEX.yaml](./spec/INDEX.yaml): manifest of every contract file.
+
+## Core docs
+
+- [README.md](./README.md): quickstart (no-AI lecturer path first), philosophy, ecosystem summary.
+- [GRANTTHAI_STANDALONE.md](./GRANTTHAI_STANDALONE.md): full system/architecture guide.
+- [spec/contracts/one-input-one-output.md](./spec/contracts/one-input-one-output.md): the headline contract.
+- [docs/ecosystem.md](./docs/ecosystem.md): where GrantThai sits (TH+EN).
+- [docs/lineage.md](./docs/lineage.md): Core Epistemic Structure (role disclosure) and Toledo pointers.
+- [docs/sources.md](./docs/sources.md): bibliographic source list (no author metadata).
+- [docs/deviations.md](./docs/deviations.md): departures from the original handoff package.
+- [docs/design/PLAN.md](./docs/design/PLAN.md): the founder's design plan (historical record).
+- [GOVERNANCE.md](./GOVERNANCE.md): maker/checker policy and the founder decisions log.
+
+## Optional
+
+- [llms-full.txt](./llms-full.txt): expanded version of this file.
+- [ai.json](./ai.json): machine-readable discovery metadata (advisory flags).
