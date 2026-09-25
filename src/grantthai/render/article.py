@@ -52,8 +52,20 @@ def read_placement(route) -> dict:
         fields = [{"field_id": f} if isinstance(f, str) else dict(f) for f in s.get("fields") or []]
         secs.append({"id": s["id"], "title_en": s.get("title_en") or "",
                      "title_th": s.get("title_th") or "NEEDS_INPUT", "note": s.get("note") or "",
-                     "fields": fields})
+                     "fields": fields, "when": s.get("when")})
     return {"sections": secs, "appendix_shared": list(doc.get("appendix_shared") or [])}
+
+
+def section_shown(section: dict, recs: dict, structure_profile: str | None) -> bool:
+    """A placement section's `when` condition (spec/routes/placement.schema.json):
+    no condition -> shown; else shown when the field's value is in `in`, or
+    (or_structure_profile_selected) when a structure profile is selected."""
+    w = section.get("when")
+    if not w:
+        return True
+    if w.get("or_structure_profile_selected") and structure_profile:
+        return True
+    return (recs.get(w.get("field_id")) or {}).get("value") in (w.get("in") or [])
 
 
 def render_value(fid: str, value: Any, reg: dict, unresolved: set, required: bool) -> str:
@@ -122,7 +134,15 @@ def common_context(raw: dict, result: E.Result, route, *, placement: dict) -> di
 
     fmt = shared_formatter(reg, unresolved)
     sections, meta, needs_input, placed = [], [], [], set()
+    hidden: dict[str, str] = {}
     for s in placement["sections"]:
+        if not section_shown(s, recs, getattr(result, "structure_profile", None)):
+            w = s.get("when") or {}
+            for pf in s["fields"]:
+                hidden[pf["field_id"]] = (f"section {s['id']} is shown only when {w.get('field_id')} is set"
+                                          + (" or a structure profile is selected"
+                                             if w.get("or_structure_profile_selected") else ""))
+            continue
         blocks = []
         for pf in s["fields"]:
             fid = pf["field_id"]
@@ -174,10 +194,13 @@ def common_context(raw: dict, result: E.Result, route, *, placement: dict) -> di
 
     appendix_shared = [f for f in placement["appendix_shared"] if f not in placed]
 
-    read_from = {x for s in placement["sections"] for pf in s["fields"]
+    read_from = {x for s in placement["sections"] if section_shown(s, recs, getattr(result, "structure_profile", None))
+                 for pf in s["fields"]
                  for x in (pf.get("render_from") if isinstance(pf.get("render_from"), list) else [])}
 
     def _why(fid):
+        if fid in hidden:
+            return hidden[fid]
         r = reg.get(fid)
         if r is None:
             return "chain content without a registry field"

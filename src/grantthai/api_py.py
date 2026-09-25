@@ -11,13 +11,14 @@ SOURCE, and validation is report-only.
     set_field(project, field_id, value, *, actor="human", chain_node=None,
               provenance=None, source_ids=None, links=None, tool=None,
               tool_version=None, stage=None, save=True) -> dict
-    validate(project, *, as_of=None, route=None, sub_profile=None) -> dict   # validation report
+    validate(project, *, as_of=None, route=None, sub_profile=None, structure_profile=None) -> dict   # validation report
     build(path=None, *, route=None, sub_profile=None, out_dir=None, as_of=None) -> Path
                                                        # exactly one build/<route output file>
     new_work(work_id=..., work_type=..., fund_profile_id=None, mode=..., path=None) -> dict   # work.yaml 0.3
     list_routes() -> list[dict]                        # every route; never picks one
     resolve_route(project, route=None) -> str          # ValueError (AmbiguousRoute, .candidates) if a person must choose
-    check_route(work, route, *, sub_profile=None, as_of=None) -> dict   # route-scoped validation report
+    check_route(work, route, *, sub_profile=None, as_of=None, structure_profile=None) -> dict   # route-scoped report
+    list_structure_profiles(route="academic-article", project=None) -> dict  # 7SSA layouts; candidates; never selects
     migrate(path, *, rename=False, dry_run=False) -> dict               # 0.2 project.yaml -> work.yaml 0.3
     record_ai_tool(project, name, *, version=None, stage=None, save=True) -> bool
     data_warning() -> dict                             # {"en", "th"}: show before accepting data
@@ -48,7 +49,8 @@ AmbiguousRoute = _RS.AmbiguousRoute
 TwoCanonicalInputs = _P.TwoCanonicalInputs
 
 __all__ = ["new_project", "new_work", "set_field", "validate", "build", "explain", "list_fields", "load", "save",
-           "list_routes", "resolve_route", "check_route", "migrate", "AmbiguousRoute", "TwoCanonicalInputs"]
+           "list_routes", "resolve_route", "check_route", "migrate", "list_structure_profiles", "AmbiguousRoute",
+           "TwoCanonicalInputs"]
 
 
 def load(path: str | Path) -> dict:
@@ -148,26 +150,56 @@ def _loaded(project: str | Path | dict) -> tuple[dict, Path | None]:
 
 
 def validate(project: str | Path | dict, *, as_of: str | None = None, route: str | None = None,
-             sub_profile: str | None = None) -> dict:
+             sub_profile: str | None = None, structure_profile: str | None = None) -> dict:
     """Validation report (spec/common/validation_report.schema.json) for
     one route. With no route: routing.default_route, a legacy project.yaml
     -> nriis-proposal, the one routing.declared_routes entry (several:
     AmbiguousRoute listing them), the single default route for work_type
     (only when nothing is declared), else
     AmbiguousRoute (a ValueError listing the candidates). Report-only:
-    never changes the work file."""
+    never changes the work file. `structure_profile` (a 7SSA layout of the
+    academic-article route) overrides routing.structure_profiles; None =
+    what the researcher declared, else no profile."""
     raw, folder = _loaded(project)
     rid = _RS.resolve_route(raw, route)
-    return _E.run(raw, folder, as_of, route=rid, sub_profile=sub_profile).report
+    return _E.run(raw, folder, as_of, route=rid, sub_profile=sub_profile,
+                  structure_profile=structure_profile).report
 
 
 def check_route(work: str | Path | dict, route: str, *, sub_profile: str | None = None,
-                as_of: str | None = None) -> dict:
+                as_of: str | None = None, structure_profile: str | None = None) -> dict:
     """grantthai route check: the validation report for an explicitly
     named route. Report-only."""
     if not route:
         raise ValueError("check_route needs a route; list them with list_routes()")
-    return validate(work, as_of=as_of, route=route, sub_profile=sub_profile)
+    return validate(work, as_of=as_of, route=route, sub_profile=sub_profile, structure_profile=structure_profile)
+
+
+def list_structure_profiles(route: str = "academic-article", project: str | Path | dict | None = None) -> dict:
+    """The structure profiles of a route (7SSA layouts): id, heading
+    language, the sub-profile each pairs with, the visible sections. With a
+    work object: `selected` (what the researcher declared, or None) and
+    `candidates` ({matching, others}, or None when the router proposes
+    none). Listing never selects a profile."""
+    from grantthai.routes import structure as _ST
+    rt = _RT.load(route)
+    rows = []
+    for pid in _ST.profile_ids(rt):
+        prof = _ST.load_profile(rt, pid)
+        rows.append({"id": pid, "title_en": prof.get("title_en"), "heading_lang": prof.get("heading_lang"),
+                     "pairs_with_sub_profile": prof.get("pairs_with_sub_profile"),
+                     "visible_sections": [{"n": s["n"], "sectors": list(s["sectors"]), "heading": s["heading"]}
+                                          for s in prof.get("visible_sections") or []],
+                     "status_note": prof.get("status_note")})
+    out = {"route": rt.id, "profiles": rows, "selected": None, "candidates": None,
+           "note": "The researcher selects a structure profile; this list never does."}
+    if project is not None and _ST.has_profiles(rt):
+        raw, _ = _loaded(project)
+        sp = _RS.resolve_sub_profile(raw, rt, None)
+        out["selected"] = _ST.resolve_structure_profile(raw, rt)
+        recs = _P.records_by_id(_P.normalized(raw))
+        out["candidates"] = _ST.candidates(raw, rt, sp, (recs.get(_ST.ARTICLE_TYPE) or {}).get("value"))
+    return out
 
 
 def resolve_route(project: str | Path | dict, route: str | None = None) -> str:

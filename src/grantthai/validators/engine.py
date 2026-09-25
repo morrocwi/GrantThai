@@ -35,6 +35,7 @@ from grantthai.core.object_hash import content_sha256, state_sha256
 from grantthai.mapping import form_profile as FP
 from grantthai.routes import registry as RTR
 from grantthai.routes import resolve as RTS
+from grantthai.routes import structure as RTST
 
 # Rules whose ids ship in v0.1 but which this build does not evaluate, with
 # the reason printed in their INFO finding.
@@ -58,7 +59,7 @@ EVALUATED_AFTER_V01 = V02_EVALUATED | V03_EVALUATED
 # (frozenset of rule ids it evaluates) and `check(ctx)` (adds findings via
 # ctx.add). A family whose module is not present yet is reported by the
 # ordinary "not evaluated" INFO lines.
-ROUTE_FAMILY_MODULES = {"ART": "grantthai.validators.article"}
+ROUTE_FAMILY_MODULES = {"ART": "grantthai.validators.article", "SSA": "grantthai.validators.ssa"}
 
 # Router findings. Not catalog rules: they describe the route choice itself,
 # are always INFO and never change readiness.
@@ -69,6 +70,10 @@ ROUTER_FINDINGS = {
              "(include_families / exclude_ids) does not evaluate, counted in one line.",
     "RT003": "The route in force is not among the routes the researcher declared in routing.declared_routes. "
              "The build still renders; this only says the output differs from the declared intent.",
+    "RT004": "Structure-profile candidates: the work is an academic article of one of the eight 7SSA article types "
+             "(ARTICLE.SSA.ARTICLE_TYPE) and no structure profile is selected. The 7SSA profiles are listed for the "
+             "researcher to choose from (routing.structure_profiles or --structure-profile); the tool never selects "
+             "one, and the output is the plain overview until the researcher does.",
 }
 
 # An item number in an objectives narrative: 1) 2) / (1) (2) / 1. 2. / ข้อ 1,
@@ -124,6 +129,8 @@ class Result:
     route: str = "nriis-proposal"
     sub_profile: str | None = None
     ready_flag: str = "submittable"
+    # the structure profile a person selected (7SSA; None = plain output)
+    structure_profile: str | None = None
 
 
 def q(x) -> Decimal:
@@ -142,8 +149,11 @@ def _num(x) -> Decimal | None:
 
 class _Ctx:
     def __init__(self, raw: dict, project_dir: Path | None, as_of: str,
-                 route: "RTR.Route | None" = None, sub_profile: str | None = None):
+                 route: "RTR.Route | None" = None, sub_profile: str | None = None,
+                 structure_profile: str | None = None):
         self.raw = raw
+        # the 7SSA structure profile a person selected (None = plain output)
+        self.structure_profile = structure_profile
         self.doc = P.normalized(raw)
         self.route = route if route is not None else RTR.load(P.LEGACY_ROUTE)
         self.sub_profile = sub_profile
@@ -756,16 +766,22 @@ def _fund(c: _Ctx) -> tuple[list, list, str]:
 # --------------------------------------------------------------------------
 
 def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None,
-        route: str | None = None, sub_profile: str | None = None) -> Result:
+        route: str | None = None, sub_profile: str | None = None,
+        structure_profile: str | None = None) -> Result:
     """Validate a loaded work.yaml / project.yaml object for one output
     route. `as_of` (YYYY-MM-DD, default today) is the date fund-rule
     staleness is judged against. `route` None = nriis-proposal (the legacy
     behaviour, unchanged). `sub_profile` None = resolved from the object
-    (routing.sub_profiles, or a legacy top-level form_profile for NRIIS)."""
+    (routing.sub_profiles, or a legacy top-level form_profile for NRIIS).
+    `structure_profile` None = routing.structure_profiles[route], else no
+    profile (the plain output); only a person selects one."""
     as_of = as_of or _dt.date.today().isoformat()
     rt = RTR.load(route or P.LEGACY_ROUTE)
     sp = RTS.resolve_sub_profile(raw, rt, sub_profile)
-    c = _Ctx(raw, project_dir, as_of, rt, sp)
+    if structure_profile and not RTST.has_profiles(rt):
+        raise RTR.RouteError(f"route {rt.id} has no structure profiles (asked for {structure_profile!r})")
+    ssp = RTST.resolve_structure_profile(raw, rt, structure_profile) if RTST.has_profiles(rt) else None
+    c = _Ctx(raw, project_dir, as_of, rt, sp, ssp)
 
     work = P.is_work(raw)
     fname = P.WORK_FILE if work else P.PROJECT_FILE
@@ -843,6 +859,17 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None,
                                   f"({', '.join(declared)}); the build still renders.", [],
                                   f"Add {rt.id} to routing.declared_routes if this is an output you intend, or "
                                   "choose a declared route with --route."))
+    # RT004: 7SSA structure-profile candidates (listed, never selected).
+    if ssp is None and RTST.has_profiles(rt):
+        cands = RTST.candidates(raw, rt, sp, c.value(RTST.ARTICLE_TYPE))
+        if cands:
+            match = ", ".join(cands["matching"]) or "none for this sub-profile"
+            c.findings.append(Finding("RT004", "INFO", f"Structure-profile candidates for route {rt.id} "
+                                      f"(ARTICLE.SSA.ARTICLE_TYPE {c.value(RTST.ARTICLE_TYPE)}): matching sub-profile "
+                                      f"{sp or '(default)'}: {match}; others: {', '.join(cands['others']) or 'none'}. "
+                                      "None is selected; the output is the plain overview.", [],
+                                      f"If you want a 7SSA layout, choose one yourself: routing.structure_profiles."
+                                      f"{rt.id} in work.yaml, or --structure-profile. GrantThai never chooses."))
     # RT002: rules that declare this route but the route's config filters out.
     filtered = [rid for rid in c.rule_order
                 if RTR.rule_declares(rt, c.rules[rid]) and not RTR.route_config_admits(rt, c.rules[rid])]
@@ -871,7 +898,7 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None,
         trust_level=trust, real_world_verified=rwv,
         submittable=(summary["block"] == 0 and not hold),
         form_profile=c.profile,
-        route=rt.id, sub_profile=sp, ready_flag=rt.ready_flag,
+        route=rt.id, sub_profile=sp, ready_flag=rt.ready_flag, structure_profile=ssp,
     )
 
 

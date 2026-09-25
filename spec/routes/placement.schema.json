@@ -55,7 +55,7 @@
           },
           "when": {
             "type": "object",
-            "description": "Optional condition on a work-object value, e.g. {field_id: ARTICLE.META.KIND, in: [empirical_research]}. A section whose condition is false is omitted from the body.",
+            "description": "Optional condition on a work-object value, e.g. {field_id: ARTICLE.META.KIND, in: [empirical_research]}. A section whose condition is false is omitted from the body; any filled field it would have placed is listed in the 'records not placed' appendix with the condition as the reason (never dropped).",
             "required": [
               "field_id",
               "in"
@@ -70,6 +70,10 @@
                 "items": {
                   "type": "string"
                 }
+              },
+              "or_structure_profile_selected": {
+                "type": "boolean",
+                "description": "True: the section is also shown whenever a structure profile (route.yaml structure_profiles) is selected for the build, whatever the field says."
               }
             },
             "additionalProperties": false

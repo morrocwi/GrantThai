@@ -24,7 +24,9 @@
 # by tests/test_rules_added.py. The ART family (ART001-ART011) is
 # academic-article only: REVIEW except ART007 (BLOCK). Its practice
 # citations come from corpus-100, which is funded FINAL REPORTS, not
-# articles; every such locator says so.
+# articles; every such locator says so. The SSA family (7SSA-01..7SSA-10) is
+# academic-article only and fires only while a 7SSA structure profile is
+# selected (routes/academic-article/profiles/); REVIEW or INFO, never BLOCK.
 schema: grantthai.rules.v0
 version: 0.1.0-draft
 severity_levels:
@@ -103,6 +105,13 @@ rule_families:
   checks: academic-article route only (routes/academic-article/route.yaml); structural checks of a manuscript
     overview. REVIEW only, except ART007 (BLOCK, an AI tool listed as an author, GrantThai's own non-negotiable).
     No rule in this family rests on a journal fact; every venue requirement is NEEDS_VERIFICATION.
+  ids_status: enumerated
+- family: SSA
+  ships: v0.3
+  checks: academic-article route, and only while a 7SSA structure profile is selected (routing.structure_profiles
+    or --structure-profile; routes/academic-article/profiles/). Structural presence checks of the seven 7SSA sectors
+    (founder-authored 7SSA master schema v1.0). REVIEW or INFO only, never BLOCK; none judges whether a gap is real,
+    a contribution new or an argument sound. With no profile selected the family finds nothing.
   ids_status: enumerated
 - family: ECO
   ships: v0.2
@@ -1663,3 +1672,193 @@ rules:
   negative_fixture: tests/fixtures/negative/ART011/
   notes: The check is a disclosure-word test on the caption, not a judgement of the image. A venue's own captioning
     rule is NEEDS_VERIFICATION. REVIEW only.
+- id: 7SSA-01
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and one of the sectors S1-S7 has no ARTICLE.BODY.SECTIONS item tagged
+    with it and none of its required slots filled (from a tagged item or from the ARTICLE.SSA.* field the slot reads). The
+    sector still prints, with NEEDS_INPUT under its marker; nothing is dropped.
+  inputs:
+  - ARTICLE.BODY.SECTIONS
+  - ARTICLE.SSA.GAP
+  - ARTICLE.SSA.CONTRIBUTION
+  - ARTICLE.SSA.BEFORE_AFTER
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: '7SSA schema v1 §5 (invariant: sectors must not disappear), §31 (audit table), §40 Invariant 8'
+  negative_fixture: tests/fixtures/negative/7SSA-01/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-02
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: 'A 7SSA structure profile is selected and the problem is not stated before the contribution: the first
+    ARTICLE.BODY.SECTIONS item tagged S5 comes before the first item tagged S4, or ARTICLE.SSA.GAP is empty while ARTICLE.SSA.CONTRIBUTION
+    is filled.'
+  inputs:
+  - ARTICLE.BODY.SECTIONS
+  - ARTICLE.SSA.GAP
+  - ARTICLE.SSA.CONTRIBUTION
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §21 (Sector 4 must make Sector 5 necessary)
+  negative_fixture: tests/fixtures/negative/7SSA-02/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-03
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and Sector 6 has no filled strongest_objection, boundary_conditions
+    or limitations slot (each one missing is named).
+  inputs:
+  - ARTICLE.BODY.SECTIONS
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §11.4, §24 GATE_6
+  negative_fixture: tests/fixtures/negative/7SSA-03/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-04
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile with Thai headings is selected and ARTICLE.FRONT.ABSTRACT_TH or ARTICLE.FRONT.ABSTRACT_EN
+    is empty (the source's Thai layout carries both). Complements ART001, which reads the sub-profile.
+  inputs:
+  - ARTICLE.FRONT.ABSTRACT_TH
+  - ARTICLE.FRONT.ABSTRACT_EN
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §5.1 (บทคัดย่อ and Abstract), §13.3
+  negative_fixture: tests/fixtures/negative/7SSA-04/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-05
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and ARTICLE.SSA.CONTRIBUTION has no one_sentence or no difference_from_prior.
+  inputs:
+  - ARTICLE.SSA.CONTRIBUTION
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §10.3, §23 steps 1-3
+  negative_fixture: tests/fixtures/negative/7SSA-05/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-06
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and ARTICLE.SSA.GAP has no consequence_if_unresolved (a gap must
+    have consequences).
+  inputs:
+  - ARTICLE.SSA.GAP
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §9.2, §40 Invariant 4
+  negative_fixture: tests/fixtures/negative/7SSA-06/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-07
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: 'A 7SSA structure profile is selected and Sector 7 has no before/after statement: ARTICLE.SSA.BEFORE_AFTER
+    has neither before_state nor after_state, and no body item tagged S7 fills those slots.'
+  inputs:
+  - ARTICLE.SSA.BEFORE_AFTER
+  - ARTICLE.BODY.SECTIONS
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §12.2, §40 Invariant 7
+  negative_fixture: tests/fixtures/negative/7SSA-07/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-08
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: INFO
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and ARTICLE.META.KIND is empirical_research, which the source places
+    outside 7SSA (not IMRaD). The build still renders; this never refuses.
+  inputs:
+  - ARTICLE.META.KIND
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §39
+  negative_fixture: tests/fixtures/negative/7SSA-08/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    INFO only.
+- id: 7SSA-09
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: INFO
+  severity_basis: proposed_default
+  description_en: The selected 7SSA structure profile pairs with a different sub-profile language than the sub-profile in
+    force (for example a Thai-heading profile with international-journal). The build still renders; this never refuses.
+  inputs:
+  - route:sub_profile
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §3-§5 (world and Thai renderers); GrantThai pairing, INSTINCT
+  negative_fixture: tests/fixtures/negative/7SSA-09/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    INFO only.
+- id: 7SSA-10
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected, ARTICLE.SSA.ARTICLE_TYPE is integrative_review or cs_sok, and Sector
+    2 has no filled corpus_method or inclusion_logic slot. The wording check for 'systematic' stays with GrantThai's other
+    rules; this checks presence only.
+  inputs:
+  - ARTICLE.SSA.ARTICLE_TYPE
+  - ARTICLE.BODY.SECTIONS
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: '7SSA schema v1 §7.2 REVIEW_PAPER (corpus_method, inclusion_logic: required), §15.5, §15.7'
+  negative_fixture: tests/fixtures/negative/7SSA-10/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).

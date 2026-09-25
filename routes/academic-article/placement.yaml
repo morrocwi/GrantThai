@@ -57,6 +57,17 @@ sections:
       - {field_id: ARTICLE.SECTION.CONCLUSION, render_from: ["chain:Claim"]}
       - {field_id: ARTICLE.SECTION.LIMITATIONS, render_from: [METHOD.PLAN.QUALITY]}
       - {field_id: ARTICLE.BODY.SECTIONS}
+  - id: ssa_records
+    title_en: "7SSA structure records"
+    title_th: NEEDS_INPUT
+    note: "Shown only when ARTICLE.SSA.ARTICLE_TYPE is set or a 7SSA structure profile is selected (routes/academic-article/profiles/); otherwise a filled record here is listed under records not placed, never dropped. The 7SSA fields are GrantThai RECOMMENDED_EXTENSION fields from the founder-authored 7SSA master schema v1.0, not venue fields."
+    when: {field_id: ARTICLE.SSA.ARTICLE_TYPE, in: [conceptual, theory, philosophical, legal, integrative_review, formal_conceptual, cs_sok, policy, other], or_structure_profile_selected: true}
+    fields:
+      - {field_id: ARTICLE.SSA.ARTICLE_TYPE}
+      - {field_id: ARTICLE.SSA.GAP, render_from: [CORE.RESEARCH.GAP]}
+      - {field_id: ARTICLE.SSA.CONTRIBUTION, render_from: [CORE.RESEARCH.INNOVATION]}
+      - {field_id: ARTICLE.SSA.BEFORE_AFTER}
+      - {field_id: ARTICLE.STATEMENT.OTHER}
   - id: statements
     title_en: "Statements"
     title_th: NEEDS_INPUT

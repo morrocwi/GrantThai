@@ -8,11 +8,11 @@ command stops (exit 2) when both are present.
 
     grantthai init [PATH] [--work-type T] [--work-id ID] [--fund FUND_PROFILE_ID] [--mode MODE]
     grantthai migrate [PATH] [--rename] [--dry-run]
-    grantthai route list | check --route ID [PATH] | build --route ID [PATH]
+    grantthai route list | check --route ID [PATH] | build --route ID [PATH] | profiles [PATH]
     grantthai set FIELD_ID VALUE [--project PATH] [--string] [--chain-node NODE]
                   [--source-id SRC-..]... [--provenance-class C]
                   [--ai --tool NAME [--tool-version V] [--stage STAGE]]
-    grantthai validate [PATH] [--route ID] [--sub-profile SP] [--json] [--as-of YYYY-MM-DD]
+    grantthai validate [PATH] [--route ID] [--sub-profile SP] [--structure-profile P] [--json] [--as-of YYYY-MM-DD]
     grantthai explain RULE_ID|FIELD_ID
     grantthai explain-field FIELD_ID
     grantthai build [PATH] [--route ID] [--sub-profile SP] [--out DIR] [--as-of YYYY-MM-DD]
@@ -84,6 +84,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("path", nargs="?", default=None)
     p.add_argument("--route")
     p.add_argument("--sub-profile")
+    p.add_argument("--structure-profile", help="a 7SSA structure profile (overrides routing.structure_profiles)")
     p.add_argument("--json", action="store_true")
     p.add_argument("--as-of")
 
@@ -140,7 +141,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{rec['field_id']}: {rec['status']}")
             return 0
         if a.cmd == "validate":
-            rep = api.validate(a.path, as_of=a.as_of, route=a.route, sub_profile=a.sub_profile)
+            rep = api.validate(a.path, as_of=a.as_of, route=a.route, sub_profile=a.sub_profile,
+                               structure_profile=a.structure_profile)
             return cmd_route.print_report(rep, a.json, a.route)
         if a.cmd == "explain":
             print(json.dumps(cmd_explain_field.explain_any(a.rule_id), ensure_ascii=False, indent=2))

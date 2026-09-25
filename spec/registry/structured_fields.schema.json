@@ -24,6 +24,7 @@
     "Risk",
     "Site",
     "Stakeholder",
+    "Statement",
     "SubProject",
     "TeamExpertise",
     "TrackRecordItem",
@@ -3422,13 +3423,247 @@
               "$ref": "#/$defs/_node_id"
             },
             "description": "Records (field ids or item ids) the researcher writes this section from. Informational; not a link the validator resolves."
+          },
+          "ssa_sector": {
+            "type": "string",
+            "enum": [
+              "S1",
+              "S2",
+              "S3",
+              "S4",
+              "S5",
+              "S6",
+              "S7"
+            ],
+            "description": "7SSA sector (S1-S7, 7SSA v1 §1) this body item belongs to. Read only when a 7SSA structure profile is selected; several items may share a sector (Thai sub-headings, 7SSA v1 §8.3). Absent = the item has no sector and is listed, never dropped."
+          },
+          "ssa_slot": {
+            "type": "string",
+            "description": "The 7SSA slot this item fills, from the closed vocabulary of its sector (7SSA v1 §19 keys, plus the article-type method slots of §7.2 for S2). Requires ssa_sector. The vocabulary per sector is also listed in routes/academic-article/profiles/INDEX.yaml (tests keep the two equal)."
           }
         },
         "additionalProperties": false,
         "x-grantthai-node": {
           "id_prefix": "MSC",
           "node_type": "ManuscriptSection"
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "ssa_slot"
+              ]
+            },
+            "then": {
+              "required": [
+                "ssa_sector"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S1"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "phenomenon",
+                    "importance",
+                    "scholarly_conversation",
+                    "gap_preview",
+                    "central_argument",
+                    "contributions",
+                    "roadmap"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S2"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "methodology",
+                    "source_base",
+                    "inclusion_logic",
+                    "exclusions",
+                    "scope",
+                    "ai_use",
+                    "limitations_of_approach",
+                    "conceptual_method",
+                    "construct_logic",
+                    "theory_building_logic",
+                    "assumptions",
+                    "argumentative_method",
+                    "premise_scope",
+                    "objections_strategy",
+                    "corpus_method",
+                    "synthesis_method",
+                    "legal_sources",
+                    "jurisdiction_scope",
+                    "doctrinal_or_normative_method",
+                    "definitions",
+                    "formal_system"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S3"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "constructs",
+                    "theories",
+                    "debates",
+                    "canonical_sources",
+                    "recent_sources",
+                    "competing_literatures"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S4"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "gap_type",
+                    "unresolved_problem",
+                    "why_existing_knowledge_fails",
+                    "consequence_if_unresolved",
+                    "strongest_prior_attempt"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S5"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "contribution_type",
+                    "name",
+                    "definition",
+                    "components",
+                    "relationships",
+                    "mechanism",
+                    "propositions",
+                    "nearest_prior_framework",
+                    "difference_from_prior"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S6"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "strongest_objection",
+                    "alternative_explanation",
+                    "counterexample",
+                    "response",
+                    "boundary_conditions",
+                    "limitations",
+                    "theoretical_implications",
+                    "practical_implications",
+                    "future_research"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S7"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "answer_to_problem",
+                    "before_state",
+                    "after_state",
+                    "contribution_restatement",
+                    "non_claims",
+                    "next_frontier"
+                  ]
+                }
+              }
+            }
+          }
+        ]
       },
       "description": "Free-structure body for kinds other than empirical_research (review, conceptual, case_study, short_communication, other): the researcher's own headings, in order (rule ART003).",
       "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
@@ -3551,6 +3786,165 @@
       "additionalProperties": false,
       "description": "Target venue as supplied by the researcher. No venue fact without a source the researcher supplied (AGENTS.md non-negotiable 3; rule ART010).",
       "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
+    },
+    "ARTICLE.SSA.GAP": {
+      "type": "object",
+      "properties": {
+        "gap_type": {
+          "type": "string",
+          "enum": [
+            "CONCEPTUAL_AMBIGUITY",
+            "CONTRADICTION",
+            "MISSING_MECHANISM",
+            "FRAGMENTATION",
+            "BOUNDARY_GAP",
+            "ASSUMPTION_FAILURE",
+            "FORMALIZATION_GAP",
+            "CLASSIFICATION_GAP",
+            "NEW_PHENOMENON",
+            "LEVEL_OF_ANALYSIS_GAP",
+            "NORMATIVE_GAP"
+          ],
+          "description": "One of the eleven gap types of 7SSA v1 §9.1, as the researcher classifies the problem."
+        },
+        "unresolved_problem": {
+          "type": "string",
+          "description": "The unresolved problem, researcher-written."
+        },
+        "why_existing_knowledge_fails": {
+          "type": "string",
+          "description": "Why existing knowledge does not resolve it, researcher-written."
+        },
+        "consequence_if_unresolved": {
+          "type": "string",
+          "description": "What the field cannot explain, distinguish or decide while the problem stays open (7SSA v1 §9.2; rule 7SSA-06)."
+        },
+        "strongest_prior_attempt": {
+          "type": "string",
+          "description": "The strongest existing attempt, stated charitably, researcher-written."
+        }
+      },
+      "additionalProperties": false,
+      "description": "7SSA Sector 4 (problem in existing knowledge). Researcher-written; GrantThai never judges whether the gap is real.",
+      "x-grantthai-derived-from": "7SSA master schema v1.0 (founder-authored, sha256 1c8989c0...f980); GrantThai DECISION (routes/academic-article/profiles)"
+    },
+    "ARTICLE.SSA.CONTRIBUTION": {
+      "type": "object",
+      "properties": {
+        "one_sentence": {
+          "type": "string",
+          "description": "The contribution in one sentence (7SSA v1 §23 step 1; rule 7SSA-05)."
+        },
+        "object_name": {
+          "type": "string",
+          "description": "The name of the new intellectual object."
+        },
+        "contribution_type": {
+          "type": "string",
+          "enum": [
+            "new_construct",
+            "new_definition",
+            "new_distinction",
+            "new_mechanism",
+            "new_proposition",
+            "new_theory",
+            "new_framework",
+            "new_model",
+            "new_taxonomy",
+            "new_typology",
+            "new_ontology",
+            "new_architecture",
+            "new_formalization",
+            "new_principle",
+            "new_interpretation",
+            "new_legal_doctrine_or_reading",
+            "new_research_agenda"
+          ],
+          "description": "One of the seventeen contribution objects of 7SSA v1 §10.1."
+        },
+        "definition": {
+          "type": "string",
+          "description": "Its definition, researcher-written."
+        },
+        "nearest_prior": {
+          "type": "string",
+          "description": "The nearest existing object, framework or theory."
+        },
+        "difference_from_prior": {
+          "type": "string",
+          "description": "How the contribution differs from the nearest prior object (rule 7SSA-05)."
+        }
+      },
+      "additionalProperties": false,
+      "description": "7SSA Sector 5 (new contribution). Researcher-written; GrantThai never judges whether it is new.",
+      "x-grantthai-derived-from": "7SSA master schema v1.0 (founder-authored, sha256 1c8989c0...f980); GrantThai DECISION (routes/academic-article/profiles)"
+    },
+    "ARTICLE.SSA.BEFORE_AFTER": {
+      "type": "object",
+      "properties": {
+        "before_state": {
+          "type": "string",
+          "description": "What the field could not adequately distinguish, explain or organize before the article."
+        },
+        "after_state": {
+          "type": "string",
+          "description": "What the field can do after it."
+        },
+        "non_claims": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "What the article explicitly does not claim."
+        }
+      },
+      "additionalProperties": false,
+      "description": "7SSA v1 §12.2 before-and-after test (Sector 7; rule 7SSA-07). Researcher-written.",
+      "x-grantthai-derived-from": "7SSA master schema v1.0 (founder-authored, sha256 1c8989c0...f980); GrantThai DECISION (routes/academic-article/profiles)"
+    },
+    "ARTICLE.STATEMENT.OTHER": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^STM[0-9]{1,4}$",
+            "description": "Item id, unique in the whole work object (prefix STM)."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "authorship_accountability",
+              "consent_participate",
+              "consent_publication",
+              "code_availability",
+              "materials_protocol",
+              "reproducibility",
+              "ip_permissions",
+              "dual_use",
+              "prior_dissemination",
+              "reporting_guideline"
+            ],
+            "description": "Which declaration this is (the declaration blocks of the GLOSA-7SSA LaTeX template not already an ARTICLE.STATEMENT.* field)."
+          },
+          "text": {
+            "type": "string",
+            "description": "The declaration as the researcher writes it. GrantThai never composes it; the venue's own wording is NEEDS_VERIFICATION."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "STM",
+          "node_type": "Statement"
+        }
+      },
+      "description": "Declarations not covered by another ARTICLE.STATEMENT.* field, one item each.",
+      "x-grantthai-derived-from": "GLOSA-7SSA LaTeX template (Statements and Declarations layer); GrantThai DECISION"
     }
   }
 }

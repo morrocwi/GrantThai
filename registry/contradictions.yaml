@@ -11,7 +11,9 @@
 #
 # The renderer prints every OPEN entry that touches a field of the project in
 # the output section "Conflicts and open contradictions"
-# (spec/output/nriis-submission.contract.md).
+# (spec/output/nriis-submission.contract.md). An entry with a `routes` list
+# (the CX-7SSA-* entries: routes [academic-article]) concerns only those
+# routes and is not printed in the NRIIS output; an entry without one is.
 schema: grantthai.contradictions.v0
 version: "0.1.0-draft"
 contradictions:
@@ -133,3 +135,167 @@ contradictions:
     current_handling: "PRIMARY takes a main-group candidate code (1-6), SECONDARY a sub-field candidate code (e.g. 6.3); the list is a candidate (NEEDS_VERIFICATION) and a value outside it gets a REVIEW finding (S011), never a BLOCK."
     affects:
       fields: [CORE.GENERAL.OECD.PRIMARY, CORE.GENERAL.OECD.SECONDARY]
+  - id: CX-7SSA-01
+    title: '7SSA: two Thai names for each sector'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §1
+      says: master Thai sector names, e.g. S2 'แนวทาง ขอบเขต และฐานความรู้', S3 'ฐานแนวคิดและองค์ความรู้เดิม'.
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §5.1 (and the Thai-renderer comments of the LaTeX template)
+      says: Thai-7 visible headings, e.g. S2 'แนวทางและขอบเขตการวิเคราะห์', S3 'แนวคิด ทฤษฎี และองค์ความรู้ที่เกี่ยวข้อง'.
+    current_handling: The §1 names are the sector ids and print in the [S#] markers; the §5 headings print as the visible headings of the Thai profiles. Neither is changed.
+    affects:
+      files:
+      - routes/academic-article/profiles/INDEX.yaml
+      - routes/academic-article/profiles/7ssa-thai-7.yaml
+  - id: CX-7SSA-02
+    title: '7SSA: which English heading for each sector'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §4
+      says: world renderer headings, e.g. S4 'The Unresolved Problem', S5 'Theory / Framework / New Contribution'.
+    - source: GLOSA-7SSA LaTeX template (templates/tex/glosa_7ssa_v1.tex, vendored)
+      says: section titles, e.g. S4 'Problem in Existing Knowledge', S5 'New Contribution'.
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §15
+      says: per article type, e.g. philosophical S6 'Objections and Replies', legal S6 'Counterauthority / Consequences / Limits'.
+    current_handling: The article-type overlay (§15) wins when ARTICLE.SSA.ARTICLE_TYPE is set; otherwise the §4 headings. The LaTeX export uses the same resolver and rewrites the template's section titles (INSTINCT precedence, recorded here).
+    affects:
+      files:
+      - routes/academic-article/profiles/7ssa-world.yaml
+      - routes/academic-article/profiles/INDEX.yaml
+  - id: CX-7SSA-03
+    title: '7SSA: how many abstract slots'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §13.2
+      says: 'five functional slots: problem, gap, approach, contribution, implication.'
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §13.3
+      says: 'the Thai abstract has four: problem, approach, proposal, contribution.'
+    - source: GLOSA-7SSA LaTeX template (templates/tex/glosa_7ssa_v1.tex, vendored)
+      says: adds a boundary/limitation slot and '150-250 words'.
+    current_handling: No abstract structure is imposed; the abstracts print as the researcher wrote them. The word range is not imported (a venue fact, NEEDS_VERIFICATION).
+    affects:
+      files:
+      - routes/academic-article/profiles/INDEX.yaml
+  - id: CX-7SSA-04
+    title: '7SSA: the expansion rule matches neither compression map'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §17
+      says: moving a Thai article to the world form splits Thai Sector 3 into world 3+4 and Thai Sector 4 into world 5+6.
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §5.2, §5.3, §18, §35
+      says: the Thai compressions merge S2+S3 and S5+S6 (five) or S4+S5+S6 (four); none maps a Thai 'Sector 3' onto world 3+4.
+    current_handling: Only §5/§18/§35 drive the deterministic compression; §17 is guidance for the researcher and is not applied.
+    affects:
+      files:
+      - routes/academic-article/profiles/7ssa-thai-5.yaml
+      - routes/academic-article/profiles/7ssa-thai-4.yaml
+  - id: CX-7SSA-05
+    title: '7SSA: where the core epistemic roles go'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: GLOSA-7SSA LaTeX template, the founder's first version
+      says: the core roles (plus a fourth, the accountable approver) only inside the switchable audit appendix.
+    - source: glosa P20 (Core Epistemic Structure)
+      says: a three-role block near the top of every draft, always on.
+    current_handling: GrantThai vendors the glosa-registered copy, which adds the always-on front block and keeps the fourth role as an accountability line in the appendix. The Markdown overview prints its own role block (section 4.8).
+    affects:
+      files:
+      - spec/routes/route.schema.json
+  - id: CX-7SSA-06
+    title: '7SSA: Thai script and the LaTeX export'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §5
+      says: Thai headings and a Thai abstract for Thai targets.
+    - source: GLOSA-7SSA LaTeX template (templates/tex/glosa_7ssa_v1.tex, vendored)
+      says: a portable pdflatex master; Thai text kept in comments; Thai script needs a XeLaTeX/LuaLaTeX derivative.
+    current_handling: 'The tex export is English-only: every Thai value prints as a NEEDS_INPUT note and a Thai-heading profile adds one NEEDS_INPUT note that the Thai layout is not exported. Recorded in docs/deviations.md.'
+    affects:
+      files:
+      - spec/routes/route.schema.json
+  - id: CX-7SSA-07
+    title: '7SSA: a quartile as a quality gate'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §26, §36
+      says: a 'Q1 world quality gate' and a current-Q1 check before submission.
+    - source: GrantThai AGENTS.md non-negotiables; the academic-article route
+      says: no BLOCK or readiness input rests on a venue fact; every venue fact is NEEDS_VERIFICATION until the researcher supplies the venue's document.
+    current_handling: Not imported as a gate. 'Q1' appears only as the source's name for a renderer and as the researcher's own declared target_system. The source's own §27 keeps Thai journals first-class.
+    affects:
+      files:
+      - routes/academic-article/profiles/INDEX.yaml
+  - id: CX-7SSA-08
+    title: '7SSA: integrity and verification as stored booleans'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §19, §30
+      says: 'integrity booleans (citations_verified, all_claims_traceable ...) and human_verified: true on claims.'
+    - source: GrantThai review records (spec/common/object-hash.md, grantthai review)
+      says: review state lives in named review records tied to content_sha256; a self-set boolean is not a check.
+    current_handling: Not imported. The overview prints review gates from review records only.
+    affects:
+      files:
+      - spec/registry/structured_fields.schema.json
+  - id: CX-7SSA-09
+    title: '7SSA: AI simulation used as review'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §29, §36
+      says: AI red-team, desk-reject simulation and analysis of recent journal articles as part of the workflow.
+    - source: GrantThai AI-use ceiling (docs/policy/ai-use-ceiling.md); glosa independence ladder
+      says: an AI never validates; an AI reading of one's own draft is advisory at most and never a review record.
+    current_handling: Not imported. The skill may help the researcher think through objections to their own draft (advisory only); nothing is recorded as a review.
+    affects:
+      files:
+      - docs/policy/ai-use-ceiling.md
+  - id: CX-7SSA-10
+    title: '7SSA: every sector VERIFIED vs GrantThai''s DRAFT ceiling'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §33
+      says: an article is complete when all sectors S1-S7 are VERIFIED.
+    - source: GrantThai status model (spec/common/status_permissions.yaml)
+      says: the tool never sets a status above DRAFT; higher states come only from named human review records.
+    current_handling: Sector status is a readout of what is filled (the sector map), never a stored status.
+    affects:
+      files:
+      - spec/common/status_permissions.yaml
+  - id: CX-7SSA-11
+    title: '7SSA: article types vs ARTICLE.META.KIND'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: 7SSA master schema v1.0 (founder-authored; sha256 1c8989c0...f980) §15
+      says: 'eight article types: conceptual, theory, philosophical, legal, integrative review, formal/mathematical conceptual, CS SoK/survey, policy/governance.'
+    - source: GrantThai ARTICLE.META.KIND (router 2026-09-25)
+      says: 'six kinds: empirical_research, review, conceptual, case_study, short_communication, other.'
+    current_handling: A separate field, ARTICLE.SSA.ARTICLE_TYPE (RECOMMENDED_EXTENSION), carries the eight types; KIND is unchanged. KIND empirical_research with a 7SSA profile is INFO 7SSA-08.
+    affects:
+      fields:
+      - ARTICLE.SSA.ARTICLE_TYPE
+  - id: CX-7SSA-12
+    title: '7SSA: one output template per route vs a LaTeX export'
+    routes: [academic-article]
+    status: OPEN
+    readings:
+    - source: spec/routes/route.schema.json (router v0.3)
+      says: exactly one .md.j2 template and one .md file per route.
+    - source: GLOSA-7SSA LaTeX template (templates/tex/glosa_7ssa_v1.tex, vendored)
+      says: a journal-facing LaTeX manuscript built from the same seven sectors.
+    current_handling: The route keeps one Markdown template (the 7SSA body is an included partial) and gains an optional `exports` list; `build --format tex` writes exactly one .tex file instead of the Markdown file.
+    affects:
+      files:
+      - spec/routes/route.schema.json
+      - tools/ci/check_one_output.py

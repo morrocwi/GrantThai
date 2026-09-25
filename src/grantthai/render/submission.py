@@ -305,6 +305,11 @@ def build_context(raw: dict, result: E.Result) -> dict:
     present = {rec.get("field_id") for rec, _ in P.iter_records(doc)}
     package_conflicts = []
     for cx in P.contradictions():
+        # An entry scoped to other routes (e.g. the 7SSA entries, routes:
+        # [academic-article]) is not an NRIIS contradiction; an entry with no
+        # `routes` key belongs to this route, as before the router.
+        if cx.get("routes") and "nriis-proposal" not in cx["routes"]:
+            continue
         aff = cx.get("affects") or {}
         in_scope = set(aff.get("fields") or []) | {fid for fid, r in reg.items()
                                                     if r.get("section") in (aff.get("sections") or [])}

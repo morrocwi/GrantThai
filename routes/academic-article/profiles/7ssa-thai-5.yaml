@@ -1,0 +1,34 @@
+# routes/academic-article/profiles/7ssa-thai-5.yaml — 7SSA structure profile,
+# five visible Thai sections (schema grantthai.structure_profile.v0,
+# spec/routes/structure_profile.schema.json).
+#
+# Chosen by the researcher only (routing.structure_profiles, outside
+# content_sha256, or --structure-profile). Headings and the merge map are the
+# founder's 7SSA master schema v1.0 §5.2: S2+S3 and S5+S6 are merged into one
+# visible section each. Merging is deterministic: each sector keeps its own
+# [S#] marker and all of the researcher's text (7SSA v1 §16 Rule A: the
+# contribution must stay identifiable). GrantThai writes no bridging prose.
+# Whether a venue accepts this layout is NEEDS_VERIFICATION.
+schema: grantthai.structure_profile.v0
+id: 7ssa-thai-5
+version: "0.1.0-draft"
+route: academic-article
+family: 7ssa
+title_en: "7SSA, five visible Thai sections (S2+S3 and S5+S6 merged)"
+source:
+  doc: "7SSA master schema v1.0 (founder-authored)"
+  sha256: 1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+  locator: "§5.2 (headings and merge map), §16 (Rules A-D), §18 (THAI_LEADING_5), §35"
+status_note: "Founder-authored structure. Whether any venue accepts it: NEEDS_VERIFICATION (the researcher's venue source, ART010)."
+heading_lang: th
+pairs_with_sub_profile: thai-journal
+excludes_article_kind: [empirical_research]
+use_overlay_headings: false
+visible_sections:
+  - {n: 1, sectors: [S1], heading: "บทนำ"}
+  - {n: 2, sectors: [S2, S3], heading: "แนวคิดและกรอบการวิเคราะห์", compression: [RULE_B]}
+  - {n: 3, sectors: [S4], heading: "ปัญหาและข้อจำกัดขององค์ความรู้เดิม"}
+  - {n: 4, sectors: [S5, S6], heading: "การวิเคราะห์ ข้อเสนอ และการอภิปราย", compression: [RULE_A, RULE_D]}
+  - {n: 5, sectors: [S7], heading: "บทสรุป"}
+notes:
+  - "Rules B and D permit the merges; they never delete a sector. An empty sector prints NEEDS_INPUT under its marker."

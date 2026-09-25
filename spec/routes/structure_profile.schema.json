@@ -1,0 +1,462 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/routes/structure_profile.schema.json",
+  "title": "GrantThai structure profile (routes/<route>/profiles/*.yaml)",
+  "description": "Draft 0.1.0. A structure profile is a third axis of the academic-article route, next to the sub-profile (venue type: language slots, keyword band) and apart from any evidence obligation: it says how the body is ARRANGED into visible sections. The only family is 7SSA (Seven-Section Scholarly Architecture), taken from the founder-authored 7SSA master schema v1.0 (pinned by sha256). Two document kinds: a profile (grantthai.structure_profile.v0, one visible layout: world, thai-7, thai-5, thai-4) and the profile index (grantthai.structure_profile_index.v0: the seven sectors, their slots and the fields they read, the selection data, the compression rules and the eight article-type overlays). A profile is chosen by the researcher only (work.yaml routing.structure_profiles, outside content_sha256, or --structure-profile); the router may list candidates (INFO RT004), never select. Every check a profile drives is REVIEW or INFO, never BLOCK. Headings are the founder's own text, not a venue fact: whether any venue accepts a layout is NEEDS_VERIFICATION.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/profile"
+    },
+    {
+      "$ref": "#/$defs/index"
+    }
+  ],
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "required": [
+        "schema",
+        "id",
+        "version",
+        "route",
+        "family",
+        "title_en",
+        "source",
+        "status_note",
+        "heading_lang",
+        "pairs_with_sub_profile",
+        "excludes_article_kind",
+        "use_overlay_headings",
+        "visible_sections"
+      ],
+      "properties": {
+        "schema": {
+          "const": "grantthai.structure_profile.v0"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^7ssa-(world|thai-7|thai-5|thai-4)$",
+          "description": "Equals the file name without .yaml."
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-draft)?$"
+        },
+        "route": {
+          "const": "academic-article"
+        },
+        "family": {
+          "const": "7ssa"
+        },
+        "title_en": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "doc",
+            "sha256",
+            "locator"
+          ],
+          "properties": {
+            "doc": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false,
+          "description": "The founder-authored 7SSA master schema this data is taken from, pinned by sha256, and the sections read."
+        },
+        "status_note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "heading_lang": {
+          "type": "string",
+          "enum": [
+            "en",
+            "th"
+          ]
+        },
+        "pairs_with_sub_profile": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+          "description": "The sub-profile whose language this profile matches. A mismatch is INFO 7SSA-09, never a refusal."
+        },
+        "excludes_article_kind": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          },
+          "description": "ARTICLE.META.KIND values outside 7SSA's scope (7SSA v1 §39); INFO 7SSA-08, never a refusal."
+        },
+        "use_overlay_headings": {
+          "type": "boolean",
+          "description": "True: a visible section that holds exactly one sector takes the article-type overlay heading (INDEX.yaml article_kind_overlays) when ARTICLE.SSA.ARTICLE_TYPE is set; the overlay wins over the profile default (contradiction CX-7SSA-02)."
+        },
+        "visible_sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "n",
+              "sectors",
+              "heading"
+            ],
+            "properties": {
+              "n": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "sectors": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "pattern": "^S[1-7]$"
+                }
+              },
+              "heading": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The visible heading exactly as the 7SSA source writes it, in heading_lang."
+              },
+              "compression": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "RULE_A",
+                    "RULE_B",
+                    "RULE_C",
+                    "RULE_D"
+                  ]
+                },
+                "description": "7SSA v1 §16 compression rules that permit this merge. Flags only: GrantThai writes no bridging prose."
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Visible sections in reading order. Together they list S1-S7 exactly once each, in order (a section merges consecutive sectors; nothing is reordered or dropped)."
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "index": {
+      "type": "object",
+      "required": [
+        "schema",
+        "version",
+        "route",
+        "family",
+        "source",
+        "profiles",
+        "selection",
+        "sectors",
+        "writing_order",
+        "compression_rules",
+        "article_kind_overlays"
+      ],
+      "properties": {
+        "schema": {
+          "const": "grantthai.structure_profile_index.v0"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-draft)?$"
+        },
+        "route": {
+          "const": "academic-article"
+        },
+        "family": {
+          "const": "7ssa"
+        },
+        "source": {
+          "type": "object",
+          "required": [
+            "doc",
+            "sha256",
+            "locator"
+          ],
+          "properties": {
+            "doc": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false,
+          "description": "The founder-authored 7SSA master schema this data is taken from, pinned by sha256, and the sections read."
+        },
+        "profiles": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "path",
+              "heading_lang"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^routes/academic-article/profiles/7ssa-[a-z0-9-]+\\.yaml$"
+              },
+              "heading_lang": {
+                "type": "string",
+                "enum": [
+                  "en",
+                  "th"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "selection": {
+          "type": "object",
+          "required": [
+            "work_types",
+            "article_type_field",
+            "article_types",
+            "candidates_by_sub_profile",
+            "note"
+          ],
+          "properties": {
+            "work_types": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "article_type_field": {
+              "const": "ARTICLE.SSA.ARTICLE_TYPE"
+            },
+            "article_types": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "candidates_by_sub_profile": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "description": "When the router PROPOSES 7SSA profiles (INFO RT004). It never selects one: routing.structure_profiles is written by the researcher only."
+        },
+        "sectors": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "chain",
+              "name_en",
+              "name_th",
+              "audit_question_en",
+              "dependency_en",
+              "fields",
+              "slots"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^S[1-7]$"
+              },
+              "chain": {
+                "type": "string"
+              },
+              "name_en": {
+                "type": "string"
+              },
+              "name_th": {
+                "type": "string"
+              },
+              "audit_question_en": {
+                "type": "string"
+              },
+              "dependency_en": {
+                "type": "string"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^ARTICLE(\\.[A-Z0-9_]+){2,}(#[a-z_]+)?$",
+                  "description": "A registry field id, optionally #key for one key of an object value."
+                },
+                "description": "The registry fields this sector reads."
+              },
+              "slots": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "slot",
+                    "required",
+                    "basis"
+                  ],
+                  "properties": {
+                    "slot": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z_]*$"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "REVIEW-presence only: an empty required slot prints NEEDS_INPUT in the sector map. Never a BLOCK."
+                    },
+                    "from_field": {
+                      "type": "string",
+                      "pattern": "^ARTICLE(\\.[A-Z0-9_]+){2,}(#[a-z_]+)?$",
+                      "description": "A registry field id, optionally #key for one key of an object value."
+                    },
+                    "basis": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "writing_order": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^S[1-7]$"
+          }
+        },
+        "compression_rules": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "text_en",
+              "locator"
+            ],
+            "properties": {
+              "text_en": {
+                "type": "string"
+              },
+              "locator": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "article_kind_overlays": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "locator",
+              "headings_en"
+            ],
+            "properties": {
+              "locator": {
+                "type": "string"
+              },
+              "headings_en": {
+                "type": "object",
+                "required": [
+                  "S1",
+                  "S2",
+                  "S3",
+                  "S4",
+                  "S5",
+                  "S6",
+                  "S7"
+                ],
+                "additionalProperties": false,
+                "patternProperties": {
+                  "^S[1-7]$": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "extra_required_slots": {
+                "type": "object",
+                "additionalProperties": false,
+                "patternProperties": {
+                  "^S[1-7]$": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z][a-z_]*$"
+                    }
+                  }
+                }
+              },
+              "basis_extra": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

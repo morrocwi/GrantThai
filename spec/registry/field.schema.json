@@ -290,7 +290,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "pattern": "^CX-[0-9]{2}$"
+        "pattern": "^CX-([0-9]{2}|7SSA-[0-9]{2})$"
       },
       "uniqueItems": true,
       "description": "Open contradictions touching this field (registry/contradictions.yaml, docs/contradictions.md). The output prints them."

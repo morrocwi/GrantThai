@@ -1,0 +1,8 @@
+{
+  "rule_id": "7SSA-05",
+  "must_fire_severity": "REVIEW",
+  "route": "academic-article",
+  "as_of": "2026-09-25",
+  "only_7ssa_rule": true,
+  "note": "Generated fixture: a mutated copy of examples/article-7ssa-fictional/work.yaml (ARTICLE.SSA.CONTRIBUTION.one_sentence is removed). On route academic-article, 7SSA-05 fires and no other 7SSA rule does."
+}

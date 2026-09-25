@@ -674,6 +674,9 @@ route_scope:
   - family: ART
     routes: [academic-article]
     note: REVIEW only, except ART007 (BLOCK). No rule rests on a journal fact.
+  - family: SSA
+    routes: [academic-article]
+    note: 7SSA structure-profile checks (7SSA-01..7SSA-10); fire only while a 7SSA profile is selected. REVIEW or INFO, never BLOCK.
   - family: ECO
     routes: [nriis-proposal]
     note: no ids yet (NEEDS_INPUT).

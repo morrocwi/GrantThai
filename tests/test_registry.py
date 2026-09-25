@@ -25,14 +25,19 @@ def test_no_thai_label_is_asserted():
             assert "NEEDS_VERIFICATION" in rec["observed_form"]
 
 
+SSA_FIELDS = {"ARTICLE.SSA.ARTICLE_TYPE", "ARTICLE.SSA.GAP", "ARTICLE.SSA.CONTRIBUTION", "ARTICLE.SSA.BEFORE_AFTER",
+              "ARTICLE.STATEMENT.OTHER"}
+
+
 def test_registry_lineage():
     sources_md = (ROOT / "docs/sources.md").read_text(encoding="utf-8")
     for line in (ROOT / "registry/fields.jsonl").read_text(encoding="utf-8").splitlines():
         rec = json.loads(line)
         assert rec["label_en_basis"] == "descriptive"
         if rec["source_field_id"].startswith("NONE"):
-            if rec["origin"] == "VENUE_NATIVE":
+            if rec["origin"] == "VENUE_NATIVE" or rec["field_id"] in SSA_FIELDS:
                 # v0.3: exists for one output route; traced to that route's definition
+                # (the 7SSA fields: RECOMMENDED_EXTENSION from the 7SSA master schema)
                 assert rec["derived_from"] == "route/academic-article@0.1.0-draft", rec["field_id"]
                 assert rec["source_status"] == "INFERRED_SCHEMA_EXTENSION"
                 continue
@@ -104,12 +109,13 @@ def test_partition_is_in_sync():
 
 
 def test_partition_counts_are_pinned():
-    """122 pre-router fields + 24 ARTICLE.* = 146; shared core 39; NRIIS-only 83;
-    article-only 24. Change these numbers only with a registry decision."""
+    """122 pre-router fields + 24 ARTICLE.* (router) + 5 ARTICLE.* (7SSA) = 151;
+    shared core 39; NRIIS-only 83; article-only 29. Change these numbers only
+    with a registry decision."""
     recs = _jsonl("fields.jsonl")
-    assert len(recs) == 146
+    assert len(recs) == 151
     article = [r for r in recs if r["field_id"].startswith("ARTICLE.")]
-    assert len(article) == 24
+    assert len(article) == 29
     assert len(recs) - len(article) == 122
     by_scope = {}
     for r in recs:
@@ -117,8 +123,8 @@ def test_partition_counts_are_pinned():
     assert len(by_scope["shared"]) == 39
     nriis_only = [r for r in by_scope["route"] if r["route_ids"] == ["nriis-proposal"]]
     article_only = [r for r in by_scope["route"] if r["route_ids"] == ["academic-article"]]
-    assert len(nriis_only) == 83 and len(article_only) == 24
-    assert len(by_scope["route"]) == 83 + 24
+    assert len(nriis_only) == 83 and len(article_only) == 29
+    assert len(by_scope["route"]) == 83 + 29
     # shared <=> placed by more than one route
     for r in recs:
         assert (r["scope"] == "shared") == (len(r["route_ids"]) >= 2), r["field_id"]
@@ -136,7 +142,9 @@ def test_article_fields_are_venue_native_route_scoped_and_never_required_globall
     recs = _jsonl("fields.jsonl")
     article = [r for r in recs if r["field_id"].startswith("ARTICLE.")]
     for r in article:
-        assert r["origin"] == "VENUE_NATIVE" and r["section"] == "Article", r["field_id"]
+        want = "RECOMMENDED_EXTENSION" if r["field_id"] in SSA_FIELDS else "VENUE_NATIVE"
+        assert r["origin"] == want and r["section"] == "Article", r["field_id"]
+        assert r["source_status"] == "INFERRED_SCHEMA_EXTENSION", r["field_id"]
         assert r["scope"] == "route" and r["route_ids"] == ["academic-article"], r["field_id"]
         assert r["required"] is False, r["field_id"]
         assert r["chain_node"] is None
@@ -157,7 +165,7 @@ def test_article_fields_are_venue_native_route_scoped_and_never_required_globall
         "ARTICLE.STATEMENT.ETHICS", "ARTICLE.STATEMENT.AI_USE", "ARTICLE.STATEMENT.DATA_AVAILABILITY",
         "ARTICLE.STATEMENT.CONFLICT_OF_INTEREST", "ARTICLE.STATEMENT.FUNDING",
         "ARTICLE.BACK.ACKNOWLEDGEMENTS", "ARTICLE.VENUE.TARGET",
-    }
+    } | SSA_FIELDS
 
 
 def test_pre_router_records_only_gained_scope_and_route_ids():

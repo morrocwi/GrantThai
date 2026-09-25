@@ -377,6 +377,20 @@
             "pattern": "^[a-z0-9_\\-]+(@[a-z0-9.\\-]+)?$"
           },
           "description": "Per-route sub-profile id (route.yaml sub_profiles.dir), e.g. {academic-article: thai-journal, nriis-proposal: research@sd1-2566}. Every sub-profile is NEEDS_VERIFICATION."
+        },
+        "structure_profiles": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-z0-9][a-z0-9\\-]*$"
+          },
+          "description": "Per-route structure profile id (route.yaml structure_profiles), e.g. {academic-article: 7ssa-thai-5}. Chosen by the researcher only, never by a tool or an AI (the router lists candidates, INFO RT004). Part of routing, so outside content_sha256: re-rendering 7 -> 5 -> 4 sections never makes a review stale."
         }
       },
       "additionalProperties": false

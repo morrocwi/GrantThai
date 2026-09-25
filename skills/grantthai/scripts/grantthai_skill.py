@@ -121,7 +121,7 @@ def load_rules_th(path: Path = RULES_TH) -> dict[str, str]:
     current = None
     buf: list[str] = []
     for line in path.read_text(encoding="utf-8").splitlines():
-        m = re.match(r"^###\s+([A-Z]+[0-9]*)\s*$", line)
+        m = re.match(r"^###\s+([A-Z]+[0-9]*|7SSA-[0-9]{2})\s*$", line)
         if m:
             if current:
                 out[current] = "\n".join(buf).strip()

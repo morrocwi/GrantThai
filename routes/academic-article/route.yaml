@@ -34,12 +34,21 @@ placement: routes/academic-article/placement.yaml
 sub_profiles:
   dir: routes/academic-article/sub_profiles
   default: international-journal
+# 7SSA structure profiles (spec/routes/structure_profile.schema.json): how
+# the body is arranged (world 7, Thai 7 / 5 / 4 visible sections). A third
+# axis next to the sub-profile. Chosen by the researcher only
+# (routing.structure_profiles, outside content_sha256, or
+# --structure-profile); the router lists candidates (INFO RT004) and never
+# selects. With none selected the output is the plain overview, unchanged.
+structure_profiles:
+  index: routes/academic-article/profiles/INDEX.yaml
+  dir: routes/academic-article/profiles
 # The S001 BLOCK set for this route. Kept minimal on purpose: journal
 # requirements vary and are NEEDS_VERIFICATION, so no BLOCK here may rest on
 # a journal fact (spec §4.3). Everything else is REVIEW or NEEDS_INPUT.
 required_fields: [ARTICLE.META.KIND, ARTICLE.FRONT.AUTHORS]
 rules:
-  include_families: [SCHEMA, S, R, CH, X, AI, FW, ART, OK, E]
+  include_families: [SCHEMA, S, R, CH, X, AI, FW, ART, SSA, OK, E]
   exclude_ids: [FW002]
 readiness:
   sections: [block, review, needs_input, needs_verification, ai_drafted_values, advisories]
