@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/guidance/writing_intent.schema.json",
+  "title": "GrantThai writing intent (guidance/writing_intent.yaml)",
+  "description": "Draft (v0.2). Per-field writing intent: purpose, micro-template, length target, keep-out list and quality traits, plus a completeness checklist. This is guidance for the person writing, never a validator of knowledge: length findings are REVIEW-level only and no entry here can move a status. Every Thai string is NEEDS_INPUT unless it carries a cited source. Every length_target.basis cites where the target comes from; a target with no readable source says so (proposed_default) and stays NEEDS_VERIFICATION.",
+  "type": "object",
+  "required": ["schema", "version", "status", "status_marker", "derived_from", "fields", "completeness_checklist"],
+  "properties": {
+    "schema": {"const": "grantthai.writing_intent.v0"},
+    "version": {"type": "string"},
+    "status": {"const": "DRAFT"},
+    "status_marker": {"const": "NEEDS_VERIFICATION"},
+    "derived_from": {"$ref": "#/$defs/derived_from"},
+    "notes": {"type": "string"},
+    "fields": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}$"},
+      "additionalProperties": {"$ref": "#/$defs/intent"}
+    },
+    "completeness_checklist": {
+      "type": "array",
+      "minItems": 10,
+      "items": {"$ref": "#/$defs/checklist_item"}
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "derived_from": {
+      "type": "string",
+      "pattern": "^(core/0[1-6]@sha256:[a-f0-9]{64}|sourcedoc/SD-[0-9]+@sha256:[a-f0-9]{64}|docs/design/PLAN\\.md|registry/fields\\.jsonl)$"
+    },
+    "bilingual": {
+      "type": "object",
+      "required": ["en", "th"],
+      "properties": {
+        "en": {"type": "string", "minLength": 1},
+        "th": {"type": "string", "minLength": 1, "description": "NEEDS_INPUT until a Thai wording with a cited source exists (tests/test_writing_intent.py)."}
+      },
+      "additionalProperties": false
+    },
+    "basis": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Where the target or check comes from. Forms: 'core/0N §…' (handoff package; excluded from the public repo, so the reading is relayed and NEEDS_VERIFICATION), 'SD-n pX' (public document, PDF page), 'registry:<FIELD_ID> guidance' (registry/fields.jsonl guidance.en), 'docs/design/PLAN.md §…', or 'proposed_default …' (GrantThai's own default, INSTINCT, revisable through a reviewed PR).",
+      "pattern": "^(core/0[1-6] §[^;]+|SD-[0-9]+ p[0-9]+[^;]*|registry:[A-Z0-9_.]+ guidance[^;]*|docs/design/PLAN\\.md §[^;]+|proposed_default[^;]*)(; (core/0[1-6] §[^;]+|SD-[0-9]+ p[0-9]+[^;]*|registry:[A-Z0-9_.]+ guidance[^;]*|docs/design/PLAN\\.md §[^;]+|proposed_default[^;]*|NEEDS_VERIFICATION[^;]*))*$"
+    },
+    "length_target": {
+      "type": "object",
+      "required": ["unit", "min", "max", "basis"],
+      "properties": {
+        "unit": {"type": "string", "enum": ["words", "items", "chars"]},
+        "min": {"type": "integer", "minimum": 0},
+        "max": {"type": "integer", "minimum": 1},
+        "basis": {"$ref": "#/$defs/basis"}
+      },
+      "additionalProperties": false
+    },
+    "quality_trait": {
+      "type": "object",
+      "required": ["trait", "seen_in"],
+      "properties": {
+        "trait": {"type": "string", "minLength": 1},
+        "seen_in": {
+          "type": "string",
+          "description": "A real, publicly available funded report cited by id and PDF page only ('R1 p8'), never quoted text; or NEEDS_INPUT until a reader has recorded the page.",
+          "pattern": "^(R[0-9]+ p[0-9]+|NEEDS_INPUT)$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "intent": {
+      "type": "object",
+      "required": ["purpose", "micro_template", "length_target", "keep_out", "quality_traits", "derived_from"],
+      "properties": {
+        "purpose": {"$ref": "#/$defs/bilingual"},
+        "micro_template": {"$ref": "#/$defs/bilingual"},
+        "length_target": {"$ref": "#/$defs/length_target"},
+        "keep_out": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "quality_traits": {"type": "array", "items": {"$ref": "#/$defs/quality_trait"}},
+        "derived_from": {"$ref": "#/$defs/derived_from"}
+      },
+      "additionalProperties": false
+    },
+    "checklist_item": {
+      "type": "object",
+      "required": ["id", "check", "field_ids", "evaluable", "basis"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^WC[0-9]{2}$"},
+        "check": {"$ref": "#/$defs/bilingual"},
+        "field_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}$"}
+        },
+        "evaluable": {"type": "string", "enum": ["deterministic", "human"]},
+        "kind": {
+          "type": "string",
+          "enum": ["fields_filled", "length_within", "items_have_key"],
+          "description": "Required when evaluable is deterministic. fields_filled: every listed field has a value (not NEEDS_INPUT). length_within: no listed field breaks its length_target. items_have_key: every item of the listed array fields has a non-empty params.key."
+        },
+        "params": {"type": "object", "additionalProperties": {"type": "string"}},
+        "basis": {"$ref": "#/$defs/basis"}
+      },
+      "if": {"properties": {"evaluable": {"const": "deterministic"}}},
+      "then": {"required": ["kind"]},
+      "additionalProperties": false
+    }
+  }
+}
