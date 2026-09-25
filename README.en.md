@@ -1,114 +1,129 @@
-<p align="center">
-  <img src="docs/assets/ai-civic-knowledge-logo.png" width="300" alt="ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์ · Center for AI Civic Knowledge">
-</p>
+# GrantThai
 
-<h1 align="center">GrantThai</h1>
+**Status: v0.1.0 (not yet released to a package index).** The engine works:
+one `project.yaml` in, one `build/NRIIS_SUBMISSION.md` out, through the
+`grantthai` command, a Python API, an agent **skill**, an **MCP** server and
+a local **HTTP API**. The offline web form, the launchers and Citizen Mode
+are deferred (founder scope, 2026-09-25; see `docs/BUILD_GUIDE.md`). Every
+Thai label and NRIIS tab name is still `NEEDS_VERIFICATION`.
 
-<p align="center"><strong>ใส่ข้อมูลทางเดียว &nbsp;·&nbsp; ได้ไฟล์เดียว &nbsp;·&nbsp; พร้อมยื่น NRIIS</strong></p>
-
-<p align="center">
-  <img alt="ทำในประเทศไทย" src="https://img.shields.io/badge/%F0%9F%87%B9%F0%9F%87%AD-%E0%B8%97%E0%B8%B3%E0%B9%83%E0%B8%99%E0%B8%9B%E0%B8%A3%E0%B8%B0%E0%B9%80%E0%B8%97%E0%B8%A8%E0%B9%84%E0%B8%97%E0%B8%A2-1B2A4A?style=for-the-badge">
-  <img alt="เวอร์ชัน 0.1.0" src="https://img.shields.io/badge/%E0%B9%80%E0%B8%A7%E0%B8%AD%E0%B8%A3%E0%B9%8C%E0%B8%8A%E0%B8%B1%E0%B8%99-0.1.0-B08D57?style=for-the-badge">
-  <img alt="โค้ด Apache-2.0 · เอกสาร CC BY 4.0" src="https://img.shields.io/badge/%E0%B9%82%E0%B8%84%E0%B9%89%E0%B8%94%20Apache--2.0%20%C2%B7%20%E0%B9%80%E0%B8%AD%E0%B8%81%E0%B8%AA%E0%B8%B2%E0%B8%A3%20CC%20BY%204.0-1B2A4A?style=for-the-badge">
-  <img alt="โครงการอิสระ ไม่เป็นทางการ" src="https://img.shields.io/badge/%E0%B9%82%E0%B8%84%E0%B8%A3%E0%B8%87%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%AD%E0%B8%B4%E0%B8%AA%E0%B8%A3%E0%B8%B0-%E0%B9%84%E0%B8%A1%E0%B9%88%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%E0%B8%97%E0%B8%B2%E0%B8%87%E0%B8%81%E0%B8%B2%E0%B8%A3-B08D57?style=for-the-badge">
-</p>
-
-<p align="center">
-  <a href="README.en.md"><b>English</b></a> &nbsp;·&nbsp;
-  <a href="AGENTS.md">สำหรับ AI ผู้ช่วย</a> &nbsp;·&nbsp;
-  <a href="docs/th/">คู่มือภาษาไทย</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/-%20-A51931?style=flat-square" height="6" alt="">
-  <img src="https://img.shields.io/badge/-%20-F4F5F8?style=flat-square" height="6" alt="">
-  <img src="https://img.shields.io/badge/-%20-2D2A4A?style=flat-square" height="6" alt="">
-  <img src="https://img.shields.io/badge/-%20-F4F5F8?style=flat-square" height="6" alt="">
-  <img src="https://img.shields.io/badge/-%20-A51931?style=flat-square" height="6" alt="">
-</p>
-
-## GrantThai คืออะไร
-
-เครื่องมือเปิดที่ช่วยเปลี่ยน **ปัญหาจริงที่คุณรู้ดี** ให้กลายเป็น **ข้อเสนอโครงการวิจัยที่ครบถ้วน** แล้วเรียบเรียงออกมาเป็นไฟล์เดียว พร้อมนำไปกรอกในระบบ NRIIS ได้ทันที
-
-```
-project.yaml  ──►  grantthai build  ──►  build/NRIIS_SUBMISSION.md
-  (ข้อมูลของคุณ)                            (ไฟล์เดียว พร้อมยื่น)
-```
-
-- **ความรู้เป็นของคุณ** ประสบการณ์ ข้อมูล และดุลยพินิจของนักวิจัยคือต้นทาง
-- **AI เป็นเพียงผู้ช่วยเรียบเรียง** ถามคุณ ร่างให้ ตรวจโครงสร้าง แต่ไม่รับรองความรู้ และไม่แต่งข้อเท็จจริงเรื่องทุน
-- **ทุกช่องตรวจสอบย้อนกลับได้** อะไรยังขาด ระบบบอกว่า `NEEDS_INPUT` อะไรยังไม่ยืนยันกับเอกสารทางการ ระบบบอกว่า `NEEDS_VERIFICATION`
-
-> **GrantThai ลดกำแพงในการเข้าสู่งานวิจัย ไม่ได้ลดมาตรฐานของงานวิจัย**
-
-## เริ่มใช้ใน 3 นาที
-
-```bash
-pip install -e .                                   # ติดตั้งครั้งเดียว
-grantthai init project.yaml --project-id MY-001    # เริ่มโครงการใหม่
-grantthai set CORE.GENERAL.TITLE_TH "ชื่อโครงการ"   # กรอกข้อมูลทีละช่อง
-grantthai validate project.yaml                    # ตรวจว่าครบและสอดคล้องกันไหม
-grantthai build project.yaml                       # ได้ build/NRIIS_SUBMISSION.md
-```
-
-## ใช้ร่วมกับ AI ของคุณ
-
-ให้ AI ที่คุณใช้อยู่แล้ว ไม่ว่าค่ายไหน เป็นคนสัมภาษณ์และกรอกให้ ส่วนคุณเป็นคนยืนยัน
-
-| ช่องทาง | เหมาะกับ | เริ่มที่ |
-|---|---|---|
-| **สกิล** | Claude Code, Codex, Gemini CLI และ AI แชททั่วไป | [`skills/grantthai/SKILL.md`](skills/grantthai/SKILL.md) |
-| **MCP** | โปรแกรม AI ที่รองรับ MCP เช่น Claude Desktop | [`docs/mcp.md`](docs/mcp.md) |
-| **API** | ChatGPT Actions และระบบอัตโนมัติ | [`docs/api.md`](docs/api.md) |
-
-ทุกช่องทางให้ผลลัพธ์เดียวกัน คือไฟล์เดียวกันแบบไบต์ต่อไบต์ และทุกค่าที่ AI ร่างจะถูกระบุว่าเป็นร่างของ AI รอคุณยืนยันเสมอ
-
-## ระบบนิเวศที่ GrantThai อยู่
-
-```
-ประสบการณ์จริงของผู้คน ──► แปลงเป็นโจทย์วิจัย ──► ออกแบบวิธีวิจัย ──► จัดให้ตรงทุน ──► ข้อเสนอพร้อมยื่น NRIIS
-                                        └────────────── GrantThai ทำส่วนนี้ ──────────────┘
-```
-
-รายละเอียดทั้งระบบ ผู้เกี่ยวข้อง และขอบเขตที่ GrantThai **ไม่ทำ** อยู่ที่ [`docs/ecosystem.md`](docs/ecosystem.md)
-
-## ผู้พัฒนา
-
-<table>
-<tr>
-<td width="140" align="center"><img src="docs/assets/ai-civic-knowledge-logo.png" width="120" alt=""></td>
-<td>
-<b>เยาฮารี หละตี</b> (Yaoharee Lahtee) · ORCID <a href="https://orcid.org/0009-0005-3861-0626">0009-0005-3861-0626</a><br>
-<b>อารยานิกะห์ วิสาหกิจเพื่อสังคม</b> · ARAYA NIKAH SOCIAL ENTERPRISE CO.<br>
-ผลงานร่วมกับ <b>ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์</b> (Center for AI Civic Knowledge) ซึ่งเป็นศูนย์ของอารยานิกะห์ วิสาหกิจเพื่อสังคม<br><br>
-<i>พัฒนาเพื่อให้เป็นประโยชน์กับคนไทยทุกคนในการพัฒนาความรู้</i>
-</td>
-</tr>
-</table>
-
-โค้ดใช้สัญญาอนุญาต Apache-2.0 เอกสารใช้ CC BY 4.0 · **โลโก้สงวนสิทธิ์** ไม่อยู่ภายใต้สัญญาอนุญาตทั้งสอง · รายละเอียดใน [`LICENSE`](LICENSE) และ [`NOTICE`](NOTICE)
-
-## ประกาศ
-
-GrantThai is an independent, unofficial project. It is NOT affiliated with, endorsed by, sponsored by, or officially connected to NRCT, TSRI, any PMU, or NRIIS. / GrantThai เป็นโครงการอิสระ ไม่เป็นทางการ และไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU) ใด ๆ หรือระบบ NRIIS
-
-ชื่อช่องและลำดับหน้าจอของ NRIIS ในระบบนี้ยังเป็น **ตัวเลือกที่รอยืนยันกับเอกสารทางการ** ทั้งหมด โปรดตรวจกับประกาศทุนฉบับปัจจุบันก่อนยื่นทุกครั้ง
-
-<p align="center">
-  <img src="https://img.shields.io/badge/-%20-A51931?style=flat-square" height="6" alt="">
-  <img src="https://img.shields.io/badge/-%20-F4F5F8?style=flat-square" height="6" alt="">
-  <img src="https://img.shields.io/badge/-%20-2D2A4A?style=flat-square" height="6" alt="">
-  <img src="https://img.shields.io/badge/-%20-F4F5F8?style=flat-square" height="6" alt="">
-  <img src="https://img.shields.io/badge/-%20-A51931?style=flat-square" height="6" alt="">
-</p>
+> GrantThai is an independent, unofficial project. It is NOT affiliated with, endorsed by, sponsored by, or officially connected to NRCT, TSRI, any PMU, or NRIIS. / GrantThai เป็นโครงการอิสระ ไม่เป็นทางการ และไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU) ใด ๆ หรือระบบ NRIIS
+>
+> See [`NOTICE`](./NOTICE) for the full statement, which applies everywhere
+> in this repository.
 
 ---
 
-<details>
-<summary><b>รายละเอียดเชิงเทคนิค</b> (เวอร์ชัน, แผนที่คลัง, การกำกับดูแล, สัญญาอนุญาต, การเปิดเผยบทบาท AI)</summary>
+## Use GrantThai with your AI: Skill / MCP / API
 
-### Philosophy
+Your own information is the source. The AI only interviews you and writes
+drafts; it never validates knowledge, never marks its own wording as
+`SOURCE`, and never invents a Thai fund or NRIIS fact (those stay
+`NEEDS_VERIFICATION`). Every value it writes stays `DRAFT` and is listed in
+the output for you to confirm. Works with any AI vendor or a local model.
+Install once: `pip install -e ".[mcp]"` from a copy of this repository.
+
+**1. Skill** (Claude Code, Codex/`AGENTS.md` readers, Gemini CLI, or any
+chat AI via `skills/grantthai/reference/PROMPT_PACKET.md`):
+```
+cp -r skills/grantthai ~/.claude/skills/grantthai   # or point AGENTS.md / GEMINI.md at SKILL.md
+grantthai init project.yaml --project-id MY-PROJECT-001
+python skills/grantthai/scripts/grantthai_skill.py report --project project.yaml
+```
+Details: [`docs/use-with-ai.md`](./docs/use-with-ai.md).
+
+**2. MCP server** (stdio; six tools, each capped at `DRAFT`):
+```
+grantthai-mcp --root /path/to/proposal
+# .mcp.json: {"mcpServers":{"grantthai":{"command":"grantthai-mcp","args":["--root","."]}}}
+```
+Details: [`docs/mcp.md`](./docs/mcp.md).
+
+**3. HTTP API** (local, 127.0.0.1 only by default; OpenAPI 3.1 in
+`spec/api/openapi.yaml`):
+```
+grantthai-api --port 8765
+curl -s -X POST 127.0.0.1:8765/projects -d '{"project_id":"my-grant"}'
+curl -s -X POST 127.0.0.1:8765/projects/my-grant/build > NRIIS_SUBMISSION.md
+```
+Details: [`docs/api.md`](./docs/api.md).
+
+## ใช้ GrantThai กับ AI ของคุณ: Skill / MCP / API
+
+ข้อมูลของนักวิจัยเองคือแหล่งที่มา AI ทำหน้าที่สัมภาษณ์และร่างข้อความเท่านั้น
+ไม่รับรองความรู้ ไม่ติดป้าย `SOURCE` ให้ข้อความที่ตัวเองเขียน และไม่แต่งข้อเท็จจริง
+เรื่องทุนหรือ NRIIS ขึ้นเอง (ส่วนนั้นคงเป็น `NEEDS_VERIFICATION`) ทุกค่าที่ AI เขียนมีสถานะไม่เกิน
+`DRAFT` และถูกระบุในไฟล์ผลลัพธ์ให้นักวิจัยยืนยันเอง ใช้ได้กับ AI ทุกค่ายหรือโมเดลในเครื่อง
+ติดตั้งครั้งเดียว: `pip install -e ".[mcp]"` จากสำเนาของโครงการนี้
+
+1. **Skill** — คัดลอก `skills/grantthai` ไปไว้ในโฟลเดอร์สกิลของ AI (หรือให้ `AGENTS.md` /
+   `GEMINI.md` ชี้ไปที่ `SKILL.md`) ถ้าใช้ AI แบบแชตอย่างเดียว ให้วาง
+   `skills/grantthai/reference/PROMPT_PACKET.md` ลงในแชต ดู [`docs/th/use-with-ai.th.md`](./docs/th/use-with-ai.th.md)
+2. **MCP** — `grantthai-mcp --root /path/to/proposal` แล้วเพิ่มในค่าตั้ง MCP ของโปรแกรม AI
+   ดู [`docs/mcp.md`](./docs/mcp.md)
+3. **HTTP API** — `grantthai-api` (ฟังเฉพาะ 127.0.0.1) แล้วเรียก `POST /projects`,
+   `PATCH /projects/{id}/fields`, `POST /projects/{id}/build` ดู [`docs/api.md`](./docs/api.md)
+
+ทั้งสามทางได้ไฟล์เดียวกันเพียงไฟล์เดียว: `build/NRIIS_SUBMISSION.md` คุณเป็นผู้ตรวจ
+ตัดสินใจ และส่งเองเสมอ
+
+---
+
+## Quickstart 1: a lecturer with no AI, no account, no internet (the web form and launchers are deferred)
+
+This is deliberately the **first thing** in this README, because GrantThai's
+first principle is that every core task must be doable by a human alone.
+**Caveat:** the `grantthai` command works today (steps 3–5). The web form
+(steps 1–2) is still a placeholder without an Export button and the
+launchers only print a message; both are deferred. Use a text editor or
+`grantthai init` + `grantthai set` to write `project.yaml` meanwhile.
+
+1. Open `webform/index.html` in any browser (double-click it — it needs no
+   server and no network connection). Fill in the fields.
+2. Click "Export" to save a `project.yaml` file to your computer.
+   (Prefer a text editor or the CLI? See `forms/*.md` or
+   `grantthai fill --interactive` — same result, same file.)
+3. Run the platform launcher for your OS in `launchers/` (or, from a
+   terminal: `grantthai validate project.yaml` then
+   `grantthai build project.yaml`).
+4. Open `build/NRIIS_SUBMISSION.md`. It is one file: a readiness summary at
+   the top (anything still missing, in plain language) followed by every
+   field, grouped by NRIIS tab, ready to copy and paste. The tab names and
+   their order follow one observed form and are `NEEDS_VERIFICATION`. For
+   the attachments tab, the file lists which documents are needed and their
+   status; you upload your own files.
+5. You decide what to submit, and you submit it yourself. GrantThai never
+   submits anything on your behalf.
+
+No AI model is required at any step above. No internet connection is
+required after you have downloaded the repository once.
+
+## Quickstart (คำแนะนำฉบับย่อ): อาจารย์ที่ไม่ใช้ AI ไม่ต้องมีบัญชี ไม่ต้องต่อเน็ต (แบบฟอร์มเว็บและ launcher ยังเลื่อนออกไป)
+
+นี่คือหัวข้อแรกโดยตั้งใจ เพราะหลักการข้อแรกของ GrantThai คือ ทุกงานหลักต้องทำเองได้
+โดยมนุษย์ล้วน ไม่ต้องพึ่ง AI
+**ข้อควรทราบ:** คำสั่ง `grantthai` ใช้งานได้แล้ว (ขั้นที่ 3–5) แต่แบบฟอร์มเว็บ (ขั้นที่ 1–2)
+ยังเป็นหน้าตัวอย่างที่ไม่มีปุ่ม Export และ launcher แค่แสดงข้อความ ทั้งสองส่วนเลื่อนออกไปก่อน
+ระหว่างนี้ใช้โปรแกรมแก้ไขข้อความ หรือ `grantthai init` กับ `grantthai set` เขียน `project.yaml`
+
+1. (เป้าหมาย v0.1) เปิดไฟล์ `webform/index.html` ด้วยเบราว์เซอร์ใดก็ได้ (ดับเบิลคลิกได้เลย
+   ไม่ต้องมีเซิร์ฟเวอร์หรืออินเทอร์เน็ต) แล้วกรอกข้อมูล
+2. กด "Export" เพื่อบันทึกไฟล์ `project.yaml` ลงเครื่อง (จะใช้โปรแกรมแก้ไขข้อความ
+   หรือคำสั่ง `grantthai fill --interactive` แทนก็ได้ ผลลัพธ์เป็นไฟล์เดียวกัน)
+3. รันตัวเปิดโปรแกรม (launcher) สำหรับระบบปฏิบัติการของคุณใน `launchers/`
+   (หรือใช้เทอร์มินัล: `grantthai validate project.yaml` แล้ว `grantthai build project.yaml`)
+4. เปิดไฟล์ `build/NRIIS_SUBMISSION.md` เป็นไฟล์เดียว มีสรุปความพร้อม (สิ่งที่ยังขาด
+   อธิบายด้วยภาษาที่เข้าใจง่าย) อยู่ด้านบนสุด ตามด้วยทุกฟิลด์จัดกลุ่มตามแท็บของ NRIIS
+   พร้อมคัดลอกไปวาง ชื่อแท็บและลำดับแท็บอ้างอิงจากแบบฟอร์มที่สังเกตได้เพียงแบบเดียว
+   จึงยังต้องตรวจสอบ (NEEDS_VERIFICATION) ส่วนแท็บเอกสารแนบ ไฟล์จะบอกว่าต้องแนบเอกสารใด
+   และสถานะเป็นอย่างไร ผู้ใช้อัปโหลดไฟล์ของตนเอง
+5. คุณเป็นผู้ตัดสินใจและส่งเองเสมอ GrantThai ไม่ส่งข้อมูลแทนคุณ
+
+ทุกขั้นตอนข้างต้นไม่ต้องใช้โมเดล AI เลย และไม่ต้องต่ออินเทอร์เน็ตหลังดาวน์โหลดโครงการแล้ว
+
+---
+
+## Philosophy
 
 1. "GrantThai lowers the entry barrier to research, not the standard of research."
 2. "Toledo connects lived experience with academic knowledge through
@@ -127,7 +142,7 @@ repository.
 
 ---
 
-### The one-input, one-output contract
+## The one-input, one-output contract
 
 GrantThai's entire purpose is one pipeline:
 
@@ -184,7 +199,7 @@ Citizen Mode, review and lock commands (`interview`, `review`,
 
 ---
 
-### Ecosystem at a glance
+## Ecosystem at a glance
 
 GrantThai bridges exactly four stages: **Problem/Knowledge → Researchable
 project → Funding-aligned project → NRIIS-ready project**, with the one
@@ -204,7 +219,7 @@ sibling-infrastructure pointers (Toledo, glosa, main.hub) are in
 
 ---
 
-### ผู้พัฒนา / Developer
+## ผู้พัฒนา / Developer
 
 - **Developer / maintainer:** Yaoharee Lahtee (เยาฮารี หละตี), ORCID
   [0009-0005-3861-0626](https://orcid.org/0009-0005-3861-0626)
@@ -223,7 +238,7 @@ endorsement by, NRCT, TSRI, any PMU, or NRIIS — see `NOTICE`.
 
 ---
 
-### AI is optional everywhere (parity table)
+## AI is optional everywhere (parity table)
 
 Every AI-assisted convenience has a human-only equivalent that ships in the
 same or an earlier version. See `spec/common/parity.yaml` for the
@@ -246,7 +261,7 @@ project. See `spec/common/status.yaml` and
 
 ---
 
-### What this repository is (v0.1.0)
+## What this repository is (v0.1.0)
 
 On top of the Phase 0 scaffold (directory layout, governance and policy
 documents, data contracts (JSON Schema and YAML), the field registry
@@ -262,7 +277,7 @@ system/architecture description, `docs/design/PLAN.md` for the design plan
 (historical record), and `docs/deviations.md` for where this scaffold
 intentionally departs from the original handoff package.
 
-### Repository map
+## Repository map
 
 - `spec/` — JSON Schema and YAML contracts.
 - `registry/`, `mappings/`, `validators/` — field registry, section-to-tab
@@ -281,14 +296,14 @@ intentionally departs from the original handoff package.
 - `.githooks/commit-msg` — rejects AI/vendor attribution trailers in commit
   messages. Run `git config core.hooksPath .githooks` after cloning.
 
-### Governance and status vocabulary
+## Governance and status vocabulary
 
 See `GOVERNANCE.md`, `spec/common/status.yaml`, `spec/common/review_gates.yaml`.
 In short: a "checked" or "verified" status always states *who* checked it
 and *how independent* they were. Self-review renders as `AUTHOR_CHECKED`,
 never as `VERIFIED`. Humans decide everything; AI proposes, never proves.
 
-### Licensing
+## Licensing
 
 - Code (`src/`, `tools/`, `tests/`, `.githooks/`, `.github/`, `webform/`,
   `launchers/`, `pyproject.toml`, `.gitignore`): Apache-2.0.
@@ -299,14 +314,14 @@ never as `VERIFIED`. Humans decide everything; AI proposes, never proves.
 `REUSE.toml` is the authoritative per-path mapping, and `reuse lint` runs in
 CI. See `LICENSE` and `LICENSES/`.
 
-### Contact
+## Contact
 
 See `SECURITY.md` and `CODE_OF_CONDUCT.md` (contact address: `NEEDS_INPUT`,
 pending a founder-supplied non-personal address, decision K9).
 
 ---
 
-### Core Epistemic Structure (role disclosure)
+## Core Epistemic Structure (role disclosure)
 
 - **Core respondent / experience-based expert:** Yaoharee Lahtee.
 - **Interactional expert:** None.
@@ -322,6 +337,3 @@ pending a founder-supplied non-personal address, decision K9).
   are guard patterns, SDK package names in import-ban lists, tooling file
   names or guard-test fixtures). It is a role disclosure, not an
   authorship or credit line.
-
-
-</details>

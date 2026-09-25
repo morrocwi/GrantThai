@@ -1,0 +1,7 @@
+LicenseRef-Logo-AllRightsReserved
+
+The logo of ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์ (Center for AI Civic Knowledge),
+a centre of ARAYA NIKAH SOCIAL ENTERPRISE CO., is reproduced in this repository
+for identification only. All rights reserved. It is NOT covered by the
+Apache-2.0 or CC BY 4.0 licences that apply to the rest of this repository and
+may not be reused, modified or redistributed without written permission.
