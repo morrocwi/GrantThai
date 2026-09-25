@@ -45,7 +45,7 @@ def _add(doc, fid, value, chain=None):
 
 def test_example_has_none_of_the_added_findings():
     rep = api.validate(EXAMPLE, as_of=AS_OF)
-    added = {"S009", "S010", "S011", "R008", "R009", "W005", "B007", "E009", "F005"}
+    added = {"S009", "S010", "S011", "S012", "R008", "R009", "W005", "B007", "E009", "F005"}
     assert not added & set(_ids(rep, "REVIEW") + _ids(rep, "BLOCK"))
     assert {"C001", "C002", "C003"} <= set(_ids(rep, "INFO"))
 

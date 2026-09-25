@@ -1,0 +1,6 @@
+{
+  "rule_id": "S007",
+  "must_fire_severity": "BLOCK",
+  "as_of": "2026-09-25",
+  "note": "Generated fixture: a mutated copy of examples/lecturer-no-ai/project.yaml that makes rule S007 fire. Other rules may also fire; this fixture only asserts on rule_id."
+}

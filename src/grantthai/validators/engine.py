@@ -251,6 +251,14 @@ def _structure(c: _Ctx):
                           f"{total} months ({dy} years + {dm} months).",
                           ["WORK.PLAN.ACTIVITIES", "CORE.GENERAL.DURATION_Y", "CORE.GENERAL.DURATION_M"],
                           "Shorten the activity or correct the project duration.")
+    # S012 DURATION_M is the additional months beyond whole years (0-11);
+    # S010's total is DURATION_Y x 12 + DURATION_M, so a DURATION_M outside
+    # 0-11 would double-count months already folded into DURATION_Y.
+    if isinstance(dm, int) and not isinstance(dm, bool) and not (0 <= dm <= 11):
+        c.add("S012", f"CORE.GENERAL.DURATION_M is {dm}, outside the range 0-11.",
+              ["CORE.GENERAL.DURATION_M"],
+              "Set DURATION_M to the additional months beyond whole years (0-11); fold any full "
+              "12-month blocks into CORE.GENERAL.DURATION_Y instead.")
     # S006 unresolved references
     for ref, reason in c.rep.unresolved:
         holder = c.rep.nodes.get(ref.source)

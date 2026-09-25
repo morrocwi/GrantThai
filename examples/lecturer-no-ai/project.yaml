@@ -83,7 +83,7 @@ fields:
     status: DRAFT
     provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   - field_id: CORE.GENERAL.DURATION_M
-    value: 12
+    value: 0
     status: DRAFT
     provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   - field_id: CORE.GENERAL.OTHER_FUNDER
