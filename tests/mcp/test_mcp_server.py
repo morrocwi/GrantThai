@@ -18,13 +18,19 @@ sys.path.insert(0, str(ROOT / "src"))
 from grantthai.core import project as P  # noqa: E402
 from grantthai.mcp import server as S  # noqa: E402
 from grantthai.mcp import tools as T  # noqa: E402
+from grantthai.routes import registry as R  # noqa: E402
 
 EXAMPLE = ROOT / "examples/lecturer-no-ai/project.yaml"
+GOLDEN = ROOT / "tests/golden/routes/lecturer-no-ai/NRIIS_SUBMISSION.md"
 AS_OF = "2026-09-25"
 NOTICE = (ROOT / "spec/output/notice_constant.txt").read_text(encoding="utf-8").rstrip("\n")
 EXPECTED_TOOLS = {"grantthai_new_project", "grantthai_list_fields", "grantthai_set_field",
-                  "grantthai_validate", "grantthai_explain", "grantthai_build"}
+                  "grantthai_validate", "grantthai_explain", "grantthai_build",
+                  "grantthai_list_routes", "grantthai_check_route"}
 STATUS_RANK = {"NEEDS_INPUT": 0, "EMPTY": 0, "DRAFT": 1}
+# Routes whose files load in every wave (the article route file belongs to
+# another work package); resolution step 4 reads every route's defaults.
+TWO_ROUTES = ("nriis-proposal", "concept-note")
 
 
 @pytest.fixture
@@ -36,6 +42,22 @@ def ctx(tmp_path):
 def example(tmp_path):
     shutil.copy(EXAMPLE, tmp_path / "project.yaml")
     return tmp_path / "project.yaml"
+
+
+@pytest.fixture
+def two_routes(monkeypatch):
+    monkeypatch.setattr(R, "route_ids", lambda include_planned=False: TWO_ROUTES)
+
+
+@pytest.fixture
+def ambiguous_work(tmp_path):
+    """A work.yaml 0.3 whose work_type is the default route of no route and
+    that declares no routing.default_route: a person has to choose."""
+    doc = P.migrated(P.load(EXAMPLE))
+    doc.pop("routing")
+    doc["work_type"] = "final_report"
+    P.save(doc, tmp_path / "work.yaml")
+    return tmp_path / "work.yaml"
 
 
 def _statuses(path):
@@ -58,10 +80,11 @@ def test_tool_list_matches_spec_contract():
 
 def test_wrapped_cli_commands_exist():
     from grantthai import cli
-    src = Path(cli.__file__).read_text(encoding="utf-8")
+    src = "\n".join(f.read_text(encoding="utf-8") for f in Path(cli.__file__).parent.glob("*.py"))
     for t in T.TOOL_SPECS:
-        sub = t["wraps_cli_command"].split()[1]
-        assert f'add_parser("{sub}"' in src, sub
+        words = t["wraps_cli_command"].split()[1:]
+        for sub in words:                      # `route list` -> add_parser("route") and add_parser("list")
+            assert f'add_parser("{sub}"' in src, sub
 
 
 def test_full_flow_blank_project(ctx, tmp_path):
@@ -148,11 +171,107 @@ def test_explain_and_errors(ctx, example):
 
 def test_resources(ctx):
     uris = {r["uri"] for r in T.list_resources()}
-    assert uris == {T.NOTICE_URI, T.FIELDS_URI}
+    assert uris == {T.NOTICE_URI, T.FIELDS_URI, T.ROUTES_URI}
+    text, mime = T.read_resource(T.ROUTES_URI)
+    assert mime == "application/json" and {r["id"] for r in json.loads(text)} >= set(TWO_ROUTES)
     text, mime = T.read_resource(T.NOTICE_URI)
     assert text.rstrip("\n") == NOTICE and mime == "text/plain"
     text, mime = T.read_resource(T.FIELDS_URI)
     assert mime == "application/json" and json.loads(text)[0]["field_id"]
+
+
+# ------------------------------------------------------------ v0.3 router
+
+def test_list_routes_lists_and_never_chooses(ctx):
+    r = T.call_tool(ctx, "grantthai_list_routes", {})
+    ids = [x["id"] for x in r["routes"]]
+    assert r["count"] == len(ids) and set(ids) >= {"nriis-proposal", "academic-article", "concept-note"}
+    assert "never pick" in r["note"]
+    assert not any(k in r for k in ("route", "chosen", "recommended", "default"))
+    nriis = next(x for x in r["routes"] if x["id"] == "nriis-proposal")
+    assert nriis["output_filename"] == "NRIIS_SUBMISSION.md" and nriis["needs_fund_binding"] is True
+    for x in r["routes"]:                     # a broken route file is listed, not hidden
+        assert set(x) >= {"id", "status", "output_filename", "accepts_work_types", "error"}
+
+
+def test_legacy_build_with_and_without_route_matches_golden(ctx, example, tmp_path):
+    a = T.call_tool(ctx, "grantthai_build", {"as_of": AS_OF})
+    b = T.call_tool(ctx, "grantthai_build", {"as_of": AS_OF, "route": "nriis-proposal"})
+    c = T.call_tool(ctx, "grantthai_build", {"as_of": AS_OF, "project_path": "project.yaml"})
+    assert a["route"] == b["route"] == c["route"] == "nriis-proposal"
+    assert a["filename"] == "NRIIS_SUBMISSION.md" and a["path"] == "build/NRIIS_SUBMISSION.md"
+    assert a["markdown"] == b["markdown"] == c["markdown"] == GOLDEN.read_text(encoding="utf-8")
+    assert [p.name for p in (tmp_path / "build").iterdir()] == ["NRIIS_SUBMISSION.md"]
+
+
+def test_ambiguous_route_returns_candidates_and_builds_nothing(ctx, ambiguous_work, tmp_path, two_routes):
+    before = ambiguous_work.read_bytes()
+    for tool in ("grantthai_build", "grantthai_validate"):
+        r = T.call_tool(ctx, tool, {"as_of": AS_OF})
+        assert r["route"] is None and r["path"] is None
+        assert r["candidates"] == list(TWO_ROUTES)
+        assert "never picks" in r["note"] and "summary" not in r and "markdown" not in r
+    assert not (tmp_path / "build").exists()
+    assert ambiguous_work.read_bytes() == before
+    # the researcher's explicit choice builds exactly that route's file
+    r = T.call_tool(ctx, "grantthai_build", {"as_of": AS_OF, "route": "nriis-proposal"})
+    assert r["route"] == "nriis-proposal" and r["path"] == "build/NRIIS_SUBMISSION.md"
+    assert [p.name for p in (tmp_path / "build").iterdir()] == ["NRIIS_SUBMISSION.md"]
+    # a declared default route in the file resolves without the argument
+    doc = P.load(ambiguous_work)
+    doc["routing"] = {"declared_routes": ["nriis-proposal"], "default_route": "nriis-proposal"}
+    P.save(doc, ambiguous_work)
+    assert T.call_tool(ctx, "grantthai_validate", {"as_of": AS_OF})["summary"]["block"] == 0
+
+
+def test_check_route_is_route_scoped_and_report_only(ctx, example):
+    before = example.read_bytes()
+    rep = T.call_tool(ctx, "grantthai_check_route", {"route": "concept-note", "as_of": AS_OF})
+    ids = {f["rule_id"] for f in rep["findings"]}
+    assert rep["summary"]["block"] == 0 and "RT002" in ids
+    assert not any(i.startswith(("B", "W", "T", "F")) for i in ids)     # no budget, workplan, team, fund rules
+    assert rep == T.call_tool(ctx, "grantthai_validate", {"route": "concept-note", "as_of": AS_OF})
+    assert example.read_bytes() == before
+    with pytest.raises(T.ToolError, match="invalid arguments"):
+        T.call_tool(ctx, "grantthai_check_route", {"as_of": AS_OF})        # route is required
+    with pytest.raises(T.ToolError, match="unknown route"):
+        T.call_tool(ctx, "grantthai_check_route", {"route": "no-such-route"})
+    with pytest.raises(T.ToolError, match="unknown route"):
+        T.call_tool(ctx, "grantthai_build", {"route": "no-such-route"})
+
+
+def test_new_work_with_work_type_writes_work_yaml_and_no_route(ctx, tmp_path, two_routes):
+    # new_work reads every route's defaults; pinned to the routes that load in every wave
+    r = T.call_tool(ctx, "grantthai_new_project", {"project_id": "W-1", "work_type": "concept_note"})
+    assert r["project_path"] == "work.yaml" and r["schema_version"] == "0.3.0-draft"
+    assert r["work_type"] == "concept_note" and r["default_route"] == "concept-note"
+    doc = P.load(tmp_path / "work.yaml")
+    assert "routing" not in doc and "fund_binding" not in doc
+    assert set(r["needs_input"]) == set(R.load("concept-note").required_fields)
+    # one canonical input per folder
+    with pytest.raises(T.ToolError, match="already exists"):
+        T.call_tool(ctx, "grantthai_new_project", {})
+    (tmp_path / "work.yaml").unlink()
+    T.call_tool(ctx, "grantthai_new_project", {})
+    assert (tmp_path / "project.yaml").exists()
+    with pytest.raises(T.ToolError, match="one canonical input"):
+        T.call_tool(ctx, "grantthai_new_project", {"work_type": "concept_note"})
+
+
+def test_two_canonical_inputs_are_refused(ctx, example, tmp_path):
+    P.save(P.migrated(P.load(example)), tmp_path / "work.yaml")
+    for tool, args in (("grantthai_build", {}), ("grantthai_validate", {}),
+                       ("grantthai_set_field", {"field_id": "CORE.GENERAL.TITLE_EN", "value": "x"})):
+        with pytest.raises(T.ToolError, match="two canonical inputs"):
+            T.call_tool(ctx, tool, {**args, "as_of": AS_OF} if tool != "grantthai_set_field" else args)
+    assert not (tmp_path / "build").exists()
+
+
+def test_list_fields_by_route(ctx):
+    r = T.call_tool(ctx, "grantthai_list_fields", {"route": "concept-note", "required_only": True})
+    assert r["route"] == "concept-note"
+    assert {f["field_id"] for f in r["fields"]} == set(R.load("concept-note").required_fields)
+    assert T.call_tool(ctx, "grantthai_list_fields", {})["route"] == "nriis-proposal"
 
 
 def test_builtin_jsonrpc_in_process(tmp_path, example):

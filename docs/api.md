@@ -1,8 +1,12 @@
 # GrantThai HTTP API
 
 A small HTTP API that lets a researcher's AI assistant fill in the
-researcher's `project.yaml` and build the one overview file,
-`build/NRIIS_SUBMISSION.md`. It works with any vendor's assistant, or none.
+researcher's work file (`work.yaml` 0.3, or a legacy `project.yaml`) and
+build exactly one overview file per output route: `build/NRIIS_SUBMISSION.md`
+(route `nriis-proposal`), `build/ACADEMIC_ARTICLE.md` (route
+`academic-article`) or `build/RESEARCH_CONCEPT_NOTE.md` (route
+`concept-note`). Since v0.3 NRIIS is one route of the router, not the core.
+It works with any vendor's assistant, or none.
 
 The API adds no rules of its own. Each endpoint calls one function of
 the Python API (`grantthai.api_py`), which is also what the CLI, the skill
@@ -23,8 +27,9 @@ grantthai-api --port 9000 --workdir ~/my-grant   # or: python -m grantthai.api .
   so binding any other address needs `--allow-remote`, and you should only
   do that behind your own authenticating proxy.
 - **Where data lives.** The working directory holds one folder per
-  project, each with `project.yaml` and `build/NRIIS_SUBMISSION.md`.
-  Nothing else is stored, and no credentials are kept.
+  project, each with its work file (`work.yaml`, or a legacy
+  `project.yaml`; never both) and `build/<route output file>`. Nothing
+  else is stored, and no credentials are kept.
 - **Where the engine finds its data.** The engine reads `spec/`,
   `registry/` and `templates/` from the checkout, or from the folder
   named in `GRANTTHAI_HOME`.
@@ -35,20 +40,43 @@ grantthai-api --port 9000 --workdir ~/my-grant   # or: python -m grantthai.api .
 |---|---|---|---|
 | GET | `/health` | Liveness check | – |
 | GET | `/openapi.yaml`, `/openapi.json` | This API's description | – |
-| GET | `/fields?tab=&required=true` | Every field: NRIIS boxes in entry order, then `NOT_ON_TAB` fields, each with its `origin` | `list_fields` |
+| GET | `/fields?tab=&required=true&route=` | The fields of one route: NRIIS boxes in entry order, then `NOT_ON_TAB` fields (default); another route's placement order, then `NOT_PLACED` | `list_fields` |
+| GET | `/routes` | Every output route; the list never chooses | `list_routes` |
 | GET | `/rules/{rule_id}` | Explain one validator rule | `explain` |
-| POST | `/projects` | Create a blank `project.yaml` | `new_project` |
-| GET | `/projects/{id}` | Read `project.yaml` as JSON | `load` |
+| POST | `/projects` | Create a blank work file: `work.yaml` with `work_type`, else a legacy `project.yaml`; no route is written | `new_work` / `new_project` |
+| GET | `/projects/{id}` | Read the work file as JSON | `load` |
 | PATCH | `/projects/{id}/fields` | Set one or more fields | `set_field` |
-| POST | `/projects/{id}/validate` | Get the validation report; changes nothing | `validate` |
-| POST | `/projects/{id}/build` | Write and return `NRIIS_SUBMISSION.md` | `build` |
+| POST | `/projects/{id}/validate` | Get the validation report for one route; changes nothing | `validate` |
+| POST | `/projects/{id}/routes/{route}/check` | The report for an explicitly named route; changes nothing | `check_route` |
+| POST | `/projects/{id}/build` | Write and return the chosen route's one file | `build` |
 
 `build` returns the Markdown text by default. Add `?format=json` to get
-`{id, filename, markdown, summary}` instead. Both `validate` and `build`
-take an optional body `{"as_of": "YYYY-MM-DD"}`. The same input with the
-same `as_of` gives byte-identical output. Leave `as_of` out and the
-engine uses today's date, so the fund-rule freshness check (F002) can
+`{id, route, filename, markdown, summary}` instead. `validate` and
+`build` take an optional body `{"as_of": "YYYY-MM-DD", "route": "...",
+"sub_profile": "..."}`; `check` takes `{as_of, sub_profile}`. The same
+input, route and `as_of` give byte-identical output. Leave `as_of` out and
+the engine uses today's date, so the fund-rule freshness check (F002) can
 change from one day to the next.
+
+### The route is the researcher's choice
+
+With no `route` in the body, the server resolves it only from what a
+person declared: `routing.default_route` in `work.yaml`, `nriis-proposal`
+for a legacy `project.yaml`, or the one route that is the default for the
+file's `work_type`. When none of these decides, `validate` and `build`
+answer **409** and write nothing:
+
+```json
+{"error": "no route chosen for W-1 (work_type final_report): choose one with --route (...) or set routing.default_route; GrantThai never picks a route",
+ "candidates": ["nriis-proposal", "academic-article", "concept-note"]}
+```
+
+The assistant shows the candidates, asks the researcher, and repeats the
+call with `"route"`. The server never picks. An unknown route is 404. A
+legacy `project.yaml` with no route keeps the v0.1 behaviour
+(`NRIIS_SUBMISSION.md`), so existing clients are unaffected. `POST /projects`
+returns `default_route` (or `candidates`) so the assistant knows up front
+whether it has to ask.
 
 ## Rules the engine enforces for every caller
 
@@ -82,12 +110,14 @@ change from one day to the next.
   researcher confirms the declaration in `project.yaml` after reading output
   section 4.7 (a GrantThai appendix, not an NRIIS field). Rules AI001-AI004
   (REVIEW) report what is missing.
-- **No invented facts.** Do not make up Thai fund, NRIIS or institution
-  facts. Send `"NEEDS_VERIFICATION"` instead; it is stored as an empty
-  value plus that marker.
+- **No invented facts.** Do not make up Thai fund, NRIIS, institution or
+  journal facts (scope, indexing, word limits, fees, review time). Send
+  `"NEEDS_VERIFICATION"` instead; it is stored as an empty value plus that
+  marker.
 - **Batches are all-or-nothing.** In `{"updates": [...]}`, if any update
   is refused, nothing is written.
-- **Validate is report-only.** It never changes `project.yaml`.
+- **Validate and check are report-only.** They never change the work file.
+- **No route is ever chosen by the server** (see above).
 
 ## Example
 
@@ -102,6 +132,31 @@ curl -s -X POST 127.0.0.1:8765/projects/my-grant/validate -d '{"as_of":"2026-09-
 curl -s -X POST 127.0.0.1:8765/projects/my-grant/build    -d '{"as_of":"2026-09-25"}' > NRIIS_SUBMISSION.md
 ```
 
+One example per route (the researcher chose the route in each case):
+
+```sh
+# research proposal (NRIIS route): a legacy project.yaml, or work_type research_proposal
+curl -s -X POST 127.0.0.1:8765/projects -H 'content-type: application/json' -d '{"project_id":"p1"}'
+curl -s -X POST 127.0.0.1:8765/projects/p1/build -d '{"as_of":"2026-09-25","route":"nriis-proposal"}' > NRIIS_SUBMISSION.md
+
+# academic article: work.yaml, no fund binding, ARTICLE.* fields from the researcher's own results
+curl -s -X POST 127.0.0.1:8765/projects -H 'content-type: application/json' \
+     -d '{"project_id":"a1","work_type":"academic_article"}'
+curl -s '127.0.0.1:8765/fields?route=academic-article&required=true'
+curl -s -X POST 127.0.0.1:8765/projects/a1/routes/academic-article/check -d '{"as_of":"2026-09-25","sub_profile":"thai-journal"}'
+curl -s -X POST 127.0.0.1:8765/projects/a1/build -d '{"as_of":"2026-09-25","route":"academic-article"}' > ACADEMIC_ARTICLE.md
+
+# concept note: never submittable (always a HOLD)
+curl -s -X POST 127.0.0.1:8765/projects -H 'content-type: application/json' \
+     -d '{"project_id":"c1","work_type":"concept_note"}'
+curl -s -X POST 127.0.0.1:8765/projects/c1/build -d '{"as_of":"2026-09-25","route":"concept-note"}' > RESEARCH_CONCEPT_NOTE.md
+```
+
+`manuscript_ready` in `ACADEMIC_ARTICLE.md` means "no BLOCK finding is
+open"; it never means accepted or publishable, and every journal fact in
+it is `NEEDS_VERIFICATION` unless the researcher supplied the venue's own
+document.
+
 ## Using it from an AI assistant
 
 - **Assistants that import OpenAPI** (custom GPT Actions and similar):
@@ -112,13 +167,17 @@ curl -s -X POST 127.0.0.1:8765/projects/my-grant/build    -d '{"as_of":"2026-09-
 - **Local assistants and scripts:** call the endpoints directly, or skip
   HTTP and use `grantthai.api_py`, the CLI, or the MCP server.
 
-## Limits in v0.1
+## Limits
 
 - **Console script.** `grantthai-api` (installed with the package) is
   the same as `python -m grantthai.api`.
 - **Standard library only.** It uses `wsgiref`, with no FastAPI or
   uvicorn. It is meant for one person on one machine, not for serving
   many users.
-- **No way to upload a whole file.** You cannot send a full
-  `project.yaml`, which keeps the status ceiling from being bypassed. To
-  work on an existing file, copy it to `<workdir>/<id>/project.yaml`.
+- **No way to upload a whole file.** You cannot send a full work file,
+  which keeps the status ceiling from being bypassed. To work on an
+  existing file, copy it to `<workdir>/<id>/work.yaml` (or
+  `project.yaml`; never both).
+- **No `migrate` and no `routing` writes.** Declaring `routing.default_route`
+  in `work.yaml`, or upgrading a `project.yaml`, is done by a person at the
+  terminal; over HTTP the route is named per request.

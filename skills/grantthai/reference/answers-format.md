@@ -1,8 +1,9 @@
 # The answers file (`answers.yaml`)
 
-`scripts/grantthai_skill.py apply answers.yaml --project project.yaml`
-writes an interview's answers into `project.yaml` through the GrantThai
-Python API (`grantthai.api_py.set_field`). It is the easiest way for an AI
+`scripts/grantthai_skill.py apply answers.yaml --project work.yaml`
+writes an interview's answers into the work file (`work.yaml` 0.3, or a
+legacy `project.yaml`) through the GrantThai Python API
+(`grantthai.api_py.set_field`). It is the easiest way for an AI
 with a shell to write many fields, sources and links at once. Every rule
 in `provenance.md` is enforced by the engine, not by this file.
 
@@ -11,14 +12,27 @@ one record, so a second apply replaces the earlier value rather than
 adding a copy. Sources are matched by `source_id` the same way.
 
 ```yaml
-# Used with --init, when project.yaml does not exist yet (form_profile: every run).
+# Used with --init, when the work file does not exist yet (route, sub_profile
+# and form_profile: every run).
 project:
-  project_id: "MY-PROJECT-001"
-  fund_profile_id: "example/FICTIONAL_CALL@0.1"   # the only profile shipped in v0.1
+  work_id: "MY-WORK-001"            # project_id is accepted as an alias
+  # v0.3: what the researcher is making. With --init this writes work.yaml
+  # (schema 0.3); without it a legacy project.yaml (0.2) is written.
+  # research_proposal | academic_article | concept_note | thesis_proposal |
+  # conference_abstract | final_report. Sets defaults only.
+  work_type: academic_article
+  fund_profile_id: "example/FICTIONAL_CALL@0.1"   # only needed by the nriis-proposal route
   mode: expert
+  # v0.3: the output route THE RESEARCHER CHOSE (step 0 of SKILL.md), recorded
+  # as routing.default_route. Never write a route the researcher did not
+  # choose; leave it out and `report` will list the candidates instead.
+  # Only on a work.yaml 0.3 (a legacy project.yaml has no routing block).
+  # route: academic-article
+  # sub_profile: thai-journal        # a sub-profile of that route, if the researcher named one
   # v0.2, optional: the proposal form type, only if the researcher names it
   # (`grantthai profiles`; every profile is NEEDS_VERIFICATION). Applied on
-  # every run, not only with --init.
+  # every run, not only with --init (on a work.yaml it is stored as
+  # routing.sub_profiles.nriis-proposal).
   # form_profile: "ff_full_proposal@nriis-2570"
 
 # The AI product name and version, as the researcher wants them disclosed.
