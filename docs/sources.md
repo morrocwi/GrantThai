@@ -115,6 +115,34 @@ Notes:
 - SD-4 quotes a typology from a further, third-party source; that source is
   not cited here and nothing is taken from it beyond what SD-4 prints.
 
+## GenAI guideline 2569 (the AI-use ceiling)
+
+GrantThai's AI-use ceiling (`docs/policy/ai-use-ceiling.md`, Thai
+`docs/policy/ai-use-ceiling.th.md`) is built on one public guidance
+document. Like the SD documents, the PDF is not committed; it is described
+here from its own cover and foreword.
+
+| Field | Value |
+|---|---|
+| Title (as printed) | แนวทางการประยุกต์ใช้ Generative AI อย่างมีจริยธรรมสำหรับนักวิจัย (guidelines for the ethical use of generative AI by researchers) |
+| Issuer (as printed) | สำนักงานการวิจัยแห่งชาติ (วช.), National Research Council of Thailand (NRCT), กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม |
+| Date | กันยายน 2569 (September 2569), 36 PDF pages; printed page numbers equal PDF pages |
+| sha256 of the copy read | `70774053a1b7a73dd339e70611c7d5ac064caf96924b715c8edaaebac9cfaa4d` |
+| Public URL | `NEEDS_VERIFICATION`: the copy read was a PDF supplied to the maintainers; its public download address has not been recorded yet |
+| Status | guidance (the document calls itself แนวทาง / แนวปฏิบัติ); whether it binds a given researcher is OPEN; the statutes it cites bind on their own |
+| Scope | generative AI only; agentic AI and other AI types are excluded and will get separate guidance (p.4) |
+| Short name in this repository | "GenAI guideline 2569" (rule locators, engine messages, output section 4.7) |
+
+How it is used: every line of the ceiling cites the guideline's page and
+the force of its Thai wording (MUST, SHOULD, MAY, or example). Rules
+AI001-AI004 (`validators/rules.yaml`, REVIEW only) cite it in their
+locators. The AI Use Declaration in `project.yaml`
+(`authoring.ai_use_declaration`) and output section 4.7 follow the order of
+its sample form in Appendix A (p.34). Its text is paraphrased; quotations
+are short phrases. The names of its drafting committee are not reproduced
+anywhere in this repository. Appendix B (p.35-36) reproduces another
+agency's AI disclosure form; GrantThai does not use that form.
+
 ## Excluded AI-derived readout of portal screenshots
 
 One excluded file is an AI-generated readout of three NRIIS portal
