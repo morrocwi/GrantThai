@@ -66,7 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--out")
     p.add_argument("--as-of")
 
-    p = sub.add_parser("fields", help="list fields in NRIIS entry order")
+    p = sub.add_parser("fields", help="list every field: NRIIS boxes in entry order, then NOT_ON_TAB fields")
     p.add_argument("--tab")
     p.add_argument("--required", action="store_true")
 

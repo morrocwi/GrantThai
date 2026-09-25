@@ -65,7 +65,7 @@ tools. stdout carries protocol messages only.
 | Tool | Wraps | Effect |
 |---|---|---|
 | `grantthai_new_project` | `grantthai init` | Writes a blank `project.yaml`, with every required field `NEEDS_INPUT`. It refuses to overwrite an existing file. |
-| `grantthai_list_fields` | `grantthai fields` | Lists the fields in NRIIS entry order (id, tab, type, required, English label, guidance). Thai labels are `NEEDS_VERIFICATION`. |
+| `grantthai_list_fields` | `grantthai fields` | Lists every field: NRIIS boxes in entry order, then fields with tab `NOT_ON_TAB` (id, tab, origin, type, required, English label, guidance). Thai labels are `NEEDS_VERIFICATION`. |
 | `grantthai_set_field` | `grantthai set` | Writes one value as an AI-assisted `DRAFT`. Takes `field_id`, `value`, `researcher_verbatim`, `chain_node`, `source_ids`, `links` and `tool`. |
 | `grantthai_validate` | `grantthai validate` | Returns the validation report of BLOCK, REVIEW and INFO findings. Report-only. |
 | `grantthai_explain` | `grantthai explain` | Explains one rule id, such as `S001`, `B002` or `SCHEMA`. |

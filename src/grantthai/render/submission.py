@@ -262,7 +262,8 @@ def build_context(raw: dict, result: E.Result) -> dict:
             return "chain content without a registry field (never an NRIIS field)"
         if r.get("section") in off_tab:
             return off_tab[r["section"]]
-        return {"AUTHORING_CORE": "authoring core: its content reaches NRIIS only through a narrative field",
+        return {"AUTHORING_CORE": "authoring core, an internal research-design record (it reaches NRIIS only "
+                                  "through the narrative box it feeds, if any)",
                 "FUND_PROFILE": "a requirement of the bound call, not an NRIIS form field",
                 "DERIVED": "calculated from other fields",
                 "RECOMMENDED_EXTENSION": "structure not confirmed as an NRIIS field"}.get(r.get("origin"), "not mapped")
@@ -285,13 +286,16 @@ def build_context(raw: dict, result: E.Result) -> dict:
     package_conflicts = []
     for cx in P.contradictions():
         aff = cx.get("affects") or {}
-        touched = sorted(f for f in aff.get("fields") or [] if f in present)
+        in_scope = set(aff.get("fields") or []) | {fid for fid, r in reg.items()
+                                                    if r.get("section") in (aff.get("sections") or [])}
+        touched = sorted(f for f in in_scope if f in present)
         package_conflicts.append({
             "id": cx.get("id"), "title": cx.get("title"), "status": cx.get("status"),
             "readings": [f"{x.get('source')}: {x.get('says')}" for x in cx.get("readings") or []],
             "handling": cx.get("current_handling"),
             "touched": ", ".join(touched) or "no record of this project (affects "
-                       + ", ".join((aff.get("files") or []) + (aff.get("fields") or [])) + ")",
+                       + ", ".join((aff.get("files") or []) + [f"section {s}" for s in aff.get("sections") or []]
+                                   + (aff.get("fields") or [])) + ")",
         })
     project_conflicts = []
     for rec, _ in P.iter_records(doc):

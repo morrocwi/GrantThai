@@ -70,7 +70,7 @@
           "max_status_ceiling": "DRAFT",
           "status_effect": "none",
           "can_submit": false,
-          "output_schema_ref": "../../registry/nriis-fields.jsonl"
+          "output_schema_ref": "../../registry/fields.jsonl"
         },
         {
           "name": "grantthai_set_field",

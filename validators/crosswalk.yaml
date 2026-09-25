@@ -4,7 +4,7 @@
 # in core/02 and core/04 (e.g. V-R06), so each entry is keyed by source AND
 # code. coverage: full = the rule(s) check what the code says; partial = part
 # of it (see note); none = not checked (see note for why and when).
-# tests/test_crosswalk.py checks every rule id exists and the per-source counts.
+# tests/test_rules_added.py checks every rule id exists and the per-source counts.
 schema: grantthai.crosswalk.v0
 version: 0.1.0-draft
 sources:

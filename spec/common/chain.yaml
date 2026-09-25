@@ -15,7 +15,7 @@
 # In v0.2, ontology/shapes.shacl.ttl is GENERATED from this file — never
 # hand-maintained (docs/design/PLAN.md §E, "Validation engines").
 schema: grantthai.chain.v0
-version: "0.2.0-draft"
+version: "0.3.0-draft"
 status: draft
 
 nodes:

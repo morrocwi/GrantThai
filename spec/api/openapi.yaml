@@ -54,7 +54,7 @@ paths:
   /fields:
     get:
       operationId: listFields
-      summary: List the fields of the overview file, in NRIIS entry order.
+      summary: List every field of the overview file; NRIIS boxes first in entry order, then fields with tab NOT_ON_TAB.
       description: Thai labels and NRIIS tab names are NEEDS_VERIFICATION until confirmed.
       parameters:
         - name: tab
@@ -300,8 +300,9 @@ components:
       additionalProperties: true
       properties:
         field_id: {type: string}
-        tab: {type: string}
+        tab: {type: string, description: "An NRIIS tab (NEEDS_VERIFICATION), or NOT_ON_TAB for a field that is not an NRIIS box."}
         entry_order: {type: integer}
+        origin: {type: [string, "null"], enum: [NRIIS_NATIVE, FUND_PROFILE, AUTHORING_CORE, DERIVED, RECOMMENDED_EXTENSION, null]}
         label_en: {type: string}
         label_th: {type: string}
         type: {type: [string, "null"]}

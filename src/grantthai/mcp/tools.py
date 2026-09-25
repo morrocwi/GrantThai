@@ -120,8 +120,10 @@ TOOL_SPECS: list[dict] = [
         "status_effect": "none",
         "annotations": {"readOnlyHint": True, "openWorldHint": False},
         "description": (
-            "List the fields in NRIIS entry order: field_id, tab, type, whether required, English label, "
-            "guidance. Thai labels and NRIIS tab names are NEEDS_VERIFICATION; do not guess them."
+            "List every field: first the NRIIS boxes in entry order, then fields that are not NRIIS boxes "
+            "(tab NOT_ON_TAB: research core, methodology, fund-profile and derived fields, still filled in "
+            "project.yaml). Gives field_id, tab, origin, type, whether required, English label, guidance. "
+            "Thai labels and NRIIS tab names are NEEDS_VERIFICATION; do not guess them."
         ),
         "inputSchema": {
             "type": "object",
@@ -226,7 +228,7 @@ RESOURCE_SPECS: list[dict] = [
     {"uri": NOTICE_URI, "name": "notice", "mimeType": "text/plain",
      "description": "The independence notice printed on line 1 of every NRIIS_SUBMISSION.md body."},
     {"uri": FIELDS_URI, "name": "fields", "mimeType": "application/json",
-     "description": "The field registry in NRIIS entry order (same data as grantthai_list_fields)."},
+     "description": "The whole field registry, NRIIS boxes first in entry order (same data as grantthai_list_fields)."},
 ]
 
 

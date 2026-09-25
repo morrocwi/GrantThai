@@ -35,7 +35,9 @@ lineage tag so it stays traceable to its source. See `GOVERNANCE.md`,
 What is derived, concretely:
 
 - `registry/fields.jsonl` — the 100 field records of core/05, re-keyed into
-  GrantThai's field-ID namespaces (table in `registry/README.md`).
+  GrantThai's field-ID namespaces (table in `registry/README.md`), plus 22
+  records added in v0.1.0 from core/02 and the public documents SD-1, SD-3
+  and SD-4 below (`source_field_id: NONE (not in core/05)`).
   `label_en` is core/05's descriptive English label, **not** an official
   NRIIS label; every `label_th` is `NEEDS_VERIFICATION`.
 - `mappings/nriis/section_to_tab.yaml` — core/05 sections to NRIIS tabs,

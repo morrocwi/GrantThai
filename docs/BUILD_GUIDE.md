@@ -27,6 +27,18 @@ What this means for the phases below:
   `SOURCE`, never invents Thai fund or NRIIS facts (`NEEDS_VERIFICATION`);
   AI drafts are `DRAFT`/`INFERENCE` for the researcher to confirm. The
   ceiling is enforced in `src/grantthai/core`, not by the wrappers.
+- **Also in v0.1.0 (audit of the design sources, 2026-09-25):** registry
+  `origin` per field (core/02 §2; only `NRIIS_NATIVE` fields are placed on
+  a tab), the contradiction register (`registry/contradictions.yaml`,
+  `docs/contradictions.md`, a defined "Conflicts and open contradictions"
+  output section), 22 fields the forms ask for (sub-projects,
+  past performance, ISCED, references, IP check, risks, entrepreneur,
+  sustainability, team expertise and credentials, project-lead track
+  record, funding alignment, theoretical foundations, propositions,
+  boundary conditions), 12 more rules plus the full crosswalk
+  (`validators/crosswalk.yaml`), and candidate Thai labels from public
+  documents (`mappings/nriis/labels@nrct-manual-2566.yaml`, all
+  `NEEDS_VERIFICATION`).
 - **Deferred (not cancelled):** the offline web form, the launchers,
   `forms/*.md` import, Citizen Mode, review/lock, the concept note, the
   bridge ontology / SHACL, and the v0.3 `assist` package. The phase
@@ -49,6 +61,11 @@ do not guess or invent an answer.
 | What is a resolvable source reference, and which fields need one? | `spec/common/links-and-sources.md` §3, `spec/common/source.schema.json` |
 | What does a complete, valid project look like? | `examples/lecturer-no-ai/project.yaml` (FICTIONAL; `tests/test_example_project.py` recomputes the v0.1 link/sum/budget/source/DAG rules on it) |
 | Which NRIIS tab does each field land on? | `mappings/nriis/section_to_tab.yaml` → generated `registry/nriis-fields.jsonl` (all `NEEDS_VERIFICATION`) |
+| Which fields are NRIIS boxes and which are authoring-only? | `origin` in `registry/fields.jsonl` (core/02 §2): only `NRIIS_NATIVE` fields get an `NRIIS.*` record; `render_from` on a narrative field lists the records it is written from |
+| Where do the design sources contradict each other, and what does GrantThai do meanwhile? | `docs/contradictions.md` / `registry/contradictions.yaml` (every entry OPEN, both readings kept); `conflicts` on registry records |
+| Where do candidate Thai labels, OECD codes, budget categories and output/outcome/impact typologies come from? | `mappings/nriis/labels@nrct-manual-2566.yaml` (schema `spec/mappings/labels.schema.json`), each cited to a public document in `docs/sources.md` (SD-1..SD-4); all `NEEDS_VERIFICATION`, never official |
+| Which package validation code (core/02 V-*, core/04 V-*, core/05 VAL.*) is which GrantThai rule? | `validators/crosswalk.yaml` |
+| Which policy lenses and ecosystem positions can a project select? | `ecosystem/positions@2026-09.yaml` (RELAYED, `NEEDS_VERIFICATION`) |
 | Which validation rules exist, with severity and chain step? | `validators/rules.yaml` (schema `spec/validators/rule.schema.json`) |
 | How is the project object hashed, and why does a review or status change not make a review stale? | `spec/common/object-hash.md` (`content_sha256` vs `state_sha256`), reference `src/grantthai/core/object_hash.py`, golden vectors `tests/golden/object-hash/` |
 | How are the JSON Schemas loaded (their `$id`s are URLs)? | Load every `spec/**/*.schema.json` into a local registry keyed by `$id` and resolve `$ref`s through it; never fetch the URL. See `build_registry` in `tools/ci/check_schema_lint.py` |
@@ -215,6 +232,28 @@ feature. Do NOT let `ai_assisted_fill` default to anything but `false`.
 
 ## v0.2 — "Citizen, no AI" + review + lock
 
+**Carried into v0.2 from the v0.1.0 audit of the design sources** (recorded
+in `docs/deviations.md`):
+
+- **Form profiles.** A `form_profile` concept in `mappings/nriis/` for the
+  five proposal form types in SD-1 p47 (research, innovation, personnel
+  development, system/standard, promotion activity) and for the funding
+  units' own Word/PDF proposal templates uploaded to NRIIS (SD-2 p9, SD-3
+  p9). v0.1 models one observed form (contradiction CX-09 covers tab count
+  and order).
+- **Lifecycle.** The core/04 project lifecycle (20 states, V-L01–V-L06:
+  certification, contract change control, extension, progress and final
+  reports, 5-year utilization reporting) as `spec/common/lifecycle.yaml`,
+  or an explicit decision that it stays out of scope.
+- **Writing layer.** core/02 §4A.2 compression targets, §4B section writing
+  intent and micro-templates, §4E section purpose matrix and §15
+  completeness checklist into `guidance/writing_intent.yaml`, referenced
+  from registry `guidance`; the core/01 §30 copy/paste checklist and the
+  SD-4 p166 validation page in the output contract.
+- **Classification rules** C001–C003 (VAL.012) need an agreed topic → OECD
+  mapping before they can be evaluated.
+- Decisions on the OPEN contradictions CX-01..CX-10 (`docs/contradictions.md`).
+
 **Files to create:** `interview/{expert.en,citizen.th,citizen.en}.yaml`,
 `mappings/modes/citizen_to_core.yaml`, `templates/research_concept_note.md.j2`
 (implementation), `ontology/bridge/*`, `ontology/shapes.shacl.ttl`
@@ -268,7 +307,9 @@ anything; UI drift sets `UI_DRIFT`; no credentials are ever stored.
 
 **Files to create:** the first real, non-fictional fund profile (dated,
 human-maintained, second-checked), the Thai NRIIS label capture (within
-K14's terms), opt-in network directories (`network/directories.schema.yaml`
+K14's terms; v0.1.0 already carries *candidate* labels from public
+documents in `mappings/nriis/labels@nrct-manual-2566.yaml` — v0.5 confirms
+or replaces them against current call/TOR documents), opt-in network directories (`network/directories.schema.yaml`
 populated, per K11).
 
 **Acceptance:** every rule sourced, dated, second-checked; the staleness

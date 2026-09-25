@@ -35,7 +35,7 @@ grantthai-api --port 9000 --workdir ~/my-grant   # or: python -m grantthai.api .
 |---|---|---|---|
 | GET | `/health` | Liveness check | – |
 | GET | `/openapi.yaml`, `/openapi.json` | This API's description | – |
-| GET | `/fields?tab=&required=true` | Fields in NRIIS entry order | `list_fields` |
+| GET | `/fields?tab=&required=true` | Every field: NRIIS boxes in entry order, then `NOT_ON_TAB` fields, each with its `origin` | `list_fields` |
 | GET | `/rules/{rule_id}` | Explain one validator rule | `explain` |
 | POST | `/projects` | Create a blank `project.yaml` | `new_project` |
 | GET | `/projects/{id}` | Read `project.yaml` as JSON | `load` |

@@ -28,6 +28,9 @@ for first still lands here.
 8. `docs/deviations.md` — where this scaffold intentionally departs from
    the original handoff package, so you do not "fix" an intentional
    deviation back to the original.
+9. `docs/contradictions.md` — where the design sources contradict each
+   other. Every entry is OPEN with both readings kept; do not resolve one
+   silently in code, and do not drop a reading.
 
 ## If you are an AI helping a researcher USE GrantThai (not build it)
 
@@ -94,8 +97,10 @@ these are hard boundaries, not style choices.
    supply) — never guessed, never filled from training-data recall. The
    field registry (`registry/fields.jsonl`) already follows this: English
    labels are descriptive (from the handoff package), every Thai label is
-   `NEEDS_VERIFICATION`. See `spec/common/status.yaml` and
-   `docs/sources.md`.
+   `NEEDS_VERIFICATION`. Candidate Thai labels read from a cited public
+   document live only in `mappings/nriis/labels@<edition>.yaml`, stay
+   `NEEDS_VERIFICATION`, and are shown tagged "candidate", never as
+   official. See `spec/common/status.yaml` and `docs/sources.md`.
 4. **No AI/vendor authorship anywhere.** No `Co-Authored-By` trailer naming
    an AI vendor, no `Claude-Session:` line, no "Generated with ..." footer,
    in any commit message, PR, file, or release note. `.githooks/commit-msg`
@@ -146,7 +151,9 @@ criteria (AT-1 through AT-6). In short:
   review/lock, bridge ontology + generated SHACL. See AT-1/AT-2 extended.
 - **v0.3 optional AI assist:** `grantthai[ai]`, parity CI. See AT-3b.
 - **v0.4 interfaces:** MCP (from the Phase 0 contract), REST, browser-assist.
-- **v0.5 real fund profiles, network, labels.**
+- **v0.5 real fund profiles, network, labels** (v0.1.0 already carries
+  *candidate* Thai labels from public documents, all `NEEDS_VERIFICATION`,
+  in `mappings/nriis/labels@nrct-manual-2566.yaml`).
 
 Do not skip ahead: the AI-free CLI path exists and passes its tests; the
 skill/MCP/API wrappers were built only on top of it, by founder ruling.

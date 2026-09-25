@@ -157,5 +157,5 @@ depends on the date.
 | `scripts/grantthai_skill.py` | `check`, `apply`, `report`: thin wrapper over `grantthai.api_py` |
 
 In the GrantThai repository: `examples/lecturer-no-ai/project.yaml` is a
-complete FICTIONAL worked example; `grantthai fields` lists every field in
-NRIIS entry order; `docs/use-with-ai.md` covers installation per AI tool.
+complete FICTIONAL worked example; `grantthai fields` lists every field
+(NRIIS boxes in entry order, then `NOT_ON_TAB` authoring fields); `docs/use-with-ai.md` covers installation per AI tool.
