@@ -14,6 +14,10 @@ builds the same inputs through `build`, `build --route nriis-proposal`,
 requires each result to equal these files byte for byte. Refresh them only
 through a reviewed decision that the NRIIS output is meant to change.
 
+Provenance: re-pinned 2026-09-25 for the 0.3.0 version string; content
+unchanged, diff checked (the only changed line in each file is
+`grantthai_version: 0.2.0` -> `grantthai_version: 0.3.0`).
+
 AT-R1 compares against these files only. `examples/*/build/` is
 git-ignored and may hold a stale local build from an older version (for
 example `grantthai_version 0.1.0`); rebuild or delete it before comparing

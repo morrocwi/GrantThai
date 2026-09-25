@@ -6,6 +6,43 @@ SemVer from v0.1 onward.
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-09-25
+
+Version 0.3.0 in `pyproject.toml`, `src/grantthai/__init__.py` and
+`CITATION.cff`. One work object, many routes: one file per chosen route
+(`NRIIS_SUBMISSION.md` / `ACADEMIC_ARTICLE.md` /
+`RESEARCH_CONCEPT_NOTE.md`); unofficial. Release prepared; the founder
+approves any release.
+
+### Changed — release review (2026-09-25)
+- Version string: the NRIIS goldens (`tests/golden/routes/*`), the
+  committed `examples/demo-seedbank/NRIIS_SUBMISSION.md` and the pinned
+  sha256 in `tests/test_form_profiles.py` were re-pinned for
+  `grantthai_version: 0.3.0`; content unchanged, diff checked (that one
+  line only; same byte count).
+- Metadata: `CITATION.cff` abstract and the `pyproject.toml` description
+  now describe the router, not the v0.1 single-output pipeline.
+- ART007 hardening: names are NFKC-normalised, stripped of Unicode format
+  (Cf) and zero-width characters, look-alike Cyrillic/Greek letters are
+  folded inside a mixed word, hyphens/underscores/whitespace folded,
+  casefolded and spaced single letters joined before matching; a member
+  full_name and a disclosed tool also match on a shared distinctive token
+  (at least 3 characters, digits and version/generic/fiction-marker words
+  removed); Thai transliterations of common tool words added to
+  `validators/ai_tool_name_patterns.yaml` as pattern data. Six new negative
+  fixtures under `tests/fixtures/negative/ART007/`. A miss is still
+  possible, and a real person whose name shares a distinctive word with a
+  disclosed tool is now BLOCKed (fail-closed).
+- LaTeX export: a visible line under `\maketitle`, "Draft prepared with
+  GrantThai (unofficial); check the target journal's current
+  instructions." (`docs/deviations.md`).
+- `templates/tex/SOURCE.yaml` origin re-pinned to glosa main merge
+  `f2856ce` (main.tex sha256 identical); `docs/sources.md` gains the 7SSA
+  master schema entry; README.en.md, llms.txt, llms-full.txt and ai.json
+  describe the 7SSA structure profiles; the README role-disclosure footer
+  lists interoperability/how-to mentions of AI products as an exception;
+  `docs/BUILD_GUIDE.md` path and "planned (not present)" fixes.
+
 ### Added — 7SSA structure profiles on the academic-article route
 - Founder request (2026-09-25): "ให้ router ใช้เทมเพลทนี้เมื่อต้องทำงานประเภทนี้" —
   the router uses the 7SSA (seven-sector scholarly article) template for

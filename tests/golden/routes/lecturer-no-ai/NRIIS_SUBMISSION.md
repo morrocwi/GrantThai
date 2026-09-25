@@ -1,5 +1,5 @@
 ---
-grantthai_version: 0.2.0
+grantthai_version: 0.3.0
 schema_version: 0.2.0-draft
 renderer_version: nriis_submission.md.j2@0.3.0
 project_id: FICTIONAL-LECTURER-EXAMPLE-0001

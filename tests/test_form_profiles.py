@@ -46,7 +46,10 @@ SOURCES = (ROOT / "docs/sources.md").read_text(encoding="utf-8")
 # frontmatter line authoring.ai_use_declaration: none, and section 4.7 (the
 # AI Use Declaration appendix, "no AI use recorded" for this example). No
 # other byte changed.
-GOLDEN_V010_SHA256 = "060dd7d4d93dfd2da384d6e22779767f1dd3802175b4122987baace408f60b16"
+# Re-pinned 2026-09-25 for the 0.3.0 version string (frontmatter
+# grantthai_version 0.2.0 -> 0.3.0); content unchanged, diff checked, same
+# byte count.
+GOLDEN_V010_SHA256 = "0f444646c0a3db5fb1c574541351483fb8fc24e8b524299c4aa0fe0ef480188a"
 GOLDEN_V010_BYTES = 110716
 
 EXPECTED_IDS = {
