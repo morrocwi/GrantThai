@@ -1,7 +1,7 @@
 # validators/
 
 - `rules.yaml` — the rule catalog as data (schema
-  `spec/validators/rule.schema.json`): 56 rules with id, family, ship
+  `spec/validators/rule.schema.json`): 60 rules with id, family, ship
   version, severity (`BLOCK` / `REVIEW` / `INFO`), description, inputs
   (field ids or chain nodes), chain step, source and the path of the
   negative fixture each BLOCK rule needs (AT-4). Implementations live in

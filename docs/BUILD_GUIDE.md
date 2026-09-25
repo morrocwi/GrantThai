@@ -16,9 +16,15 @@ do not guess or invent an answer.
 | What is the one input, and what is the one output? | `spec/contracts/one-input-one-output.md`, `README.md` |
 | What schema does the input conform to? | `spec/project/project.schema.json` (+ `spec/common/field_record.schema.json`, `spec/common/evidence.schema.json`) |
 | Which fields exist, with labels, types, required flags and input controls? | `registry/fields.jsonl` (schema `spec/registry/field.schema.json`) |
+| What does each registry `type` mean for a value (JSON type, money/percent precision, dates)? | `spec/registry/types.yaml` |
+| What keys does each repeating-group or group field hold (e.g. an activity's `weight_percent`, a budget line's `quantity`/`unit_price`/`line_total`, a team member's `project_role: PI` and `contribution_percent`)? | `spec/registry/structured_fields.schema.json` (`$defs/<field_id>`; lint-enforced for every `array<object>`/`object`/`rich_text\|object` field) |
+| How do items link to each other, and what is `project:chain_edges`? | `spec/common/links-and-sources.md` §1–2 (reference implementation `src/grantthai/core/links.py`) |
+| What is a resolvable source reference, and which fields need one? | `spec/common/links-and-sources.md` §3, `spec/common/source.schema.json` |
+| What does a complete, valid project look like? | `examples/lecturer-no-ai/project.yaml` (FICTIONAL; `tests/test_example_project.py` recomputes the v0.1 link/sum/budget/source/DAG rules on it) |
 | Which NRIIS tab does each field land on? | `mappings/nriis/section_to_tab.yaml` → generated `registry/nriis-fields.jsonl` (all `NEEDS_VERIFICATION`) |
 | Which validation rules exist, with severity and chain step? | `validators/rules.yaml` (schema `spec/validators/rule.schema.json`) |
-| How is the project object hashed? | `spec/common/object-hash.md` |
+| How is the project object hashed, and why does a review or status change not make a review stale? | `spec/common/object-hash.md` (`content_sha256` vs `state_sha256`), reference `src/grantthai/core/object_hash.py`, golden vectors `tests/golden/object-hash/` |
+| How are the JSON Schemas loaded (their `$id`s are URLs)? | Load every `spec/**/*.schema.json` into a local registry keyed by `$id` and resolve `$ref`s through it; never fetch the URL. See `build_registry` in `tools/ci/check_schema_lint.py` |
 | What schema does the output conform to (section order, per-field block format, readiness-summary format)? | `spec/output/nriis-submission.contract.md` |
 | What is the chain of research stages a project must populate? | `spec/common/chain.yaml` |
 | What are the valid field statuses, and who can set which transition? | `spec/common/status.yaml`, `spec/common/status_permissions.yaml` |
@@ -31,6 +37,7 @@ do not guess or invent an answer.
 | What is intentionally different from the original handoff package, and why? | `docs/deviations.md` |
 | What must never be committed? | `docs/sources.md`, `AGENTS.md` "Public-repo exclusions" |
 | What counts as "done" for the phase I'm building? | This file, per-phase "Acceptance" sections below |
+| Which parts are known founder-input gaps, where a builder must stop rather than invent? | Rule family `ECO` (`ids_status: NEEDS_INPUT` in `validators/rules.yaml`; no rule ids exist yet), `spec/common/parity.yaml` (empty until v0.3), every `NEEDS_VERIFICATION` label/option list (K14) |
 
 If a question above has no file to point at yet, that is a gap in this
 guide, not license to invent an answer — flag it and, if you are extending
@@ -112,8 +119,12 @@ beyond stubs.
 - `src/grantthai/core/*` — the project object model (load/save
   `project.yaml`, apply a field update, compute status transitions per
   `spec/common/status_permissions.yaml`).
-- `src/grantthai/validators/*` — implement rule families S/R/W/B, T001,
-  CH001-CH002, F001-F004, ELIG001 from `validators/rules.yaml`.
+- `src/grantthai/validators/*` — implement rule families S (S001-S008),
+  R, W, B, T (T001-T002), CH001-CH002, F001-F004, ELIG001 from
+  `validators/rules.yaml`. Link rules read `project:chain_edges` exactly as
+  `spec/common/links-and-sources.md` defines it; reuse or match
+  `src/grantthai/core/links.py` and `object_hash.py` (the golden vectors
+  and `tests/test_example_project.py` must keep passing).
 - `src/grantthai/render/*` — Jinja2 renderer implementing
   `templates/nriis_submission.md.j2` per
   `spec/output/nriis-submission.contract.md`.
