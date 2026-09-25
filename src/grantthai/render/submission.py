@@ -203,7 +203,14 @@ def build_context(raw: dict, result: E.Result) -> dict:
                 needs_input.append(cfid)
         else:
             status = rec.get("status") or "DRAFT"
-            basis = "as authored; report-only validation, no review record"
+            if status in ("DRAFT", "NEEDS_INPUT"):
+                basis = "as authored; report-only validation, no review record"
+            else:
+                # v0.1 has no review or lock: a status above DRAFT can only
+                # have been typed into project.yaml by hand. Show it, but say
+                # that nothing backs it.
+                basis = ("self-declared in project.yaml and NOT backed by any check: "
+                         "GrantThai v0.1 sets no status above DRAFT")
         if value is None:
             rendered = _fence("NEEDS_INPUT" if n["required"] else "(optional, not supplied)")
         elif r.get("type") in STRUCTURED_TYPES and not isinstance(value, str):

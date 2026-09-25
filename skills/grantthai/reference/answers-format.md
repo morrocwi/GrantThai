@@ -74,8 +74,10 @@ answers:
     claim_strength_cap: FULL             # NONE | CONTRIBUTORY | FULL
 ```
 
-Keys per answer: `field_id`, `value` (required); `by`
-(`researcher` | `researcher_edited_ai_draft` | `ai`, default `researcher`);
+Keys per answer: `field_id`, `value`, `by` (all required, except that
+`by` may be left out when the value is only `NEEDS_INPUT` or
+`NEEDS_VERIFICATION`; `by` is `researcher` | `researcher_edited_ai_draft` |
+`ai`, with no default: when in doubt, `ai`);
 `provenance_class`, `source_type`, `evidence_role`, `source_ids`, `links`,
 `chain_node`, `supports_claim_id`, `claim_strength_cap`, `note` (a comment
 for you; not written to `project.yaml`). Any other key is refused.

@@ -13,10 +13,14 @@ info:
     - The researcher's own information is the source. Values written here
       end at status DRAFT (or NEEDS_INPUT when cleared). Nothing raises a
       status above DRAFT, and nothing is ever submitted to NRIIS.
-    - An AI assistant writing a value must send actor "ai_assisted". The
-      value is stored as authored_by ai_draft / provenance_class INFERENCE
-      and listed in the output for the researcher to confirm. Asking for
-      provenance_class SOURCE on an AI draft is refused (400).
+    - Every value written here is recorded as AI-assisted (the caller is an
+      assistant acting for the researcher). By default it is stored as
+      authored_by ai_draft / provenance_class INFERENCE. When the value is
+      the researcher's own words, unchanged, send researcher_verbatim: true;
+      it is then stored as authored_by human_ai_assisted / DECISION. Either
+      way it is listed in the output for the researcher to confirm.
+      provenance_class SOURCE and actor "human" are refused (400), and the
+      caller cannot choose authored_by.
     - Do not invent Thai fund, NRIIS or institutional facts. Send the value
       "NEEDS_VERIFICATION" when a fact is not known from the researcher;
       it is stored as an empty value plus that marker.
@@ -150,8 +154,9 @@ paths:
       summary: Set one or more field values (status DRAFT at most; all-or-nothing).
       description: |
         Send either one update object, or {"updates": [ ... ]}. If any update
-        is refused, nothing is written. An AI assistant must send
-        actor "ai_assisted" (and may name itself in tool).
+        is refused, nothing is written. Every write is recorded as
+        AI-assisted; set researcher_verbatim for the researcher's own words
+        and name the assistant in tool.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       requestBody:
@@ -315,16 +320,24 @@ components:
           description: The value. "NEEDS_INPUT" or null clears it; "NEEDS_VERIFICATION" stores an empty value plus that marker.
         actor:
           type: string
-          enum: [human, ai_assisted]
-          default: human
-          description: An AI assistant must send ai_assisted.
+          enum: [ai_assisted]
+          default: ai_assisted
+          description: Optional. Every HTTP write is AI-assisted; any other value is refused.
+        researcher_verbatim:
+          type: boolean
+          default: false
+          description: True only if the value is the researcher's own words, unchanged (stored as human_ai_assisted / DECISION). Otherwise it is the assistant's draft (ai_draft / INFERENCE).
         chain_node:
           type: string
           description: For chain content not in the registry (e.g. PriorKnowledge, Evidence, Claim).
         provenance:
           type: object
-          additionalProperties: true
-          description: Optional provenance override. provenance_class SOURCE is refused for ai_assisted.
+          additionalProperties: false
+          description: Optional. provenance_class SOURCE is refused; authored_by is set by the server.
+          properties:
+            provenance_class: {type: string, enum: [INFERENCE, DECISION, DERIVED]}
+            source_type: {type: string}
+            evidence_role: {type: string}
         source_ids:
           type: array
           items: {type: string}
@@ -333,4 +346,4 @@ components:
           additionalProperties: true
         tool:
           type: string
-          description: The AI tool to disclose (recorded under authoring.tools_disclosed).
+          description: The AI tool to disclose (recorded under authoring.tools_disclosed). Default http-client.

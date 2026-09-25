@@ -159,6 +159,14 @@ def _type_ok(rtype: str, v: Any) -> bool:
 
 def _structure(c: _Ctx):
     ids = [r.get("field_id") for r, _ in P.iter_records(c.doc)]
+    # X003 (shipped early): an AI draft is never a source, whoever wrote the file
+    for rec, _ in P.iter_records(c.doc):
+        prov = rec.get("provenance") or {}
+        if prov.get("authored_by") == "ai_draft" and prov.get("provenance_class") == "SOURCE":
+            fid = rec.get("field_id")
+            c.add("X003", f"{fid}: an AI draft (authored_by ai_draft) is marked provenance_class SOURCE.",
+                  [fid], "Record it as INFERENCE, or have the researcher adopt the wording and cite their "
+                         "own source (authored_by human or human_ai_assisted).")
     # S001 required fields
     for r in P.registry():
         if r.get("required") and c.value(r["field_id"]) is None:

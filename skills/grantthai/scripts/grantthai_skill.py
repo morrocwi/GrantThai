@@ -149,6 +149,12 @@ def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = Fa
             raise ValueError(f"answer #{i + 1} ({a.get('field_id')}): unknown keys {sorted(extra)}")
         if "field_id" not in a or "value" not in a:
             raise ValueError(f"answer #{i + 1}: field_id and value are required")
+        # `by` has no default for real content: who wrote the words must be
+        # stated every time (reference/provenance.md: when in doubt, `ai`).
+        # A bare marker (null / NEEDS_INPUT / NEEDS_VERIFICATION) has no words.
+        if "by" not in a and a["value"] not in (None, "NEEDS_INPUT", "NEEDS_VERIFICATION"):
+            raise ValueError(f"answer #{i + 1} ({a['field_id']}): `by` is required "
+                             f"(one of {sorted(BY_VALUES)}; when in doubt use ai)")
         by = a.get("by", "researcher")
         if by not in BY_VALUES:
             raise ValueError(f"answer #{i + 1} ({a['field_id']}): by must be one of {sorted(BY_VALUES)}")

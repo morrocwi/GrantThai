@@ -25,7 +25,10 @@ deferred. See `docs/BUILD_GUIDE.md` and `GOVERNANCE.md`.
   `docs/mcp.md`.
 - `src/grantthai/api/`: local HTTP API `grantthai-api` (standard-library
   WSGI, binds 127.0.0.1 unless `--allow-remote`), OpenAPI 3.1 at
-  `spec/api/openapi.yaml`, `docs/api.md`.
+  `spec/api/openapi.yaml`, `docs/api.md`. Like MCP, every value written
+  over HTTP is AI-assisted (`ai_draft`/`INFERENCE`, or
+  `human_ai_assisted`/`DECISION` with `researcher_verbatim`), capped at
+  `DRAFT`, never `SOURCE`; `actor: human` is refused.
 - `pyproject.toml`: extras `mcp`, `api`, `skill`, `all`; console scripts
   `grantthai-mcp`, `grantthai-api`.
 - `spec/common/parity.yaml`: one entry per MCP tool / API endpoint / skill,
@@ -43,7 +46,10 @@ deferred. See `docs/BUILD_GUIDE.md` and `GOVERNANCE.md`.
 - `src/grantthai/validators/engine.py`: report-only validator for the v0.1
   rule families (S, R, W, B, T, CH, F, ELIG); every other catalog rule is
   reported as an explicit INFO "not evaluated" finding (B003, B004, F004 and
-  all v0.2 rules).
+  all v0.2 rules). X003 (an AI draft marked `SOURCE`) ships early, checked
+  on every record, so a hand- or chat-written `project.yaml` cannot bypass
+  the core guard. A status above `DRAFT` typed into `project.yaml` renders
+  as self-declared and not backed by any check.
 - `src/grantthai/render/submission.py` + `templates/nriis_submission.md.j2`:
   renders exactly one `build/NRIIS_SUBMISSION.md` per the output contract;
   deterministic (byte-identical for the same input and `--as-of` date).

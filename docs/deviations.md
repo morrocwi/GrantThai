@@ -36,6 +36,7 @@ package").
 | Label of `CORE.RESEARCH.INNOVATION` | core/05 label "Innovation / Novelty Claim" | "Innovation / What Is New" | The descriptive label should not read as the project's own priority claim | independent pre-publish review |
 | `grantthai init` | `init --role --lang` writes a separate `profile.yaml` and workspace | `init [PATH] [--project-id] [--fund] [--mode]` writes a blank `project.yaml` (refuses to overwrite) | `project.yaml` is the only input `build` reads; a blank project is the useful starting point for the CLI, the skill, MCP and the HTTP API | v0.1.0 engine |
 | MCP and REST timing | v0.4 "interfaces", after v0.3 AI assist | shipped in v0.1.0 as thin wrappers over `grantthai.api_py`, capped at `DRAFT` in the core; web form, launchers and Citizen Mode deferred | Founder scope change 2026-09-25 ("เอาแค่ สกิล mcp และ api ...") | `GOVERNANCE.md` founder decisions log, `docs/BUILD_GUIDE.md` |
+| X003 timing | family X ships v0.2 | X003 (AI draft marked `SOURCE`) evaluated in v0.1.0 on every record, not only Evidence | Founder knowledge principle: an AI never marks its own prose as `SOURCE`; a hand- or chat-written `project.yaml` does not pass through `set_field` | `validators/rules.yaml`, `src/grantthai/validators/engine.py` |
 
 See also `GOVERNANCE.md` "Recorded dissent" for decisions where a critic
 finding was only partly applied, and `docs/design/PLAN.md` §L for the

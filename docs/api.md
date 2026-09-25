@@ -15,8 +15,8 @@ It needs the standard library only, plus the engine's own dependencies.
 
 ```sh
 pip install -e .                      # from a GrantThai checkout
-python -m grantthai.api               # http://127.0.0.1:8765, data in ./grantthai-work
-python -m grantthai.api --port 9000 --workdir ~/my-grant
+grantthai-api                         # http://127.0.0.1:8765, data in ./grantthai-work
+grantthai-api --port 9000 --workdir ~/my-grant   # or: python -m grantthai.api ...
 ```
 
 - **Local by default.** It binds `127.0.0.1`. It has no authentication,
@@ -56,11 +56,18 @@ change from one day to the next.
   through the API ends at `DRAFT`, or at `NEEDS_INPUT` when it is cleared.
   No endpoint raises a status higher than that, and a `status` key in a
   request is refused. Nothing is ever submitted to NRIIS.
-- **AI drafts are labelled.** An AI assistant must send
-  `"actor": "ai_assisted"`, and may name itself in `"tool"`. Its value is
-  stored as `authored_by: ai_draft` and `INFERENCE`, and the output lists
-  it under the AI-drafted values the researcher must confirm. Asking for
-  `provenance_class: SOURCE` on an AI draft is refused with a 400.
+- **Every write is an AI-assisted draft.** The API assumes the caller is
+  an assistant acting for the researcher, so every value is recorded as
+  AI-assisted and the output lists it under the values the researcher must
+  confirm. The assistant's own wording is stored as
+  `authored_by: ai_draft` and `INFERENCE`. When the value is the
+  researcher's own words, unchanged, send `"researcher_verbatim": true`;
+  it is stored as `authored_by: human_ai_assisted` and `DECISION`. Name the
+  assistant in `"tool"` (default `http-client`). `"actor": "human"`, a
+  `provenance_class` of `SOURCE`, and any `authored_by` in a request are
+  refused with a 400. A researcher who wants a value recorded as their own
+  (or as `SOURCE`) sets it with the `grantthai` CLI or edits
+  `project.yaml` directly.
 - **No invented facts.** Do not make up Thai fund, NRIIS or institution
   facts. Send `"NEEDS_VERIFICATION"` instead; it is stored as an empty
   value plus that marker.
@@ -75,8 +82,8 @@ curl -s -X POST 127.0.0.1:8765/projects -H 'content-type: application/json' \
      -d '{"project_id":"my-grant"}'
 curl -s '127.0.0.1:8765/fields?required=true'
 curl -s -X PATCH 127.0.0.1:8765/projects/my-grant/fields -H 'content-type: application/json' \
-     -d '{"updates":[{"field_id":"<FIELD_ID>","value":"<researcher text>"},
-                     {"field_id":"<FIELD_ID>","value":"<AI draft>","actor":"ai_assisted","tool":"<assistant>"}]}'
+     -d '{"updates":[{"field_id":"<FIELD_ID>","value":"<researcher words>","researcher_verbatim":true,"tool":"<assistant>"},
+                     {"field_id":"<FIELD_ID>","value":"<AI draft>","tool":"<assistant>"}]}'
 curl -s -X POST 127.0.0.1:8765/projects/my-grant/validate -d '{"as_of":"2026-09-25"}'
 curl -s -X POST 127.0.0.1:8765/projects/my-grant/build    -d '{"as_of":"2026-09-25"}' > NRIIS_SUBMISSION.md
 ```
@@ -93,9 +100,8 @@ curl -s -X POST 127.0.0.1:8765/projects/my-grant/build    -d '{"as_of":"2026-09-
 
 ## Limits in v0.1
 
-- **No packaged console script.** There is no `grantthai-api` command
-  yet, so run the server with `python -m grantthai.api`. Adding one needs
-  a change to `pyproject.toml`, which is outside this surface.
+- **Console script.** `grantthai-api` (installed with the package) is
+  the same as `python -m grantthai.api`.
 - **Standard library only.** It uses `wsgiref`, with no FastAPI or
   uvicorn. It is meant for one person on one machine, not for serving
   many users.

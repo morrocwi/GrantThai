@@ -178,6 +178,36 @@ def test_ai_draft_is_marked_and_never_source(client, tmp_path):
     assert (tmp_path / "work/ai/project.yaml").read_bytes() == before
 
 
+def test_every_http_write_is_ai_assisted(client, tmp_path):
+    """No actor given still records an AI draft; actor human is refused;
+    the researcher's own words go in with researcher_verbatim."""
+    client.post("/projects", {"project_id": "aa"})
+    fid = _required_field()
+    s, _, j = client.patch("/projects/aa/fields", {"field_id": fid, "value": "no actor sent"})
+    assert s == 200
+    rec = j["written"][0]
+    assert rec["provenance"]["authored_by"] == "ai_draft"
+    assert rec["provenance"]["provenance_class"] == "INFERENCE"
+    doc = api_py.load(tmp_path / "work/aa/project.yaml")
+    assert doc["authoring"]["mode"] == "ai_assisted" and doc["authoring"]["tools_disclosed"]
+
+    s, _, j = client.patch("/projects/aa/fields", {"field_id": fid, "value": "x", "actor": "human"})
+    assert s == 400 and "actor" in j["error"]
+    s, _, j = client.patch("/projects/aa/fields", {"field_id": fid, "value": "x",
+                                                   "provenance": {"authored_by": "human"}})
+    assert s == 400 and "authored_by" in j["error"]
+    s, _, j = client.patch("/projects/aa/fields", {"field_id": fid, "value": "x", "researcher_verbatim": True,
+                                                   "provenance": {"provenance_class": "SOURCE"}})
+    assert s == 400 and "SOURCE" in j["error"]
+
+    s, _, j = client.patch("/projects/aa/fields", {"field_id": fid, "value": "researcher's words",
+                                                   "researcher_verbatim": True})
+    rec = j["written"][0]
+    assert s == 200 and rec["status"] == "DRAFT"
+    assert rec["provenance"]["authored_by"] == "human_ai_assisted"
+    assert rec["provenance"]["provenance_class"] == "DECISION"
+
+
 def test_status_cannot_be_raised_through_patch(client):
     client.post("/projects", {"project_id": "st"})
     fid = _required_field()

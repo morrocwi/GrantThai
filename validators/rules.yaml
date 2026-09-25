@@ -908,10 +908,12 @@ rules:
   negative_fixture: tests/fixtures/negative/X002/
 - id: X003
   family: X
-  ships: v0.2
+  ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: 'A value with authored_by: ai_draft is marked provenance_class SOURCE.'
+  description_en: 'A value with authored_by: ai_draft is marked provenance_class SOURCE. Shipped early
+    in v0.1 and checked on every record (fields and every chain node), because a project.yaml written
+    by hand or by a chat AI does not pass through the core set_field guard.'
   inputs:
   - chain:Evidence
   chain_step: Evidence

@@ -31,7 +31,10 @@ from grantthai.core import project as _P
 
 MAX_BODY_BYTES = 1_000_000
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
-SET_KEYS = {"field_id", "value", "actor", "chain_node", "provenance", "source_ids", "links", "tool"}
+SET_KEYS = {"field_id", "value", "actor", "researcher_verbatim", "chain_node", "provenance",
+            "source_ids", "links", "tool"}
+PROVENANCE_KEYS = {"provenance_class", "source_type", "evidence_role"}
+DEFAULT_TOOL_NAME = "http-client"
 CREATE_KEYS = {"project_id", "fund_profile_id", "mode"}
 
 
@@ -152,6 +155,41 @@ class GrantThaiAPI:
             raise HTTPError(400, f"unknown key(s) in {what}: {', '.join(extra)}")
         return body
 
+    @staticmethod
+    def _set_kwargs(u: dict, i: int) -> dict:
+        """Every write over HTTP is recorded as AI-assisted, like MCP: the
+        caller is an assistant acting for the researcher. The AI's own
+        wording is authored_by ai_draft / INFERENCE; a value the researcher
+        gave word for word (researcher_verbatim: true) is human_ai_assisted /
+        DECISION. SOURCE is refused by the engine for every AI-assisted
+        write, and authored_by cannot be chosen by the caller."""
+        actor = u.get("actor")
+        if actor is not None and actor != "ai_assisted":
+            raise HTTPError(400, f"update {i}: actor must be ai_assisted (every HTTP write is AI-assisted; "
+                                 "use researcher_verbatim: true for the researcher's own words)")
+        verbatim = u.get("researcher_verbatim", False)
+        if not isinstance(verbatim, bool):
+            raise HTTPError(400, f"update {i}: researcher_verbatim must be true or false")
+        prov = ({"provenance_class": "DECISION", "authored_by": "human_ai_assisted"} if verbatim
+                else {"provenance_class": "INFERENCE", "authored_by": "ai_draft"})
+        extra_prov = u.get("provenance")
+        if extra_prov is not None:
+            if not isinstance(extra_prov, dict):
+                raise HTTPError(400, f"update {i}: provenance must be an object")
+            bad = sorted(set(extra_prov) - PROVENANCE_KEYS)
+            if bad:
+                raise HTTPError(400, f"update {i}: provenance may only set {', '.join(sorted(PROVENANCE_KEYS))} "
+                                     f"(refused: {', '.join(bad)})")
+            prov.update(extra_prov)
+        if u.get("tool") is not None and not isinstance(u["tool"], str):
+            raise HTTPError(400, f"update {i}: tool must be a string")
+        kwargs: dict = {"actor": "ai_assisted", "provenance": prov,
+                        "tool": u.get("tool") or DEFAULT_TOOL_NAME}
+        for k in ("chain_node", "source_ids", "links"):
+            if u.get(k) is not None:
+                kwargs[k] = u[k]
+        return kwargs
+
     # -------------------------------------------------------------- handlers
     def health(self, **_):
         return 200, "application/json", {"status": "ok", "service": "grantthai-api",
@@ -216,7 +254,7 @@ class GrantThaiAPI:
             u = self._obj(u, SET_KEYS, f"update {i}")
             if "field_id" not in u or "value" not in u:
                 raise HTTPError(400, f"update {i}: field_id and value are required")
-            kwargs = {k: u[k] for k in SET_KEYS - {"field_id", "value"} if u.get(k) is not None}
+            kwargs = self._set_kwargs(u, i)
             try:
                 rec = api_py.set_field(doc, u["field_id"], u["value"], save=False, **kwargs)
             except (ValueError, TypeError) as e:
@@ -225,7 +263,7 @@ class GrantThaiAPI:
             written.append(json.loads(json.dumps(rec, default=str)))
         api_py.save(doc, path)
         return 200, "application/json", {"id": pid, "written": written,
-                                         "note": "values are DRAFT (or NEEDS_INPUT); the researcher confirms them"}
+                                         "note": "stored as AI-assisted DRAFT (or NEEDS_INPUT); the researcher confirms them"}
 
     def validate(self, pid: str, body: Any, **_):
         body = self._obj(body, {"as_of"}, "request body")

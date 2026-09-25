@@ -187,3 +187,22 @@ def test_needs_verification_value_becomes_marker():
     doc = P.load(EXAMPLE)
     rec = P.set_field(doc, "CORE.GENERAL.TITLE_EN", "NEEDS_VERIFICATION")
     assert rec["value"] is None and rec["status"] == "NEEDS_INPUT" and "NEEDS_VERIFICATION" in rec["markers"]
+
+
+def test_hand_written_ai_draft_as_source_is_blocked_X003(tmp_path):
+    """A project.yaml written by hand or by a chat AI skips set_field, so the
+    validator itself must catch an AI draft marked SOURCE."""
+    def mutate(doc):
+        rec = doc["fields"][0]
+        rec["provenance"] = dict(rec["provenance"], provenance_class="SOURCE", authored_by="ai_draft")
+    path = _copy_example(tmp_path, mutate)
+    assert "X003" in _rules(api.validate(path, as_of=AS_OF), "BLOCK")
+    assert "X003" not in _rules(api.validate(EXAMPLE, as_of=AS_OF))
+
+
+def test_hand_written_status_above_draft_is_flagged_in_output(tmp_path):
+    def mutate(doc):
+        doc["fields"][0]["status"] = "VERIFIED"
+    path = _copy_example(tmp_path, mutate)
+    text = api.build(path, as_of=AS_OF).read_text(encoding="utf-8")
+    assert "STATUS: VERIFIED (basis: self-declared in project.yaml and NOT backed by any check" in text

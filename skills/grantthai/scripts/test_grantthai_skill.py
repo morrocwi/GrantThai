@@ -115,6 +115,8 @@ def test_ai_drafts_stay_drafts_and_never_source(tmp_path):
     with pytest.raises(ValueError, match="SOURCE"):
         gs.apply_answers(api, project, {"answers": [
             {"field_id": "CORE.RESEARCH.PROBLEM", "value": "x", "by": "ai", "provenance_class": "SOURCE"}]})
+    with pytest.raises(ValueError, match="by"):
+        gs.apply_answers(api, project, {"answers": [{"field_id": "CORE.GENERAL.TITLE_EN", "value": "no by"}]})
     with pytest.raises(ValueError, match="unknown keys"):
         gs.apply_answers(api, project, {"answers": [
             {"field_id": "CORE.GENERAL.TITLE_TH", "value": "x", "status": "VERIFIED"}]})
