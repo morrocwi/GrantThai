@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# GrantThai commit-msg guard.
+# Rejects AI/vendor attribution trailers and footers in commit messages.
+# Installed BEFORE commit #1 per plan section H ("Authorship").
+# Enable with:  git config core.hooksPath .githooks
+set -euo pipefail
+
+MSG_FILE="$1"
+
+# Case-insensitive patterns that must never appear in a GrantThai commit message.
+PATTERNS=(
+  'co-authored-by:.*claude'
+  'co-authored-by:.*anthropic'
+  'co-authored-by:.*openai'
+  'co-authored-by:.*gpt'
+  'co-authored-by:.*codex'
+  'co-authored-by:.*copilot'
+  'co-authored-by:.*gemini'
+  'claude-session:'
+  'generated with \[?claude'
+  'generated with \[?copilot'
+  'generated with \[?codex'
+  'generated with \[?chatgpt'
+  '🤖 generated with'
+  'written by claude'
+  'written by chatgpt'
+)
+
+found=0
+content="$(cat "$MSG_FILE")"
+lower="$(printf '%s' "$content" | tr '[:upper:]' '[:lower:]')"
+
+for pat in "${PATTERNS[@]}"; do
+  if printf '%s' "$lower" | grep -qE "$pat"; then
+    echo "COMMIT REJECTED: attribution/vendor trailer matched pattern: $pat" >&2
+    found=1
+  fi
+done
+
+if [ "$found" -ne 0 ]; then
+  echo "" >&2
+  echo "GrantThai policy (see GOVERNANCE.md / H): no AI or vendor name may appear" >&2
+  echo "as author, co-author, or credit in any commit message. Remove the line(s)" >&2
+  echo "above and commit again." >&2
+  exit 1
+fi
+
+exit 0
