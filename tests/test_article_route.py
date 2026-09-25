@@ -252,6 +252,29 @@ def test_art007_generic_pattern_spares_person_names_and_organizations():
     assert not ART._names_tool("FICTIONAL Lecturer A", "FICTIONAL text-editing assistant")
 
 
+def test_art007_name_folding_blocks_spelling_tricks():
+    """v0.3.0 hardening: NFKC, format/zero-width characters, look-alike
+    letters, hyphens/underscores, spaced letters and Thai transliterations.
+    A miss is still possible; these are the known tricks."""
+    from grantthai.validators import article as ART
+    for name in ("แชตจีพีที", "จีพีที", "คล็อด", "เจมินี", "G P T", "ＧＰＴ", "G​PT", "G⁠P­T",
+                 "GРТ", "chat_bot", "Large-Language-Model"):
+        assert ART._generic_ai_name(name), repr(name)
+    assert ART._names_tool_in_name("Claude-3", "Claude 3 Opus")
+    assert ART._names_tool_in_name("Opus_Writer", "Claude 3 Opus")
+    # still spared: persons, initials with full stops, fiction markers and version words alone
+    for name in ("Ai Nakamura", "G. P. Tan", "Aiyana Brown", "Иван Петров"):
+        assert not ART._generic_ai_name(name), repr(name)
+    assert not ART._names_tool_in_name("FICTIONAL Lecturer A", "FICTIONAL text-editing assistant (FICTIONAL model 2)")
+    assert not ART._names_tool_in_name("FICTIONAL Lecturer B", "FICTIONAL tool v2 (version 2.0)")
+
+
+def test_art007_hardening_fixtures_exist():
+    names = {d.name for d in ART_VARIANT_DIRS if d.parent.name == "ART007"}
+    assert names >= {"versioned_name", "thai_transliteration", "spaced_letters", "fullwidth", "zero_width",
+                     "cyrillic_homoglyph"}
+
+
 def test_art_rules_do_not_run_on_the_nriis_route():
     rep = api.validate(ART_DIRS[0] / "work.yaml", as_of=AS_OF, route="nriis-proposal")
     assert not [f for f in rep["findings"] if f["rule_id"].startswith("ART")]

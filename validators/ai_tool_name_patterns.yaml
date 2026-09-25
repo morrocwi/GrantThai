@@ -13,14 +13,24 @@
 # - Applied to the member's full_name only. An organization or affiliation
 #   may legitimately contain these words (a human author can work in a
 #   language-model lab), so they are not matched against it.
-# - Generic, technical terms only. No product, model or vendor name is
-#   shipped here: GrantThai keeps no such list. A tool name the researcher
+# - Generic, technical terms, plus (v0.3.0) Thai transliterations of common
+#   tool words. The Thai entries are PATTERN DATA ONLY: spellings a Thai
+#   writer uses for widely known tools, kept so that a transliterated tool
+#   name cannot pass as a person's name. They are not a product list, not
+#   an endorsement, and not complete. Any other tool name the researcher
 #   discloses is matched through the disclosure itself.
 # - Deliberately conservative: a bare "AI" token is NOT listed, because it
 #   is also a personal given name. A miss is possible; a false BLOCK on a
 #   real person's name must not be.
+#   The Thai transliterations carry the same trade-off in the other
+#   direction: a real person whose name is written the same way in Thai
+#   would be BLOCKed, and has to be written as the person writes it.
 # - Each entry is a Python regular expression, matched case-insensitively
-#   anywhere in the name after whitespace folding.
+#   anywhere in the name after the ART007 folding in
+#   grantthai.validators.article._norm: NFKC, Unicode format (Cf) and
+#   zero-width characters removed, Cyrillic/Greek look-alikes folded to
+#   Latin inside a mixed word, hyphens/underscores read as spaces,
+#   whitespace folded, casefolded, spaced single letters joined.
 schema: grantthai.ai_tool_name_patterns.v0
 version: "0.1.0-draft"
 patterns:
@@ -42,3 +52,12 @@ patterns:
     note: "Thai: artificial intelligence"
   - pattern: 'เอไอ'
     note: "Thai transliteration of AI"
+  # Thai transliterations of common tool words (pattern data, v0.3.0).
+  - pattern: 'แช[ตท]จีพีที'
+    note: "Thai transliteration: chat + GPT (pattern data)"
+  - pattern: 'จีพีที'
+    note: "Thai transliteration: GPT (pattern data)"
+  - pattern: 'คล็อด'
+    note: "Thai transliteration of a common tool word (pattern data)"
+  - pattern: 'เจมินี'
+    note: "Thai transliteration of a common tool word (pattern data)"

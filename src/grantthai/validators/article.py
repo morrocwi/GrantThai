@@ -25,6 +25,7 @@ Report-only: nothing here changes the work object.
 from __future__ import annotations
 
 import re
+import unicodedata
 from functools import lru_cache
 from typing import Any
 
@@ -79,8 +80,48 @@ def _filled(v: Any) -> bool:
     return True
 
 
+# ART007 matching normalisation. A name is compared only after it has been
+# folded, so that spelling tricks do not slip an AI tool past the BLOCK:
+# NFKC (fullwidth letters, compatibility forms), Unicode format characters
+# (category Cf, which includes the zero-width space, joiners and the BOM)
+# and other zero-width characters removed, Cyrillic/Greek look-alike letters
+# folded to Latin inside a word that also holds a Latin letter, hyphens,
+# dashes and underscores read as spaces, whitespace folded, casefolded, and
+# a run of single letters separated by spaces joined ("g p t" -> "gpt").
+# A miss is still possible: this folds known tricks, it does not prove a
+# name is a person's.
+_ZERO_WIDTH = {"\u200b", "\u200c", "\u200d", "\u2060", "\ufeff", "\u180e", "\u00ad", "\u034f"}
+_HYPHENS_RE = re.compile(r"[\u002d\u005f\u2010-\u2015\u2212\ufe58\ufe63\uff0d\u2e3a\u2e3b]")
+_HOMOGLYPHS = str.maketrans({
+    # Cyrillic
+    "а": "a", "в": "b", "е": "e", "к": "k", "м": "m", "н": "h", "о": "o", "р": "p", "с": "c",
+    "т": "t", "у": "y", "х": "x", "і": "i", "ј": "j", "ѕ": "s", "ԁ": "d", "ԛ": "q", "ԝ": "w",
+    "А": "A", "В": "B", "Е": "E", "К": "K", "М": "M", "Н": "H", "О": "O", "Р": "P", "С": "C",
+    "Т": "T", "У": "Y", "Х": "X", "І": "I", "Ј": "J", "Ѕ": "S",
+    # Greek
+    "α": "a", "ε": "e", "ι": "i", "κ": "k", "ν": "v", "ο": "o", "ρ": "p", "τ": "t", "υ": "u", "χ": "x",
+    "Α": "A", "Β": "B", "Ε": "E", "Ζ": "Z", "Η": "H", "Ι": "I", "Κ": "K", "Μ": "M", "Ν": "N", "Ο": "O",
+    "Ρ": "P", "Τ": "T", "Υ": "Y", "Χ": "X",
+})
+_LATIN_RE = re.compile(r"[A-Za-z]")
+_SPACED_LETTERS_RE = re.compile(r"(?<!\S)(?:\w )+\w(?!\S)")
+
+
+def _fold_token(tok: str) -> str:
+    """Fold look-alike letters to Latin only in a word that mixes them with a
+    Latin letter ('GРТ' with Cyrillic Р and Т); an all-Cyrillic or all-Greek
+    name is left as written."""
+    folded = tok.translate(_HOMOGLYPHS)
+    return folded if folded != tok and _LATIN_RE.search(tok) else tok
+
+
 def _norm(s: Any) -> str:
-    return " ".join(str(s or "").casefold().split())
+    t = unicodedata.normalize("NFKC", str(s or ""))
+    t = "".join(ch for ch in t if ch not in _ZERO_WIDTH and unicodedata.category(ch) != "Cf")
+    t = _HYPHENS_RE.sub(" ", t)
+    t = " ".join(_fold_token(w) for w in t.split())
+    t = t.casefold()
+    return _SPACED_LETTERS_RE.sub(lambda m: m.group(0).replace(" ", ""), t)
 
 
 def _mentions(text: str, name: str) -> bool:
@@ -123,6 +164,41 @@ def _names_tool(text: str, tool: str) -> bool:
     if len(_norm(text)) < 3:
         return False
     return any(_mentions(text, v) or _mentions(v, text) for v in _tool_variants(tool))
+
+
+# Words that do not tell one tool from another (or from a person): version
+# words, generic product words, and GrantThai's own fiction markers. A token
+# shared between a disclosed tool name and a member's full_name counts only
+# when it is none of these, at least 3 characters long after digits are
+# removed.
+_NON_DISTINCTIVE = frozenset("""
+    v ver version versions release rev revision build update edition beta alpha preview latest
+    the and for with from into our your its
+    ai model models tool tools assistant assistants chat bot app apps application software system systems
+    service services platform engine agent agents writer editor editing text language
+    open pro plus mini max lite turbo ultra large small medium base instruct online web free premium
+    standard advanced new next
+    fictional example examples synthetic sample test demo
+""".split())
+_TOKEN_SPLIT_RE = re.compile(r"[\s.,;:/\\()\[\]{}'\"!?&+*#@|<>=~`^$%]+")
+
+
+def _distinctive_tokens(s: str) -> set:
+    out = set()
+    for tok in _TOKEN_SPLIT_RE.split(_norm(s)):
+        tok = re.sub(r"\d+", "", tok)
+        if len(tok) >= 3 and tok not in _NON_DISTINCTIVE:
+            out.add(tok)
+    return out
+
+
+def _names_tool_in_name(full_name: str, tool: str) -> bool:
+    """A member's full_name names a disclosed tool: `_names_tool`, or the two
+    share a distinctive token ('Claude-3' and a disclosed 'Claude 3 Opus').
+    Applied to full_name only, never to an organization or affiliation."""
+    if _names_tool(full_name, tool):
+        return True
+    return bool(_distinctive_tokens(full_name) & _distinctive_tokens(tool))
 
 
 @lru_cache(maxsize=None)
@@ -351,10 +427,12 @@ def check(c) -> None:
     for fid, entries, extra in ((AUTHORS, authors, ("affiliation_as_typed",)), (CONTRIB, contribs, ())):
         for e in entries:
             texts = list(names.get(e.get("member_id"), [])) + [str(e.get(k)) for k in extra if _filled(e.get(k))]
-            hit = next((t for t in tools for s in texts if _names_tool(s, t)), None)
+            fn = full.get(e.get("member_id"), "")
+            hit = next((t for t in tools for s in texts if _names_tool(s, t)), None) or next(
+                (t for t in tools if fn and _names_tool_in_name(fn, t)), None)
             if hit:
                 what = f"the disclosed AI tool {hit!r}"
-            elif _generic_ai_name(full.get(e.get("member_id"), "")):
+            elif _generic_ai_name(fn):
                 what = (f"a member whose full_name reads as an AI tool ({e.get('member_id')}; generic pattern in "
                         "validators/ai_tool_name_patterns.yaml, whether or not the tool was disclosed)")
             else:

@@ -1582,7 +1582,13 @@ rules:
     tools[].name or authoring.tools_disclosed entry contain one another as whole words (case-insensitive, both
     directions, a parenthetical in the tool name also tried on its own and removed); or, whether or not anything
     was disclosed, the member's full_name matches a generic AI-tool name pattern in
-    validators/ai_tool_name_patterns.yaml (data, no product names). An AI is never an author.
+    validators/ai_tool_name_patterns.yaml (data; generic terms plus Thai transliterations of common tool words); or
+    the member's full_name and a disclosed tool name share a distinctive word (at least 3 characters once digits
+    are removed; version, generic product and fiction-marker words do not count). Every name is first folded
+    (v0.3.0) by NFKC, Unicode format (Cf) and zero-width characters removed, Cyrillic/Greek look-alike letters
+    folded to Latin inside a mixed word, hyphens and underscores read as spaces, whitespace folded, casefolded,
+    spaced single letters joined. A miss is still possible, since the folding covers known spelling tricks, not every
+    one. An AI is never an author.
   inputs:
   - project:authoring
   - ARTICLE.FRONT.AUTHORS

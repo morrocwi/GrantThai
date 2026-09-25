@@ -137,7 +137,7 @@ class _Values:
         return n if ST.filled(n) else None
 
     def _is_ai(self, name: str) -> bool:
-        return ART._generic_ai_name(name) or any(ART._names_tool(name, t) for t in self.disclosed if t)
+        return ART._generic_ai_name(name) or any(ART._names_tool_in_name(name, t) for t in self.disclosed if t)
 
     def one(self, src: str) -> list[str]:
         kind, _, arg = src.partition(":")

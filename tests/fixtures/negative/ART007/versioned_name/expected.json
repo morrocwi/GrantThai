@@ -1,0 +1,8 @@
+{
+  "rule_id": "ART007",
+  "must_fire_severity": "BLOCK",
+  "route": "academic-article",
+  "as_of": "2026-09-25",
+  "only_art_rule": true,
+  "note": "Generated fixture: the disclosed tool name carries a version word and the author member carries a hyphenated short form; ART007 fires and no other ART rule does."
+}
