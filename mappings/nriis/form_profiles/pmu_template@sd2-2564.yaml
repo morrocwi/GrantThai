@@ -1,0 +1,38 @@
+# mappings/nriis/form_profiles/pmu_template@sd2-2564.yaml — one proposal form type, read
+# from a public document (spec/mappings/form_profile.schema.json).
+#
+# STATUS: NEEDS_VERIFICATION throughout (founder ruling K14). SD-2 (proposal submission manual, March 2564) p9 describes the funding unit's own
+# proposal template (a Word/PDF file) that the applicant uploads to
+# NRIIS in addition to the on-screen form. GrantThai does not model
+# the template's internal structure: the upload is an attachment.
+# Which registry fields each form type adds, drops or reorders is NOT
+# captured unless a line below cites the page it was read from; a profile
+# with empty `require`/`hide` and `render_only: null` records only that the
+# form type exists, and behaves exactly like the observed form
+# (mappings/nriis/section_to_tab.yaml). Contradiction CX-09 (form parts
+# and their order) stays OPEN; no profile resolves it.
+#
+# No amount, rate or ceiling is evaluated from here: `budget_rules` are
+# candidates only (`evaluable: false`). Evaluated fund rules live in a
+# dated fund profile (funds/).
+schema: grantthai.form_profile.v0
+version: "0.1.0-draft"
+id: pmu_template@sd2-2564
+title_en: "Funding-unit proposal template uploaded to NRIIS (SD-2 p9)"
+title_th: NEEDS_VERIFICATION
+status_marker: NEEDS_VERIFICATION
+source: {sd: SD-2, page: 9}
+derived_from: "sourcedoc/SD-2@sha256:3382acc8ca922bb39a7ad0f5996b338c992abb76dbb21e10444e2511910a39dc"
+note: "The on-screen form is the observed form; the uploaded template is the funding unit's own document. Its headings, length limits and any budget table are NEEDS_VERIFICATION and are not modelled as registry fields."
+require: [DOC.ATTACHMENTS.DOCUMENTS]
+require_basis:
+  DOC.ATTACHMENTS.DOCUMENTS: {ref: "SD-2 p9: proposal template uploaded to NRIIS", page: 9, note: "The completed template is uploaded as an attachment; whether the on-screen form also repeats its content is NEEDS_VERIFICATION."}
+render_only: null
+hide: []
+extra_items:
+  - ref: "SD-2 p9: funding unit's proposal template (Word/PDF)"
+    page: 9
+    note: "The template's own sections are not registry fields. List the completed file under DOC.ATTACHMENTS.DOCUMENTS; write its content from the same project.yaml values by hand."
+    status: NEEDS_VERIFICATION
+    nearest_field_ids: [DOC.ATTACHMENTS.DOCUMENTS]
+budget_rules: []

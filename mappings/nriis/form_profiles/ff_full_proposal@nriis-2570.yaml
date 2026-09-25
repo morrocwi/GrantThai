@@ -1,0 +1,55 @@
+# mappings/nriis/form_profiles/ff_full_proposal@nriis-2570.yaml — one proposal form type, read
+# from a public document (spec/mappings/form_profile.schema.json).
+#
+# STATUS: NEEDS_VERIFICATION throughout (founder ruling K14). SD-5 is a CANDIDATE source: a public full-proposal form for the
+# 2570 fiscal cycle, relayed to this build as report R0. It is not yet
+# listed in docs/sources.md (source.pending_registration: true) and
+# its sha256 is NEEDS_VERIFICATION; the document itself is never
+# committed (no licence statement). Every item below is relayed, not
+# read from the page by the author of this file, so each is a
+# candidate until a reader confirms it against the document.
+# Which registry fields each form type adds, drops or reorders is NOT
+# captured unless a line below cites the page it was read from; a profile
+# with empty `require`/`hide` and `render_only: null` records only that the
+# form type exists, and behaves exactly like the observed form
+# (mappings/nriis/section_to_tab.yaml). Contradiction CX-09 (form parts
+# and their order) stays OPEN; no profile resolves it.
+#
+# No amount, rate or ceiling is evaluated from here: `budget_rules` are
+# candidates only (`evaluable: false`). Evaluated fund rules live in a
+# dated fund profile (funds/).
+schema: grantthai.form_profile.v0
+version: "0.1.0-draft"
+id: ff_full_proposal@nriis-2570
+title_en: "Fundamental Fund full proposal form, 2570 cycle (candidate source SD-5 / R0)"
+title_th: NEEDS_VERIFICATION
+status_marker: NEEDS_VERIFICATION
+source: {sd: SD-5, page: 1, pending_registration: true, note: "R0 as relayed; four-part structure (page 1) is a new reading for CX-09, not a resolution."}
+derived_from: "sourcedoc/SD-5@sha256:NEEDS_VERIFICATION"
+note: "R0 describes a four-part form. How its four parts map onto GrantThai's five observed tabs is NEEDS_VERIFICATION, so no tab_order override is set. The summary length cap R0 states (p3) belongs to the writing layer (guidance/writing_intent.yaml), not here."
+require:
+  - CORE.GENERAL.PAST_PERFORMANCE
+  - READY.TRL.CURRENT
+  - READY.TRL.TARGET
+  - READY.SRL.CURRENT
+  - READY.SRL.TARGET
+require_basis:
+  CORE.GENERAL.PAST_PERFORMANCE: {ref: "R0 part 1 item 6: prior work", page: 1, note: "Relayed reading; whether the item is mandatory for a new project is NEEDS_VERIFICATION."}
+  READY.TRL.CURRENT: {ref: "R0 part 1 item 6: TRL", page: 1, note: "Relayed reading."}
+  READY.TRL.TARGET: {ref: "R0 part 1 item 6: TRL", page: 1, note: "Relayed reading."}
+  READY.SRL.CURRENT: {ref: "R0 part 1 item 6: SRL", page: 1, note: "Relayed reading."}
+  READY.SRL.TARGET: {ref: "R0 part 1 item 6: SRL", page: 1, note: "Relayed reading."}
+render_only: null
+hide: []
+extra_items:
+  - ref: "R0 part 1 item 6: prior work together with TRL/SRL as one item"
+    page: 1
+    note: "R0 asks for prior work and readiness levels in one item. GrantThai holds them in separate fields (listed under nearest_field_ids); the combined narrative has no single registry field."
+    status: NEEDS_VERIFICATION
+    nearest_field_ids: [CORE.GENERAL.PAST_PERFORMANCE, READY.TRL.CURRENT, READY.TRL.TARGET, READY.SRL.CURRENT, READY.SRL.TARGET]
+budget_rules:
+  - id: B101-candidate
+    text: "Equipment share of the total budget at most 20 percent (as relayed from R0 p9)."
+    page: 9
+    evaluable: false
+    note: "Listed only. An evaluable ceiling belongs in a dated fund profile with a cited public call (funds/README.md)."

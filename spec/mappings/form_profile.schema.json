@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/mappings/form_profile.schema.json",
+  "title": "GrantThai form profile (mappings/nriis/form_profiles/<id>.yaml)",
+  "description": "One proposal form type or funding-unit template, read from a cited public document. A profile only narrows or widens the observed form that mappings/nriis/section_to_tab.yaml describes: it can add required fields, restrict or hide rendered fields, override the tab order, list form items GrantThai has no registry field for, and list candidate budget rules. Every profile is NEEDS_VERIFICATION (founder ruling K14): nothing in it is declared official or current. A project selects a profile with the optional top-level `form_profile` key of project.yaml; absent or null means the observed form, unchanged.",
+  "type": "object",
+  "required": [
+    "schema",
+    "version",
+    "id",
+    "title_en",
+    "status_marker",
+    "source",
+    "derived_from",
+    "require",
+    "render_only",
+    "hide",
+    "extra_items",
+    "budget_rules"
+  ],
+  "properties": {
+    "schema": {
+      "const": "grantthai.form_profile.v0"
+    },
+    "version": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "description": "<form_type>@<source-id>-<edition>; must equal the file name without .yaml.",
+      "pattern": "^[a-z][a-z0-9_]*@[a-z0-9]+-[0-9]{4}$"
+    },
+    "title_en": {
+      "type": "string",
+      "minLength": 1,
+      "description": "GrantThai's descriptive English name for the form type; never an official label."
+    },
+    "title_th": {
+      "type": "string",
+      "description": "Candidate Thai name as printed in the cited document, or the literal NEEDS_VERIFICATION. Never an official label."
+    },
+    "status_marker": {
+      "const": "NEEDS_VERIFICATION"
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "sd",
+        "page"
+      ],
+      "properties": {
+        "sd": {
+          "type": "string",
+          "pattern": "^SD-[0-9]+$",
+          "description": "Public source document id (docs/sources.md)."
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "PDF page number the form type is read from."
+        },
+        "pending_registration": {
+          "type": "boolean",
+          "description": "true while the source id is not yet listed in docs/sources.md (a candidate source). The profile is then usable but every item stays a candidate."
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "derived_from": {
+      "type": "string",
+      "pattern": "^sourcedoc/SD-[0-9]+@sha256:([a-f0-9]{64}|NEEDS_VERIFICATION)$"
+    },
+    "note": {
+      "type": "string"
+    },
+    "tab_order": {
+      "description": "Optional override of section_to_tab.yaml tab_order for this profile (NEEDS_VERIFICATION). Absent = the observed form's order.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "GENERAL",
+          "PROJECT",
+          "WORKPLAN",
+          "UTILIZATION",
+          "ATTACHMENTS"
+        ]
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "require": {
+      "description": "Registry field ids that become required under this profile, in addition to the registry's own required flags.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/field_id"
+      },
+      "uniqueItems": true
+    },
+    "require_basis": {
+      "description": "Why each `require` entry is there: the cited item and page. Keyed by field id.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/field_id"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "ref",
+          "page"
+        ],
+        "properties": {
+          "ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "render_only": {
+      "description": "If a list: only these registry field ids are rendered on the tabs for this profile. null = all fields (minus `hide`).",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/field_id"
+          },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      ]
+    },
+    "hide": {
+      "description": "Registry field ids not rendered on the tabs for this profile. A hidden field is never required by the profile.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/field_id"
+      },
+      "uniqueItems": true
+    },
+    "extra_items": {
+      "description": "Items of the cited form that GrantThai has no registry field for (gap rows). The renderer prints them in the readiness summary as unmapped profile items, each NEEDS_VERIFICATION.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "ref",
+          "page",
+          "note",
+          "status"
+        ],
+        "properties": {
+          "ref": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Where in the document: e.g. 'SD-1 part 1 item 6'."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "const": "NEEDS_VERIFICATION"
+          },
+          "nearest_field_ids": {
+            "description": "Registry fields that partly cover the item, if any.",
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/field_id"
+            },
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "budget_rules": {
+      "description": "Candidate budget rules read from the document. Listed, never evaluated (`evaluable: false`): a rule that is evaluated lives in a dated fund profile, never here.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "text",
+          "page",
+          "evaluable"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^B[0-9]{3}-candidate$"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "evaluable": {
+            "const": false
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "field_id": {
+      "type": "string",
+      "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)\\.[A-Z0-9_.]+$"
+    }
+  }
+}
