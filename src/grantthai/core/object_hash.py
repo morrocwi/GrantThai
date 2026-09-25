@@ -15,8 +15,11 @@ import unicodedata
 from typing import Any
 
 # Keys that carry review/validation STATE, not authored content
-# (spec/common/object-hash.md, "What the content hash excludes").
-TOP_LEVEL_STATE_KEYS = ("review_records", "lock")
+# (spec/common/object-hash.md, "What the content hash excludes"). `routing`
+# (work.yaml 0.3, decision K-R3) is the researcher's choice of output route:
+# declaring or changing a route makes no review record and no lock stale. A
+# 0.2 project.yaml has no `routing` key, so its hashes are unchanged.
+TOP_LEVEL_STATE_KEYS = ("review_records", "lock", "routing")
 RECORD_STATE_KEYS = ("status",)
 MAPPING_STATE_KEYS = ("acceptance_state", "review")
 

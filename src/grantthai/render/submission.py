@@ -390,7 +390,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
         "grantthai_version": __version__,
         "schema_version": str(raw.get("schema_version")),
         "renderer_version": RENDERER_VERSION,
-        "project_id": str(raw.get("project_id")),
+        "project_id": P.work_id(raw),
         "project_content_sha256": csha,
         "project_state_sha256": state_sha256(raw),
         "project_locked": locked,
@@ -420,7 +420,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
     return {
         "frontmatter_yaml": yaml.safe_dump(frontmatter, sort_keys=False, allow_unicode=True, width=10**6).rstrip("\n"),
         "disclaimer": P.notice_constant(),
-        "project_id": str(raw.get("project_id")),
+        "project_id": P.work_id(raw),
         "summary": summary,
         "submittable": result.submittable,
         "hold_reasons": hold,

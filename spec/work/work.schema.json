@@ -1,0 +1,408 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/work/work.schema.json",
+  "title": "GrantThai work.yaml — the one canonical work object (0.3)",
+  "description": "Draft 0.3.0. A SUPERSET of spec/project/project.schema.json 0.2.0-draft: every 0.2 key keeps its meaning, and a 0.2 project.yaml is still read unchanged (validated against the frozen project schema and viewed in memory as work_type research_proposal, routing.default_route nriis-proposal, sub_profiles.nriis-proposal = form_profile). New in 0.3: work_id (alias of project_id; either may be present, the engine reads either and writes work_id), work_type (sets defaults only: default route, interview track, guidance order; it never refuses a route), and routing (the researcher's declared output routes; never set by an AI; excluded from content_sha256, spec/common/object-hash.md). fund_binding becomes OPTIONAL: it is required only by a route whose needs_fund_binding is true (the NRIIS route). form_profile is still read as the legacy spelling of routing.sub_profiles.nriis-proposal. One work object can be built through several routes (routes/INDEX.yaml); each build writes exactly one file. Lineage as project.schema.json plus the router design (founder reframe 2026-09-25: NRIIS is one route, not the core).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "mode",
+    "fields",
+    "chain"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.3.0-draft"
+    },
+    "work_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the work object. Alias of project_id: a file may carry either (or both, equal). The engine writes work_id."
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Legacy spelling of work_id (0.2). Read unchanged."
+    },
+    "work_type": {
+      "$ref": "#/$defs/work_type"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "expert",
+        "human_direct",
+        "citizen"
+      ],
+      "description": "All modes compile to this same project.yaml."
+    },
+    "authoring": {
+      "type": "object",
+      "description": "Self-declared, unverified (output contract frontmatter).",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "human",
+            "ai_assisted"
+          ],
+          "default": "human"
+        },
+        "tools_disclosed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Legacy flat list of disclosed tool names (kept for older files and the frontmatter). Since the AI-use ceiling (docs/policy/ai-use-ceiling.md), ai_use_declaration.tools carries name, version, stages and purpose."
+        },
+        "self_declared": {
+          "type": "boolean",
+          "const": true
+        },
+        "ai_use_declaration": {
+          "$ref": "#/$defs/ai_use_declaration"
+        }
+      },
+      "additionalProperties": false
+    },
+    "routing": {
+      "$ref": "#/$defs/routing"
+    },
+    "fund_binding": {
+      "type": "object",
+      "required": [
+        "fund_profile_id"
+      ],
+      "properties": {
+        "fund_profile_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_\\-]+/[A-Za-z0-9_.\\-]+@\\d+\\.\\d+$",
+          "description": "<agency>/<call-id>@<major.minor>; the profile is read from funds/<fund_profile_id>/fund-profile.yaml (e.g. example/FICTIONAL_CALL@0.1). See spec/fund/fund-profile.schema.json."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Optional in 0.3. Required only by a route with needs_fund_binding: true (nriis-proposal); the F family runs only on such a route."
+    },
+    "form_profile": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null,
+      "pattern": "^[a-z0-9_]+@[a-z0-9.\\-]+$",
+      "description": "Legacy (0.2) spelling of routing.sub_profiles.nriis-proposal; still read. When both are present they must agree (engine check). Authored content: changing it changes content_sha256."
+    },
+    "fields": {
+      "type": "array",
+      "description": "Project-level field records: every registry field whose chain_node is null (e.g. titles, keywords, team, requested budget).",
+      "items": {
+        "$ref": "#/$defs/field_record"
+      }
+    },
+    "chain": {
+      "type": "object",
+      "description": "Chain content keyed by a spec/common/chain.yaml core or bridge node. Each value is an array of field records.",
+      "propertyNames": {
+        "enum": [
+          "Experience",
+          "Observation",
+          "Problem",
+          "Need",
+          "PriorKnowledge",
+          "Gap",
+          "RQ",
+          "Objective",
+          "Framework",
+          "Hypothesis",
+          "Method",
+          "EthicsRequirement",
+          "Activity",
+          "BudgetItem",
+          "Data",
+          "Analysis",
+          "Evidence",
+          "Claim",
+          "Output",
+          "User",
+          "Adoption",
+          "Outcome",
+          "Beneficiary",
+          "Impact",
+          "KR",
+          "LivedExperience",
+          "LocalTerm",
+          "AcademicConcept",
+          "Mapping",
+          "ReviewRecord"
+        ]
+      },
+      "properties": {
+        "Evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/evidence.schema.json"
+          }
+        }
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/field_record"
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "description": "The project's source registry (spec/common/source.schema.json). `source_ids` in field records resolve here; see spec/common/links-and-sources.md.",
+      "items": {
+        "$ref": "../common/source.schema.json"
+      }
+    },
+    "ecosystem_positions": {
+      "type": "array",
+      "description": "Optional, never forced (P8). See ecosystem/positions@2026-09.yaml.",
+      "items": {
+        "type": "object"
+      }
+    },
+    "review_records": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/review.schema.json"
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/mapping_proposal.schema.json"
+      }
+    },
+    "lock": {
+      "type": "object",
+      "description": "The object-level LOCK (not the same as a field's LOCKED status; see spec/common/status.yaml).",
+      "properties": {
+        "locked": {
+          "type": "boolean",
+          "default": false
+        },
+        "locked_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "locked_by": {
+          "type": "string"
+        },
+        "locked_content_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "content_sha256 at lock time (spec/common/object-hash.md). The lock is broken when the current content_sha256 differs."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "field_record": {
+      "$ref": "../common/field_record.schema.json",
+      "unevaluatedProperties": false
+    },
+    "ai_use_declaration": {
+      "type": "object",
+      "description": "The researcher's own AI Use Declaration, rendered as a GrantThai appendix in NRIIS_SUBMISSION.md (section 4.7). Its shape follows the sample form in Appendix A (p.34) of the national GenAI research-ethics guideline (September 2569; docs/sources.md, docs/policy/ai-use-ceiling.md). It is NOT an NRIIS field: whether NRIIS or a fund asks for it is NEEDS_VERIFICATION. Self-declared and unverified. AI surfaces (set_field with actor ai_assisted: CLI --ai, MCP, HTTP, the skill script) may only add or extend tools[] entries (name, version, stage); every other key is the researcher's, and declaration_confirmed_by_human is set only by the researcher editing project.yaml. When an AI surface changes tools[], declaration_confirmed_by_human is reset to false.",
+      "properties": {
+        "tools": {
+          "type": "array",
+          "description": "One entry per AI tool used (guideline p.11-12, p.34 items 3-4).",
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "developer": {
+                "type": "string",
+                "description": "Who makes the tool (p.34 item 3)."
+              },
+              "version": {
+                "type": "string",
+                "description": "Model or product version (p.12 item 7.1). NEEDS_INPUT until the researcher states it."
+              },
+              "stages": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "$ref": "#/$defs/ai_use_stage"
+                }
+              },
+              "purpose": {
+                "type": "string",
+                "description": "What the tool was used for (p.11, p.34 item 4). NEEDS_INPUT until the researcher states it."
+              },
+              "used_on": {
+                "type": "string",
+                "description": "When it was used, free text such as a date or a date range (p.12 item 7.1)."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "influence_on_conclusions": {
+          "type": "string",
+          "description": "How the AI output influenced decisions or conclusions (p.11 item 2)."
+        },
+        "human_verification": {
+          "type": "string",
+          "description": "What the researcher checked, how, and who signs for it (p.12 item 4, p.34 item 7)."
+        },
+        "data_handling": {
+          "type": "string",
+          "description": "Which TYPES of data were given to the AI and how personal or confidential data was kept out (p.14-16, p.34 item 5). Describe the type; never paste the data itself."
+        },
+        "log_ref": {
+          "type": "string",
+          "description": "Where the researcher keeps the prompt and output log, tool versions and dates (p.12-13 item 7). A reference, not the log."
+        },
+        "risk_self_assessment": {
+          "type": "object",
+          "description": "The researcher's own scores, 1-3, on the five dimensions of the guideline's example scoring table (p.10-11, marked there as an example only). The guideline gives no rule for combining the five scores; any single level GrantThai prints is GrantThai's own convention (the highest score), never the guideline's.",
+          "properties": {
+            "impact_on_conclusions": {
+              "$ref": "#/$defs/risk_score"
+            },
+            "accuracy_hallucination": {
+              "$ref": "#/$defs/risk_score"
+            },
+            "data_sensitivity": {
+              "$ref": "#/$defs/risk_score"
+            },
+            "bias": {
+              "$ref": "#/$defs/risk_score"
+            },
+            "reproducibility": {
+              "$ref": "#/$defs/risk_score"
+            }
+          },
+          "additionalProperties": false
+        },
+        "declaration_confirmed_by_human": {
+          "type": "boolean",
+          "default": false,
+          "description": "True only when the researcher has read the whole declaration and confirms they checked every AI-assisted value and take full responsibility (p.12 item 4, p.15 item 2.3, p.34 item 8). Never set by an AI surface."
+        },
+        "confirmed_by": {
+          "type": "string",
+          "description": "Name or role of the person who confirmed (the researcher's choice)."
+        },
+        "confirmed_on": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ai_use_stage": {
+      "type": "string",
+      "enum": [
+        "idea",
+        "proposal_writing",
+        "literature",
+        "data",
+        "analysis",
+        "writing",
+        "language_editing",
+        "review",
+        "publication"
+      ],
+      "description": "Research stage (docs/policy/ai-use-ceiling.md section 2). 'review' means reviewing the project's own drafts, never reviewing someone else's work."
+    },
+    "risk_score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "work_type": {
+      "type": "string",
+      "enum": [
+        "research_proposal",
+        "academic_article",
+        "concept_note",
+        "thesis_proposal",
+        "conference_abstract",
+        "final_report"
+      ],
+      "default": "research_proposal",
+      "description": "What the researcher is making. Sets defaults only (default route via routes/*/route.yaml default_for_work_types, interview track, guidance order). Never refuses a route: a route whose accepts_work_types lacks this value gives one INFO finding RT001. Inside content_sha256."
+    },
+    "route_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "An id listed in routes/INDEX.yaml."
+    },
+    "routing": {
+      "type": "object",
+      "description": "The researcher's declared output intent. Chosen by a person, never by an AI (an AI surface may list routes and ask; it may not set this block). NOT authored content: excluded from content_sha256, so declaring or changing a route makes no review record and no lock stale (spec/common/object-hash.md). Resolution order at build: --route, then default_route, then (legacy 0.2 file) nriis-proposal, then the single route whose default_for_work_types lists work_type, else stop and list the candidates.",
+      "properties": {
+        "declared_routes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/route_id"
+          },
+          "description": "Routes the researcher intends to build. Informational; any route can still be built explicitly."
+        },
+        "default_route": {
+          "$ref": "#/$defs/route_id",
+          "description": "The route `grantthai build` uses when --route is absent."
+        },
+        "sub_profiles": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-z0-9_\\-]+(@[a-z0-9.\\-]+)?$"
+          },
+          "description": "Per-route sub-profile id (route.yaml sub_profiles.dir), e.g. {academic-article: thai-journal, nriis-proposal: research@sd1-2566}. Every sub-profile is NEEDS_VERIFICATION."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "anyOf": [
+        {
+          "required": [
+            "work_id"
+          ]
+        },
+        {
+          "required": [
+            "project_id"
+          ]
+        }
+      ]
+    },
+    {
+      "if": {
+        "required": [
+          "work_id",
+          "project_id"
+        ]
+      },
+      "then": {
+        "description": "When both are present they are the same identifier (engine check S013, proposed)."
+      }
+    }
+  ]
+}

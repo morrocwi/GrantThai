@@ -80,8 +80,13 @@ def test_report_matches_schema_and_accounts_for_every_rule():
     assert {f["rule_id"] for f in rep["findings"] if f["severity"] == "REVIEW"} <= {"W101", "W102"}
     catalog = [r["id"] for r in P.rules_catalog()["rules"]]
     not_eval = set(_rules(rep, "INFO"))
+    from grantthai.routes import registry as RTR
+    nriis = RTR.load("nriis-proposal")      # a legacy project.yaml validates on the NRIIS route
     for rid in catalog:
         rule = P.rules_catalog()["rules"][catalog.index(rid)]
+        if not RTR.in_scope(nriis, rule):   # declared for other routes only (e.g. ART): not applicable
+            assert rid not in not_eval, rid
+            continue
         evaluated = ((rule["ships"] == "v0.1" and rid not in E.V01_NOT_EVALUATED)
                      or rid in E.EVALUATED_AFTER_V01)
         assert evaluated != (rid in not_eval), rid       # evaluated XOR reported as not evaluated

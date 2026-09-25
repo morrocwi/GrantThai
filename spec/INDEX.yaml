@@ -5,7 +5,7 @@
 # v0.4, v0.5. tools/ci/check_schema_lint.py confirms every listed path
 # exists, every schema is a valid JSON Schema, and instances validate.
 schema: grantthai.spec_index.v0
-version: "0.6.0-draft"
+version: "0.7.0-draft"
 
 contracts:
   - path: spec/contracts/one-input-one-output.md
@@ -37,7 +37,7 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/common/object-hash.md
-    version: "0.2.0-draft"
+    version: "0.3.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/provenance.schema.json
@@ -65,7 +65,7 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/registry/field.schema.json
-    version: "0.3.0-draft"
+    version: "0.4.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/links-and-sources.md
@@ -151,8 +151,34 @@ contracts:
     status: draft
     needed_by: v0.1
     note: "OpenAPI 3.1 for the local HTTP API, implemented in v0.1.0 by src/grantthai/api/ (founder scope change 2026-09-25). Every endpoint wraps one grantthai.api_py function; values capped at DRAFT."
+  - path: spec/work/work.schema.json
+    version: "0.3.0-draft"
+    status: draft
+    needed_by: v0.3
+    note: "work.yaml, the 0.3 canonical work object: a superset of project.schema.json (work_id, work_type, routing; fund_binding optional). Legacy 0.2 project.yaml files are read unchanged against the frozen project schema."
+  - path: spec/routes/route.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.3
+    note: "One output route of the router (routes/<id>/route.yaml; index routes/INDEX.yaml). The route is chosen by a person, never by an AI. Validated in tests/test_routes_schema.py."
+  - path: spec/routes/placement.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.3
+    note: "Field -> section order of a route's body (routes/<id>/placement.yaml); the NRIIS route keeps mappings/nriis/section_to_tab.yaml."
+  - path: spec/routes/sub_profile.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.3
+    note: "A named variant of a route's output (routes/<route>/sub_profiles/<id>.yaml); always NEEDS_VERIFICATION, never a venue registry."
 
 not_yet_created:
   - path: spec/output/parity.schema.json
     needed_by: v0.3
     note: "Optional formalisation of spec/common/parity.yaml, if the table form proves insufficient."
+  - path: spec/output/academic-article.contract.md
+    needed_by: v0.3
+    note: "Output contract of build/ACADEMIC_ARTICLE.md (routes/academic-article/route.yaml), written with the article route."
+  - path: spec/output/research-concept-note.contract.md
+    needed_by: v0.3
+    note: "Output contract of build/RESEARCH_CONCEPT_NOTE.md (routes/concept-note/route.yaml), written with its renderer."

@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/routes/sub_profile.schema.json",
+  "title": "GrantThai route sub-profile (routes/<route>/sub_profiles/<id>.yaml)",
+  "description": "Draft 0.1.0. A named variant of one route's output, e.g. academic-article/thai-journal or academic-article/international-journal. A sub-profile is descriptive, not a venue registry: GrantThai holds NO fact about any journal, publisher or funder as its own. Every requirement item is NEEDS_VERIFICATION and either carries a source the researcher supplied (source_id resolving in the work object's sources) or is marked proposed_default. The NRIIS route keeps its own form profiles (spec/mappings/form_profile.schema.json); this schema is for routes added in v0.3+.",
+  "type": "object",
+  "required": [
+    "schema",
+    "id",
+    "route",
+    "version",
+    "status",
+    "title_en",
+    "title_th",
+    "languages",
+    "requirements",
+    "notes"
+  ],
+  "properties": {
+    "schema": {
+      "const": "grantthai.sub_profile.v0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "Equals the file name without .yaml."
+    },
+    "route": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-draft)?$"
+    },
+    "status": {
+      "const": "NEEDS_VERIFICATION",
+      "description": "Always. A sub-profile describes a venue TYPE from GrantThai's side; a named venue's current author guidelines are the researcher's to confirm."
+    },
+    "title_en": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title_th": {
+      "type": "string",
+      "minLength": 1
+    },
+    "languages": {
+      "type": "object",
+      "description": "Which language slots the sub-profile enables for title, abstract and keywords (drives ART001; bilingual defaults for a Thai journal are NEEDS_VERIFICATION).",
+      "required": [
+        "title",
+        "abstract",
+        "keywords"
+      ],
+      "properties": {
+        "title": {
+          "$ref": "#/$defs/lang_set"
+        },
+        "abstract": {
+          "$ref": "#/$defs/lang_set"
+        },
+        "keywords": {
+          "$ref": "#/$defs/lang_set"
+        }
+      },
+      "additionalProperties": false
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "item",
+          "value",
+          "status",
+          "basis"
+        ],
+        "properties": {
+          "item": {
+            "type": "string",
+            "enum": [
+              "keyword_count_min",
+              "keyword_count_max",
+              "abstract_max_words",
+              "abstract_max_chars",
+              "abstract_structured",
+              "body_max_words",
+              "reference_style",
+              "author_contribution_statement",
+              "ai_use_statement_placement",
+              "data_availability_statement",
+              "ethics_statement",
+              "other"
+            ]
+          },
+          "value": {
+            "type": [
+              "string",
+              "integer",
+              "boolean"
+            ]
+          },
+          "status": {
+            "const": "NEEDS_VERIFICATION"
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "proposed_default",
+              "researcher_supplied_source"
+            ],
+            "description": "proposed_default: GrantThai's own placeholder, overridden by any VENUE.stated_requirements item that has a source_id. researcher_supplied_source: cite the source in `source`."
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Required when basis is researcher_supplied_source: the document, edition and page, as the researcher supplied it."
+          },
+          "note_en": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "if": {
+          "properties": {
+            "basis": {
+              "const": "researcher_supplied_source"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "source"
+          ]
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Plain statements of what this sub-profile does NOT know (scope, indexing, fees, review time, word limits are all NEEDS_VERIFICATION unless the researcher supplies the venue's document)."
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "lang_set": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "th",
+          "en"
+        ]
+      }
+    }
+  }
+}

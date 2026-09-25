@@ -1,0 +1,39 @@
+# routes/concept-note/placement.yaml — field -> section order for
+# build/RESEARCH_CONCEPT_NOTE.md (the concept-note analogue of
+# mappings/nriis/section_to_tab.yaml). Every field listed here is in the
+# registry's shared core; the set equals routes/INDEX.yaml
+# partition.body.concept-note.field_ids (pinned by tests/test_routes_schema.py).
+# Section titles are GrantThai's descriptive headings, not any funder's.
+schema: grantthai.placement.v0
+version: "0.1.0-draft"
+route: concept-note
+not_placed_policy: appendix   # every other filled registry field is listed in a "records not placed" appendix, never dropped silently
+sections:
+  - id: identity
+    title_en: "Working title and keywords"
+    title_th: NEEDS_INPUT
+    fields: [CORE.GENERAL.TITLE_TH, CORE.GENERAL.TITLE_EN, CORE.GENERAL.KEYWORDS_TH, CORE.GENERAL.KEYWORDS_EN]
+  - id: team
+    title_en: "Who is proposing"
+    title_th: NEEDS_INPUT
+    fields: [PROFILE.TEAM.MEMBERS]
+  - id: problem
+    title_en: "Problem, need and gap"
+    title_th: NEEDS_INPUT
+    fields: [CORE.RESEARCH.NATIONAL_NEED, CORE.RESEARCH.PROBLEM, CORE.RESEARCH.GAP]
+  - id: questions
+    title_en: "Questions and objectives"
+    title_th: NEEDS_INPUT
+    fields: [CORE.RESEARCH.RQ.PRIMARY, CORE.RESEARCH.RQ.SECONDARY, CORE.RESEARCH.OBJECTIVES]
+  - id: approach
+    title_en: "Approach in outline"
+    title_th: NEEDS_INPUT
+    fields: [METHOD.PLAN.DESIGN, METHOD.PLAN.POPULATION, METHOD.PLAN.DATA_COLLECTION, METHOD.PLAN.ANALYSIS, METHOD.PLAN.ETHICS]
+  - id: value
+    title_en: "Why it matters and whether it can be done"
+    title_th: NEEDS_INPUT
+    fields: [CORE.RESEARCH.INNOVATION, CORE.RESEARCH.FEASIBILITY]
+  - id: references
+    title_en: "References"
+    title_th: NEEDS_INPUT
+    fields: [CORE.NARRATIVE.REFERENCES]

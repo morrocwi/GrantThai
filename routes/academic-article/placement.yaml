@@ -1,0 +1,89 @@
+# routes/academic-article/placement.yaml — field -> manuscript-overview
+# section order for the academic-article route (schema
+# grantthai.placement.v0, spec/routes/placement.schema.json). The analogue of
+# mappings/nriis/section_to_tab.yaml for this route.
+#
+# The section names are GrantThai's own descriptive headings for a
+# manuscript overview (IMRaD plus statements). They are NOT any journal's
+# headings: every venue's own structure, word limits and statement wording
+# are NEEDS_VERIFICATION until the researcher supplies that venue's current
+# author guidelines (ARTICLE.VENUE.TARGET, with a source per item).
+#
+# Placement rules:
+# - A field listed here prints in this order under its section. A field of
+#   the work object that is not listed prints under "Records not placed in
+#   the manuscript overview" (NOT_PLACED), never silently dropped.
+# - `shared: true` marks a field of the shared core (registry scope: shared)
+#   that this route reads as-is; the value is identical in every route built
+#   from the same object.
+# - `render_from` is informational: the chain records the researcher writes
+#   the section FROM. GrantThai never composes the section text.
+# - `fallback_copy_from` names the shared field whose value is copied (never
+#   composed) when the route field is empty; the output says so.
+schema: grantthai.placement.v0
+version: "0.1.0-draft"
+route: academic-article
+status_marker: NEEDS_VERIFICATION
+section_order: [FRONT_MATTER, ABSTRACT, BODY, STATEMENTS, FIGURES_TABLES, REFERENCES, VENUE]
+sections:
+  - section: FRONT_MATTER
+    title_en: "Front matter"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.META.KIND}
+      - {field_id: ARTICLE.META.LANGUAGE}
+      - {field_id: ARTICLE.TITLE_TH, fallback_copy_from: CORE.GENERAL.TITLE_TH}
+      - {field_id: ARTICLE.TITLE_EN, fallback_copy_from: CORE.GENERAL.TITLE_EN}
+      - {field_id: ARTICLE.AUTHORS}
+      - {field_id: ARTICLE.CONTRIBUTIONS}
+      - {field_id: CORE.GENERAL.KEYWORDS_TH, shared: true}
+      - {field_id: CORE.GENERAL.KEYWORDS_EN, shared: true}
+  - section: ABSTRACT
+    title_en: "Abstract"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.ABSTRACT_TH}
+      - {field_id: ARTICLE.ABSTRACT_EN}
+  - section: BODY
+    title_en: "Body"
+    title_th: NEEDS_INPUT
+    note: "IMRaD sections for kind empirical_research; ARTICLE.BODY.SECTIONS for review, conceptual, case_study, short_communication and other (rule ART003)."
+    fields:
+      - {field_id: ARTICLE.SECTION.INTRODUCTION, render_from: [CORE.RESEARCH.PROBLEM, CORE.RESEARCH.GAP, CORE.RESEARCH.THEORETICAL_FOUNDATIONS]}
+      - {field_id: ARTICLE.SECTION.METHODS, render_from: [METHOD.PLAN.DESIGN, METHOD.PLAN.POPULATION, METHOD.PLAN.SAMPLE, METHOD.PLAN.INSTRUMENTS, METHOD.PLAN.DATA_COLLECTION, METHOD.PLAN.ANALYSIS]}
+      - {field_id: ARTICLE.SECTION.RESULTS, render_from: ["chain:Evidence"]}
+      - {field_id: ARTICLE.SECTION.DISCUSSION, render_from: ["chain:Claim", CORE.RESEARCH.THEORETICAL_FOUNDATIONS]}
+      - {field_id: ARTICLE.SECTION.CONCLUSION, render_from: ["chain:Claim"]}
+      - {field_id: ARTICLE.SECTION.LIMITATIONS, render_from: [METHOD.PLAN.QUALITY]}
+      - {field_id: ARTICLE.BODY.SECTIONS}
+  - section: STATEMENTS
+    title_en: "Statements"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.STATEMENT.ETHICS, render_from: [METHOD.PLAN.ETHICS, COMP.STANDARD.HUMAN]}
+      - {field_id: ARTICLE.STATEMENT.AI_USE}
+      - {field_id: ARTICLE.STATEMENT.DATA_AVAILABILITY}
+      - {field_id: ARTICLE.STATEMENT.CONFLICT_OF_INTEREST}
+      - {field_id: ARTICLE.STATEMENT.FUNDING}
+      - {field_id: ARTICLE.ACKNOWLEDGEMENTS}
+  - section: FIGURES_TABLES
+    title_en: "Figures and tables"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.FIGURES_TABLES}
+  - section: REFERENCES
+    title_en: "References"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.REFERENCE_STYLE}
+      - {field_id: CORE.NARRATIVE.REFERENCES, shared: true}
+  - section: VENUE
+    title_en: "Target venue (researcher-supplied, NEEDS_VERIFICATION)"
+    title_th: NEEDS_INPUT
+    note: "When the TOKE field RESULTS.PATHWAY.ACADEMIC_PATHWAY is registered (scope shared), it is placed here next to ARTICLE.VENUE.TARGET (spec §2.4). Not listed until it exists in registry/fields.jsonl."
+    fields:
+      - {field_id: ARTICLE.VENUE.TARGET}
+# Shared-core records this route reads but does not place in a section:
+# they print in the appendix "Shared records read by this route" so the
+# researcher can see what the manuscript rests on.
+appendix_shared: [PROFILE.TEAM.MEMBERS, CORE.RESEARCH.PROBLEM, CORE.RESEARCH.GAP, CORE.RESEARCH.RQ.PRIMARY, CORE.RESEARCH.OBJECTIVES, METHOD.PLAN.DESIGN, METHOD.PLAN.ETHICS, COMP.STANDARD.HUMAN]

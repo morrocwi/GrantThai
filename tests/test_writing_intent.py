@@ -104,6 +104,9 @@ def test_no_thai_string_is_filled_without_a_source():
 def test_every_length_target_cites_a_basis():
     doc = _doc()
     for fid, entry in doc["fields"].items():
+        if entry["length_target"] is None:
+            assert fid.startswith("ARTICLE."), fid   # only route fields ship without a target (v0.3)
+            continue
         basis = entry["length_target"]["basis"]
         assert basis.strip(), fid
         # a relayed handoff-package or public-document reading must say so
@@ -289,3 +292,92 @@ def test_new_files_pass_leak_pii_guard():
     r = subprocess.run([sys.executable, str(ROOT / "tools/ci/check_leak_pii.py"), "--root", str(ROOT)],
                        capture_output=True, text=True)
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+# ------------------------------------------------------------ v0.3 router
+# ARTICLE.* entries (route academic-article): no length target shipped,
+# practice cited only as descriptive context with the report-not-article
+# caveat, no venue named, and W101/W102 skip a null target.
+
+ARTICLE_FIELDS = [
+    "ARTICLE.META.KIND", "ARTICLE.META.LANGUAGE", "ARTICLE.TITLE_TH", "ARTICLE.TITLE_EN",
+    "ARTICLE.ABSTRACT_TH", "ARTICLE.ABSTRACT_EN", "ARTICLE.AUTHORS", "ARTICLE.CONTRIBUTIONS",
+    "ARTICLE.SECTION.INTRODUCTION", "ARTICLE.SECTION.METHODS", "ARTICLE.SECTION.RESULTS",
+    "ARTICLE.SECTION.DISCUSSION", "ARTICLE.SECTION.CONCLUSION", "ARTICLE.SECTION.LIMITATIONS",
+    "ARTICLE.BODY.SECTIONS", "ARTICLE.STATEMENT.ETHICS", "ARTICLE.STATEMENT.AI_USE",
+    "ARTICLE.STATEMENT.DATA_AVAILABILITY", "ARTICLE.STATEMENT.CONFLICT_OF_INTEREST",
+    "ARTICLE.STATEMENT.FUNDING", "ARTICLE.ACKNOWLEDGEMENTS", "ARTICLE.FIGURES_TABLES",
+    "ARTICLE.VENUE.TARGET", "ARTICLE.REFERENCE_STYLE",
+]
+REPORT_CAVEAT = "corpus-100 is funded final reports, not articles"
+FWP_RE = re.compile(r"\bFWP-[0-9]{2}\b")
+
+
+def test_article_entries_exist_with_no_length_target():
+    doc = _doc()
+    have = [f for f in doc["fields"] if f.startswith("ARTICLE.")]
+    assert have == ARTICLE_FIELDS
+    for fid in ARTICLE_FIELDS:
+        e = doc["fields"][fid]
+        assert e["length_target"] is None, fid          # no article length target is shipped (spec §4.3)
+        assert "practice" not in e, fid                  # practice entries must map to the field; these cannot
+        assert e["derived_from"] == "registry/fields.jsonl"
+
+
+def test_article_practice_context_cites_corpus_with_report_caveat():
+    doc = _doc()
+    stats_doc = (ROOT / "docs/practice/funded-work-patterns.md").read_text(encoding="utf-8")
+    seen = 0
+    for fid, e in doc["fields"].items():
+        ctx = e.get("practice_context")
+        if ctx is None:
+            continue
+        seen += 1
+        assert fid.startswith("ARTICLE."), fid           # only ARTICLE fields use the context form
+        assert REPORT_CAVEAT in ctx, fid
+        pids = FWP_RE.findall(ctx)
+        assert pids, fid
+        for pid in pids:
+            assert f"| {pid} |" in stats_doc, (fid, pid)
+    assert seen >= 8
+
+
+def test_article_practice_counts_match_the_patterns_doc():
+    """Every 'nn/100' count named next to an FWP id in a practice_context
+    equals the count in the patterns table."""
+    doc = _doc()
+    table = {}
+    for ln in (ROOT / "docs/practice/funded-work-patterns.md").read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^\| (FWP-[0-9]{2}) \| [^|]+ \| ([0-9]+) \|", ln)
+        if m:
+            table[m.group(1)] = int(m.group(2))
+    for fid, e in doc["fields"].items():
+        ctx = e.get("practice_context")
+        if not ctx:
+            continue
+        for pid, n in re.findall(r"(FWP-[0-9]{2})[^;]*?([0-9]{1,3})/100", ctx):
+            assert table[pid] == int(n), (fid, pid, n, table[pid])
+
+
+def test_article_entries_name_no_venue_and_no_thai():
+    doc = _doc()
+    for fid in ARTICLE_FIELDS:
+        for path, s in _walk_strings(doc["fields"][fid]):
+            assert not THAI_RE.search(s) or s == "NEEDS_INPUT", (fid, path)
+            assert "journal of" not in s.lower(), (fid, path)
+
+
+def test_length_findings_skip_a_null_target():
+    """A field whose intent has length_target null never raises and never
+    yields a length finding, whatever its value."""
+    doc = P.load(EXAMPLE)
+    doc["fields"].append({"field_id": "ARTICLE.SECTION.RESULTS", "value": "word " * 5000, "status": "DRAFT",
+                          "provenance": {"provenance_class": "DECISION", "source_type": "PROJECT_DOCUMENT",
+                                         "evidence_role": "ORIENTING", "authored_by": "human"}})
+    hits = [f for f in writing.length_findings(doc) if "ARTICLE.SECTION.RESULTS" in f.field_ids]
+    assert hits == []
+
+
+def test_intent_reads_article_entry_without_registry():
+    e = writing.intent("ARTICLE.VENUE.TARGET")
+    assert e["length_target"] is None and "ART010" in " ".join(e["keep_out"])

@@ -155,3 +155,30 @@ def test_patterns_doc_lists_every_rule_and_core_pattern():
         assert rid in text
     for pid, st in _stats().items():
         assert f"| {pid} |" in text, pid
+
+
+# ------------------------------------------------------------ v0.3 router
+# The ART family cites the same corpus. Its counts must match the CSV, its
+# locators must say the corpus is final reports (not articles), and the FW
+# family itself is unchanged.
+
+def test_ART_practice_locators_match_the_csv_and_carry_the_caveat():
+    stats = _stats()
+    art = [r for r in P.rules_catalog()["rules"] if r["family"] == "ART"
+           and r["source"]["derived_from"] == "docs/practice/funded-work-patterns.md"]
+    assert {r["id"] for r in art} == {"ART001", "ART002", "ART003", "ART004", "ART008"}
+    for r in art:
+        loc = r["source"]["locator"]
+        assert "funded final reports, not articles" in loc, r["id"]
+        assert r["severity"] == "REVIEW", r["id"]
+        pairs = re.findall(r"(FWP-[0-9]{2}) \(([0-9]{1,3})/100", loc)
+        assert pairs, r["id"]
+        for pid, n in pairs:
+            assert int(n) == stats[pid]["n"], (r["id"], pid, n, stats[pid]["n"])
+
+
+def test_FW_family_unchanged_by_the_router():
+    rules = P.rules_catalog()["rules"]
+    assert [r["id"] for r in rules if r["family"] == "FW"] == ["FW001", "FW002"]
+    assert sum(1 for _ in _practice_entries()) == sum(
+        1 for fid, _ in _practice_entries() if not fid.startswith("ARTICLE."))

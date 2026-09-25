@@ -1,0 +1,303 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/routes/route.schema.json",
+  "title": "GrantThai output route (routes/<id>/route.yaml)",
+  "description": "Draft 0.1.0. One deterministic output route of the router: which work types it accepts, the single file it writes, the placement table, the sub-profiles, the S001 required set, which rule families it evaluates, and the disclosure blocks it prints. A route is always chosen by a person (the researcher, via --route or routing.default_route); the tool never picks between routes, and when the resolution is ambiguous it lists the candidates and stops. Any route can build from any work object and shows what is missing (the 'always renders' principle); accepts_work_types only decides whether the INFO finding RT001 is printed. Route ids, output filenames and templates are unique across routes (routes/INDEX.yaml, tools/ci/check_one_output.py).",
+  "type": "object",
+  "required": [
+    "schema",
+    "id",
+    "version",
+    "status",
+    "title_en",
+    "title_th",
+    "accepts_work_types",
+    "default_for_work_types",
+    "needs_fund_binding",
+    "output",
+    "placement",
+    "sub_profiles",
+    "required_fields",
+    "rules",
+    "readiness",
+    "disclosure_blocks"
+  ],
+  "properties": {
+    "schema": {
+      "const": "grantthai.route.v0"
+    },
+    "id": {
+      "$ref": "#/$defs/route_id"
+    },
+    "version": {
+      "$ref": "#/$defs/version"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "stable",
+        "deprecated"
+      ]
+    },
+    "title_en": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title_th": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Literal NEEDS_INPUT until a person writes it (rewrite, not translate)."
+    },
+    "accepts_work_types": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/work_type"
+      },
+      "description": "Work types this route is meant for. A work object of another type still builds; it gets one INFO finding, RT001."
+    },
+    "default_for_work_types": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/work_type"
+      },
+      "description": "Resolution step 4: a work object with no declared route resolves to this route only when exactly one route lists its work_type here. Two routes listing the same work type make that type ambiguous (exit 2, candidates listed)."
+    },
+    "needs_fund_binding": {
+      "type": "boolean",
+      "description": "True: fund_binding is required and the F family (_fund) runs. False: fund_binding is ignored by this route."
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "filename",
+        "template",
+        "renderer_version",
+        "contract"
+      ],
+      "properties": {
+        "filename": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*\\.md$",
+          "description": "The one file this route writes under build/. Unique across routes."
+        },
+        "template": {
+          "type": "string",
+          "pattern": "^templates/[a-z0-9_]+\\.md\\.j2$",
+          "description": "Exactly one template per route; tagged output_kind: route_output plus route: <id> (the NRIIS template keeps primary_submission as an accepted alias)."
+        },
+        "renderer_version": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]+\\.md\\.j2@[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "contract": {
+          "type": "string",
+          "pattern": "^spec/output/[a-z0-9\\-]+\\.contract\\.md$",
+          "description": "The output contract; it cross-references spec/contracts/one-input-one-output.md and the reverse."
+        }
+      },
+      "additionalProperties": false
+    },
+    "placement": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^(routes/[a-z0-9\\-]+/placement\\.yaml|mappings/nriis/section_to_tab\\.yaml)$",
+      "description": "Field -> section (or tab) order: a routes/<id>/placement.yaml (spec/routes/placement.schema.json) or, for the NRIIS route, the existing section_to_tab table."
+    },
+    "sub_profiles": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "dir",
+        "default"
+      ],
+      "properties": {
+        "dir": {
+          "type": "string",
+          "pattern": "^(routes/[a-z0-9\\-]+/sub_profiles|mappings/nriis/form_profiles)$"
+        },
+        "default": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9_\\-]+(@[a-z0-9.\\-]+)?$",
+          "description": "The sub-profile used when routing.sub_profiles names none; null = the route's plain form. Every shipped sub-profile is NEEDS_VERIFICATION."
+        }
+      },
+      "additionalProperties": false
+    },
+    "labels": {
+      "type": "string",
+      "description": "Optional candidate-labels file for the route (NRIIS: mappings/nriis/labels@<edition>.yaml)."
+    },
+    "required_fields": {
+      "oneOf": [
+        {
+          "const": "registry",
+          "description": "S001 uses the registry `required` flags plus the bound sub-profile (NRIIS behaviour today)."
+        },
+        {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/field_id"
+          },
+          "description": "S001 BLOCK set for this route. Kept minimal: a BLOCK never rests on a venue or funder fact that is NEEDS_VERIFICATION."
+        }
+      ]
+    },
+    "rules": {
+      "type": "object",
+      "required": [
+        "include_families",
+        "exclude_ids"
+      ],
+      "properties": {
+        "include_families": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{1,6}$"
+          },
+          "description": "Rule families the engine evaluates on this route (validators/rules.yaml families plus SCHEMA). A catalog rule outside this scope is reported once, as INFO RT002, never skipped silently."
+        },
+        "exclude_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{1,4}[0-9]{3}$"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "readiness": {
+      "type": "object",
+      "required": [
+        "sections",
+        "ready_flag"
+      ],
+      "properties": {
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "block",
+              "review",
+              "needs_input",
+              "needs_verification",
+              "ai_drafted_values",
+              "hold",
+              "advisories"
+            ]
+          }
+        },
+        "ready_flag": {
+          "type": "string",
+          "enum": [
+            "submittable",
+            "manuscript_ready"
+          ],
+          "description": "Frontmatter key. Never 'accepted', 'publishable' or 'eligible': readiness is structural (BLOCK = 0), not a judgement of merit."
+        },
+        "always_hold": {
+          "type": "boolean",
+          "default": false,
+          "description": "True: the ready flag is always rendered false with a HOLD (the concept note enters no system)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "disclosure_blocks": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "notice",
+          "route_notice",
+          "ai_use_declaration",
+          "core_epistemic_note"
+        ]
+      },
+      "description": "`notice` is the unchanged NOTICE constant (spec/output/notice_constant.txt), always line 1 of the body. `route_notice` is the route's own extra line under it (route_notice_en)."
+    },
+    "route_notice_en": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Required when disclosure_blocks contains route_notice. Printed under the NOTICE; never edits the constant."
+    },
+    "needs_verification_policy": {
+      "type": "object",
+      "additionalProperties": {
+        "const": "NEEDS_VERIFICATION"
+      },
+      "description": "Named situations in which a value is marked NEEDS_VERIFICATION rather than accepted (e.g. a venue fact without a researcher-supplied source; a Thai label without a public document)."
+    },
+    "advisories": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9\\-]+$"
+      },
+      "description": "Route-adjacent advisories (advisories/<id>/advisory.yaml). An advisory never changes readiness, never BLOCKs, never ranks and never says eligible/granted/free; it renders only in an 'Advisories (not decisions)' appendix and only when its own fields are filled."
+    }
+  },
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "disclosure_blocks": {
+        "contains": {
+          "const": "route_notice"
+        }
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "route_notice_en"
+    ]
+  },
+  "$defs": {
+    "route_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-draft)?$"
+    },
+    "work_type": {
+      "type": "string",
+      "enum": [
+        "research_proposal",
+        "academic_article",
+        "concept_note",
+        "thesis_proposal",
+        "conference_abstract",
+        "final_report"
+      ],
+      "description": "Same enum as spec/work/work.schema.json work_type."
+    },
+    "field_id": {
+      "type": "string",
+      "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE|ARTICLE)(\\.[A-Z0-9_]+){2,}$"
+    }
+  }
+}
