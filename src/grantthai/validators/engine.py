@@ -554,7 +554,7 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
         if "HOLD_FOR_VERIFICATION" in (rec.get("markers") or []):
             hold.append(f"{rec.get('field_id')}: {rec.get('hold_reason') or 'HOLD_FOR_VERIFICATION'}")
 
-    # Account for every catalog rule not evaluated by v0.1 (no silent skip).
+    # Account for every catalog rule not evaluated by this build (no silent skip).
     for rid in c.rule_order:
         rule = c.rules[rid]
         if rid in V02_EVALUATED:
@@ -562,7 +562,7 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
         if rid in V01_NOT_EVALUATED:
             reason = V01_NOT_EVALUATED[rid]
         elif rule.get("ships") != "v0.1":
-            reason = f"ships {rule.get('ships')}; not evaluated by v0.1"
+            reason = f"ships {rule.get('ships')}; not yet implemented in this build"
         else:
             continue
         c.findings.append(Finding(rid, "INFO", f"{rid} not evaluated: {reason}.", [],

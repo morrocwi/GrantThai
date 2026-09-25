@@ -1,0 +1,311 @@
+# examples/demo-seedbank/answers.yaml — FICTIONAL, AI-simulated demo.
+# Written from docs/demo/transcript-seedbank.md (turn ids T01..T21) and
+# applied with:
+#   python skills/grantthai/scripts/grantthai_skill.py apply --init \
+#       --project examples/demo-seedbank/project.yaml examples/demo-seedbank/answers.yaml
+# The "researcher" is a simulated persona, so no answer is SOURCE: persona
+# statements are by: researcher with class DECISION; AI wording is by: ai
+# unless the persona adopted it (researcher_edited_ai_draft). Every value
+# cites its transcript turn (SRC-Tnn).
+project:
+  project_id: "FICTIONAL-DEMO-SEEDBANK-0001"
+  fund_profile_id: "example/FICTIONAL_CALL@0.1"
+  mode: expert
+  form_profile: "ff_full_proposal@nriis-2570"
+
+tool: "AI assistant (simulated interview; demo only)"
+
+sources:
+  - {source_id: SRC-SD5, kind: OFFICIAL_DOCUMENT, citation: "Public blank FF full-proposal form, fiscal year 2570 (SD-5 in docs/sources.md). Cited by page only.", locator: "PDF p1", contains_personal_data: false}
+  - {source_id: SRC-FCALL, kind: PROJECT_DOCUMENT, citation: "GrantThai FICTIONAL test fund call, fixture v0.1 (funds/example/FICTIONAL_CALL@0.1/fund-profile.yaml). Not a real call.", contains_personal_data: false}
+  - {source_id: SRC-FN1, kind: PRIMARY_DATA, citation: "FICTIONAL: the persona's field notes from three fictional villages (two seasons).", contains_personal_data: true}
+  - {source_id: SRC-T01, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T01", contains_personal_data: false}
+  - {source_id: SRC-T02, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T02", contains_personal_data: false}
+  - {source_id: SRC-T03, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T03", contains_personal_data: false}
+  - {source_id: SRC-T04, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T04", contains_personal_data: false}
+  - {source_id: SRC-T05, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T05", contains_personal_data: false}
+  - {source_id: SRC-T06, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T06", contains_personal_data: false}
+  - {source_id: SRC-T07, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T07", contains_personal_data: false}
+  - {source_id: SRC-T08, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T08", contains_personal_data: false}
+  - {source_id: SRC-T09, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T09", contains_personal_data: false}
+  - {source_id: SRC-T10, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T10", contains_personal_data: false}
+  - {source_id: SRC-T11, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T11", contains_personal_data: false}
+  - {source_id: SRC-T12, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T12", contains_personal_data: false}
+  - {source_id: SRC-T13, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T13", contains_personal_data: false}
+  - {source_id: SRC-T14, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T14", contains_personal_data: false}
+  - {source_id: SRC-T15, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T15", contains_personal_data: false}
+  - {source_id: SRC-T16, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T16", contains_personal_data: false}
+  - {source_id: SRC-T17, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T17", contains_personal_data: false}
+  - {source_id: SRC-T18, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T18", contains_personal_data: false}
+  - {source_id: SRC-T19, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T19", contains_personal_data: false}
+  - {source_id: SRC-T20, kind: PROJECT_DOCUMENT, citation: "FICTIONAL simulated interview, docs/demo/transcript-seedbank.md", locator: "T20", contains_personal_data: false}
+
+answers:
+  # --- T01, T02: the call (only what a document shows) ---------------------
+  - {field_id: FUND.CALL.FISCAL_YEAR, value: 2570, by: researcher, source_ids: [SRC-SD5, SRC-T01], markers: [NEEDS_VERIFICATION], note: "read from SD-5 p1 cover"}
+  - {field_id: FUND.CALL.NAME, value: "GrantThai FICTIONAL test fund call", by: researcher, source_ids: [SRC-FCALL, SRC-T01]}
+  - {field_id: FUND.CALL.AGENCY, value: "GrantThai project (not a real funding agency)", by: researcher, source_ids: [SRC-FCALL, SRC-T01]}
+  - {field_id: FUND.CALL.KEY_RESULTS, value: NEEDS_VERIFICATION, chain_node: KR}
+  - {field_id: CORE.GENERAL.RESEARCH_ISSUE, value: "จุดมุ่งเน้นที่ 4 งานวิจัยเพื่อการพัฒนาเชิงพื้นที่ (ตามที่ผู้วิจัยสมมติระบุจากแบบฟอร์ม)", by: researcher, source_ids: [SRC-SD5, SRC-T02], markers: [NEEDS_VERIFICATION]}
+  - {field_id: CORE.GENERAL.PLAN, value: "จุดมุ่งเน้นที่ 4 งานวิจัยเพื่อการพัฒนาเชิงพื้นที่ (แผนที่หน่วยงานใช้ยื่น: ยังไม่ยืนยัน)", by: researcher, source_ids: [SRC-SD5, SRC-T02], markers: [NEEDS_VERIFICATION]}
+  - {field_id: CORE.ALIGNMENT.FUND_SELECTION, value: NEEDS_VERIFICATION}
+
+  # --- T03, T04: general -------------------------------------------------
+  - {field_id: CORE.GENERAL.TITLE_TH, value: "เครือข่ายเรียนรู้ธนาคารเมล็ดพันธุ์ข้าวพื้นบ้านโดยชุมชน อำเภอสมมติ จังหวัดสมมติ ก", by: researcher, source_ids: [SRC-T03]}
+  - {field_id: CORE.GENERAL.TITLE_EN, value: "A community-led learning network of local rice seed banks in a fictional southern district", by: researcher_edited_ai_draft, source_ids: [SRC-T03]}
+  - {field_id: CORE.GENERAL.DURATION_Y, value: 1, by: researcher, source_ids: [SRC-T03]}
+  - {field_id: CORE.GENERAL.DURATION_M, value: 0, by: researcher, source_ids: [SRC-T03]}
+  - {field_id: CORE.GENERAL.OTHER_FUNDER, value: false, by: researcher, source_ids: [SRC-T03]}
+  - {field_id: CORE.GENERAL.KEYWORDS_TH, value: ["ธนาคารเมล็ดพันธุ์ชุมชน", "ข้าวพื้นบ้าน", "การวิจัยเชิงปฏิบัติการแบบมีส่วนร่วม", "เครือข่ายเรียนรู้"], by: researcher, source_ids: [SRC-T04]}
+  - {field_id: CORE.GENERAL.KEYWORDS_EN, value: ["community seed bank", "local rice varieties", "participatory action research", "learning network"], by: ai, source_ids: [SRC-T04], note: "translation; persona did not adopt it"}
+  - {field_id: CORE.GENERAL.OECD.PRIMARY, value: "6", by: researcher, source_ids: [SRC-T04], markers: [NEEDS_VERIFICATION]}
+  - {field_id: CORE.GENERAL.OECD.SECONDARY, value: "6.4", by: researcher, source_ids: [SRC-T04], markers: [NEEDS_VERIFICATION]}
+
+  # --- T05-T10: the research chain ----------------------------------------
+  - field_id: CORE.RESEARCH.NATIONAL_NEED
+    value:
+      statement: "(สมมติ) ชาวนารายย่อยในอำเภอสมมติต้องซื้อเมล็ดพันธุ์ข้าวทุกฤดู ต้นทุนสูงขึ้น และพันธุ์ข้าวพื้นบ้านที่ปรับตัวกับน้ำท่วมขังค่อย ๆ หายไป"
+      affected_population_or_system: "(สมมติ) ครัวเรือนชาวนารายย่อยในอำเภอสมมติ"
+    by: researcher
+    source_ids: [SRC-T05]
+  - field_id: CORE.RESEARCH.PROBLEM
+    value: "(สมมติ) ในสามหมู่บ้าน ครัวเรือนเก็บเมล็ดพันธุ์กันเองโดยไม่มีกติกากลาง เมล็ดที่เก็บไว้งอกไม่ดีหลายครั้ง และสองในสามหมู่บ้านบอกว่าพันธุ์พื้นบ้านบางพันธุ์หายไปแล้ว"
+    by: researcher
+    source_ids: [SRC-T06, SRC-FN1]
+    links: {need_ids: [CORE.RESEARCH.NATIONAL_NEED]}
+  - field_id: CORE.PRIORKNOWLEDGE.PK1
+    chain_node: PriorKnowledge
+    value: "(สมมติ) บ้านสมมติหนึ่งเคยจัดงานแลกเปลี่ยนเมล็ดพันธุ์ครั้งเดียว มีคนมาร่วมมาก แต่ไม่มีผู้ดูแลต่อ"
+    by: researcher
+    source_ids: [SRC-T07, SRC-FN1]
+    links: {problem_ids: [CORE.RESEARCH.PROBLEM]}
+  - {field_id: CORE.PRIORKNOWLEDGE.PK2, chain_node: PriorKnowledge, value: NEEDS_INPUT, note: "literature review not yet done by the persona (T07)"}
+  - field_id: CORE.RESEARCH.GAP
+    value: "ยังไม่มีกติกาและกระบวนการที่ชุมชนออกแบบเองสำหรับธนาคารเมล็ดพันธุ์ระดับหมู่บ้านที่เชื่อมกันเป็นเครือข่ายในอำเภอสมมติ และยังไม่รู้ว่าเงื่อนไขใดทำให้ธนาคารเมล็ดพันธุ์ดำเนินต่อได้หลังโครงการจบ"
+    by: researcher_edited_ai_draft
+    provenance_class: INFERENCE
+    source_ids: [SRC-T08]
+    links: {prior_knowledge_ids: [CORE.PRIORKNOWLEDGE.PK1]}
+  - field_id: CORE.RESEARCH.RQ.PRIMARY
+    value: "ธนาคารเมล็ดพันธุ์ที่ชุมชนออกแบบกติกาเองและเชื่อมกันเป็นเครือข่ายสามหมู่บ้าน ช่วยให้ครัวเรือนเข้าถึงเมล็ดพันธุ์ข้าวพื้นบ้านที่งอกดีในฤดูถัดไปได้หรือไม่ ภายใต้เงื่อนไขใด"
+    by: researcher
+    source_ids: [SRC-T09]
+    links: {gap_ids: [CORE.RESEARCH.GAP]}
+  - field_id: CORE.RESEARCH.RQ.SECONDARY
+    value: ["ตอนนี้มีพันธุ์ข้าวพื้นบ้านอะไรเหลืออยู่ และใครรู้วิธีเก็บเมล็ดพันธุ์", "กติกาธนาคารเมล็ดพันธุ์แบบไหนที่ครัวเรือนยอมทำตามจริง"]
+    by: researcher
+    source_ids: [SRC-T09]
+  - field_id: CORE.RESEARCH.OBJECTIVES
+    value:
+      - {id: OBJ1, statement: "สำรวจพันธุ์ข้าวพื้นบ้านและความรู้การเก็บเมล็ดพันธุ์ในสามหมู่บ้าน", rq_ids: [CORE.RESEARCH.RQ.PRIMARY], method_ids: [MP1], output_ids: [OUT1]}
+      - {id: OBJ2, statement: "ออกแบบและทดลองกติกาธนาคารเมล็ดพันธุ์ร่วมกับผู้ร่วมวิจัยชุมชน", rq_ids: [CORE.RESEARCH.RQ.PRIMARY], method_ids: [MP2], output_ids: [OUT2]}
+      - {id: OBJ3, statement: "สร้างเครือข่ายเรียนรู้ข้ามหมู่บ้านและคู่มือธนาคารเมล็ดพันธุ์", rq_ids: [CORE.RESEARCH.RQ.PRIMARY], method_ids: [MP3], output_ids: [OUT3, OUT4]}
+    by: researcher
+    source_ids: [SRC-T10]
+
+  # --- T11-T13: method and ethics -------------------------------------------
+  - field_id: METHOD.PLAN.DESIGN
+    value:
+      paradigm: "participatory"
+      design_type: "การวิจัยเชิงปฏิบัติการแบบมีส่วนร่วม (PAR) สามวง"
+      approach: "qualitative with simple counts"
+      quantitative_component: "อัตราการงอก จำนวนพันธุ์ จำนวนครัวเรือนที่ยืมและคืนเมล็ด"
+      qualitative_component: "สัมภาษณ์กึ่งโครงสร้าง เวทีสะท้อนคิด"
+      phases:
+        - {id: MP1, name: "วงที่ 1 สำรวจ", description: "สำรวจพันธุ์และความรู้การเก็บเมล็ดพันธุ์", objective_ids: [OBJ1]}
+        - {id: MP2, name: "วงที่ 2 ตั้งและทดลองธนาคาร", description: "ออกแบบกติกา ตั้งธนาคาร ทดสอบความงอก", objective_ids: [OBJ2]}
+        - {id: MP3, name: "วงที่ 3 สะท้อนผลและขยายเครือข่าย", description: "เวทีสะท้อนคิดและงานแลกเปลี่ยนข้ามหมู่บ้าน", objective_ids: [OBJ3]}
+    by: researcher
+    source_ids: [SRC-T11]
+  - field_id: METHOD.PLAN.SAMPLE
+    value:
+      sampling_method: "เลือกแบบเจาะจง ครัวเรือนทำนาที่สมัครใจ"
+      groups:
+        - {id: SG1, description: "(สมมติ) ครัวเรือนทำนา หมู่บ้านละประมาณ 20 ครัวเรือน", target_n: 60}
+        - {id: SG2, description: "(สมมติ) ผู้อาวุโสที่รู้เรื่องพันธุ์ข้าว หมู่บ้านละ 3-5 คน", target_n: 15}
+      sample_size_justification: "ครอบคลุมครัวเรือนที่สมัครใจในสามหมู่บ้าน เหมาะกับวง PAR ขนาดเล็ก"
+    by: researcher
+    source_ids: [SRC-T12]
+  - field_id: METHOD.PLAN.INSTRUMENTS
+    value:
+      - {id: INS1, name: "แบบบันทึกทะเบียนพันธุ์ข้าว", purpose: "บันทึกพันธุ์ที่เหลือและผู้เก็บ", instrument_type: "record form", construct_measured: "จำนวนพันธุ์ที่ยังมีอยู่", validity_method: "เพื่อนอาจารย์สองคนอ่านตรวจ", reliability_method: "ทดลองใช้ในหมู่บ้านเดียวก่อน"}
+      - {id: INS2, name: "แบบบันทึกทดสอบความงอก", purpose: "วัดอัตราการงอกของเมล็ดที่ฝากธนาคาร", instrument_type: "record form", construct_measured: "อัตราการงอก", validity_method: "นักวิจัยสายพืชศาสตร์ตรวจ", reliability_method: "ทดสอบซ้ำสองชุด"}
+      - {id: INS3, name: "แนวคำถามสัมภาษณ์กึ่งโครงสร้าง", purpose: "ความรู้การเก็บเมล็ดและเหตุผลการทำตามกติกา", instrument_type: "interview guide", construct_measured: "ความรู้และเหตุผลการปฏิบัติตามกติกา", validity_method: "เพื่อนอาจารย์สองคนอ่านตรวจ", reliability_method: "ทดลองใช้ในหมู่บ้านเดียวก่อน"}
+      - {id: INS4, name: "แบบบันทึกเวทีสะท้อนคิด", purpose: "บันทึกบทเรียนแต่ละวง", instrument_type: "meeting record", construct_measured: "บทเรียนและการปรับกติกา", validity_method: "ผู้ร่วมวิจัยชุมชนอ่านทวน", reliability_method: "สองคนจดพร้อมกัน"}
+    by: researcher
+    source_ids: [SRC-T12]
+  - field_id: METHOD.PLAN.DATA_COLLECTION
+    value:
+      - {id: DC1, source: "ครัวเรือนและผู้อาวุโส (สำรวจ)", collection_method: "ทะเบียนพันธุ์และสัมภาษณ์", timing: "เดือน 2-6", method_ids: [MP1], instrument_ids: [INS1, INS3], activity_ids: [ACT2], responsible_person_ids: [TM1, TM3, TM4, TM5]}
+      - {id: DC2, source: "ธนาคารเมล็ดพันธุ์สามหมู่บ้าน", collection_method: "ทดสอบความงอกและบันทึกการยืม-คืน", timing: "เดือน 5-10", method_ids: [MP2], instrument_ids: [INS2], activity_ids: [ACT3], responsible_person_ids: [TM2]}
+      - {id: DC3, source: "เวทีสะท้อนคิดและงานแลกเปลี่ยน", collection_method: "บันทึกเวที", timing: "เดือน 6-12", method_ids: [MP2, MP3], instrument_ids: [INS4], activity_ids: [ACT3, ACT4], responsible_person_ids: [TM1]}
+    by: researcher
+    source_ids: [SRC-T12]
+  - field_id: METHOD.PLAN.ANALYSIS
+    value:
+      quantitative_methods: ["ร้อยละการงอกต่อธนาคาร", "นับจำนวนพันธุ์และครัวเรือนที่ยืม-คืน"]
+      qualitative_method: "วิเคราะห์เนื้อหาเชิงประเด็นจากสัมภาษณ์และบันทึกเวที"
+      software_or_tools: ["spreadsheet"]
+      data_ids: [DC1, DC2, DC3]
+    by: researcher
+    source_ids: [SRC-T12]
+  - field_id: METHOD.PLAN.ETHICS
+    value:
+      human_participants: true
+      informed_consent: "อ่านเอกสารให้ฟัง ขอความยินยอมด้วยวาจาต่อหน้าพยาน แล้วลงนามหรือพิมพ์ลายนิ้วมือ"
+      privacy: "ใช้รหัสแทนชื่อ"
+      confidentiality: "เก็บบันทึกที่มีชื่อแยกจากข้อมูลวิเคราะห์"
+      withdrawal: "ถอนตัวได้ทุกเมื่อ"
+      compensation: "ไม่มี"
+      risk_level: "minimal"
+      risk_management: "ให้เครดิตความรู้ของผู้อาวุโสตามที่เจ้าของความรู้ยินยอม"
+      vulnerable_groups: ["ผู้อาวุโสที่อ่านหนังสือไม่คล่อง"]
+      conflict_of_interest: "ไม่มี"
+    by: researcher
+    source_ids: [SRC-T13]
+  - field_id: COMP.STANDARD.HUMAN
+    value: {applicable: true, status: "จะยื่นก่อนลงพื้นที่", committee: "(สมมติ) คณะกรรมการจริยธรรมการวิจัยในมนุษย์ของมหาวิทยาลัยสมมติ", attachment_ids: [ATT1]}
+    by: researcher
+    source_ids: [SRC-T13]
+    markers: [NEEDS_VERIFICATION]
+  - field_id: DOC.ATTACHMENTS.DOCUMENTS
+    value:
+      - {id: ATT1, file_name: "ethics-approval.pdf", document_type: "เอกสารรับรองจริยธรรม (ยังไม่มี)", file_type: pdf, related_section: "Standards", required_status: UNKNOWN, supplied: false}
+    by: researcher
+    source_ids: [SRC-T13]
+
+  # --- T14-T17: team, workplan, risks, budget ------------------------------
+  - field_id: PROFILE.TEAM.MEMBERS
+    value:
+      - {id: TM1, full_name: "นักวิจัยสมมติ ก. (FICTIONAL)", organization: "มหาวิทยาลัยสมมติ (FICTIONAL)", project_role: PI, contribution_percent: 50, registration_status: NEEDS_VERIFICATION, responsibilities: ["ออกแบบการวิจัย", "วิเคราะห์ข้อมูล", "เขียนรายงาน"]}
+      - {id: TM2, full_name: "นักวิจัยสมมติ ข. (FICTIONAL)", organization: "มหาวิทยาลัยสมมติ (FICTIONAL)", project_role: CO_RESEARCHER, contribution_percent: 30, registration_status: NEEDS_VERIFICATION, responsibilities: ["ทดสอบความงอก", "ดูแลธนาคารเมล็ดพันธุ์ด้านเทคนิค"]}
+      - {id: TM3, full_name: "ผู้ร่วมวิจัยชุมชนสมมติ ค. (FICTIONAL)", organization: "บ้านสมมติหนึ่ง (FICTIONAL)", project_role: OTHER, contribution_percent: 7, registration_status: NEEDS_VERIFICATION, responsibilities: ["ผู้ร่วมวิจัยชุมชน", "ประสานครัวเรือน", "จดบันทึกเวที"]}
+      - {id: TM4, full_name: "ผู้ร่วมวิจัยชุมชนสมมติ ง. (FICTIONAL)", organization: "บ้านสมมติสอง (FICTIONAL)", project_role: OTHER, contribution_percent: 7, registration_status: NEEDS_VERIFICATION, responsibilities: ["ผู้ร่วมวิจัยชุมชน", "ประสานครัวเรือน"]}
+      - {id: TM5, full_name: "ผู้ร่วมวิจัยชุมชนสมมติ จ. (FICTIONAL)", organization: "บ้านสมมติสาม (FICTIONAL)", project_role: OTHER, contribution_percent: 6, registration_status: NEEDS_VERIFICATION, responsibilities: ["ผู้ร่วมวิจัยชุมชน", "ประสานครัวเรือน"]}
+    by: researcher
+    source_ids: [SRC-T14]
+  - field_id: WORK.PARTNERS.ORGANIZATIONS
+    value:
+      - {id: PTN1, organization_name: "(สมมติ) กลุ่มเกษตรกรทำนาอำเภอสมมติ", organization_type: "community group", year: 1, collaboration_role: "ร่วมวิจัยและให้ใช้ศาลาเป็นที่ประชุมและที่เก็บเมล็ด", activity_ids: [ACT2, ACT3, ACT4], in_kind_basis: "ใช้ศาลาโดยไม่คิดค่าใช้จ่าย ตามที่ผู้วิจัยสมมติแจ้ง ไม่ได้ประเมินมูลค่า"}
+    by: researcher
+    source_ids: [SRC-T14]
+  - field_id: WORK.PLAN.ACTIVITIES
+    value:
+      - {id: ACT1, year: 1, name: "เตรียมงาน ขอรับรองจริยธรรม ตั้งทีมผู้ร่วมวิจัยชุมชน", months: [1, 2], weight_percent: 15, objective_ids: [OBJ1], method_ids: [MP1], budget_item_ids: [BI4], responsible_person_ids: [TM1]}
+      - {id: ACT2, year: 1, name: "สำรวจพันธุ์ข้าวพื้นบ้านและความรู้การเก็บเมล็ด", months: [2, 3, 4, 5, 6], weight_percent: 30, objective_ids: [OBJ1], method_ids: [MP1], budget_item_ids: [BI1, BI2, BI4], depends_on_activity_ids: [ACT1], responsible_person_ids: [TM1, TM3, TM4, TM5]}
+      - {id: ACT3, year: 1, name: "ตั้งและทดลองธนาคารเมล็ดพันธุ์ ทดสอบความงอก", months: [5, 6, 7, 8, 9, 10], weight_percent: 35, objective_ids: [OBJ2], method_ids: [MP2], output_ids: [OUT1, OUT2], budget_item_ids: [BI1, BI2, BI3, BI4], depends_on_activity_ids: [ACT2], responsible_person_ids: [TM2]}
+      - {id: ACT4, year: 1, name: "เวทีสะท้อนคิด งานแลกเปลี่ยนเครือข่าย จัดทำคู่มือและรายงาน", months: [10, 11, 12], weight_percent: 20, objective_ids: [OBJ3], method_ids: [MP3], output_ids: [OUT3, OUT4], budget_item_ids: [BI5, BI6], depends_on_activity_ids: [ACT3], responsible_person_ids: [TM1]}
+    by: researcher
+    source_ids: [SRC-T15]
+  - field_id: GEO.AREA.RESEARCH_SITES
+    value:
+      - {id: SITE1, location_type: village, country: "FICTIONAL country", province: "จังหวัดสมมติ ก", place_name: "บ้านสมมติหนึ่ง", site_role: "เก็บข้อมูล ธนาคารเมล็ดพันธุ์", activity_ids: [ACT2, ACT3]}
+      - {id: SITE2, location_type: village, country: "FICTIONAL country", province: "จังหวัดสมมติ ก", place_name: "บ้านสมมติสอง", site_role: "เก็บข้อมูล ธนาคารเมล็ดพันธุ์", activity_ids: [ACT2, ACT3]}
+      - {id: SITE3, location_type: village, country: "FICTIONAL country", province: "จังหวัดสมมติ ก", place_name: "บ้านสมมติสาม", site_role: "เก็บข้อมูล ธนาคารเมล็ดพันธุ์ งานแลกเปลี่ยน", activity_ids: [ACT2, ACT3, ACT4]}
+    by: researcher
+    source_ids: [SRC-T15]
+  - field_id: WORK.PLAN.RISKS
+    value:
+      - {id: RSK1, risk: "น้ำท่วมช่วงปลายปีทำให้ลงพื้นที่ไม่ได้", risk_type: "project delivery", likelihood: "medium", impact: "high", mitigation: "จัดเวทีสำคัญก่อนเดือนที่ 10 และให้ผู้ร่วมวิจัยชุมชนเก็บข้อมูลต่อได้", activity_ids: [ACT3, ACT4]}
+      - {id: RSK2, risk: "ครัวเรือนยืมเมล็ดแล้วไม่คืน", risk_type: "project delivery", likelihood: "medium", impact: "medium", mitigation: "ให้ชุมชนตั้งกติกาการคืนเองและทบทวนในเวที", activity_ids: [ACT3]}
+      - {id: RSK3, risk: "ความรู้ของผู้อาวุโสถูกนำไปใช้โดยไม่ให้เครดิต", risk_type: "social and intellectual property", likelihood: "low", impact: "high", mitigation: "ขอความยินยอมเรื่องการเผยแพร่และระบุเครดิตตามที่เจ้าของความรู้ต้องการ", activity_ids: [ACT2, ACT4]}
+    by: researcher
+    source_ids: [SRC-T16]
+  - field_id: BUDGET.PLAN.ITEMS
+    chain_node: BudgetItem
+    value:
+      - {id: BI1, year: 1, budget_type: "ค่าจ้าง (ตามที่ผู้วิจัยสมมติจัดหมวด)", category: "ค่าจ้าง", item_label: "ผู้ช่วยวิจัยภาคสนาม", description: "ผู้ช่วยวิจัยภาคสนาม 1 คน 10 เดือน", quantity: 1, unit: "คน-เดือน", persons_or_items: 1, times_or_months: 10, unit_price: 12000, line_total: 120000, activity_ids: [ACT2, ACT3], justification: "เก็บข้อมูลและประสานสามหมู่บ้าน"}
+      - {id: BI2, year: 1, budget_type: "ค่าใช้สอย", category: "ค่าใช้สอย", item_label: "เวทีชุมชน", description: "เวทีชุมชน 3 หมู่บ้าน 4 ครั้ง", quantity: 1, unit: "ครั้ง", persons_or_items: 3, times_or_months: 4, unit_price: 15000, line_total: 180000, activity_ids: [ACT2, ACT3], justification: "วง PAR ต้องมีเวทีวางแผนและสะท้อนคิด"}
+      - {id: BI3, year: 1, budget_type: "ค่าวัสดุ", category: "ค่าวัสดุ", item_label: "วัสดุทดสอบความงอก", description: "ชุดวัสดุทดสอบความงอก 3 หมู่บ้าน", quantity: 1, unit: "ชุด", persons_or_items: 3, times_or_months: 1, unit_price: 20000, line_total: 60000, activity_ids: [ACT3], justification: "ทดสอบเมล็ดก่อนให้ยืม"}
+      - {id: BI4, year: 1, budget_type: "ค่าใช้สอย", category: "ค่าใช้สอย", item_label: "ค่าเดินทางลงพื้นที่", description: "นักวิจัย 2 คน 12 เดือน", quantity: 1, unit: "คน-เดือน", persons_or_items: 2, times_or_months: 12, unit_price: 2500, line_total: 60000, activity_ids: [ACT1, ACT2, ACT3], justification: "ลงพื้นที่สามหมู่บ้านทุกเดือน"}
+      - {id: BI5, year: 1, budget_type: "ค่าใช้สอย", category: "ค่าใช้สอย", item_label: "พิมพ์คู่มือ", description: "คู่มือธนาคารเมล็ดพันธุ์ 300 เล่ม", quantity: 1, unit: "เล่ม", persons_or_items: 300, times_or_months: 1, unit_price: 100, line_total: 30000, activity_ids: [ACT4], justification: "แจกครัวเรือนและเครือข่าย"}
+      - {id: BI6, year: 1, budget_type: "ค่าใช้สอย", category: "ค่าใช้สอย", item_label: "งานแลกเปลี่ยนเครือข่าย", description: "งานแลกเปลี่ยนข้ามหมู่บ้าน 1 ครั้ง", quantity: 1, unit: "ครั้ง", persons_or_items: 1, times_or_months: 1, unit_price: 30000, line_total: 30000, activity_ids: [ACT4], justification: "เชื่อมสามธนาคารเป็นเครือข่าย"}
+    by: researcher
+    source_ids: [SRC-T17]
+  - {field_id: BUDGET.PLAN.YEARS, value: [{id: BY1, year: 1, planned_total: 480000}], by: researcher, source_ids: [SRC-T17]}
+  - {field_id: BUDGET.PLAN.TOTAL, value: 480000, by: researcher, provenance_class: DERIVED, source_ids: [SRC-T17]}
+  - {field_id: CORE.GENERAL.REQUESTED_BUDGET, value: 480000, by: researcher, provenance_class: DERIVED, source_ids: [SRC-T17]}
+  - {field_id: CORE.GENERAL.TOTAL_BUDGET, value: 480000, by: researcher, provenance_class: DERIVED, source_ids: [SRC-T17]}
+
+  # --- T18, T19: results chain, evidence, claim -----------------------------
+  - field_id: RESULTS.CHAIN.OUTPUTS
+    value:
+      - {id: OUT1, output_type: "NEEDS_VERIFICATION (form's 10 output types): knowledge record", quantity: 1, unit: "ชุด", description: "ทะเบียนพันธุ์ข้าวพื้นบ้านและความรู้การเก็บเมล็ดพันธุ์", objective_ids: [OBJ1], activity_ids: [ACT3]}
+      - {id: OUT2, output_type: "NEEDS_VERIFICATION (form's 10 output types): community rules", quantity: 3, unit: "ชุดกติกา", description: "กติกาธนาคารเมล็ดพันธุ์ของสามหมู่บ้าน", objective_ids: [OBJ2], activity_ids: [ACT3]}
+      - {id: OUT3, output_type: "NEEDS_VERIFICATION (form's 10 output types): handbook", quantity: 1, unit: "เล่ม", description: "คู่มือธนาคารเมล็ดพันธุ์ชุมชน", objective_ids: [OBJ3], activity_ids: [ACT4]}
+      - {id: OUT4, output_type: "NEEDS_VERIFICATION (form's 10 output types): policy proposal", quantity: 1, unit: "ฉบับ", description: "ข้อเสนอเชิงนโยบายถึงสำนักงานเกษตรของอำเภอสมมติ", objective_ids: [OBJ3], activity_ids: [ACT4]}
+    by: researcher
+    source_ids: [SRC-T18]
+  - field_id: RESULTS.CHAIN.USERS
+    value:
+      - {id: USR1, user_group: "community organisation", user_group_name: "(สมมติ) คณะกรรมการธนาคารเมล็ดพันธุ์สามหมู่บ้าน", target_number: 3, unit: "คณะกรรมการ", intended_use: "ใช้กติกาและคู่มือดูแลธนาคารเมล็ดพันธุ์", output_ids: [OUT2, OUT3]}
+      - {id: USR2, user_group: "government agency", user_group_name: "(สมมติ) เจ้าหน้าที่ส่งเสริมการเกษตรของอำเภอสมมติ", target_number: 1, unit: "หน่วยงาน", intended_use: "พิจารณาข้อเสนอเชิงนโยบาย", output_ids: [OUT4]}
+    by: researcher
+    source_ids: [SRC-T18]
+  - field_id: RESULTS.CHAIN.OUTCOME_PROCESS
+    value:
+      - {id: PW1, output_ids: [OUT2, OUT3], process: "คณะกรรมการใช้กติกาและคู่มือในการให้ยืมและรับคืนเมล็ดพันธุ์ฤดูถัดไป", user_ids: [USR1]}
+      - {id: PW2, output_ids: [OUT4], process: "ผู้วิจัยนำเสนอข้อเสนอต่อเจ้าหน้าที่ส่งเสริมการเกษตรของอำเภอ", user_ids: [USR2]}
+    by: researcher
+    source_ids: [SRC-T18]
+  - field_id: RESULTS.CHAIN.OUTCOMES
+    value:
+      - {id: OC1, expected_change: "ครัวเรือนยืมและคืนเมล็ดพันธุ์ตามกติกาในฤดูถัดไป", indicator: "จำนวนครัวเรือนที่ยืมและคืนตามกติกา", outcome_type: "behavioral outcome", pathway_ids: [PW1]}
+    by: researcher
+    source_ids: [SRC-T18]
+  - field_id: RESULTS.CHAIN.IMPACTS
+    value:
+      - {id: IMP1, expected_impact: "ช่วยรักษาพันธุ์ข้าวพื้นบ้านของอำเภอสมมติ", impact_description: "ผลระยะยาวที่โครงการนี้มีส่วนช่วย ไม่ใช่ผลของโครงการนี้อย่างเดียว", outcome_ids: [OC1], impact_type: "environmental and social", claim_strength: CONTRIBUTORY, sign: POSITIVE, directness: INDIRECT, intended: true}
+    by: researcher
+    source_ids: [SRC-T18]
+  - field_id: RESULTS.CHAIN.BENEFICIARIES
+    value:
+      - {id: BEN1, beneficiary_group: "(สมมติ) ครัวเรือนชาวนาในสามหมู่บ้าน", benefit_description: "เข้าถึงเมล็ดพันธุ์ข้าวพื้นบ้านโดยไม่ต้องซื้อ", target_number: 60, unit: "ครัวเรือน", outcome_ids: [OC1]}
+    by: researcher
+    source_ids: [SRC-T18]
+  - field_id: RESULTS.PATHWAY.SUSTAINABILITY
+    value:
+      owner: "(สมมติ) คณะกรรมการธนาคารเมล็ดพันธุ์ของแต่ละหมู่บ้าน"
+      routine: "ทบทวนกติกาและทดสอบความงอกก่อนฤดูปลูกทุกปี"
+      resources_required: "ศาลาเก็บเมล็ดของกลุ่มเกษตรกร"
+      platform_or_network: "เครือข่ายเรียนรู้สามหมู่บ้าน"
+      continuity_mechanism: "งานแลกเปลี่ยนเมล็ดพันธุ์ประจำปีที่ชุมชนจัดเอง"
+      user_ids: [USR1]
+    by: researcher
+    source_ids: [SRC-T18]
+  - field_id: CORE.EVIDENCE.E1
+    chain_node: Evidence
+    value: "(สมมติ) งานแลกเปลี่ยนเมล็ดพันธุ์ครั้งเดียวในบ้านสมมติหนึ่งมีคนสนใจมาก ผู้วิจัยสมมติเห็นว่ายังเป็นหลักฐานที่อ่อน"
+    by: researcher
+    evidence_role: SUPPORTING
+    source_ids: [SRC-T19, SRC-FN1]
+    supports_claim_id: CORE.CLAIM.C1
+    claim_strength_cap: CONTRIBUTORY
+  - field_id: CORE.CLAIM.C1
+    chain_node: Claim
+    value: "ธนาคารเมล็ดพันธุ์ที่ชุมชนตั้งกติกาเองทำได้จริงในหมู่บ้านลักษณะนี้ และระบุเงื่อนไขที่ช่วยหรือขัดขวางได้"
+    by: researcher
+    provenance_class: INFERENCE
+    source_ids: [SRC-T19]
+    links: {output_ids: [OUT1, OUT2]}
+
+  # --- T20: narrative boxes ---------------------------------------------------
+  - field_id: CORE.NARRATIVE.SUMMARY
+    value: "(ร่างโดย AI ผู้วิจัยสมมติยังไม่ยืนยัน) โครงการหนึ่งปีนี้ใช้การวิจัยเชิงปฏิบัติการแบบมีส่วนร่วมสามวงกับครัวเรือนชาวนาและผู้ร่วมวิจัยชุมชนในสามหมู่บ้านของอำเภอสมมติ เพื่อสำรวจพันธุ์ข้าวพื้นบ้านที่เหลืออยู่ ออกแบบและทดลองกติกาธนาคารเมล็ดพันธุ์ที่ชุมชนตั้งเอง และเชื่อมธนาคารทั้งสามเป็นเครือข่ายเรียนรู้ ผลผลิตคือทะเบียนพันธุ์ กติกาสามชุด คู่มือ และข้อเสนอเชิงนโยบายถึงเจ้าหน้าที่ส่งเสริมการเกษตรของอำเภอ"
+    by: ai
+    source_ids: [SRC-T20]
+  - field_id: CORE.NARRATIVE.RATIONALE
+    value: "ชาวนารายย่อยในอำเภอสมมติต้องซื้อเมล็ดพันธุ์ทุกฤดูและพันธุ์พื้นบ้านค่อย ๆ หายไป (สมมติ) ในสามหมู่บ้านครัวเรือนเก็บเมล็ดกันเองโดยไม่มีกติกากลางและเมล็ดงอกไม่ดี งานแลกเปลี่ยนที่เคยจัดครั้งเดียวไม่มีผู้ดูแลต่อ ยังไม่มีกติกาที่ชุมชนออกแบบเองสำหรับธนาคารเมล็ดพันธุ์ที่เชื่อมกันเป็นเครือข่าย โครงการนี้จึงถามว่าธนาคารแบบนี้ช่วยให้ครัวเรือนเข้าถึงเมล็ดพันธุ์ที่งอกดีได้หรือไม่ ภายใต้เงื่อนไขใด"
+    by: researcher_edited_ai_draft
+    provenance_class: DERIVED
+    source_ids: [SRC-T20]
+  - {field_id: CORE.NARRATIVE.OBJECTIVES, value: "1) สำรวจพันธุ์ข้าวพื้นบ้านและความรู้การเก็บเมล็ดพันธุ์ในสามหมู่บ้าน 2) ออกแบบและทดลองกติกาธนาคารเมล็ดพันธุ์ร่วมกับผู้ร่วมวิจัยชุมชน 3) สร้างเครือข่ายเรียนรู้ข้ามหมู่บ้านและคู่มือ", by: researcher, source_ids: [SRC-T10]}
+  - {field_id: CORE.NARRATIVE.FRAMEWORK, value: "กติกาที่ชุมชนตั้งเอง ทำให้การยืม-คืนเมล็ดพันธุ์คาดการณ์ได้ ทำให้พันธุ์พื้นบ้านถูกปลูกซ้ำทุกฤดู", by: researcher, source_ids: [SRC-T20]}
+  - {field_id: CORE.NARRATIVE.THEORY, value: "แนวคิดการจัดการทรัพยากรร่วมและทุนทางสังคม ตามความเข้าใจของผู้วิจัยสมมติ (ยังไม่ได้ใส่อ้างอิง)", by: researcher, source_ids: [SRC-T20]}
+  - field_id: CORE.NARRATIVE.METHOD
+    value: "การวิจัยเชิงปฏิบัติการแบบมีส่วนร่วมสามวง (วางแผน ลงมือ สังเกต สะท้อนคิด) ในสามหมู่บ้าน วงที่ 1 สำรวจพันธุ์และความรู้ด้วยทะเบียนพันธุ์และสัมภาษณ์กึ่งโครงสร้าง วงที่ 2 ออกแบบกติกา ตั้งธนาคาร และทดสอบความงอก วงที่ 3 เวทีสะท้อนคิดและงานแลกเปลี่ยนข้ามหมู่บ้าน กลุ่มผู้ร่วมคือครัวเรือนทำนาที่สมัครใจประมาณ 60 ครัวเรือนและผู้อาวุโสประมาณ 15 คน วิเคราะห์เชิงประเด็นร่วมกับร้อยละการงอกและจำนวนการยืม-คืน ขอความยินยอมด้วยวาจาต่อหน้าพยานสำหรับผู้อ่านหนังสือไม่คล่อง และยื่นกรรมการจริยธรรมก่อนลงพื้นที่"
+    by: researcher_edited_ai_draft
+    provenance_class: DERIVED
+    source_ids: [SRC-T20]
+  - {field_id: CORE.NARRATIVE.REFERENCES, value: NEEDS_INPUT, note: "persona has not done the literature review (T07, T20)"}
+  - {field_id: CORE.NARRATIVE.IP_CHECK, value: NEEDS_INPUT, note: "not done (T20)"}

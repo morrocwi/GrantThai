@@ -39,8 +39,8 @@ SOURCES = (ROOT / "docs/sources.md").read_text(encoding="utf-8")
 # W101/W102 findings, section 4.6 completeness checklist), so the golden was
 # re-pinned in the same commit (CHANGELOG.md, v0.2). Regenerate it only for
 # a deliberate template or contract change, and say so in CHANGELOG.md.
-GOLDEN_V010_SHA256 = "2732f4a069ec57df568c35068d438a5ddb99550504560a578686d271785f1c96"
-GOLDEN_V010_BYTES = 109234
+GOLDEN_V010_SHA256 = "d51d071441f4fa60126922efcd4717a59c160445bdbff934b467dc849b86af78"
+GOLDEN_V010_BYTES = 109570
 
 EXPECTED_IDS = {
     "research@sd1-2566", "innovation@sd1-2566", "personnel_development@sd1-2566",

@@ -44,6 +44,24 @@ reports. Not released; the founder approves any release.
 - A missing or stale gate never blocks `build`; it adds a hold reason
   (frontmatter `hold_reasons` and section 1).
 
+### Added — demo and comparison
+- `examples/demo-seedbank/` (FICTIONAL): an AI-simulated researcher
+  interview (`docs/demo/transcript-seedbank.md`, turns T01–T21) run through
+  the skill end to end with form profile `ff_full_proposal@nriis-2570`:
+  BLOCK 0, REVIEW 0; no value `SOURCE`, nothing above `DRAFT`, every value
+  cites its transcript turn. Not an AT-1 pass.
+- `docs/demo/comparison.md`: sources R0–R4 (title, first author, contract
+  or handle, sha256; no PDF committed), a structural matrix against the
+  public FF form and three funded final reports, the D1–D11 rubric, an
+  empty score sheet for two independent scorers (the maker does not score),
+  and gaps G1–G12 as v0.3 candidates.
+- Skill: answers may carry `markers` (`NEEDS_VERIFICATION`,
+  `HOLD_FOR_VERIFICATION`) next to a supplied value, and
+  `project.form_profile`; plain-Thai explanations for W101/W102; the
+  interview guide now gives the id prefixes for partners, users, outcomes,
+  impacts, beneficiaries and outcome process.
+- `tests/test_demo.py`.
+
 ### Changed
 - Renderer `nriis_submission.md.j2@0.2.0`. The example build
   (`examples/lecturer-no-ai`) is no longer byte-identical to v0.1.0: it
@@ -52,6 +70,8 @@ reports. Not released; the founder approves any release.
   golden hash in `tests/test_form_profiles.py` was re-pinned for this
   deliberate change. `tests/test_engine.py` now allows REVIEW findings on
   the example only from W101/W102.
+- INFO lines for catalog rules not evaluated now say "not yet implemented
+  in this build" instead of "not evaluated by v0.1".
 
 ### Not in this build (OPEN)
 - Citizen Mode, concept note, lifecycle, bridge ontology/SHACL, C001–C003
