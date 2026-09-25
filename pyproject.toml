@@ -14,14 +14,24 @@ ai = []
 # Populated in v0.3 (grantthai[ai]). Never imported by the core packages
 # (see spec/common/status_permissions.yaml "hard_ceiling" and
 # tools/ci/check_no_ai_import.py).
-mcp = ["mcp>=1.2"]
+mcp = ["mcp>=1.2,<2"]
 # Optional: the official MCP SDK transport for `grantthai-mcp`. Without it
 # the server falls back to a built-in JSON-RPC stdio loop (docs/mcp.md).
+# Capped below 2: the 2.x SDK removed the low-level decorator API used here;
+# with 2.x installed, --transport auto uses the built-in loop.
+api = []
+# The local HTTP API (`grantthai-api`, docs/api.md) uses the standard library
+# only (wsgiref); the extra exists so `pip install "grantthai[api]"` is a
+# stable spelling if a dependency is ever needed.
+skill = []
+# The agent skill (skills/grantthai/) needs only the core engine.
+all = ["mcp>=1.2,<2"]
 dev = ["pytest", "reuse"]
 
 [project.scripts]
 grantthai = "grantthai.cli:main"
 grantthai-mcp = "grantthai.mcp.server:main"
+grantthai-api = "grantthai.api.__main__:main"
 
 [build-system]
 requires = ["setuptools>=68"]

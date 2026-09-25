@@ -116,6 +116,7 @@ open; the plan's default applies until the founder rules.
 | — | Independent-check policy for releases: a checker distinct from the maker (a different person or a different, fresh AI agent), plus the human founder's approval of every public release (see "What counts as an independent check"). | RULED | 2026-09-25 |
 | — | AI stays optional: any "cold read" acceptance check must be satisfiable by a human alone; an AI cold read is optional and additional, never required. | RULED | 2026-09-25 |
 | — | The design plan is founder-owned and published as `docs/design/PLAN.md` (local paths removed; excluded file names generalised). | RULED | 2026-09-25 |
+| — | Scope of the next release: "เอาแค่ สกิล mcp และ api ที่นักวิจัยใช้เอไอ ดึงไปใช้สร้างไฟล์สำหรับวางภาพรวมได้" ("only the skill, MCP and API that a researcher's AI can pull in to create the overview file"). v0.1.0 ships the engine plus the skill, MCP server and HTTP API over it; the web form, launchers, Citizen Mode, review/lock and SHACL are deferred. The researcher's own information is the source; AI output stays `DRAFT`, never `SOURCE`, never validates. | RULED | 2026-09-25 |
 | K7 | DCO vs CLA for outside contributions. The plan default (DCO) is in use. | OPEN | — |
 | K3 | Final names (`GrantThai`, `grantthai`, `GRANTTHAI_STANDALONE.md`). Plan default in use. | OPEN | — |
 | K4 | Endorsement and trademark risk of the name and of `NRIIS_SUBMISSION.md`. Plan default in use (filename kept). | OPEN | — |

@@ -55,8 +55,9 @@ grantthai-mcp --root /path/to/my-proposal            # the SDK transport if inst
 python -m grantthai.mcp --root /path/to/my-proposal --transport builtin
 ```
 
-`--transport auto` is the default. It uses the official `mcp` SDK when that
-is installed and the built-in stdio loop otherwise. Both serve the same
+`--transport auto` is the default. It uses the official `mcp` SDK when a
+1.x release is installed and the built-in stdio loop otherwise (the 2.x SDK
+changed the server API this transport uses, so the extra pins `mcp<2`). Both serve the same
 tools. stdout carries protocol messages only.
 
 ## Tools

@@ -5,7 +5,7 @@
 # v0.4, v0.5. tools/ci/check_schema_lint.py confirms every listed path
 # exists, every schema is a valid JSON Schema, and instances validate.
 schema: grantthai.spec_index.v0
-version: "0.3.0-draft"
+version: "0.4.0-draft"
 
 contracts:
   - path: spec/contracts/one-input-one-output.md
@@ -127,10 +127,15 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/mcp/tools.schema.json
+    version: "0.2.0-draft"
+    status: draft
+    needed_by: v0.1
+    note: "Implemented in v0.1.0 by src/grantthai/mcp/ (founder scope change 2026-09-25; moved forward from v0.4). Six tools over grantthai.api_py, each capped at DRAFT."
+  - path: spec/api/openapi.yaml
     version: "0.1.0-draft"
     status: draft
-    needed_by: v0.4
-    note: "Contract only; implementation ships v0.4."
+    needed_by: v0.1
+    note: "OpenAPI 3.1 for the local HTTP API, implemented in v0.1.0 by src/grantthai/api/ (founder scope change 2026-09-25). Every endpoint wraps one grantthai.api_py function; values capped at DRAFT."
 
 not_yet_created:
   - path: spec/output/parity.schema.json

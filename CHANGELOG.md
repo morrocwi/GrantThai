@@ -4,9 +4,36 @@ All notable changes to GrantThai are documented in this file. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/); versions follow
 SemVer from v0.1 onward.
 
-## [Unreleased] — v0.1 engine
+## [0.1.0] — 2026-09-25
 
-### Added
+Scope set by the founder on 2026-09-25: "เอาแค่ สกิล mcp และ api ที่นักวิจัยใช้เอไอ ดึงไปใช้สร้างไฟล์สำหรับวางภาพรวมได้" ("only the skill, MCP
+and API that a researcher's AI can pull in to create the overview file").
+The offline web form, launchers, Citizen Mode, review/lock and SHACL are
+deferred. See `docs/BUILD_GUIDE.md` and `GOVERNANCE.md`.
+
+### Added — AI-facing surfaces (thin wrappers over `grantthai.api_py`)
+
+- `skills/grantthai/`: agent skill (`SKILL.md`, Thai/English interview,
+  provenance rules, `answers.yaml` format, Thai rule explanations, a
+  prompt packet for chat-only AIs, helper script `grantthai_skill.py`
+  with `check`/`apply`/`report`) and `docs/use-with-ai.md`,
+  `docs/th/use-with-ai.th.md`.
+- `src/grantthai/mcp/`: stdio MCP server `grantthai-mcp` (official SDK
+  when installed, built-in JSON-RPC fallback otherwise); six tools and two
+  resources; every value written is AI-assisted, capped at `DRAFT`, never
+  `SOURCE`. `spec/mcp/tools.schema.json` updated to the built tools;
+  `docs/mcp.md`.
+- `src/grantthai/api/`: local HTTP API `grantthai-api` (standard-library
+  WSGI, binds 127.0.0.1 unless `--allow-remote`), OpenAPI 3.1 at
+  `spec/api/openapi.yaml`, `docs/api.md`.
+- `pyproject.toml`: extras `mcp`, `api`, `skill`, `all`; console scripts
+  `grantthai-mcp`, `grantthai-api`.
+- `spec/common/parity.yaml`: one entry per MCP tool / API endpoint / skill,
+  each naming its tested human CLI equivalent.
+- Tests: `skills/grantthai/scripts/test_grantthai_skill.py`,
+  `tests/mcp/`, `tests/api/`.
+
+### Added — engine
 
 - `src/grantthai/core/project.py`: load/save `project.yaml`, schema
   validation through a local `$id` registry of `spec/**/*.schema.json`

@@ -8,8 +8,9 @@
 
 GrantThai helps any person turn a real problem into one research project
 object, checked against GrantThai's own rules (planned for v0.1), then
-renders it to one file: `build/NRIIS_SUBMISSION.md`. Status: Phase 0
-scaffold; the CLI, renderer and web form are not implemented yet.
+renders it to one file: `build/NRIIS_SUBMISSION.md`. Status: v0.1.0;
+the engine, CLI, agent skill (skills/grantthai/), MCP server and local HTTP
+API work; the web form, launchers and Citizen Mode are deferred.
 It never submits anything automatically; a human always makes the final
 decision and performs the final submission.
 

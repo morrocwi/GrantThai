@@ -6,8 +6,9 @@
 
 GrantThai helps a person turn a real problem into one research project
 object, checked against GrantThai's own rules (planned for v0.1), then
-renders it to one file: `build/NRIIS_SUBMISSION.md`. Status: Phase 0
-scaffold; the CLI, renderer and web form are not implemented yet.
+renders it to one file: `build/NRIIS_SUBMISSION.md`. Status: v0.1.0; the
+engine, CLI, agent skill, MCP server and local HTTP API work; the web
+form, launchers and Citizen Mode are deferred.
 
 Philosophy:
 1. "GrantThai lowers the entry barrier to research, not the standard of research."
@@ -28,6 +29,14 @@ person in developing knowledge." Joint work: ผลงานร่วมกั�
 ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์ ซึ่งเป็นศูนย์ของ อารยานิกะห์ วิสาหกิจเพื่อสังคม
 (a joint work with ศูนย์ความรู้พลเมืองปัญญาประดิษฐ์, a centre of ARAYA
 NIKAH SOCIAL ENTERPRISE CO.).
+
+## For an AI helping a researcher use GrantThai
+
+- [skills/grantthai/SKILL.md](./skills/grantthai/SKILL.md): the agent skill; load it and follow it.
+- [skills/grantthai/reference/PROMPT_PACKET.md](./skills/grantthai/reference/PROMPT_PACKET.md): one message for a chat-only AI.
+- [docs/use-with-ai.md](./docs/use-with-ai.md): install for any AI vendor or a local model.
+- [docs/mcp.md](./docs/mcp.md): stdio MCP server `grantthai-mcp` (six tools, capped at DRAFT).
+- [docs/api.md](./docs/api.md) and [spec/api/openapi.yaml](./spec/api/openapi.yaml): local HTTP API `grantthai-api`.
 
 ## For an AI builder
 

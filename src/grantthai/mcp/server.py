@@ -121,10 +121,16 @@ def serve_builtin(ctx: T.Context, stdin: TextIO | None = None, stdout: TextIO | 
 # ---------------------------------------------------------------------------
 
 def sdk_available() -> bool:
+    """True only for an installed official SDK of the 1.x line: the 2.x
+    low-level Server dropped the decorator API this transport uses, so
+    with 2.x (or no SDK) the built-in transport is used instead."""
     try:
+        from importlib.metadata import version
+        if int(version("mcp").split(".")[0]) != 1:
+            return False
         import mcp.server.lowlevel  # noqa: F401
         import mcp.server.stdio  # noqa: F401
-    except ImportError:
+    except Exception:  # noqa: BLE001 - missing or unreadable SDK
         return False
     return True
 

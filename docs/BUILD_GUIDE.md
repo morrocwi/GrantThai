@@ -5,6 +5,33 @@ points to. Every phase names: exact files to create, the contract/schema
 each must satisfy, commands, tests/fixtures, acceptance criteria, and what
 NOT to do.
 
+## Founder scope change, 2026-09-25 (binding)
+
+The founder narrowed the next release to:
+
+> "เอาแค่ สกิล mcp และ api ที่นักวิจัยใช้เอไอ ดึงไปใช้สร้างไฟล์สำหรับวางภาพรวมได้"
+>
+> ("Only the skill, MCP and API that a researcher using AI can pull in to
+> create the file that lays out the overview.")
+
+What this means for the phases below:
+
+- **Built in v0.1.0:** the engine (one `project.yaml` → exactly one
+  `build/NRIIS_SUBMISSION.md`), the AI-free CLI and Python API, and three
+  thin wrappers over `src/grantthai/api_py.py`: the agent skill
+  (`skills/grantthai/`), the MCP server (`src/grantthai/mcp/`, moved
+  forward from v0.4) and the local HTTP API (`src/grantthai/api/`, moved
+  forward from v0.4).
+- **Knowledge principle for all three:** the researcher's own information
+  is the source; AI never validates knowledge, never marks its own prose
+  `SOURCE`, never invents Thai fund or NRIIS facts (`NEEDS_VERIFICATION`);
+  AI drafts are `DRAFT`/`INFERENCE` for the researcher to confirm. The
+  ceiling is enforced in `src/grantthai/core`, not by the wrappers.
+- **Deferred (not cancelled):** the offline web form, the launchers,
+  `forms/*.md` import, Citizen Mode, review/lock, the concept note, the
+  bridge ontology / SHACL, and the v0.3 `assist` package. The phase
+  descriptions below remain the plan for those parts.
+
 ## Cold-start check
 
 Before building anything, confirm you can answer every question below by
@@ -226,6 +253,9 @@ X002/X003 catch misuse; every AI feature has a tested human equivalent.
 (one-way dependency only — CI already enforces the reverse direction).
 
 ## v0.4 — interfaces
+
+**Status:** MCP and REST shipped early in v0.1.0 (founder scope change
+2026-09-25, above). Browser-assist is still open.
 
 **Files to create:** `src/grantthai/mcp/*` implementing
 `spec/mcp/tools.schema.json`, optional `src/grantthai/api/*` (REST/OpenAPI),

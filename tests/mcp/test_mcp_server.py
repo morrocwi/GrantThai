@@ -201,6 +201,9 @@ def test_builtin_stdio_subprocess(tmp_path, example):
 
 def test_sdk_transport(tmp_path, example):
     pytest.importorskip("mcp")
+    from grantthai.mcp.server import sdk_available
+    if not sdk_available():
+        pytest.skip("official MCP SDK 1.x not installed (2.x uses the built-in transport)")
     import anyio
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client

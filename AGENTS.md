@@ -29,6 +29,23 @@ for first still lands here.
    the original handoff package, so you do not "fix" an intentional
    deviation back to the original.
 
+## If you are an AI helping a researcher USE GrantThai (not build it)
+
+Load `skills/grantthai/SKILL.md` and follow it. Short form: the
+researcher's own information is the source; you interview and draft, you
+never validate knowledge, never mark your own wording `SOURCE`, never
+invent a Thai fund or NRIIS fact (write `NEEDS_VERIFICATION`), leave gaps
+as `NEEDS_INPUT`, and hand back exactly one file,
+`build/NRIIS_SUBMISSION.md`. Three equivalent surfaces wrap the same
+engine (`src/grantthai/api_py.py`), each capped at `DRAFT` inside the
+engine:
+
+| Surface | Entry | Docs |
+|---|---|---|
+| Agent skill | `skills/grantthai/SKILL.md` (chat-only AI: `skills/grantthai/reference/PROMPT_PACKET.md`) | `docs/use-with-ai.md`, `docs/th/use-with-ai.th.md` |
+| MCP server (stdio) | `grantthai-mcp --root DIR` | `docs/mcp.md`, `spec/mcp/tools.schema.json` |
+| HTTP API (local) | `grantthai-api` | `docs/api.md`, `spec/api/openapi.yaml` |
+
 ## The one-input, one-output contract (headline)
 
 See `spec/contracts/one-input-one-output.md` for the full contract:
@@ -119,14 +136,18 @@ criteria (AT-1 through AT-6). In short:
   seeded bad fixture (`bash tools/ci/run_all_guards.sh`), and `pytest`
   passes. The founder's rulings K1, K13 and K14 and the decision to
   publish are recorded in `GOVERNANCE.md` ("Founder decisions log").
-- **v0.1 "Lecturer, no AI":** the renderer, the AI-free CLI subset, the
-  offline webform, `forms/*.md`, launchers, one fund profile
-  (`FICTIONAL_CALL@0.1`), one worked example. See AT-2/AT-2b/AT-3a/AT-4/AT-5/AT-6.
+- **v0.1.0 (founder scope change 2026-09-25):** the engine (renderer,
+  validator, AI-free CLI, Python API), one fund profile
+  (`FICTIONAL_CALL@0.1`), one worked example, plus the skill, MCP server
+  and HTTP API wrappers (moved forward from v0.4). The offline webform,
+  launchers and Citizen Mode are deferred. See `docs/BUILD_GUIDE.md` and
+  `GOVERNANCE.md` ("Founder decisions log").
 - **v0.2 "Citizen, no AI" + review + lock:** Citizen Mode, concept note,
   review/lock, bridge ontology + generated SHACL. See AT-1/AT-2 extended.
 - **v0.3 optional AI assist:** `grantthai[ai]`, parity CI. See AT-3b.
 - **v0.4 interfaces:** MCP (from the Phase 0 contract), REST, browser-assist.
 - **v0.5 real fund profiles, network, labels.**
 
-Do not skip ahead: v0.1's AI-free lecturer path must exist and pass its
-acceptance tests before any v0.3 AI-assisted feature is built.
+Do not skip ahead: the AI-free CLI path exists and passes its tests; the
+skill/MCP/API wrappers were built only on top of it, by founder ruling.
+Any v0.3 `assist` feature still needs its tested human equivalent first.
