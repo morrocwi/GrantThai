@@ -1,6 +1,6 @@
 # tests/fixtures/positive/minimal_project.yaml — a minimal, schema-conformant
 # project.yaml, FICTIONAL, for use once validators exist (v0.1+).
-schema_version: "0.1.0-draft"
+schema_version: "0.2.0-draft"
 project_id: "TEST-FIXTURE-0001"
 mode: expert
 authoring:

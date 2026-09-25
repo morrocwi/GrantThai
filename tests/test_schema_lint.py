@@ -48,3 +48,43 @@ def test_real_chain_is_clean():
     import yaml
     chain = yaml.safe_load((ROOT / "spec/common/chain.yaml").read_text(encoding="utf-8"))
     assert lint.check_chain(chain) == []
+
+
+def _contracts():
+    import json
+    import yaml
+    structured = json.loads((ROOT / "spec/registry/structured_fields.schema.json").read_text(encoding="utf-8"))
+    fields = [json.loads(x) for x in (ROOT / "registry/fields.jsonl").read_text(encoding="utf-8").splitlines() if x.strip()]
+    chain = yaml.safe_load((ROOT / "spec/common/chain.yaml").read_text(encoding="utf-8"))
+    return structured, fields, chain
+
+
+def test_every_structured_field_has_a_contract():
+    structured, fields, chain = _contracts()
+    assert lint.check_structured(structured, fields, chain) == []
+    structured_ids = {r["field_id"] for r in fields if r["type"] in lint.STRUCTURED_TYPES}
+    assert structured_ids and structured_ids <= set(structured["$defs"])
+
+
+def test_structured_contract_check_catches_gaps():
+    import copy
+    structured, fields, chain = _contracts()
+    bad = copy.deepcopy(structured)
+    del bad["$defs"]["BUDGET.PLAN.ITEMS"]                                       # missing contract
+    acts = bad["$defs"]["WORK.PLAN.ACTIVITIES"]["items"]["properties"]
+    del acts["objective_ids"]["x-grantthai-ref"]                                # unannotated reference
+    acts["output_ids"]["x-grantthai-ref"]["direction"] = "target_to_source"     # Output -> Activity: against the chain
+    bad["$defs"]["RESULTS.CHAIN.OUTPUTS"]["items"]["x-grantthai-node"]["id_prefix"] = "ACT"  # prefix clash
+    msgs = "\n".join(lint.check_structured(bad, fields, chain))
+    assert "BUDGET.PLAN.ITEMS (type array<object>) has no value schema" in msgs
+    assert "objective_ids: *_id/*_ids property needs x-grantthai-ref" in msgs
+    assert "causal edge Output -> Activity runs against" in msgs
+    assert "id prefix ACT already used" in msgs
+
+
+def test_schema_lint_catches_broken_links_sources_and_stale_review():
+    out = run(ROOT / "tests/fixtures/negative/schema_instance").stdout
+    for needle in ("must be under chain.Gap", "(S002)", "node id ACT2 is used more than once (S007)",
+                   "OBJ9: no node has this id (S006)", "node is not one of the key's targets (S006)",
+                   "causal cycle", "file does not exist (S008)", "review_records/0 is stale"):
+        assert needle in out, needle

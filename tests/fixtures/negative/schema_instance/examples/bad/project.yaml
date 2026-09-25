@@ -1,6 +1,6 @@
 # FIXTURE — deliberately INVALID project.yaml (EVIDENCE namespace, unknown
 # chain node, fund id without agency) for tools/ci/check_schema_lint.py.
-schema_version: "0.1.0-draft"
+schema_version: "0.2.0-draft"
 project_id: "FIXTURE-BAD"
 mode: expert
 fund_binding:

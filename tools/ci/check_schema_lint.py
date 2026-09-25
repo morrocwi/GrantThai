@@ -23,6 +23,20 @@ Guard: the data contracts hold, not only parse.
      registry chain_node is a chain node and every registry dependency
      resolves; every rule input field id exists in the registry; every
      registry section has a tab in section_to_tab.yaml.
+  6. Structured-field contracts (spec/registry/structured_fields.schema.json):
+     every registry field of type array<object>, object or rich_text|object
+     has a value schema of the right shape (and no orphan schema exists);
+     every item schema carries x-grantthai-node with a unique id prefix and a
+     node type consistent with the registry chain_node; every *_id / *_ids
+     property carries x-grantthai-ref with valid targets, and every causal or
+     feedback annotation runs with spec/common/chain.yaml
+     (spec/common/links-and-sources.md).
+  7. Project instances (examples, template, positive fixtures): each record
+     sits where its registry chain_node says, each registry field appears at
+     most once, structured values validate, every link reference and every
+     source reference resolves (offline), item ids are unique, causal edges
+     are acyclic, and every review record is current (its content_sha256
+     equals the project's content_sha256, spec/common/object-hash.md).
 
 Schemas are read from <root>/spec when it exists, otherwise from this
 repository's own spec/ (so a seeded bad fixture directory can be checked
@@ -51,6 +65,12 @@ except ImportError:  # pragma: no cover
     Draft202012Validator = None
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT / "src"))
+from grantthai.core import links as gt_links  # noqa: E402
+from grantthai.core import object_hash as gt_hash  # noqa: E402
+
+STRUCTURED_TYPES = {"array<object>", "object", "rich_text|object"}
+STRUCTURED_REL = "registry/structured_fields.schema.json"
 SKIP_DIRS = {".git", ".venv", "venv", "node_modules", ".pytest_cache"}
 TRUST_ORDER = ["FICTIONAL", "COMMUNITY_EXTRACTED", "HUMAN_VERIFIED", "SECOND_CHECKED"]
 FIELD_ID_PREFIXES = ("PROFILE.", "FUND.", "CORE.", "METHOD.", "WORK.", "GEO.", "BUDGET.",
@@ -156,6 +176,218 @@ def check_chain(chain: dict, label: str = "spec/common/chain.yaml"):
     return violations
 
 
+def _deref(root: dict, sub):
+    return gt_links._resolve_ref(root, sub)
+
+
+def _walk_schema(root: dict, sub, path: str, visit):
+    """Visit every (path, property_name, property_schema, owner_item_schema) and
+    every item schema. owner is the nearest enclosing x-grantthai-node schema."""
+    sub = _deref(root, sub)
+    if not isinstance(sub, dict):
+        return
+    for br in sub.get("oneOf", []) + sub.get("anyOf", []):
+        _walk_schema(root, br, path, visit)
+    if sub.get("type") == "array" and "items" in sub:
+        visit("item", path + "[]", None, _deref(root, sub["items"]))
+        _walk_schema(root, sub["items"], path + "[]", visit)
+    for name, ps in (sub.get("properties") or {}).items():
+        visit("prop", path + "." + name, name, _deref(root, ps))
+        _walk_schema(root, ps, path + "." + name, visit)
+
+
+def causal_reach(chain: dict) -> dict:
+    graph = {}
+    for a, b in (chain.get("edges") or {}).get("causal") or []:
+        graph.setdefault(a, set()).add(b)
+    reach = {}
+    nodes = set(graph) | {b for bs in graph.values() for b in bs}
+    for n in nodes:
+        seen, stack = {n}, [n]
+        while stack:
+            for m in graph.get(stack.pop(), ()):
+                if m not in seen:
+                    seen.add(m)
+                    stack.append(m)
+        reach[n] = seen
+    return reach
+
+
+def check_structured(structured: dict, fields: list, chain: dict, label: str = "spec/" + STRUCTURED_REL):
+    """Return violations for the structured-field contract. Importable for tests."""
+    v = []
+    defs = structured.get("$defs") or {}
+    reg = {r.get("field_id"): r for r in fields}
+    chain_nodes = set((chain.get("nodes") or {}).get("core") or []) | set((chain.get("nodes") or {}).get("bridge") or [])
+    nonchain = set(structured.get("x-grantthai-nonchain-node-types") or [])
+    feedback = {tuple(e) for e in (chain.get("edges") or {}).get("feedback") or []}
+    reach = causal_reach(chain)
+
+    def is_field_key(k):
+        return not k.startswith("_") and k != "record_links"
+
+    for fid, rec in reg.items():
+        if rec.get("type") in STRUCTURED_TYPES and fid not in defs:
+            v.append(f"{label}: registry field {fid} (type {rec.get('type')}) has no value schema in $defs")
+    for k in defs:
+        if is_field_key(k) and (k not in reg or reg[k].get("type") not in STRUCTURED_TYPES):
+            v.append(f"{label}: $defs/{k} is not a structured registry field")
+
+    # node types per field (record + nested items), and prefixes
+    prefixes = {}
+    field_types = {}
+    for fid, sch in defs.items():
+        if not is_field_key(fid) or fid not in reg:
+            continue
+        rec = reg[fid]
+        cn = rec.get("chain_node")
+        types = {cn} if cn else set()
+        top = _deref(structured, sch)
+        rt = rec.get("type")
+        if rt == "array<object>":
+            items = _deref(structured, top.get("items", {})) if top.get("type") == "array" else {}
+            if top.get("type") != "array" or not isinstance(items, dict) or items.get("type") != "object":
+                v.append(f"{label}: $defs/{fid}: array<object> field needs type array with object items")
+            elif "x-grantthai-node" not in items:
+                v.append(f"{label}: $defs/{fid}: array items need x-grantthai-node")
+            want_min = rec.get("cardinality") == "1..N"
+            if want_min != bool(top.get("minItems", 0) >= 1):
+                v.append(f"{label}: $defs/{fid}: minItems does not match registry cardinality {rec.get('cardinality')}")
+        elif rt == "object" and top.get("type") != "object":
+            v.append(f"{label}: $defs/{fid}: object field needs type object")
+        elif rt == "rich_text|object":
+            kinds = {_deref(structured, b).get("type") for b in top.get("oneOf", [])}
+            if kinds != {"string", "object"}:
+                v.append(f"{label}: $defs/{fid}: rich_text|object needs oneOf [string, object]")
+
+        def visit(kind, path, name, ps, _fid=fid, _cn=cn, _types=types):
+            if kind == "item":
+                ann = ps.get("x-grantthai-node") if isinstance(ps, dict) else None
+                if ann is None:
+                    return
+                pfx, nt = ann.get("id_prefix"), ann.get("node_type")
+                if pfx in prefixes:
+                    v.append(f"{label}: {_fid}{path}: id prefix {pfx} already used by {prefixes[pfx]}")
+                prefixes[pfx] = _fid + path
+                idp = (ps.get("properties") or {}).get("id") or {}
+                if idp.get("pattern") != f"^{pfx}[0-9]{{1,4}}$" or "id" not in (ps.get("required") or []):
+                    v.append(f"{label}: {_fid}{path}: item must require id with pattern ^{pfx}[0-9]{{1,4}}$")
+                if _cn and nt != _cn:
+                    v.append(f"{label}: {_fid}{path}: node_type {nt} must equal registry chain_node {_cn}")
+                if not _cn and nt not in nonchain:
+                    v.append(f"{label}: {_fid}{path}: node_type {nt} must be a declared non-chain type")
+                _types.add(nt)
+        _walk_schema(structured, sch, "", visit)
+        field_types[fid] = types
+
+    def target_types(t):
+        if t.startswith("chain:"):
+            return {t[6:]} if t[6:] in chain_nodes else None
+        if t not in reg:
+            return None
+        return field_types.get(t) or ({reg[t].get("chain_node")} if reg[t].get("chain_node") else {None})
+
+    def check_ref(where, ann, source_types):
+        if not isinstance(ann, dict):
+            v.append(f"{label}: {where}: *_id/*_ids property needs x-grantthai-ref")
+            return
+        edge = ann.get("edge")
+        if edge not in ("causal", "feedback", "attribute"):
+            v.append(f"{label}: {where}: edge must be causal, feedback or attribute")
+            return
+        if edge != "attribute" and ann.get("direction") not in ("source_to_target", "target_to_source"):
+            v.append(f"{label}: {where}: {edge} reference needs a direction")
+            return
+        for t in ann.get("targets") or []:
+            tts = target_types(t)
+            if tts is None:
+                v.append(f"{label}: {where}: target {t} is neither a registry field nor a chain node")
+                continue
+            if edge == "attribute":
+                continue
+            for s in source_types:
+                for tt in tts:
+                    if s not in chain_nodes or tt not in chain_nodes:
+                        v.append(f"{label}: {where}: {edge} edge between non-chain types {s} and {tt}; use attribute")
+                        continue
+                    up, down = (tt, s) if ann["direction"] == "target_to_source" else (s, tt)
+                    if edge == "causal" and down not in reach.get(up, {up}):
+                        v.append(f"{label}: {where}: causal edge {up} -> {down} runs against spec/common/chain.yaml")
+                    if edge == "feedback" and (up, down) not in feedback:
+                        v.append(f"{label}: {where}: feedback edge {up} -> {down} is not in chain.yaml edges.feedback")
+
+    for fid, sch in defs.items():
+        if not is_field_key(fid) or fid not in reg:
+            continue
+        rec_types = {reg[fid].get("chain_node")} if reg[fid].get("chain_node") else set()
+        stack_owner = {"": rec_types or {None}}
+
+        def visit(kind, path, name, ps, _fid=fid):
+            if kind == "item":
+                ann = ps.get("x-grantthai-node") if isinstance(ps, dict) else None
+                if ann:
+                    stack_owner[path] = {ann.get("node_type")}
+                return
+            if name != "id" and (name.endswith("_id") or name.endswith("_ids")):
+                owner = max((p for p in stack_owner if path.startswith(p)), key=len)
+                check_ref(f"{_fid}{path}", ps.get("x-grantthai-ref"), stack_owner[owner])
+        _walk_schema(structured, sch, "", visit)
+    for name, ps in ((defs.get("record_links") or {}).get("properties") or {}).items():
+        ann = ps.get("x-grantthai-ref") if isinstance(ps, dict) else None
+        st = (ann or {}).get("source_types")
+        if not st or any(s not in chain_nodes for s in st):
+            v.append(f"{label}: record_links/{name}: needs source_types naming chain nodes")
+            continue
+        check_ref(f"record_links/{name}", ann, set(st))
+    return v
+
+
+def check_project(doc: dict, rel: str, project_dir, registry, schemas, structured: dict, fields: list, chain: dict):
+    """Return violations for one project.yaml instance beyond its JSON Schema. Importable for tests."""
+    v = []
+    reg = {r.get("field_id"): r for r in fields}
+    defs = structured.get("$defs") or {}
+    seen = set()
+    for recs, key in [(doc.get("fields") or [], None)] + [(r or [], k) for k, r in (doc.get("chain") or {}).items()]:
+        for rec in recs:
+            if not isinstance(rec, dict):
+                continue
+            fid = rec.get("field_id")
+            if fid in reg:
+                want = reg[fid].get("chain_node")
+                if want != key:
+                    where = f"chain.{want}" if want else "fields"
+                    v.append(f"{rel}: {fid} must be under {where}")
+                if fid in seen:
+                    v.append(f"{rel}: registry field {fid} appears more than once (S004)")
+                seen.add(fid)
+                if fid in defs and rec.get("value") is not None:
+                    validator = Draft202012Validator({"$ref": f"{structured['$id']}#/$defs/{fid}"}, registry=registry)
+                    for err in validator.iter_errors(rec["value"]):
+                        where = "/".join(str(p) for p in err.absolute_path) or "(value)"
+                        v.append(f"{rel}: {fid}: value/{where}: {err.message[:160]} (S002)")
+            elif isinstance(fid, str):
+                parts = fid.split(".")
+                if not (key and parts[0] == "CORE" and len(parts) >= 3 and parts[1] == key.upper()):
+                    v.append(f"{rel}: {fid} is not a registry field and not CORE.<NODE>.<NAME> under chain.<Node>")
+    rep = gt_links.derive(doc, structured, chain)
+    for d in sorted(set(rep.duplicates)):
+        v.append(f"{rel}: node id {d} is used more than once (S007)")
+    for ref, why in rep.unresolved:
+        v.append(f"{rel}: {ref.source}.{ref.key} -> {ref.target}: {why} (S006)")
+    cyc = gt_links.find_cycle(rep.causal_edges())
+    if cyc:
+        v.append(f"{rel}: causal cycle {' -> '.join(cyc)} (CH001)")
+    for fid, sid, why in gt_links.resolve_sources(doc, project_dir):
+        v.append(f"{rel}: {fid}: source {sid or '-'}: {why} (S008)")
+    if doc.get("review_records"):
+        current = gt_hash.content_sha256(doc)
+        for i, rr in enumerate(doc["review_records"]):
+            if isinstance(rr, dict) and rr.get("content_sha256") != current:
+                v.append(f"{rel}: review_records/{i} is stale: content_sha256 {rr.get('content_sha256')} != current {current}")
+    return v
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=".")
@@ -240,6 +472,16 @@ def main() -> int:
     ]
     for rel in project_like:
         validate(violations, registry, schemas, "project/project.schema.json", get(rel), rel)
+    # Registry, chain and structured contract fall back to this repository's
+    # own copies when the checked root (a seeded bad fixture) has none.
+    def own(rel, loader):
+        if get(rel) is not None:
+            return get(rel)
+        path = REPO_ROOT / rel
+        return loader(path) if path.exists() else None
+    ref_fields = own("registry/fields.jsonl", load_jsonl) or []
+    ref_chain = own("spec/common/chain.yaml", load_yaml) or {}
+    ref_structured = schemas.get("registry/structured_fields.schema.json") or {}
 
     fields = get("registry/fields.jsonl")
     if isinstance(fields, list):
@@ -290,6 +532,17 @@ def main() -> int:
                     if inp.startswith("chain:") and chain_nodes and inp[6:] not in chain_nodes:
                         violations.append(f"validators/rules.yaml: {rule.get('id')}: input {inp} is not a chain node")
 
+    # 6. Structured-field contracts
+    if ref_structured and ref_fields and ref_chain and (root / "spec").is_dir():
+        violations += check_structured(ref_structured, ref_fields, ref_chain)
+
+    # 7. Project instances beyond JSON Schema
+    for rel in project_like:
+        doc = get(rel)
+        if isinstance(doc, dict) and ref_structured:
+            violations += check_project(doc, rel, (root / rel).parent, registry, schemas,
+                                        ref_structured, ref_fields, ref_chain)
+
     for rel in project_like:
         doc = get(rel)
         if isinstance(doc, dict) and fund_ids:
@@ -303,7 +556,7 @@ def main() -> int:
             print(f"  - {v}")
         return 1
 
-    print("schema-lint guard: PASS (parse, INDEX paths, schema meta-validation, instance validation, cross-file checks)")
+    print("schema-lint guard: PASS (parse, INDEX paths, schema meta-validation, instance validation, cross-file checks, structured-field contracts, project links/sources/reviews)")
     return 0
 
 

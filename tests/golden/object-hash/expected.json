@@ -1,0 +1,13 @@
+[
+  {
+    "input": "small.yaml",
+    "content_sha256": "9dbf52263899c5537543afaa875c42411f774df6d26c21b2a755836de3c03687",
+    "state_sha256": "84c59638e451b3bf6b7412638aee9233b2547f9bcc6a74584af2f8124c874139",
+    "canonical_content_json": "{\"chain\":{\"Activity\":[{\"field_id\":\"WORK.PLAN.ACTIVITIES\",\"provenance\":{\"authored_by\":\"human\",\"evidence_role\":\"ORIENTING\",\"provenance_class\":\"DECISION\",\"source_type\":\"PROJECT_DOCUMENT\"},\"value\":[{\"id\":\"ACT1\",\"months\":[1,2],\"name\":null,\"weight_percent\":12.5}]}]},\"fields\":[{\"field_id\":\"CORE.GENERAL.TITLE_EN\",\"markers\":[],\"provenance\":{\"authored_by\":\"human\",\"evidence_role\":\"ORIENTING\",\"provenance_class\":\"DECISION\",\"source_type\":\"PROJECT_DOCUMENT\"},\"value\":\"Café schedule\"},{\"field_id\":\"CORE.GENERAL.TITLE_TH\",\"provenance\":{\"authored_by\":\"human\",\"evidence_role\":\"ORIENTING\",\"provenance_class\":\"DECISION\",\"source_type\":\"PROJECT_DOCUMENT\"},\"value\":\"ตัวอย่างสมมติ\"},{\"field_id\":\"CORE.GENERAL.REQUESTED_BUDGET\",\"provenance\":{\"authored_by\":\"human\",\"evidence_role\":\"ORIENTING\",\"provenance_class\":\"DERIVED\",\"source_type\":\"PROJECT_DOCUMENT\"},\"value\":50000},{\"field_id\":\"CORE.GENERAL.OTHER_FUNDER\",\"provenance\":{\"authored_by\":\"human\",\"evidence_role\":\"ORIENTING\",\"provenance_class\":\"DECISION\",\"source_type\":\"PROJECT_DOCUMENT\"},\"value\":false}],\"fund_binding\":{\"fund_profile_id\":\"example/FICTIONAL_CALL@0.1\"},\"mappings\":[{\"academic_concept\":\"FICTIONAL concept\",\"id\":\"BRIDGE.MAPPING.M1\",\"local_term\":\"FICTIONAL term\",\"proposed_by\":{\"kind\":\"human\"}}],\"mode\":\"expert\",\"project_id\":\"GOLDEN-SMALL\",\"schema_version\":\"0.2.0-draft\"}"
+  },
+  {
+    "input": "lecturer.yaml",
+    "content_sha256": "0d4f6f8105b0e9b5393bfabe08357b1162bf638dab0c3e9e4667addd31f2c065",
+    "state_sha256": "1470b61b7f3c6f03ede63a00772fe244f14fa49cb6bffab669ae1b32fef94fc2"
+  }
+]

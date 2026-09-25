@@ -1,7 +1,11 @@
 # tests/fixtures/positive/sample_project.yaml — FICTIONAL. Exercises the
-# project schema: a project-level field, chain content, an evidence item,
-# a review record and a mapping. Every value is synthetic.
-schema_version: "0.1.0-draft"
+# project schema: a project-level field, chain content, an evidence item
+# with a resolvable source, a claim, a review record and a mapping. Every
+# value is synthetic. The review record's content_sha256 is the CURRENT
+# content hash of this file (spec/common/object-hash.md); schema lint fails
+# if an edit makes it stale — recompute it with
+#   PYTHONPATH=src python -c "from grantthai.core.object_hash import *; import sys; print(content_sha256(load_project_text(open(sys.argv[1]).read())))" <file>
+schema_version: "0.2.0-draft"
 project_id: "FICTIONAL-SAMPLE-0002"
 mode: expert
 authoring:
@@ -10,6 +14,11 @@ authoring:
   self_declared: true
 fund_binding:
   fund_profile_id: "example/FICTIONAL_CALL@0.1"
+sources:
+  - source_id: SRC-1
+    kind: PUBLISHED_LITERATURE
+    citation: "FICTIONAL Author C. (2022). A synthetic source for a test fixture."
+    contains_personal_data: false
 fields:
   - field_id: CORE.GENERAL.TITLE_EN
     value: "FICTIONAL: a sample project title"
@@ -42,12 +51,22 @@ chain:
     - field_id: CORE.EVIDENCE.E1
       value: "FICTIONAL: a synthetic evidence statement"
       status: DRAFT
+      source_ids: [SRC-1]
       supports_claim_id: CORE.CLAIM.C1
       claim_strength_cap: FULL
       provenance:
         provenance_class: SOURCE
         source_type: PUBLISHED_LITERATURE
         evidence_role: SUPPORTING
+        authored_by: human
+  Claim:
+    - field_id: CORE.CLAIM.C1
+      value: "FICTIONAL: a synthetic claim"
+      status: DRAFT
+      provenance:
+        provenance_class: INFERENCE
+        source_type: PROJECT_DOCUMENT
+        evidence_role: ORIENTING
         authored_by: human
 ecosystem_positions: []
 review_records:
@@ -57,7 +76,7 @@ review_records:
     scope: "Problem, PriorKnowledge"
     independence: self
     date: "2026-09-25"
-    object_sha256: "0f343b0931126a20f133d67c2b018a3b5c0e2bd4bb1d8a8c0b87e3bc3fb2f0a1"
+    content_sha256: "d265f35f0110019accb2a8f83ed83a7e12c23ffa16905ab3e75d3b3ae57faabf"
 mappings:
   - id: BRIDGE.MAPPING.M1
     local_term: "FICTIONAL local term"

@@ -1,3 +1,5 @@
+# GOLDEN VECTOR: a frozen copy of examples/lecturer-no-ai/project.yaml as of
+# spec/common/object-hash.md v0.2. Never edit; expected hashes in expected.json.
 # examples/lecturer-no-ai/project.yaml — FICTIONAL. Every name, number,
 # place and source below is synthetic. No real place name appears together
 # with a real institution name (PRIVACY.md).

@@ -1,0 +1,49 @@
+# Golden vector for spec/common/object-hash.md. FICTIONAL. Exercises: key
+# sorting, NFC ("Café" below is decomposed and must hash like the
+# composed form), number form (12.50 -> 12.5, 50000.0 -> 50000), Thai text,
+# booleans, null, and the content-hash exclusions (status, review_records,
+# lock, mapping acceptance_state/review).
+schema_version: "0.2.0-draft"
+project_id: "GOLDEN-SMALL"
+mode: expert
+fund_binding: {fund_profile_id: "example/FICTIONAL_CALL@0.1"}
+fields:
+  - field_id: CORE.GENERAL.TITLE_EN
+    value: "Café schedule"
+    status: HUMAN_REVIEWED
+    markers: []
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.GENERAL.TITLE_TH
+    value: "ตัวอย่างสมมติ"
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.GENERAL.REQUESTED_BUDGET
+    value: 50000.0
+    status: VERIFIED
+    provenance: {provenance_class: DERIVED, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.GENERAL.OTHER_FUNDER
+    value: false
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+chain:
+  Activity:
+    - field_id: WORK.PLAN.ACTIVITIES
+      value:
+        - {id: ACT1, weight_percent: 12.50, months: [1, 2], name: null}
+      status: LOGIC_LINKED
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+mappings:
+  - id: BRIDGE.MAPPING.M1
+    local_term: "FICTIONAL term"
+    academic_concept: "FICTIONAL concept"
+    proposed_by: {kind: human}
+    acceptance_state: ACCEPTED_SELF
+review_records:
+  - gate_id: RG0
+    reviewer_name: "FICTIONAL Reviewer"
+    reviewer_role: lecturer
+    scope: "titles"
+    independence: self
+    date: "2026-09-25"
+    content_sha256: "ignored-for-the-content-hash"
+lock: {locked: false}

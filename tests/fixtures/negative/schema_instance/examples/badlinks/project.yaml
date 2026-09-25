@@ -1,0 +1,52 @@
+# FIXTURE — deliberately BROKEN links, structured values, sources and review
+# hash, for tools/ci/check_schema_lint.py (tests/test_schema_lint.py). FICTIONAL.
+schema_version: "0.2.0-draft"
+project_id: "FIXTURE-BADLINKS"
+mode: expert
+fund_binding:
+  fund_profile_id: "example/BAD_CALL@0.1"
+sources:
+  - source_id: SRC-1
+    kind: PUBLISHED_LITERATURE
+    citation: "FICTIONAL fixture source"
+    file: "missing-copy.pdf"
+    contains_personal_data: false
+fields:
+  - field_id: CORE.RESEARCH.GAP
+    value: "misplaced: GAP belongs under chain.Gap"
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+chain:
+  Problem:
+    - field_id: CORE.RESEARCH.PROBLEM
+      value: "x"
+      status: DRAFT
+      source_ids: [SRC-1, SRC-9]
+      provenance: {provenance_class: SOURCE, source_type: OFFICIAL_DOCUMENT, evidence_role: SUPPORTING, authored_by: human}
+  RQ:
+    - field_id: CORE.RESEARCH.RQ.PRIMARY
+      value: "x"
+      status: DRAFT
+      links:
+        gap_ids: [CORE.RESEARCH.PROBLEM]
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Activity:
+    - field_id: WORK.PLAN.ACTIVITIES
+      value:
+        - id: ACT1
+          weight_percent: "fifty"
+          depends_on_activity_ids: [ACT2]
+          objective_ids: [OBJ9]
+        - id: ACT2
+          depends_on_activity_ids: [ACT1]
+        - id: ACT2
+      status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+review_records:
+  - gate_id: RG0
+    reviewer_name: "FICTIONAL Reviewer"
+    reviewer_role: lecturer
+    scope: "Problem"
+    independence: self
+    date: "2026-09-25"
+    content_sha256: "0000000000000000000000000000000000000000000000000000000000000000"
