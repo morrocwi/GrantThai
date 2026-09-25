@@ -48,6 +48,17 @@ curl -s -X POST 127.0.0.1:8765/projects/my-grant/build > NRIIS_SUBMISSION.md
 ```
 Details: [`docs/api.md`](./docs/api.md).
 
+**AI-use ceiling.** Every surface works under
+[`docs/policy/ai-use-ceiling.md`](./docs/policy/ai-use-ceiling.md) (Thai:
+[`ai-use-ceiling.th.md`](./docs/policy/ai-use-ceiling.th.md)), built on the
+National Research Council of Thailand's GenAI guideline for researchers
+(September 2569; guidance, binding status OPEN; `docs/sources.md`). Before
+any data is accepted, the AI shows a personal/confidential-data warning.
+Each AI-assisted write records the tool and version in
+`authoring.ai_use_declaration`, which the output renders as section 4.7, an
+AI Use Declaration (a GrantThai appendix, not an NRIIS field) that only the
+researcher confirms. Rules AI001-AI004 are REVIEW only.
+
 ## ใช้ GrantThai กับ AI ของคุณ: Skill / MCP / API
 
 ข้อมูลของนักวิจัยเองคือแหล่งที่มา AI ทำหน้าที่สัมภาษณ์และร่างข้อความเท่านั้น
@@ -66,6 +77,11 @@ Details: [`docs/api.md`](./docs/api.md).
 
 ทั้งสามทางได้ไฟล์เดียวกันเพียงไฟล์เดียว: `build/NRIIS_SUBMISSION.md` คุณเป็นผู้ตรวจ
 ตัดสินใจ และส่งเองเสมอ
+
+ทุกช่องทางอยู่ใต้ [เพดานการใช้ AI](./docs/policy/ai-use-ceiling.th.md) ซึ่งอิงแนวทางการใช้ GenAI
+อย่างมีจริยธรรมสำหรับนักวิจัยของสำนักงานการวิจัยแห่งชาติ (กันยายน 2569) ก่อนรับข้อมูล AI ต้องแสดงคำเตือนเรื่องข้อมูลส่วนบุคคลและข้อมูลลับ
+ชื่อและเวอร์ชันของเครื่องมือ AI ถูกบันทึกในแบบแจ้งการใช้ AI (หัวข้อ 4.7 ของไฟล์ผลลัพธ์ เป็นภาคผนวกของ GrantThai
+ไม่ใช่ช่องของ NRIIS) และนักวิจัยเท่านั้นเป็นผู้ยืนยันแบบแจ้งนี้
 
 ---
 
@@ -289,6 +305,8 @@ intentionally departs from the original handoff package.
   `comparison.md` (3 reports) and `corpus-100.md` / `corpus-100.th.md`
   (100 funded Thai research documents, metadata and structural statistics
   only, no PDFs; data in `corpus-100.csv`, extractor in `tools/corpus/`).
+- `docs/policy/` — the AI-use ceiling (English and Thai), built on the
+  GenAI guideline 2569, with a crosswalk of every normative point.
 - `skills/grantthai/` — the agent skill (SKILL.md, references, helper script).
 - `src/grantthai/` — the library (`api_py.py` is the one Python surface); `core`, `validators`, `review`,
   `fund`, `mapping`, `render`, `interview`, `cli` are AI-free by construction

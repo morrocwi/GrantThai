@@ -311,6 +311,35 @@ X002/X003 catch misuse; every AI feature has a tested human equivalent.
 **Do NOT:** let anything in `assist` import into `core`/`validators`/etc.
 (one-way dependency only — CI already enforces the reverse direction).
 
+**AI-use ceiling (landed early, unreleased).** Every AI feature, in this
+phase and every other, stays under `docs/policy/ai-use-ceiling.md`, built
+on the GenAI guideline 2569 (`docs/sources.md`). What exists and must be
+kept when `assist` is built:
+
+- `authoring.ai_use_declaration` in `spec/project/project.schema.json`
+  (tools with version, stages and purpose; influence; human verification;
+  data handling; log reference; optional risk self-assessment; the
+  researcher's confirmation). Every AI-assisted write goes through
+  `grantthai.core.project.record_ai_tool` (called by `set_field` with
+  `actor="ai_assisted"` and a `tool`), which resets the confirmation when
+  tools or stages change. An `assist` command must pass its tool name and
+  version the same way, and must never set `declaration_confirmed_by_human`.
+- The data warning (`grantthai.core.pii.DATA_WARNING_TH/EN`) is shown
+  before any data is accepted; MCP and HTTP return it on project creation.
+- Rules AI001-AI004 (`validators/rules.yaml`, REVIEW only, source
+  `docs/policy/ai-use-ceiling.md`; the rule schema forbids BLOCK for that
+  source). AI003 uses `grantthai.core.pii`, the same patterns as the
+  leak/PII guard.
+- Output section 4.7 (`spec/output/nriis-submission.contract.md`): the AI
+  Use Declaration, a GrantThai appendix modelled on the guideline's
+  Appendix A (p.34), never an NRIIS field. Any single risk level printed is
+  labelled GrantThai's convention.
+- Tests: `tests/test_ai_use_ceiling.py`.
+
+**Do NOT:** make an AI rule BLOCK while the guideline's binding status is
+OPEN; present the convention risk level as the guideline's; add the
+declaration to an NRIIS tab; name the guideline's drafting committee.
+
 ## v0.4 — interfaces
 
 **Status:** MCP and REST shipped early in v0.1.0 (founder scope change

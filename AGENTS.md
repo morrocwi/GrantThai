@@ -51,6 +51,17 @@ engine:
 | MCP server (stdio) | `grantthai-mcp --root DIR` | `docs/mcp.md`, `spec/mcp/tools.schema.json` |
 | HTTP API (local) | `grantthai-api` | `docs/api.md`, `spec/api/openapi.yaml` |
 
+Every surface, and any AI building this repository, works under the
+**AI-use ceiling**, `docs/policy/ai-use-ceiling.md` (Thai:
+`docs/policy/ai-use-ceiling.th.md`), built on the GenAI guideline 2569
+(`docs/sources.md`). In short: show the personal/confidential-data warning
+before accepting any data; record the tool and version in
+`authoring.ai_use_declaration` (automatic on every AI-assisted write);
+never generate or alter research data or evidence; never supply a
+reference from memory; never set `declaration_confirmed_by_human` (only the
+researcher does); never use GrantThai to evaluate someone else's proposal.
+Rules AI001-AI004 are REVIEW only.
+
 ## The one-input, one-output contract (headline)
 
 See `spec/contracts/one-input-one-output.md` for the full contract:

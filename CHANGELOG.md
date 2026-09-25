@@ -6,6 +6,53 @@ SemVer from v0.1 onward.
 
 ## [Unreleased]
 
+### Added — the AI-use ceiling (GenAI guideline 2569)
+- `docs/policy/ai-use-ceiling.md` and `docs/policy/ai-use-ceiling.th.md`:
+  the most any AI may do in GrantThai, each line citing the page of the
+  National Research Council of Thailand's GenAI guideline for researchers
+  (September 2569) and the force of its Thai wording; stage-by-stage limits,
+  disclosure, accountability, data rules, record keeping, where GrantThai is
+  stricter, human duties GrantThai cannot check, a crosswalk of every
+  normative point (N01-N58), and the glosa P20/P06/P10 comparison. The
+  guideline is guidance; its binding status is OPEN. `docs/sources.md`
+  records it (public URL `NEEDS_VERIFICATION`).
+- `authoring.ai_use_declaration` in `project.yaml`, following the sample
+  form in the guideline's Appendix A (p.34). Every AI-assisted write
+  (`grantthai set --ai`, MCP `grantthai_set_field`, HTTP field writes, the
+  skill's `apply`) records the tool, its version and the stage; new options
+  `--tool-version` / `--stage`, `tool_version` / `stage`. Adding a tool or
+  stage resets `declaration_confirmed_by_human`, which only the researcher
+  sets.
+- Rules AI001 (declaration missing, incomplete or unconfirmed), AI002
+  (AI-drafted data or evidence record; extends X003), AI003
+  (personal-data-shaped string in an AI-assisted value) and AI004
+  (self-assessed risk of 3; the single level is labelled GrantThai's
+  convention, since the guideline gives no rule for combining its five
+  example scores). Family AI, REVIEW only; Thai explanations in
+  `skills/grantthai/reference/rules-th.md`.
+- Output section 4.7, the AI Use Declaration: a GrantThai appendix, never
+  an NRIIS field (whether a call asks for one is `NEEDS_VERIFICATION`).
+  Frontmatter `authoring.ai_use_declaration`: `none`, `unconfirmed` or
+  `confirmed_by_researcher`. Renderer `nriis_submission.md.j2@0.3.0`,
+  output contract 0.4.0-draft.
+- The personal/confidential-data warning (guideline p.14-16), shown before
+  any data is accepted: `grantthai_skill.py warning`, `data_warning` in the
+  MCP `grantthai_new_project` result and the HTTP `POST /projects`
+  response. The skill keeps team members' personal data out of a public AI
+  chat and stops drafting a dual-use topic.
+- `src/grantthai/core/pii.py`: one set of personal-data patterns, shared by
+  the validator (AI003) and the leak/PII guard.
+- `tests/test_ai_use_ceiling.py`.
+
+### Changed — the AI-use ceiling
+- The worked example's golden output is re-pinned: renderer version, one
+  frontmatter line and section 4.7 ("no AI use recorded") are the only
+  changes.
+- The fictional demo gains an AI Use Declaration for its simulated persona
+  and now shows **REVIEW 3** (FW001, and AI001 twice: no human verification
+  yet, not confirmed). `examples/demo-seedbank/NRIIS_SUBMISSION.md` is
+  rebuilt with `--as-of 2026-09-25`.
+
 ### Added — practice shared by funded work
 - `docs/practice/funded-work-patterns.md` (English) and
   `docs/practice/funded-work-patterns.th.md` (Thai): what the 100 funded
