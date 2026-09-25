@@ -131,6 +131,48 @@
         "null"
       ]
     },
+    "candidate_values": {
+      "type": "object",
+      "required": [
+        "status",
+        "source"
+      ],
+      "properties": {
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^mappings/nriis/labels@[A-Za-z0-9._-]+\\.yaml#[a-z_]+$",
+          "description": "A code list in a candidate labels file; a value matches when its first token is a listed code."
+        },
+        "status": {
+          "const": "NEEDS_VERIFICATION"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "values"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "additionalProperties": false,
+      "description": "Candidate options read from a public document (NEEDS_VERIFICATION). S003 accepts them; rule S011 gives a REVIEW finding for a candidate that is not in allowed_values, or for a value outside a candidate list when allowed_values is null. Never a BLOCK."
+    },
     "dependencies": {
       "type": "array",
       "items": {

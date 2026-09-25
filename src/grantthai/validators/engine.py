@@ -188,11 +188,27 @@ def _structure(c: _Ctx):
             for e in errs:
                 c.add("S002", f"{fid}: {e}", [fid],
                       f"Fix the value against spec/registry/structured_fields.schema.json#/$defs/{fid}.")
-        # S003 allowed values
+        # S003 allowed values (candidate values, NEEDS_VERIFICATION, are also accepted)
         allowed = reg.get("allowed_values")
-        if rtype in ("enum", "reference") and isinstance(allowed, list) and isinstance(v, str) and v not in allowed:
-            c.add("S003", f"{fid}: {v!r} is not one of the allowed values {allowed}.", [fid],
+        cand = P.candidate_values(reg)
+        cand_vals = cand[1] if cand and cand[0] == "values" else []
+        if rtype in ("enum", "reference") and isinstance(allowed, list) and isinstance(v, str) \
+                and v not in allowed and v not in cand_vals:
+            c.add("S003", f"{fid}: {v!r} is not one of the allowed values {allowed + cand_vals}.", [fid],
                   "Choose one of the listed values.")
+        # S011 candidate option lists (never official, so REVIEW)
+        if cand and isinstance(v, str):
+            kind, opts = cand
+            if isinstance(allowed, list) and kind == "values" and v in opts and v not in allowed:
+                c.add("S011", f"{fid}: {v!r} is a candidate value from a public document, not an observed option "
+                      "(NEEDS_VERIFICATION).", [fid],
+                      "Check the current call's option list and keep the NEEDS_VERIFICATION marker until then.")
+            elif allowed is None:
+                token = v.strip().split(" ", 1)[0].rstrip(".:") if v.strip() else ""
+                if (kind == "codes" and token not in opts) or (kind == "values" and v not in opts):
+                    c.add("S011", f"{fid}: {v!r} is not in the candidate option list "
+                          f"({(reg.get('candidate_values') or {}).get('source')}; NEEDS_VERIFICATION).", [fid],
+                          "Use a listed code if it fits, or confirm the value against the current call.")
         # S004 cardinality
         if reg.get("cardinality") == "1..N" and isinstance(v, list) and len(v) == 0:
             c.add("S004", f"{fid}: needs at least one item (cardinality 1..N).", [fid], "Add at least one item.")
@@ -216,6 +232,25 @@ def _structure(c: _Ctx):
             if not active and filled:
                 c.add("S005", f"{r['field_id']} is filled, but its condition {dep} is false.", [r["field_id"], cond_fid],
                       f"Clear {r['field_id']} or change {cond_fid}.")
+    # S009 required attachments not supplied (the person uploads them in NRIIS)
+    for a in c.items("DOC.ATTACHMENTS.DOCUMENTS"):
+        if a.get("required_status") == "REQUIRED" and a.get("supplied") is not True:
+            c.add("S009", f"Required attachment {a.get('id')} ({a.get('file_name') or a.get('document_type') or 'unnamed'}) "
+                  "is not supplied yet.", ["DOC.ATTACHMENTS.DOCUMENTS"],
+                  "Prepare the file, upload it in NRIIS yourself, then set supplied: true.")
+    # S010 activities within the project duration
+    dy, dm = c.value("CORE.GENERAL.DURATION_Y"), c.value("CORE.GENERAL.DURATION_M")
+    if isinstance(dy, int) and not isinstance(dy, bool) and isinstance(dm, int) and not isinstance(dm, bool):
+        total = dy * 12 + dm
+        for a in c.items("WORK.PLAN.ACTIVITIES"):
+            yr, months = a.get("year"), [m for m in a.get("months") or [] if isinstance(m, int)]
+            if isinstance(yr, int) and not isinstance(yr, bool) and months:
+                last = (yr - 1) * 12 + max(months)
+                if total > 0 and last > total:
+                    c.add("S010", f"Activity {a.get('id')} runs to project month {last}, past the duration of "
+                          f"{total} months ({dy} years + {dm} months).",
+                          ["WORK.PLAN.ACTIVITIES", "CORE.GENERAL.DURATION_Y", "CORE.GENERAL.DURATION_M"],
+                          "Shorten the activity or correct the project duration.")
     # S006 unresolved references
     for ref, reason in c.rep.unresolved:
         holder = c.rep.nodes.get(ref.source)
@@ -275,6 +310,16 @@ def _logic(c: _Ctx):
         c.add("R007", "The analysis plan is not linked from a data-collection item.", ["METHOD.PLAN.ANALYSIS"],
               "Add data_ids to METHOD.PLAN.ANALYSIS.")
 
+    for ins in c.items("METHOD.PLAN.INSTRUMENTS"):
+        if not (ins.get("construct_ids") or str(ins.get("construct_measured") or "").strip()):
+            c.add("R008", f"Instrument {ins.get('id')} names no construct or variable it measures.",
+                  ["METHOD.PLAN.INSTRUMENTS"],
+                  f"Add construct_ids (CORE.RESEARCH.CONSTRUCTS) or construct_measured to instrument {ins.get('id')}.")
+    for h in c.items("CORE.RESEARCH.HYPOTHESES"):
+        if not str(h.get("proposed_test") or "").strip():
+            c.add("R009", f"Hypothesis {h.get('id')} has no proposed test.", ["CORE.RESEARCH.HYPOTHESES"],
+                  f"State how hypothesis {h.get('id')} will be tested (proposed_test).")
+
     # W
     obj_or_design = lambda a: c.in_field("CORE.RESEARCH.OBJECTIVES")(a) or design(a)
     team = {m.get("id") for m in c.items("PROFILE.TEAM.MEMBERS")}
@@ -298,6 +343,11 @@ def _logic(c: _Ctx):
         if not c.incoming(o.get("id"), c.in_field("WORK.PLAN.ACTIVITIES")):
             c.add("W004", f"Output {o.get('id')} is not produced by any activity.", ["RESULTS.CHAIN.OUTPUTS"],
                   f"Add activity_ids to output {o.get('id')}.")
+
+    for pt in c.items("WORK.PARTNERS.ORGANIZATIONS"):
+        if not str(pt.get("collaboration_role") or "").strip():
+            c.add("W005", f"Partner {pt.get('id')} has no stated role.", ["WORK.PARTNERS.ORGANIZATIONS"],
+                  f"Say what partner {pt.get('id')} does in the project (collaboration_role).")
 
     # B
     lines = c.items("BUDGET.PLAN.ITEMS")
@@ -327,6 +377,36 @@ def _logic(c: _Ctx):
         if not (e.get("justification") or "").strip():
             c.add("B005", f"Equipment {e.get('id')} has no stated necessity.", ["BUDGET.PLAN.EQUIPMENT"],
                   "Add a justification for the equipment.")
+
+    for pt in c.items("WORK.PARTNERS.ORGANIZATIONS"):
+        cash, kind, tot = (_num(pt.get(k)) for k in ("in_cash", "in_kind", "total_contribution"))
+        if kind is not None and kind > 0 and not str(pt.get("in_kind_basis") or "").strip() \
+                and not pt.get("support_attachment_ids"):
+            c.add("B007", f"Partner {pt.get('id')} claims in-kind support {q(kind)} with no valuation basis or "
+                  "supporting document.", ["WORK.PARTNERS.ORGANIZATIONS"],
+                  "State how the in-kind support was valued (in_kind_basis) or attach the partner's letter.")
+        if tot is not None and (cash is not None or kind is not None) \
+                and q(tot) != q((cash or Decimal(0)) + (kind or Decimal(0))):
+            c.add("B007", f"Partner {pt.get('id')}: total_contribution {q(tot)} != in_cash + in_kind "
+                  f"({q((cash or Decimal(0)) + (kind or Decimal(0)))}).", ["WORK.PARTNERS.ORGANIZATIONS"],
+                  "Correct the partner's contribution figures.")
+
+    # E009 (shipped early): IP the project will use needs ownership/permission
+    ipc = c.value("CORE.NARRATIVE.IP_CHECK")
+    if isinstance(ipc, dict):
+        for it in ipc.get("related_ip") or []:
+            if isinstance(it, dict) and it.get("use_in_project") is True \
+                    and not str(it.get("permission_status") or "").strip():
+                c.add("E009", f"Related IP {it.get('id')} will be used in the project but no ownership or permission "
+                      "status is given.", ["CORE.NARRATIVE.IP_CHECK"],
+                      f"Record who owns {it.get('id')} and whether permission to use it is in hand (permission_status).")
+
+    # F005 duplicate-funding risk
+    if c.value("CORE.GENERAL.OTHER_FUNDER") is True:
+        c.add("F005", "The proposal is also submitted to another funder (duplicate-funding risk).",
+              ["CORE.GENERAL.OTHER_FUNDER", "CORE.GENERAL.OTHER_FUNDER.DIFF"],
+              "Confirm the difference from the other proposal (CORE.GENERAL.OTHER_FUNDER.DIFF) and that no budget "
+              "line would be funded twice.")
 
     # T
     members = c.items("PROFILE.TEAM.MEMBERS")

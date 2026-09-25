@@ -102,6 +102,23 @@ def candidate_labels() -> dict:
     return out
 
 
+def candidate_values(reg: dict) -> tuple[str, list[str]] | None:
+    """A registry record's candidate option list (NEEDS_VERIFICATION):
+    ("values", [...]) for literal values, ("codes", [...]) for a code list
+    in a candidate labels file, or None."""
+    cv = reg.get("candidate_values") if isinstance(reg, dict) else None
+    if not isinstance(cv, dict):
+        return None
+    if isinstance(cv.get("values"), list):
+        return "values", [str(v) for v in cv["values"]]
+    ref = cv.get("ref") or ""
+    if "#" in ref:
+        key = ref.split("#", 1)[1]
+        block = candidate_labels().get(key) or {}
+        return "codes", [str(v.get("code")) for v in block.get("values") or [] if v.get("code") is not None]
+    return None
+
+
 def candidate_label_text(entry: dict | None) -> str:
     """'"<label>" (SD-1 p15, item 1.1)' for a field_labels/tab_labels entry."""
     if not isinstance(entry, dict) or not entry.get("label_th"):

@@ -39,7 +39,7 @@
       "required": ["id", "family", "ships", "severity", "severity_basis", "description_en", "inputs", "chain_step", "source", "negative_fixture"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Z]{1,4}[0-9]{3}$"},
-        "family": {"type": "string", "enum": ["S", "R", "W", "B", "T", "CH", "F", "ELIG", "E", "U", "P", "G", "X"]},
+        "family": {"type": "string", "enum": ["S", "R", "W", "B", "T", "CH", "F", "ELIG", "E", "U", "P", "G", "X", "C"]},
         "ships": {"type": "string", "enum": ["v0.1", "v0.2"]},
         "severity": {"type": "string", "enum": ["BLOCK", "REVIEW", "INFO"]},
         "severity_basis": {"type": "string", "enum": ["plan", "proposed_default"]},
