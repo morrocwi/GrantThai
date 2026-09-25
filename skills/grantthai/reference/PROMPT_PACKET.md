@@ -44,11 +44,25 @@ Rules you must follow:
      sourced factual claim).
    - Every `status` is `DRAFT` (or `NEEDS_INPUT` for an empty value). Never
      write any higher status.
-5. If you wrote any `ai_draft` value, set `authoring.mode: ai_assisted` and
-   list the AI product I am using in `authoring.tools_disclosed`. Never add
-   yourself as an author, co-author or team member.
+5. If you wrote any `ai_draft` value, set `authoring.mode: ai_assisted`,
+   list the AI product I am using in `authoring.tools_disclosed`, and fill
+   `authoring.ai_use_declaration` from what I tell you (tool name and
+   version, stages, purpose, how your output influenced my decisions, what
+   I checked, what types of data I gave you, where I keep the chat log).
+   Write `NEEDS_INPUT` for anything I have not said. Always write
+   `declaration_confirmed_by_human: false`: only I may change it, after
+   reading the output. Never add yourself as an author, co-author or team
+   member.
 6. Ask in Thai unless I use English. Two or three questions at a time.
    The Thai questions are your own plain wording, not official labels.
+7. Before I give you any research data, show me this warning first:
+   anything typed into a public AI service is sent to a third party, so I
+   must not give you personal data that identifies anyone (names, national
+   ID numbers, health data), participants' records, confidential or
+   unpublished material, anything I plan to patent, or dual-use
+   information; I describe such data by its type instead. Team members'
+   names and contacts: leave them `NEEDS_INPUT` for me to fill in myself.
+   Never invent research data, results or references.
 
 Interview order (each step links to the one before it):
 
@@ -57,7 +71,8 @@ Interview order (each step links to the one before it):
 2. General: Thai and English title, duration (years, months), whether it
    was submitted to another funder, Thai and English keywords, primary and
    secondary research field.
-3. Team: each member's name, organisation, role (`PI` exactly once,
+3. Team: each member (names, organisations and ORCID stay `NEEDS_INPUT`
+   for me to fill in myself, rule 7), role (`PI` exactly once,
    `CO_PI`, `CO_RESEARCHER`, `ADVISOR`, `RESEARCH_ASSISTANT`, `OTHER`),
    contribution % (sum 100), responsibilities.
 4. Chain: national need, research problem (and where I know it from),
@@ -86,7 +101,16 @@ gave you, keep `NEEDS_INPUT` / `NEEDS_VERIFICATION` elsewhere):
 schema_version: "0.2.0-draft"
 project_id: "NEEDS_INPUT"
 mode: expert
-authoring: {mode: human, tools_disclosed: [], self_declared: true}
+authoring:
+  mode: human            # ai_assisted if you drafted anything
+  tools_disclosed: []
+  self_declared: true
+  ai_use_declaration:    # only if you drafted anything; the output shows it as section 4.7
+    tools: [{name: "NEEDS_INPUT", version: "NEEDS_INPUT", stages: [proposal_writing], purpose: "NEEDS_INPUT"}]
+    influence_on_conclusions: "NEEDS_INPUT"
+    human_verification: "NEEDS_INPUT"
+    data_handling: "NEEDS_INPUT"
+    declaration_confirmed_by_human: false   # only I may set this to true
 fund_binding: {fund_profile_id: "example/FICTIONAL_CALL@0.1"}
 sources:
   - {source_id: SRC-1, kind: OFFICIAL_DOCUMENT, citation: "as I gave it", contains_personal_data: false}
@@ -143,4 +167,7 @@ pass.
 2. Run `grantthai validate project.yaml`. Chat-written YAML often has small
    structure mistakes; the `SCHEMA` and `S...` findings point to them.
 3. Run `grantthai build project.yaml` and read `build/NRIIS_SUBMISSION.md`,
-   especially the readiness summary and the list of AI-drafted values.
+   especially the readiness summary, the list of AI-drafted values and the
+   AI Use Declaration (section 4.7). If it is true, set
+   `declaration_confirmed_by_human: true` in `project.yaml` yourself
+   (rule AI001; `docs/policy/ai-use-ceiling.md`).

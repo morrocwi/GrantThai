@@ -32,10 +32,30 @@ author and the source of every fact.
 5. **Status never goes above `DRAFT`.** Nothing here makes a value
    verified, reviewed or locked.
 6. **You are not an author.** Never add yourself to the team, a byline or
-   any credit. Disclose the AI tool only in `authoring.tools_disclosed`
-   (the `tool:` key), as the researcher chooses to name it.
-7. **Privacy.** Use `contains_personal_data: true` for sources that
-   identify people. Do not paste the researcher's data into other services.
+   any credit. Disclose the AI tool only in `authoring.tools_disclosed` and
+   `authoring.ai_use_declaration.tools` (the `tool:` and `tool_version:`
+   keys), as the researcher chooses to name it.
+7. **Privacy, before any data.** Before the researcher gives you any
+   research data, show them the data warning
+   (`python scripts/grantthai_skill.py warning`, Thai then English):
+   personal data that identifies anyone, participants' records,
+   confidential or unpublished material, anything to be patented and
+   dual-use information must not go into a public AI (guideline p.14-16).
+   Ask team members' names, organisations and ORCID only if you run
+   locally or under an enterprise agreement and the researcher agrees;
+   otherwise ask the researcher to enter them with `grantthai set` (no
+   `--ai`) or by editing `project.yaml`. If the topic is dual-use, stop
+   drafting it, mark the value `HOLD_FOR_VERIFICATION` and let the
+   researcher decide where to work on it. Use `contains_personal_data: true`
+   for sources that identify people. Do not paste the researcher's data
+   into other services.
+8. **The AI-use ceiling.** You work under `docs/policy/ai-use-ceiling.md`
+   in the GrantThai repository (Thai: `ai-use-ceiling.th.md`): never
+   generate or alter research data, results or evidence (only restate the
+   researcher's own); never supply a reference from memory; never set
+   `declaration_confirmed_by_human` (only the researcher confirms the AI
+   Use Declaration); never use GrantThai to process someone else's
+   proposal or manuscript for evaluation.
 
 Details: `reference/provenance.md`.
 
@@ -81,6 +101,10 @@ You never run `review` or `lock` on the researcher's behalf.
 
 ### 2. Interview
 
+First show the data warning (non-negotiable 7) and ask which AI product
+and version the researcher is using with you; record them as `tool:` and
+`tool_version:` in `answers.yaml`.
+
 Follow `reference/interview.md`: questions in Thai and English, each
 mapped to a `field_id`, in chain order (call, general, team, need,
 problem, prior knowledge, gap, research question, objectives, method,
@@ -120,7 +144,7 @@ Or set single fields with the CLI:
 
 ```bash
 grantthai set CORE.GENERAL.TITLE_TH "ชื่อโครงการ" --project project.yaml --string
-grantthai set CORE.GENERAL.TITLE_EN "Project title" --project project.yaml --string --ai --tool "TOOL NAME"
+grantthai set CORE.GENERAL.TITLE_EN "Project title" --project project.yaml --string --ai --tool "TOOL NAME" --tool-version "VERSION"
 grantthai set CORE.RESEARCH.PROBLEM "..." --project project.yaml --string --provenance-class SOURCE --source-id SRC-1
 ```
 
@@ -128,7 +152,8 @@ Or the Python API:
 
 ```python
 from grantthai import api_py as gt
-gt.set_field("project.yaml", "CORE.GENERAL.TITLE_EN", "Project title", actor="ai_assisted", tool="TOOL NAME")
+gt.set_field("project.yaml", "CORE.GENERAL.TITLE_EN", "Project title", actor="ai_assisted", tool="TOOL NAME",
+             tool_version="VERSION")
 ```
 
 Links, sources and evidence fields are easiest through `answers.yaml`; the
@@ -137,6 +162,18 @@ CLI `set` has no option for `links` or the `sources` list.
 Show the researcher every value you drafted (`by: ai`) and ask them to
 confirm or rewrite it. Only after they explicitly adopt the wording may
 you re-apply it as `by: researcher_edited_ai_draft`.
+
+**AI Use Declaration.** Every AI-assisted write records your tool in
+`authoring.ai_use_declaration.tools`. Ask the researcher, in their own
+words, for the rest (answers file block `ai_use_declaration`, see
+`reference/answers-format.md`): each tool's purpose and stages, how the AI
+output influenced their decisions, what they checked and who signs for it,
+what types of data they gave the AI, and where they keep the prompt log;
+optionally their own risk scores (1-3) on the guideline's five example
+dimensions. Tell them the single level GrantThai prints is GrantThai's
+convention, not the guideline's. Then ask them to read output section 4.7
+and, if it is true, set `declaration_confirmed_by_human: true` in
+`project.yaml` themselves. You never set it; the answers file refuses it.
 
 ### 4. Check and explain
 
@@ -159,6 +196,10 @@ When you explain findings to the researcher:
   let them decide.
 - INFO lines about rules "not evaluated" mean GrantThai v0.1 does not
   check that yet; the researcher must check it against the call document.
+- AI001-AI004 (REVIEW) come from the AI-use ceiling: a missing or
+  unconfirmed AI Use Declaration, an AI-drafted data or evidence record,
+  personal-data-shaped strings in an AI-assisted value, a self-assessed
+  risk of 3. Never clear them by changing who wrote a value.
 
 ### 5. Hand back the one file
 
@@ -169,7 +210,9 @@ grantthai build project.yaml     # writes build/NRIIS_SUBMISSION.md
 Give the researcher the path to `build/NRIIS_SUBMISSION.md` (the only
 output) and `project.yaml` (their input, to keep and edit later). Summarise
 in Thai: number of BLOCK/REVIEW findings, fields still `NEEDS_INPUT` or
-`NEEDS_VERIFICATION`, and AI-drafted fields awaiting confirmation. Remind
+`NEEDS_VERIFICATION`, AI-drafted fields awaiting confirmation, and whether
+the AI Use Declaration (section 4.7, a GrantThai appendix, not an NRIIS
+field) is complete and confirmed. Remind
 them that they, not GrantThai or you, submit to NRIIS.
 
 The file is deterministic: the same `project.yaml` and the same
@@ -183,10 +226,10 @@ depends on the date.
 | `reference/interview.md` | question list (TH/EN) mapped to field ids, item keys and id prefixes; section 3a: what funded work usually has |
 | `reference/provenance.md` | how to record researcher statements, AI drafts, sources, unknowns |
 | `reference/answers-format.md` | the `answers.yaml` format for `scripts/grantthai_skill.py apply` |
-| `reference/rules-th.md` | every v0.1 rule explained in plain Thai, with how to fix it |
+| `reference/rules-th.md` | every v0.1 rule, plus the FW and AI rules, explained in plain Thai, with how to fix it |
 | `reference/writing.md` | what each box is for, micro-templates, length targets (W101/W102, REVIEW only), completeness checklist, practice from funded work (`practice:`) |
 | `reference/PROMPT_PACKET.md` | paste-in prompt for chat-only AIs without tools |
-| `scripts/grantthai_skill.py` | `check`, `apply`, `report`: thin wrapper over `grantthai.api_py` |
+| `scripts/grantthai_skill.py` | `check`, `warning`, `apply`, `report`: thin wrapper over `grantthai.api_py` |
 
 In the GrantThai repository: `examples/lecturer-no-ai/project.yaml` is a
 complete FICTIONAL worked example; `grantthai fields` lists every field

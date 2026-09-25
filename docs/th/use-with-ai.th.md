@@ -95,16 +95,22 @@ skills/grantthai/reference/
 
 1. AI ตรวจว่าตัวระบบพร้อม (`python skills/grantthai/scripts/grantthai_skill.py check`)
    แล้วสร้าง `project.yaml` (`grantthai init project.yaml`)
-2. AI ขอดูประกาศทุนก่อน แล้วสัมภาษณ์ทีละหัวข้อตาม `reference/interview.md`
+2. ก่อนขอข้อมูลใด ๆ AI จะแสดงคำเตือนเรื่องข้อมูล (`grantthai_skill.py warning`) คือ อย่าให้ AI สาธารณะ
+   ได้ข้อมูลส่วนบุคคลที่ระบุตัวตนได้ ข้อมูลของผู้เข้าร่วมวิจัย ข้อมูลลับ ข้อมูลที่ยังไม่ตีพิมพ์ สิ่งที่จะจดสิทธิบัตร
+   หรือข้อมูลที่ใช้ได้สองทาง ชื่อสมาชิกทีมให้นักวิจัยกรอกเอง และ AI จะบันทึกชื่อกับเวอร์ชันของตัวเองไว้ในแบบแจ้งการใช้ AI
+   (`docs/policy/ai-use-ceiling.th.md`)
+3. AI ขอดูประกาศทุนก่อน แล้วสัมภาษณ์ทีละหัวข้อตาม `reference/interview.md`
    ทุกข้อเท็จจริงจะถามว่า "รู้เรื่องนี้จากไหน"
-3. AI บันทึกคำตอบด้วย `grantthai_skill.py apply answers.yaml` (หรือ `grantthai set ...`)
+4. AI บันทึกคำตอบด้วย `grantthai_skill.py apply answers.yaml` (หรือ `grantthai set ...`)
    ข้อความที่ AI ร่างเองจะถูกติดป้ายว่าเป็นร่างของ AI
-4. AI รัน `grantthai_skill.py report` ซึ่งจะตรวจข้อมูล อธิบายผลตรวจระดับ BLOCK และ REVIEW
+5. AI รัน `grantthai_skill.py report` ซึ่งจะตรวจข้อมูล อธิบายผลตรวจระดับ BLOCK และ REVIEW
    ทุกข้อเป็นภาษาไทย แสดงรายชื่อช่องที่ AI ร่างไว้และรอนักวิจัยยืนยัน แล้วสร้างไฟล์ผลลัพธ์
-5. AI ส่ง `build/NRIIS_SUBMISSION.md` (ไฟล์ผลลัพธ์ไฟล์เดียว) และ `project.yaml` ของนักวิจัยคืนให้
+6. AI ส่ง `build/NRIIS_SUBMISSION.md` (ไฟล์ผลลัพธ์ไฟล์เดียว) และ `project.yaml` ของนักวิจัยคืนให้
 
 ก่อนนำอะไรไปใช้ ให้อ่านส่วนสรุปความพร้อมในไฟล์ผลลัพธ์ และส่วน
 "AI-drafted values (the researcher must confirm)" ซึ่งเป็นรายการที่ AI ร่างไว้ให้ก่อน
+แล้วอ่านหัวข้อ 4.7 แบบแจ้งการใช้ AI (ภาคผนวกของ GrantThai ไม่ใช่ช่องของ NRIIS) ถ้าถูกต้องและครบแล้ว
+ให้นักวิจัยตั้ง `declaration_confirmed_by_human: true` ใน `project.yaml` ด้วยตัวเอง AI ไม่ตั้งค่านี้แทน
 
 ## คำสั่งที่นักวิจัยรันเองได้ทุกเมื่อ
 

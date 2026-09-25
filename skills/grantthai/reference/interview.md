@@ -61,6 +61,13 @@ How to run the interview:
 
 ## 3. Team (`PROFILE.TEAM.MEMBERS`, R)
 
+Names, organisations and ORCID are personal data. Ask for them in the chat
+only if you run locally or under an enterprise agreement and the researcher
+agrees; otherwise ask the researcher to enter them with `grantthai set`
+(without `--ai`) or by editing `project.yaml` (SKILL.md non-negotiable 7;
+guideline p.14, p.23). Rule AI003 flags ID-number, phone and e-mail shapes
+in values written with AI assistance.
+
 | Ask (TH) | Ask (EN) |
 |---|---|
 | ใครอยู่ในทีมบ้าง ชื่อ หน่วยงาน บทบาท | Who is on the team: name, organisation, role? |

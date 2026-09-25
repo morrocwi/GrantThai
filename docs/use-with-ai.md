@@ -106,18 +106,27 @@ the same instruction.
 
 1. The AI checks the engine (`python skills/grantthai/scripts/grantthai_skill.py check`)
    and creates `project.yaml` (`grantthai init project.yaml`).
-2. It asks for your call document, then interviews you topic by topic
+2. Before asking for any data it shows you the data warning
+   (`grantthai_skill.py warning`): do not give a public AI personal data
+   that identifies anyone, participants' records, confidential,
+   unpublished or pre-patent material, or dual-use information; enter team
+   members' names yourself. It records its own name and version for your
+   AI Use Declaration (`docs/policy/ai-use-ceiling.md`).
+3. It asks for your call document, then interviews you topic by topic
    (`reference/interview.md`), asking where each factual claim comes from.
-3. It writes your answers with `grantthai_skill.py apply answers.yaml`
+4. It writes your answers with `grantthai_skill.py apply answers.yaml`
    (or `grantthai set ...`), marking its own drafts as AI drafts.
-4. It runs `grantthai_skill.py report`: validation, a plain-Thai
+5. It runs `grantthai_skill.py report`: validation, a plain-Thai
    explanation of every BLOCK and REVIEW finding, the list of AI-drafted
    fields you still need to confirm, and the build.
-5. It hands you `build/NRIIS_SUBMISSION.md` (the only output) and your
+6. It hands you `build/NRIIS_SUBMISSION.md` (the only output) and your
    `project.yaml`.
 
 Read the output's readiness summary and the "AI-drafted values (the
-researcher must confirm)" section before you use anything in it.
+researcher must confirm)" section before you use anything in it. Then read
+section 4.7, the AI Use Declaration (a GrantThai appendix, not an NRIIS
+field). If it is true and complete, set `declaration_confirmed_by_human:
+true` in `project.yaml` yourself; the AI never sets it.
 
 ## Commands you can run yourself at any time
 

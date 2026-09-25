@@ -68,6 +68,20 @@ change from one day to the next.
   refused with a 400. A researcher who wants a value recorded as their own
   (or as `SOURCE`) sets it with the `grantthai` CLI or edits
   `project.yaml` directly.
+- **The AI-use ceiling applies** (`docs/policy/ai-use-ceiling.md`).
+  `POST /projects` returns `data_warning` (`th` and `en`): show it to the
+  researcher before accepting any data (personal data that identifies
+  anyone, participants' records, confidential, unpublished or pre-patent
+  material and dual-use information must not go into a public AI; GenAI
+  guideline 2569 p.14-16). Every field write records the tool in
+  `authoring.ai_use_declaration.tools` with `"tool"`, `"tool_version"`
+  (omitted: `NEEDS_INPUT`) and `"stage"` (default `proposal_writing`; one of
+  `idea`, `proposal_writing`, `literature`, `data`, `analysis`, `writing`,
+  `language_editing`, `review`, `publication`). A new tool or stage resets
+  `declaration_confirmed_by_human` to false; no request can set it. The
+  researcher confirms the declaration in `project.yaml` after reading output
+  section 4.7 (a GrantThai appendix, not an NRIIS field). Rules AI001-AI004
+  (REVIEW) report what is missing.
 - **No invented facts.** Do not make up Thai fund, NRIIS or institution
   facts. Send `"NEEDS_VERIFICATION"` instead; it is stored as an empty
   value plus that marker.
@@ -82,7 +96,7 @@ curl -s -X POST 127.0.0.1:8765/projects -H 'content-type: application/json' \
      -d '{"project_id":"my-grant"}'
 curl -s '127.0.0.1:8765/fields?required=true'
 curl -s -X PATCH 127.0.0.1:8765/projects/my-grant/fields -H 'content-type: application/json' \
-     -d '{"updates":[{"field_id":"<FIELD_ID>","value":"<researcher words>","researcher_verbatim":true,"tool":"<assistant>"},
+     -d '{"updates":[{"field_id":"<FIELD_ID>","value":"<researcher words>","researcher_verbatim":true,"tool":"<assistant>","tool_version":"<version>"},
                      {"field_id":"<FIELD_ID>","value":"<AI draft>","tool":"<assistant>"}]}'
 curl -s -X POST 127.0.0.1:8765/projects/my-grant/validate -d '{"as_of":"2026-09-25"}'
 curl -s -X POST 127.0.0.1:8765/projects/my-grant/build    -d '{"as_of":"2026-09-25"}' > NRIIS_SUBMISSION.md

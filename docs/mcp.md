@@ -25,6 +25,24 @@ anything to NRIIS or to any fund.
 - **The output lists every AI-assisted value** under "AI-drafted values (the
   researcher must confirm)". The client's name is recorded as a disclosed
   tool.
+- **The AI-use ceiling applies** (`docs/policy/ai-use-ceiling.md`). Every
+  `grantthai_set_field` call records the tool in
+  `authoring.ai_use_declaration.tools`: the `tool` argument or the client's
+  name from `initialize`, the `tool_version` argument or the client's
+  declared version, and the `stage` argument (default `proposal_writing`).
+  A new tool or stage resets `declaration_confirmed_by_human` to false. No
+  MCP call can set that flag: only the researcher sets it, in
+  `project.yaml`, after reading output section 4.7 (the AI Use Declaration,
+  a GrantThai appendix, not an NRIIS field). Rules AI001-AI004 (REVIEW)
+  report a missing or unconfirmed declaration, AI-drafted evidence,
+  personal-data-shaped strings in AI-assisted values, and a self-assessed
+  risk of 3.
+- **Show the data warning before accepting any data.**
+  `grantthai_new_project` returns `data_warning` (`th` and `en`), and the
+  server instructions repeat it: personal data that identifies anyone,
+  participants' records, confidential, unpublished or pre-patent material
+  and dual-use information must not go into a public AI (GenAI guideline
+  2569 p.14-16). Show it to the researcher before asking for any data.
 - **The AI must not invent a Thai fund, NRIIS or institutional fact.** If one
   is not in the researcher's own material, the AI writes the literal value
   `NEEDS_VERIFICATION`. It is stored as a marker, not as text.
@@ -66,7 +84,7 @@ tools. stdout carries protocol messages only.
 |---|---|---|
 | `grantthai_new_project` | `grantthai init` | Writes a blank `project.yaml`, with every required field `NEEDS_INPUT`. It refuses to overwrite an existing file. |
 | `grantthai_list_fields` | `grantthai fields` | Lists every field: NRIIS boxes in entry order, then fields with tab `NOT_ON_TAB` (id, tab, origin, type, required, English label, guidance). Thai labels are `NEEDS_VERIFICATION`. |
-| `grantthai_set_field` | `grantthai set` | Writes one value as an AI-assisted `DRAFT`. Takes `field_id`, `value`, `researcher_verbatim`, `chain_node`, `source_ids`, `links` and `tool`. |
+| `grantthai_set_field` | `grantthai set` | Writes one value as an AI-assisted `DRAFT`. Takes `field_id`, `value`, `researcher_verbatim`, `chain_node`, `source_ids`, `links`, `tool`, `tool_version` and `stage`, and records the tool in `authoring.ai_use_declaration.tools`. |
 | `grantthai_validate` | `grantthai validate` | Returns the validation report of BLOCK, REVIEW and INFO findings. Report-only. |
 | `grantthai_explain` | `grantthai explain` | Explains one rule id, such as `S001`, `B002` or `SCHEMA`. |
 | `grantthai_build` | `grantthai build` | Writes `build/NRIIS_SUBMISSION.md` and returns `path`, `summary` and `markdown`. It always renders, even when there are BLOCK findings, and lists them in the file. |
@@ -89,7 +107,8 @@ server against it.
 ## Typical flow
 
 1. `grantthai_new_project`, or skip this step if the researcher already has
-   a `project.yaml`.
+   a `project.yaml`. Show the researcher `data_warning` before asking for
+   any data.
 2. `grantthai_list_fields` with `required_only: true`.
 3. Ask the researcher for each value. Record each one with
    `grantthai_set_field`: set `researcher_verbatim: true` when you pass on
@@ -97,7 +116,8 @@ server against it.
    NRIIS or institutional fact that is not in their material.
 4. Run `grantthai_validate`, and use `grantthai_explain` on any finding.
 5. Run `grantthai_build`, then give the researcher the path and ask them to
-   check every AI-drafted value.
+   check every AI-drafted value and the AI Use Declaration (section 4.7),
+   fill in what it still lacks, and confirm it themselves.
 
 ## Client configuration
 

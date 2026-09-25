@@ -21,9 +21,34 @@ project:
   # every run, not only with --init.
   # form_profile: "ff_full_proposal@nriis-2570"
 
-# The AI product name, as the researcher wants it disclosed.
-# Needed only when some answer has by: ai.
+# The AI product name and version, as the researcher wants them disclosed.
+# Needed only when some answer has by: ai (or by: researcher_edited_ai_draft).
+# Both are recorded in authoring.ai_use_declaration.tools.
 tool: "NAME OF THE AI TOOL"
+tool_version: "VERSION, as the researcher states it"   # optional; else NEEDS_INPUT
+# tool_stage: proposal_writing   # optional: idea, proposal_writing, literature, data,
+#                                 # analysis, writing, language_editing, review, publication
+
+# Optional: the rest of the AI Use Declaration, in the researcher's own words
+# (docs/policy/ai-use-ceiling.md; output section 4.7). Merged into
+# authoring.ai_use_declaration; tools merge by name. Any change resets the
+# researcher's confirmation. declaration_confirmed_by_human, confirmed_by and
+# confirmed_on are REFUSED here: only the researcher sets them, in project.yaml.
+ai_use_declaration:
+  tools:
+    - name: "NAME OF THE AI TOOL"
+      developer: "who makes it"
+      stages: [proposal_writing, language_editing]
+      purpose: "what the researcher used it for"
+      used_on: "dates or a date range"
+  influence_on_conclusions: "how the AI output influenced decisions or conclusions"
+  human_verification: "what the researcher checked, how, and who signs for it"
+  data_handling: "which TYPES of data went to the AI; how personal or confidential data was kept out"
+  log_ref: "where the researcher keeps the prompt and output log"
+  # The researcher's own scores, 1 (low) to 3 (high), on the guideline's five
+  # example dimensions (p.10-11). The single level GrantThai prints is its own
+  # convention (the highest score), not the guideline's.
+  risk_self_assessment: {impact_on_conclusions: 1, accuracy_hallucination: 2, data_sensitivity: 1, bias: 1, reproducibility: 2}
 
 # The researcher's own sources. Never add one the researcher did not give you.
 sources:
