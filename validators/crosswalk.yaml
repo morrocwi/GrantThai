@@ -1,5 +1,613 @@
-# validators/crosswalk.yaml — aliases mapping rule IDs from packages 02, 04,
-# 05 onto the canonical 01-family rule IDs. Phase 0 stub (empty). Ships v0.2.
+# validators/crosswalk.yaml — every validation code in the handoff package
+# (core/02 §10 V-*, core/04 §30 V-*, core/05 VAL.*) mapped onto GrantThai
+# rule ids in validators/rules.yaml. The same V- code means different things
+# in core/02 and core/04 (e.g. V-R06), so each entry is keyed by source AND
+# code. coverage: full = the rule(s) check what the code says; partial = part
+# of it (see note); none = not checked (see note for why and when).
+# tests/test_rules_added.py checks every rule id exists and the per-source counts.
 schema: grantthai.crosswalk.v0
-version: "0.1.0-draft"
-crosswalk: []
+version: 0.1.0-draft
+sources:
+  core/02 §10:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    codes: 37
+  core/04 §30:
+    derived_from: core/04@sha256:c23217441176d90f129e525248c24103575bcd85841020b2842fd237638d269a
+    codes: 41
+  core/05:
+    derived_from: core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e
+    codes: 12
+crosswalk:
+- source: core/02 §10
+  code: V-S01
+  text: required field missing
+  grantthai_rule_ids:
+  - S001
+  coverage: full
+- source: core/02 §10
+  code: V-S02
+  text: team contribution total != 100
+  grantthai_rule_ids:
+  - T001
+  coverage: full
+- source: core/02 §10
+  code: V-S03
+  text: workplan progress total != 100
+  grantthai_rule_ids:
+  - W003
+  coverage: full
+- source: core/02 §10
+  code: V-S04
+  text: budget formula error
+  grantthai_rule_ids:
+  - B002
+  coverage: full
+- source: core/02 §10
+  code: V-S05
+  text: budget total mismatch
+  grantthai_rule_ids:
+  - B002
+  coverage: full
+- source: core/02 §10
+  code: V-S06
+  text: missing required attachment
+  grantthai_rule_ids:
+  - S009
+  coverage: full
+- source: core/02 §10
+  code: V-S07
+  text: project duration inconsistent with activity months
+  grantthai_rule_ids:
+  - S010
+  coverage: full
+- source: core/02 §10
+  code: V-R01
+  text: problem without evidence
+  grantthai_rule_ids:
+  - R001
+  coverage: full
+- source: core/02 §10
+  code: V-R02
+  text: gap without relationship to problem
+  grantthai_rule_ids:
+  - R002
+  coverage: partial
+  note: R002 checks Gap <- PriorKnowledge; PriorKnowledge links to the Problem (problem_ids) but no rule
+    requires that link.
+- source: core/02 §10
+  code: V-R03
+  text: research question not derived from gap
+  grantthai_rule_ids:
+  - R003
+  coverage: full
+- source: core/02 §10
+  code: V-R04
+  text: objective without research question
+  grantthai_rule_ids:
+  - R004
+  coverage: full
+- source: core/02 §10
+  code: V-R05
+  text: objective without method
+  grantthai_rule_ids:
+  - R005
+  coverage: full
+- source: core/02 §10
+  code: V-R06
+  text: instrument without variable / construct / question
+  grantthai_rule_ids:
+  - R008
+  coverage: full
+- source: core/02 §10
+  code: V-R07
+  text: analysis method without data source
+  grantthai_rule_ids:
+  - R007
+  coverage: full
+- source: core/02 §10
+  code: V-R08
+  text: hypothesis without test strategy
+  grantthai_rule_ids:
+  - R009
+  coverage: full
+- source: core/02 §10
+  code: V-I01
+  text: activity without objective
+  grantthai_rule_ids:
+  - W001
+  coverage: partial
+  note: W001 accepts an objective OR a method link.
+- source: core/02 §10
+  code: V-I02
+  text: activity without method phase
+  grantthai_rule_ids:
+  - W001
+  coverage: partial
+  note: W001 accepts an objective OR a method link.
+- source: core/02 §10
+  code: V-I03
+  text: budget without activity
+  grantthai_rule_ids:
+  - B001
+  coverage: full
+- source: core/02 §10
+  code: V-I04
+  text: activity without responsible actor
+  grantthai_rule_ids:
+  - W002
+  coverage: full
+- source: core/02 §10
+  code: V-I05
+  text: output without activity
+  grantthai_rule_ids:
+  - W004
+  coverage: full
+- source: core/02 §10
+  code: V-I06
+  text: site without activity
+  grantthai_rule_ids:
+  - G001
+  coverage: full
+  note: G001 ships v0.2 (INFO in v0.1).
+- source: core/02 §10
+  code: V-I07
+  text: partner without defined role
+  grantthai_rule_ids:
+  - W005
+  coverage: full
+- source: core/02 §10
+  code: V-E01
+  text: human participants but no ethics status
+  grantthai_rule_ids:
+  - E001
+  coverage: full
+  note: E001 ships v0.2.
+- source: core/02 §10
+  code: V-E02
+  text: compensation but no ethical justification
+  grantthai_rule_ids:
+  - E004
+  coverage: full
+  note: E004 ships v0.2.
+- source: core/02 §10
+  code: V-E03
+  text: dependent client/student relationship without coercion safeguards
+  grantthai_rule_ids:
+  - E003
+  coverage: full
+  note: E003 ships v0.2.
+- source: core/02 §10
+  code: V-E04
+  text: personal data collection without privacy/confidentiality plan
+  grantthai_rule_ids:
+  - E002
+  coverage: full
+  note: E002 ships v0.2.
+- source: core/02 §10
+  code: V-E05
+  text: conflict of interest not addressed
+  grantthai_rule_ids:
+  - E005
+  coverage: full
+  note: E005 ships v0.2.
+- source: core/02 §10
+  code: V-U01
+  text: output without user or scholarly dissemination path
+  grantthai_rule_ids:
+  - U001
+  coverage: full
+  note: U001 ships v0.2.
+- source: core/02 §10
+  code: V-U02
+  text: user without adoption process
+  grantthai_rule_ids:
+  - U002
+  coverage: full
+  note: U002 ships v0.2.
+- source: core/02 §10
+  code: V-U03
+  text: outcome without output pathway
+  grantthai_rule_ids:
+  - U003
+  coverage: full
+  note: U003 ships v0.2.
+- source: core/02 §10
+  code: V-U04
+  text: beneficiary without outcome
+  grantthai_rule_ids:
+  - U004
+  coverage: full
+  note: U004 ships v0.2.
+- source: core/02 §10
+  code: V-U05
+  text: impact without outcome
+  grantthai_rule_ids:
+  - U005
+  coverage: full
+  note: U005 ships v0.2.
+- source: core/02 §10
+  code: V-U06
+  text: impact without funding-KR linkage
+  grantthai_rule_ids:
+  - P002
+  coverage: partial
+  note: P002 (v0.2) covers unsupported impact/KR links.
+- source: core/02 §10
+  code: V-U07
+  text: nationwide benefit claimed only from digital reach
+  grantthai_rule_ids:
+  - G003
+  coverage: full
+  note: G003 ships v0.2.
+- source: core/02 §10
+  code: V-C01
+  text: research issue inconsistent with OECD field
+  grantthai_rule_ids:
+  - C001
+  coverage: full
+  note: C001 ships v0.2.
+- source: core/02 §10
+  code: V-C02
+  text: classification inconsistent with research problem
+  grantthai_rule_ids:
+  - C002
+  coverage: full
+  note: C002 ships v0.2.
+- source: core/02 §10
+  code: V-C03
+  text: classification inconsistent with methodology
+  grantthai_rule_ids:
+  - C003
+  coverage: full
+  note: C003 ships v0.2.
+- source: core/04 §30
+  code: V-F01
+  text: project outside call scope
+  grantthai_rule_ids: []
+  coverage: none
+  note: Needs the call's scope in the fund profile (no slot yet); deferred to v0.2 with form profiles.
+- source: core/04 §30
+  code: V-F02
+  text: applicant eligibility unresolved
+  grantthai_rule_ids:
+  - ELIG001
+  coverage: full
+- source: core/04 §30
+  code: V-F03
+  text: duplicate funding risk
+  grantthai_rule_ids:
+  - F005
+  coverage: full
+- source: core/04 §30
+  code: V-F04
+  text: historical rule used as current rule
+  grantthai_rule_ids:
+  - F004
+  coverage: full
+  note: F004 is not evaluated by v0.1 (INFO); F003 still blocks a non-ACTIVE profile.
+- source: core/04 §30
+  code: V-R01
+  text: need unsupported
+  grantthai_rule_ids:
+  - R001
+  coverage: partial
+  note: R001 checks sources on the Problem, not the Need.
+- source: core/04 §30
+  code: V-R02
+  text: problem unclear
+  grantthai_rule_ids: []
+  coverage: none
+  note: A judgment of clarity; left to human review.
+- source: core/04 §30
+  code: V-R03
+  text: gap not derived from prior knowledge
+  grantthai_rule_ids:
+  - R002
+  coverage: full
+- source: core/04 §30
+  code: V-R04
+  text: research question not derived from gap
+  grantthai_rule_ids:
+  - R003
+  coverage: full
+- source: core/04 §30
+  code: V-R05
+  text: objective not linked to question
+  grantthai_rule_ids:
+  - R004
+  coverage: full
+- source: core/04 §30
+  code: V-R06
+  text: method not linked to objective
+  grantthai_rule_ids:
+  - R005
+  coverage: full
+- source: core/04 §30
+  code: V-R07
+  text: instrument not linked to data need
+  grantthai_rule_ids:
+  - R008
+  coverage: partial
+  note: R008 checks the instrument names a construct or variable.
+- source: core/04 §30
+  code: V-R08
+  text: analysis not linked to data
+  grantthai_rule_ids:
+  - R007
+  coverage: full
+- source: core/04 §30
+  code: V-I01
+  text: activity without objective
+  grantthai_rule_ids:
+  - W001
+  coverage: full
+- source: core/04 §30
+  code: V-I02
+  text: activity without owner
+  grantthai_rule_ids:
+  - W002
+  coverage: full
+- source: core/04 §30
+  code: V-I03
+  text: activity outside duration
+  grantthai_rule_ids:
+  - S010
+  coverage: full
+- source: core/04 §30
+  code: V-I04
+  text: deliverable without activity
+  grantthai_rule_ids:
+  - W004
+  coverage: full
+- source: core/04 §30
+  code: V-I05
+  text: workplan progress total inconsistent
+  grantthai_rule_ids:
+  - W003
+  coverage: full
+- source: core/04 §30
+  code: V-B01
+  text: budget item without activity
+  grantthai_rule_ids:
+  - B001
+  coverage: full
+- source: core/04 §30
+  code: V-B02
+  text: cost category inconsistent with current fund rules
+  grantthai_rule_ids:
+  - B003
+  - B004
+  coverage: partial
+  note: 'B003/B004 are not evaluated by v0.1: the fund-profile schema has no rate or prohibited-cost slot
+    yet.'
+- source: core/04 §30
+  code: V-B03
+  text: calculation basis missing
+  grantthai_rule_ids:
+  - B002
+  coverage: full
+- source: core/04 §30
+  code: V-B04
+  text: budget total mismatch
+  grantthai_rule_ids:
+  - B002
+  coverage: full
+- source: core/04 §30
+  code: V-B05
+  text: cofunding claim without valuation/evidence
+  grantthai_rule_ids:
+  - B007
+  coverage: full
+- source: core/04 §30
+  code: V-B06
+  text: equipment without necessity
+  grantthai_rule_ids:
+  - B005
+  coverage: full
+- source: core/04 §30
+  code: V-E01
+  text: human research without ethics path
+  grantthai_rule_ids:
+  - E001
+  coverage: full
+  note: E001 ships v0.2.
+- source: core/04 §30
+  code: V-E02
+  text: vulnerable participants without safeguard
+  grantthai_rule_ids:
+  - E003
+  - E008
+  coverage: partial
+  note: E003/E008 ship v0.2.
+- source: core/04 §30
+  code: V-E03
+  text: IP use without ownership/permission check
+  grantthai_rule_ids:
+  - E009
+  coverage: full
+- source: core/04 §30
+  code: V-E04
+  text: conflict of interest unmanaged
+  grantthai_rule_ids:
+  - E005
+  coverage: full
+  note: E005 ships v0.2.
+- source: core/04 §30
+  code: V-E05
+  text: personal data without protection plan
+  grantthai_rule_ids:
+  - E002
+  coverage: full
+  note: E002 ships v0.2.
+- source: core/04 §30
+  code: V-U01
+  text: output not produced by activity
+  grantthai_rule_ids:
+  - W004
+  coverage: full
+- source: core/04 §30
+  code: V-U02
+  text: user not identified
+  grantthai_rule_ids:
+  - U001
+  coverage: full
+  note: U001 ships v0.2.
+- source: core/04 §30
+  code: V-U03
+  text: outcome claimed without user adoption
+  grantthai_rule_ids:
+  - U003
+  coverage: full
+  note: U003 ships v0.2.
+- source: core/04 §30
+  code: V-U04
+  text: beneficiary not linked to outcome
+  grantthai_rule_ids:
+  - U004
+  coverage: full
+  note: U004 ships v0.2.
+- source: core/04 §30
+  code: V-U05
+  text: impact not linked to outcome
+  grantthai_rule_ids:
+  - U005
+  coverage: full
+  note: U005 ships v0.2.
+- source: core/04 §30
+  code: V-U06
+  text: impact not linked to fund objective/KR
+  grantthai_rule_ids:
+  - P002
+  coverage: partial
+  note: P002 ships v0.2.
+- source: core/04 §30
+  code: V-U07
+  text: geographic benefit overclaim
+  grantthai_rule_ids:
+  - G003
+  coverage: full
+  note: G003 ships v0.2.
+- source: core/04 §30
+  code: V-L01
+  text: submission without institutional certification when required
+  grantthai_rule_ids: []
+  coverage: none
+  note: Project lifecycle after submission is out of v0.1 scope (docs/deviations.md).
+- source: core/04 §30
+  code: V-L02
+  text: implementation deviates from approved contract without change control
+  grantthai_rule_ids: []
+  coverage: none
+  note: Lifecycle; out of v0.1 scope.
+- source: core/04 §30
+  code: V-L03
+  text: extension requested after expiry when current rules require prior request
+  grantthai_rule_ids: []
+  coverage: none
+  note: Lifecycle; out of v0.1 scope.
+- source: core/04 §30
+  code: V-L04
+  text: progress reporting overdue
+  grantthai_rule_ids: []
+  coverage: none
+  note: Lifecycle; out of v0.1 scope.
+- source: core/04 §30
+  code: V-L05
+  text: final deliverables incomplete
+  grantthai_rule_ids: []
+  coverage: none
+  note: Lifecycle; out of v0.1 scope.
+- source: core/04 §30
+  code: V-L06
+  text: utilization reporting obligation unresolved
+  grantthai_rule_ids: []
+  coverage: none
+  note: Lifecycle; out of v0.1 scope.
+- source: core/05
+  code: VAL.001
+  text: Research team contribution total must equal 100%.
+  grantthai_rule_ids:
+  - T001
+  coverage: full
+- source: core/05
+  code: VAL.002
+  text: Workplan activity progress weights must equal 100%.
+  grantthai_rule_ids:
+  - W003
+  coverage: full
+- source: core/05
+  code: VAL.003
+  text: Requested budget and total project budget must equal calculated budget total.
+  grantthai_rule_ids:
+  - B002
+  coverage: full
+- source: core/05
+  code: VAL.004
+  text: Every objective must link to at least one research question, method, activity, and output.
+  grantthai_rule_ids:
+  - R004
+  - R005
+  - W001
+  - W004
+  coverage: partial
+  note: Objective->activity and objective->output are reached through the chain; no rule requires a direct
+    objective->output link.
+- source: core/05
+  code: VAL.005
+  text: Every research instrument must measure or support a named variable/construct or research question.
+  grantthai_rule_ids:
+  - R008
+  coverage: full
+- source: core/05
+  code: VAL.006
+  text: Every budget item must link to at least one activity and justification.
+  grantthai_rule_ids:
+  - B001
+  coverage: partial
+  note: B001 checks the activity link; a missing justification is not yet a rule.
+- source: core/05
+  code: VAL.007
+  text: Every activity must link to at least one objective or method phase.
+  grantthai_rule_ids:
+  - W001
+  coverage: full
+- source: core/05
+  code: VAL.008
+  text: If human participants or human-derived data are used, human research ethics status must be specified.
+  grantthai_rule_ids:
+  - E001
+  coverage: full
+  note: E001 ships v0.2.
+- source: core/05
+  code: VAL.009
+  text: Every output should identify at least one potential user or adoption pathway unless it is purely
+    scholarly.
+  grantthai_rule_ids:
+  - U001
+  coverage: full
+  note: U001 ships v0.2.
+- source: core/05
+  code: VAL.010
+  text: Every impact claim must be traceable to an outcome/process and preferably to a funding KR.
+  grantthai_rule_ids:
+  - U005
+  - P002
+  coverage: full
+  note: U005/P002 ship v0.2.
+- source: core/05
+  code: VAL.011
+  text: Benefit areas require a credible beneficiary or delivery pathway; digital reach alone is insufficient.
+  grantthai_rule_ids:
+  - G002
+  - G003
+  coverage: full
+  note: G002/G003 ship v0.2.
+- source: core/05
+  code: VAL.012
+  text: Research issue, OECD classification, problem, and methodology should be logically compatible.
+  grantthai_rule_ids:
+  - C001
+  - C002
+  - C003
+  coverage: full
+  note: C001-C003 ship v0.2.

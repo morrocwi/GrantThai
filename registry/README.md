@@ -7,8 +7,9 @@ Field-ID registry.
   handoff package core/05 (founder-owned, ruling K13), with lineage
   `derived_from: core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e`
   on every record.
-- `nriis-fields.jsonl` — render-only `NRIIS.<TAB>.<FIELD>` records,
-  schema `spec/nriis/field.schema.json`. **Generated**, never hand-edited:
+- `nriis-fields.jsonl` — render-only `NRIIS.<TAB>.<FIELD>` records for
+  the `origin: NRIIS_NATIVE` fields only, schema `spec/nriis/field.schema.json`.
+  **Generated**, never hand-edited:
   `python tools/registry/build_nriis_fields.py` (a test fails when it is
   out of date).
 - `aliases.yaml` — renamed field-ID history. IDs are never reused.
@@ -20,6 +21,9 @@ Field-ID registry.
 | `field_id` | GrantThai id, `<NS>.<GROUP>[.<SUB>].<NAME>` |
 | `source_field_id` | the id in core/05 it was re-keyed from |
 | `section` | core/05 section; mapped to an NRIIS tab by `mappings/nriis/section_to_tab.yaml` |
+| `origin` | one of core/02 §2's origin types: `NRIIS_NATIVE`, `FUND_PROFILE`, `AUTHORING_CORE`, `DERIVED`, `RECOMMENDED_EXTENSION`. Only `NRIIS_NATIVE` records get an `NRIIS.*` record and a box on a tab (core/02 rule R4) |
+| `origin_basis` | where the origin comes from (core/02 section or public-document page), plus any GrantThai DECISION or recorded contradiction (`docs/contradictions.md`) |
+| `render_from` | on a narrative field only: the records its text is written from (core/02 §6) |
 | `chain_node` | the `spec/common/chain.yaml` node it belongs to, or null for project-level fields (a GrantThai DECISION) |
 | `label_en` | core/05's descriptive English label — **not** an official NRIIS label (`label_en_basis: descriptive`) |
 | `label_th` | `NEEDS_VERIFICATION` for every field (ruling K14: labels come later from public documents) |

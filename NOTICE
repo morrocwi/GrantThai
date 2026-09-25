@@ -55,3 +55,5 @@ and as line 1 of every rendered build/NRIIS_SUBMISSION.md body
 instead of paraphrasing it. To change the wording, edit
 spec/output/notice_constant.txt and this file together, then update the
 files listed above.
+
+Logo: the organisation logo in docs/assets/ is reproduced for identification only, all rights reserved; it is not covered by the Apache-2.0 or CC BY 4.0 licences (see LICENSES/LicenseRef-Logo-AllRightsReserved.txt).

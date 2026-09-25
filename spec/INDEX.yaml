@@ -5,7 +5,7 @@
 # v0.4, v0.5. tools/ci/check_schema_lint.py confirms every listed path
 # exists, every schema is a valid JSON Schema, and instances validate.
 schema: grantthai.spec_index.v0
-version: "0.3.0-draft"
+version: "0.5.0-draft"
 
 contracts:
   - path: spec/contracts/one-input-one-output.md
@@ -13,7 +13,7 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/common/chain.yaml
-    version: "0.2.0-draft"
+    version: "0.3.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/status.yaml
@@ -45,7 +45,7 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/common/field_record.schema.json
-    version: "0.2.0-draft"
+    version: "0.3.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/review.schema.json
@@ -65,7 +65,7 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/registry/field.schema.json
-    version: "0.2.0-draft"
+    version: "0.3.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/common/links-and-sources.md
@@ -78,7 +78,7 @@ contracts:
     status: draft
     needed_by: v0.1
   - path: spec/registry/structured_fields.schema.json
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: v0.1
     note: "Value contract per structured registry field; lint-enforced for every array<object>/object/rich_text|object field."
@@ -87,13 +87,18 @@ contracts:
     status: draft
     needed_by: v0.1
   - path: spec/validators/rule.schema.json
-    version: "0.2.0-draft"
+    version: "0.3.0-draft"
     status: draft
     needed_by: phase0
   - path: spec/mappings/section_to_tab.schema.json
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: phase0
+  - path: spec/mappings/labels.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+    note: "Candidate Thai labels and code lists from public documents (mappings/nriis/labels@nrct-manual-2566.yaml); every entry NEEDS_VERIFICATION (K14)."
   - path: spec/mappings/mode_mapping.schema.json
     version: "0.1.0-draft"
     status: draft
@@ -115,11 +120,11 @@ contracts:
     status: draft
     needed_by: v0.1
   - path: spec/nriis/field.schema.json
-    version: "0.1.0-draft"
+    version: "0.2.0-draft"
     status: draft
     needed_by: v0.1
   - path: spec/output/nriis-submission.contract.md
-    version: "0.2.0-draft"
+    version: "0.3.0-draft"
     status: draft
     needed_by: v0.1
   - path: spec/output/notice_constant.txt
@@ -127,10 +132,15 @@ contracts:
     status: draft
     needed_by: phase0
   - path: spec/mcp/tools.schema.json
-    version: "0.1.0-draft"
+    version: "0.3.0-draft"
     status: draft
-    needed_by: v0.4
-    note: "Contract only; implementation ships v0.4."
+    needed_by: v0.1
+    note: "Implemented in v0.1.0 by src/grantthai/mcp/ (founder scope change 2026-09-25; moved forward from v0.4). Six tools over grantthai.api_py, each capped at DRAFT."
+  - path: spec/api/openapi.yaml
+    version: "0.2.0-draft"
+    status: draft
+    needed_by: v0.1
+    note: "OpenAPI 3.1 for the local HTTP API, implemented in v0.1.0 by src/grantthai/api/ (founder scope change 2026-09-25). Every endpoint wraps one grantthai.api_py function; values capped at DRAFT."
 
 not_yet_created:
   - path: spec/output/parity.schema.json

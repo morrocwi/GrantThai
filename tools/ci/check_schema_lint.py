@@ -496,6 +496,12 @@ def main() -> int:
     if get("mappings/nriis/section_to_tab.yaml") is not None:
         validate(violations, registry, schemas, "mappings/section_to_tab.schema.json", get("mappings/nriis/section_to_tab.yaml"), "mappings/nriis/section_to_tab.yaml")
     for rel in parsed:
+        if rel.startswith("mappings/nriis/labels@") and rel.endswith(".yaml"):
+            validate(violations, registry, schemas, "mappings/labels.schema.json", get(rel), rel)
+            fids = {r.get("field_id") for r in get("registry/fields.jsonl") or []}
+            for fid in ((get(rel) or {}).get("field_labels") or {}):
+                if fids and fid not in fids:
+                    violations.append(f"{rel}: field_labels key {fid} is not a registry field")
         if rel.startswith("mappings/modes/") and rel.endswith(".yaml"):
             validate(violations, registry, schemas, "mappings/mode_mapping.schema.json", get(rel), rel)
         if rel.startswith("interview/") and rel.endswith(".yaml"):
@@ -521,8 +527,15 @@ def main() -> int:
         s2t = get("mappings/nriis/section_to_tab.yaml")
         if isinstance(s2t, dict):
             mapped = {m.get("section") for m in s2t.get("mappings") or []}
-            for sec in sorted({r.get("section") for r in fields} - mapped):
-                violations.append(f"mappings/nriis/section_to_tab.yaml: registry section {sec} has no tab")
+            off_tab = {m.get("section") for m in s2t.get("not_on_tab") or []}
+            for sec in sorted(mapped & off_tab):
+                violations.append(f"mappings/nriis/section_to_tab.yaml: section {sec} is both on a tab and not_on_tab")
+            for sec in sorted({r.get("section") for r in fields} - mapped - off_tab):
+                violations.append(f"mappings/nriis/section_to_tab.yaml: registry section {sec} has no tab and no not_on_tab reason")
+        for rec in fields:
+            for src in rec.get("render_from") or []:
+                if src not in ids:
+                    violations.append(f"registry/fields.jsonl: {rec.get('field_id')}: render_from {src} does not resolve")
         rules = get("validators/rules.yaml")
         if isinstance(rules, dict):
             for rule in rules.get("rules") or []:

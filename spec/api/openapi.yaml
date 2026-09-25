@@ -1,0 +1,350 @@
+openapi: 3.1.0
+info:
+  title: GrantThai local API
+  version: 0.1.0
+  summary: One project.yaml in, one build/NRIIS_SUBMISSION.md out.
+  description: |
+    A small, local-first HTTP API over the GrantThai engine (grantthai.api_py).
+    A researcher's AI assistant (any vendor) uses it to fill in the
+    researcher's project.yaml and build the one overview file,
+    build/NRIIS_SUBMISSION.md.
+
+    Rules every caller gets, enforced by the engine, not by the caller:
+    - The researcher's own information is the source. Values written here
+      end at status DRAFT (or NEEDS_INPUT when cleared). Nothing raises a
+      status above DRAFT, and nothing is ever submitted to NRIIS.
+    - Every value written here is recorded as AI-assisted (the caller is an
+      assistant acting for the researcher). By default it is stored as
+      authored_by ai_draft / provenance_class INFERENCE. When the value is
+      the researcher's own words, unchanged, send researcher_verbatim: true;
+      it is then stored as authored_by human_ai_assisted / DECISION. Either
+      way it is listed in the output for the researcher to confirm.
+      provenance_class SOURCE and actor "human" are refused (400), and the
+      caller cannot choose authored_by.
+    - Do not invent Thai fund, NRIIS or institutional facts. Send the value
+      "NEEDS_VERIFICATION" when a fact is not known from the researcher;
+      it is stored as an empty value plus that marker.
+    - validate is report-only; it never changes project.yaml.
+
+    The API binds 127.0.0.1 by default, has no authentication and stores no
+    credentials. Project data lives only in its working directory.
+  license:
+    name: Apache-2.0
+    identifier: Apache-2.0
+servers:
+  - url: http://127.0.0.1:8765
+    description: Local server (python -m grantthai.api). Replace with your own HTTPS URL if you expose it behind your own authenticating proxy.
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check.
+      responses:
+        "200":
+          description: The server is up.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: {type: string}
+                  service: {type: string}
+                  can_submit: {type: boolean}
+                  max_status: {type: string}
+  /fields:
+    get:
+      operationId: listFields
+      summary: List every field of the overview file; NRIIS boxes first in entry order, then fields with tab NOT_ON_TAB.
+      description: Thai labels and NRIIS tab names are NEEDS_VERIFICATION until confirmed.
+      parameters:
+        - name: tab
+          in: query
+          required: false
+          schema: {type: string}
+          description: Only fields on this tab.
+        - name: required
+          in: query
+          required: false
+          schema: {type: boolean}
+          description: Only required fields.
+      responses:
+        "200":
+          description: The field list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [fields]
+                properties:
+                  fields:
+                    type: array
+                    items: {$ref: "#/components/schemas/FieldInfo"}
+  /rules/{rule_id}:
+    get:
+      operationId: explainRule
+      summary: Explain one validator rule (e.g. S001, B002, SCHEMA).
+      parameters:
+        - name: rule_id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: The rule catalog entry and how v0.1 treats it.
+          content:
+            application/json:
+              schema: {type: object, additionalProperties: true}
+        "404": {$ref: "#/components/responses/Error"}
+  /projects:
+    post:
+      operationId: createProject
+      summary: Create a blank project.yaml (required fields present as NEEDS_INPUT).
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                project_id:
+                  type: string
+                  pattern: "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+                  description: Also the id used in URLs. Omit it to get a generated id (project_id in the file stays NEEDS_INPUT).
+                fund_profile_id:
+                  type: string
+                  description: Defaults to example/FICTIONAL_CALL@0.1.
+                mode:
+                  type: string
+                  enum: [expert, human_direct, citizen]
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, project]
+                properties:
+                  id: {type: string}
+                  project: {type: object, additionalProperties: true}
+        "400": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
+  /projects/{id}:
+    get:
+      operationId: getProject
+      summary: Read project.yaml (returned as JSON).
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: The project.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, project]
+                properties:
+                  id: {type: string}
+                  project: {type: object, additionalProperties: true}
+        "404": {$ref: "#/components/responses/Error"}
+  /projects/{id}/fields:
+    patch:
+      operationId: setFields
+      summary: Set one or more field values (status DRAFT at most; all-or-nothing).
+      description: |
+        Send either one update object, or {"updates": [ ... ]}. If any update
+        is refused, nothing is written. Every write is recorded as
+        AI-assisted; set researcher_verbatim for the researcher's own words
+        and name the assistant in tool.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/FieldUpdate"
+                - type: object
+                  additionalProperties: false
+                  required: [updates]
+                  properties:
+                    updates:
+                      type: array
+                      minItems: 1
+                      items: {$ref: "#/components/schemas/FieldUpdate"}
+      responses:
+        "200":
+          description: The written records.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, written]
+                properties:
+                  id: {type: string}
+                  written:
+                    type: array
+                    items: {type: object, additionalProperties: true}
+                  note: {type: string}
+        "400": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+  /projects/{id}/validate:
+    post:
+      operationId: validateProject
+      summary: Validation report (report-only; persists nothing).
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/AsOf"}
+      responses:
+        "200":
+          description: The report (spec/common/validation_report.schema.json).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [summary, findings]
+                additionalProperties: true
+                properties:
+                  summary:
+                    type: object
+                    properties:
+                      block: {type: integer}
+                      review: {type: integer}
+                      info: {type: integer}
+                  findings:
+                    type: array
+                    items: {type: object, additionalProperties: true}
+        "400": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+  /projects/{id}/build:
+    post:
+      operationId: buildSubmission
+      summary: Build the one overview file, build/NRIIS_SUBMISSION.md, and return it.
+      description: |
+        Always renders; BLOCK findings are listed in the file's readiness
+        summary. The same input and the same as_of give byte-identical text.
+        Default response is the Markdown text; ?format=json wraps it in JSON
+        (easier for some AI tool runners).
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [markdown, json]
+            default: markdown
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/AsOf"}
+      responses:
+        "200":
+          description: The file text.
+          content:
+            text/markdown:
+              schema: {type: string}
+            application/json:
+              schema:
+                type: object
+                required: [id, filename, markdown]
+                properties:
+                  id: {type: string}
+                  filename: {type: string, const: NRIIS_SUBMISSION.md}
+                  markdown: {type: string}
+                  summary:
+                    type: object
+                    properties:
+                      block: {type: integer}
+                      review: {type: integer}
+                      info: {type: integer}
+        "400": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+components:
+  parameters:
+    ProjectId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
+  responses:
+    Error:
+      description: Error.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error: {type: string}
+  schemas:
+    AsOf:
+      type: object
+      additionalProperties: false
+      properties:
+        as_of:
+          type: string
+          format: date
+          description: Date the fund rules are checked against (default today). Fix it for reproducible output.
+    FieldInfo:
+      type: object
+      additionalProperties: true
+      properties:
+        field_id: {type: string}
+        tab: {type: string, description: "An NRIIS tab (NEEDS_VERIFICATION), or NOT_ON_TAB for a field that is not an NRIIS box."}
+        entry_order: {type: integer}
+        origin: {type: [string, "null"], enum: [NRIIS_NATIVE, FUND_PROFILE, AUTHORING_CORE, DERIVED, RECOMMENDED_EXTENSION, null]}
+        label_en: {type: string}
+        label_th: {type: string}
+        type: {type: [string, "null"]}
+        cardinality: {type: [string, "null"]}
+        required: {type: boolean}
+        chain_node: {type: [string, "null"]}
+        allowed_values: {type: [array, "null"]}
+        guidance_en: {type: [string, "null"]}
+    FieldUpdate:
+      type: object
+      additionalProperties: false
+      required: [field_id, value]
+      properties:
+        field_id: {type: string, description: "A registry field id (GET /fields), or chain content with chain_node."}
+        value:
+          description: The value. "NEEDS_INPUT" or null clears it; "NEEDS_VERIFICATION" stores an empty value plus that marker.
+        actor:
+          type: string
+          enum: [ai_assisted]
+          default: ai_assisted
+          description: Optional. Every HTTP write is AI-assisted; any other value is refused.
+        researcher_verbatim:
+          type: boolean
+          default: false
+          description: True only if the value is the researcher's own words, unchanged (stored as human_ai_assisted / DECISION). Otherwise it is the assistant's draft (ai_draft / INFERENCE).
+        chain_node:
+          type: string
+          description: For chain content not in the registry (e.g. PriorKnowledge, Evidence, Claim).
+        provenance:
+          type: object
+          additionalProperties: false
+          description: Optional. provenance_class SOURCE is refused; authored_by is set by the server.
+          properties:
+            provenance_class: {type: string, enum: [INFERENCE, DECISION, DERIVED]}
+            source_type: {type: string}
+            evidence_role: {type: string}
+        source_ids:
+          type: array
+          items: {type: string}
+        links:
+          type: object
+          additionalProperties: true
+        tool:
+          type: string
+          description: The AI tool to disclose (recorded under authoring.tools_disclosed). Default http-client.

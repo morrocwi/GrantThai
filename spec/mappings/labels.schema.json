@@ -1,0 +1,651 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/mappings/labels.schema.json",
+  "title": "GrantThai candidate NRIIS labels (mappings/nriis/labels@<edition>.yaml)",
+  "description": "Draft. Candidate Thai labels and code lists read from public source documents (docs/sources.md). Every entry is a CANDIDATE and NEEDS_VERIFICATION; none is declared official (founder ruling K14). Never sourced from the screenshot-derived readout.",
+  "type": "object",
+  "required": [
+    "schema",
+    "version",
+    "status",
+    "status_marker",
+    "sources",
+    "tab_labels",
+    "field_labels"
+  ],
+  "properties": {
+    "schema": {
+      "const": "grantthai.nriis_labels.v0"
+    },
+    "version": {
+      "type": "string"
+    },
+    "status": {
+      "const": "CANDIDATE"
+    },
+    "status_marker": {
+      "const": "NEEDS_VERIFICATION"
+    },
+    "sources": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^SD-[0-9]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "edition",
+          "derived_from"
+        ],
+        "properties": {
+          "edition": {
+            "type": "string"
+          },
+          "derived_from": {
+            "type": "string",
+            "pattern": "^sourcedoc/SD-[0-9]+@sha256:[a-f0-9]{64}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "tab_labels": {
+      "type": "object",
+      "propertyNames": {
+        "enum": [
+          "GENERAL",
+          "PROJECT",
+          "WORKPLAN",
+          "UTILIZATION",
+          "ATTACHMENTS"
+        ]
+      },
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "label_th",
+          "source"
+        ],
+        "properties": {
+          "label_th": {
+            "type": "string"
+          },
+          "source": {
+            "type": "object",
+            "required": [
+              "doc",
+              "pages"
+            ],
+            "properties": {
+              "doc": {
+                "type": "string",
+                "pattern": "^SD-[0-9]+$"
+              },
+              "pages": {
+                "type": "string"
+              },
+              "item": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "field_labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "label_th",
+          "source"
+        ],
+        "properties": {
+          "label_th": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "object",
+            "required": [
+              "doc",
+              "pages"
+            ],
+            "properties": {
+              "doc": {
+                "type": "string",
+                "pattern": "^SD-[0-9]+$"
+              },
+              "pages": {
+                "type": "string"
+              },
+              "item": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "note": {
+            "type": "string"
+          },
+          "as_printed": {
+            "type": "boolean"
+          },
+          "spacing_normalised": {
+            "type": "boolean"
+          },
+          "restored_sara_am": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "oecd_main": {
+      "type": "object",
+      "required": [
+        "source",
+        "values"
+      ],
+      "properties": {
+        "source": {
+          "type": "object",
+          "required": [
+            "doc",
+            "pages"
+          ],
+          "properties": {
+            "doc": {
+              "type": "string",
+              "pattern": "^SD-[0-9]+$"
+            },
+            "pages": {
+              "type": "string"
+            },
+            "item": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "note": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "label_th"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "label_th": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label_en": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              },
+              "as_printed": {
+                "type": "boolean"
+              },
+              "spacing_normalised": {
+                "type": "boolean"
+              },
+              "restored_sara_am": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "oecd_sub": {
+      "type": "object",
+      "required": [
+        "source",
+        "values"
+      ],
+      "properties": {
+        "source": {
+          "type": "object",
+          "required": [
+            "doc",
+            "pages"
+          ],
+          "properties": {
+            "doc": {
+              "type": "string",
+              "pattern": "^SD-[0-9]+$"
+            },
+            "pages": {
+              "type": "string"
+            },
+            "item": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "note": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "label_th"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "label_th": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label_en": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              },
+              "as_printed": {
+                "type": "boolean"
+              },
+              "spacing_normalised": {
+                "type": "boolean"
+              },
+              "restored_sara_am": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "budget_categories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source",
+          "values"
+        ],
+        "properties": {
+          "source": {
+            "type": "object",
+            "required": [
+              "doc",
+              "pages"
+            ],
+            "properties": {
+              "doc": {
+                "type": "string",
+                "pattern": "^SD-[0-9]+$"
+              },
+              "pages": {
+                "type": "string"
+              },
+              "item": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "note": {
+            "type": "string"
+          },
+          "values": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "label_th"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "label_th": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "label_en": {
+                  "type": "string"
+                },
+                "pages": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                },
+                "as_printed": {
+                  "type": "boolean"
+                },
+                "spacing_normalised": {
+                  "type": "boolean"
+                },
+                "restored_sara_am": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "output_types": {
+      "type": "object",
+      "required": [
+        "source",
+        "values"
+      ],
+      "properties": {
+        "source": {
+          "type": "object",
+          "required": [
+            "doc",
+            "pages"
+          ],
+          "properties": {
+            "doc": {
+              "type": "string",
+              "pattern": "^SD-[0-9]+$"
+            },
+            "pages": {
+              "type": "string"
+            },
+            "item": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "note": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "label_th"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "label_th": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label_en": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              },
+              "as_printed": {
+                "type": "boolean"
+              },
+              "spacing_normalised": {
+                "type": "boolean"
+              },
+              "restored_sara_am": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "outcome_kinds": {
+      "type": "object",
+      "required": [
+        "source",
+        "values"
+      ],
+      "properties": {
+        "source": {
+          "type": "object",
+          "required": [
+            "doc",
+            "pages"
+          ],
+          "properties": {
+            "doc": {
+              "type": "string",
+              "pattern": "^SD-[0-9]+$"
+            },
+            "pages": {
+              "type": "string"
+            },
+            "item": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "note": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "label_th"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "label_th": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label_en": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              },
+              "as_printed": {
+                "type": "boolean"
+              },
+              "spacing_normalised": {
+                "type": "boolean"
+              },
+              "restored_sara_am": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "outcome_types": {
+      "type": "object",
+      "required": [
+        "source",
+        "values"
+      ],
+      "properties": {
+        "source": {
+          "type": "object",
+          "required": [
+            "doc",
+            "pages"
+          ],
+          "properties": {
+            "doc": {
+              "type": "string",
+              "pattern": "^SD-[0-9]+$"
+            },
+            "pages": {
+              "type": "string"
+            },
+            "item": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "note": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "label_th"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "label_th": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label_en": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              },
+              "as_printed": {
+                "type": "boolean"
+              },
+              "spacing_normalised": {
+                "type": "boolean"
+              },
+              "restored_sara_am": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "impact_types": {
+      "type": "object",
+      "required": [
+        "source",
+        "values"
+      ],
+      "properties": {
+        "source": {
+          "type": "object",
+          "required": [
+            "doc",
+            "pages"
+          ],
+          "properties": {
+            "doc": {
+              "type": "string",
+              "pattern": "^SD-[0-9]+$"
+            },
+            "pages": {
+              "type": "string"
+            },
+            "item": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "note": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "label_th"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "label_th": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label_en": {
+                "type": "string"
+              },
+              "pages": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              },
+              "as_printed": {
+                "type": "boolean"
+              },
+              "spacing_normalised": {
+                "type": "boolean"
+              },
+              "restored_sara_am": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

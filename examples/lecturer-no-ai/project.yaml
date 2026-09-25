@@ -83,7 +83,7 @@ fields:
     status: DRAFT
     provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   - field_id: CORE.GENERAL.DURATION_M
-    value: 12
+    value: 0
     status: DRAFT
     provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   - field_id: CORE.GENERAL.OTHER_FUNDER
@@ -99,12 +99,27 @@ fields:
     status: DRAFT
     provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   - field_id: CORE.GENERAL.OECD.PRIMARY
-    value: "FICTIONAL: social sciences"
+    value: "6"
     status: DRAFT
     markers: [NEEDS_VERIFICATION]
     provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   - field_id: CORE.GENERAL.OECD.SECONDARY
-    value: "FICTIONAL: other social sciences"
+    value: "6.4"
+    status: DRAFT
+    markers: [NEEDS_VERIFICATION]
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.ALIGNMENT.FUND_SELECTION
+    value:
+      primary_kr_id: KR1
+    status: DRAFT
+    markers: [NEEDS_VERIFICATION]
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.ALIGNMENT.STATEMENT
+    value: "FICTIONAL: This project contributes to KR1 by co-designing a written water-use schedule, producing a community guide for use by reservoir-sharing households."
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.ALIGNMENT.POLICY_PATHWAY
+    value: AREA_SOCIETAL
     status: DRAFT
     markers: [NEEDS_VERIFICATION]
     provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
@@ -125,6 +140,15 @@ fields:
         contribution_percent: 40
         registration_status: "FICTIONAL: registered (NEEDS_VERIFICATION)"
         responsibilities: ["fieldwork", "community workshops"]
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: PROFILE.TEAM.EXPERTISE
+    value:
+      - id: TEX1
+        person_id: TM1
+        position: "FICTIONAL lecturer"
+        expertise: ["community resource governance", "survey methods"]
+        ongoing_projects: []
     status: DRAFT
     provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   - field_id: CORE.NARRATIVE.SUMMARY
@@ -151,6 +175,38 @@ fields:
     value: "FICTIONAL method narrative, rendered from the METHOD.PLAN.* records."
     status: DRAFT
     provenance: {provenance_class: DERIVED, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.NARRATIVE.REFERENCES
+    value:
+      - "FICTIONAL Author A. (2024). A synthetic review of small-reservoir management. FICTIONAL Journal of Examples, 1(1), 1-10."
+      - "FICTIONAL Author B. (2023). Synthetic case study of shared irrigation schedules. FICTIONAL Proceedings, 2, 20-30."
+    status: DRAFT
+    source_ids: [SRC-2, SRC-3]
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.NARRATIVE.IP_CHECK
+    value:
+      check_status: CHECKED_NONE_RELATED
+      search_sources: ["FICTIONAL public patent database search"]
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: WORK.PLAN.RISKS
+    value:
+      - id: RSK1
+        risk: "FICTIONAL: households decline to take part in the workshops."
+        risk_type: "project delivery"
+        likelihood: "medium"
+        impact: "high"
+        mitigation: "Schedule workshops with the community committee; offer two dates."
+        activity_ids: [ACT2]
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: RESULTS.PATHWAY.SUSTAINABILITY
+    value:
+      owner: "FICTIONAL community water committee"
+      routine: "Review the schedule at the start of each dry season."
+      continuity_mechanism: "The committee keeps the printed guide and updates it."
+      user_ids: [USR1]
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   - field_id: GEO.AREA.RESEARCH_SITES
     value:
       - id: SITE1
@@ -197,7 +253,9 @@ fields:
 chain:
   Need:
     - field_id: CORE.RESEARCH.NATIONAL_NEED
-      value: "FICTIONAL need: small communities need fair, predictable access to shared water in the dry season."
+      value:
+        statement: "FICTIONAL need: small communities need fair, predictable access to shared water in the dry season."
+        affected_population_or_system: "FICTIONAL small reservoir-sharing communities"
       status: DRAFT
       provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   Problem:
@@ -294,7 +352,14 @@ chain:
           instrument_type: questionnaire
           validity_method: "review by two lecturers"
           reliability_method: "pilot with 5 households"
+          construct_measured: "reported water-use disputes"
       status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Framework:
+    - field_id: CORE.RESEARCH.THEORETICAL_FOUNDATIONS
+      value: ["FICTIONAL: common-pool resource governance, in the lecturer's own words."]
+      status: DRAFT
+      source_ids: [SRC-2]
       provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
   EthicsRequirement:
     - field_id: METHOD.PLAN.ETHICS
@@ -453,6 +518,40 @@ chain:
           description: "A two-page schedule guide for the community."
           objective_ids: [OBJ2]
           activity_ids: [ACT3]
+          kr_ids: [KR1]
+          kr_role: primary
+      status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  User:
+    - field_id: RESULTS.CHAIN.USERS
+      value:
+        - id: USR1
+          user_group: "community organisation"
+          user_group_name: "FICTIONAL community water committee"
+          target_number: 1
+          unit: "committee"
+          intended_use: "Adopt and maintain the dry-season schedule."
+          output_ids: [OUT2]
+      status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Adoption:
+    - field_id: RESULTS.CHAIN.OUTCOME_PROCESS
+      value:
+        - id: PW1
+          output_ids: [OUT2]
+          process: "The committee adopts the guide at its dry-season meeting."
+          user_ids: [USR1]
+      status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Outcome:
+    - field_id: RESULTS.CHAIN.OUTCOMES
+      value:
+        - id: OC1
+          expected_change: "FICTIONAL: fewer reported water-use disputes in the dry season."
+          indicator: "reported disputes per dry season"
+          outcome_type: "behavioral outcome"
+          pathway_ids: [PW1]
+          kr_ids: [KR1]
       status: DRAFT
       provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
 

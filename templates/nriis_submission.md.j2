@@ -1,20 +1,213 @@
-{#- templates/nriis_submission.md.j2 — Phase 0 stub.
+{#- templates/nriis_submission.md.j2 — v0.1 renderer template.
     output_kind: primary_submission
     This is the ONE primary render template (see
     spec/contracts/one-input-one-output.md and
-    spec/output/nriis-submission.contract.md). Implementation ships v0.1.
+    spec/output/nriis-submission.contract.md). Rendered by
+    src/grantthai/render/submission.py; all values arrive pre-formatted.
     Do not add a second template tagged output_kind: primary_submission —
     tools/ci/check_one_output.py fails the build if more than one exists.
     `disclaimer` is the NOTICE constant, read byte for byte from
     spec/output/notice_constant.txt; it must stay the first body line
-    (tools/ci/check_notice.py). -#}
+    (tools/ci/check_notice.py). No timestamps anywhere (determinism). -#}
 ---
-grantthai_version: "{{ grantthai_version }}"
-project_id: "{{ project_id }}"
-disclaimer: "{{ disclaimer }}"
+{{ frontmatter_yaml }}
 ---
 {{ disclaimer }}
 
-<!-- Phase 0 stub: sections (readiness summary, per-tab fields, machine
-     metadata, validation appendix) are implemented in v0.1. See
-     spec/output/nriis-submission.contract.md for the required order. -->
+# NRIIS submission worksheet: {{ project_id }}
+
+This file is the researcher's own information, arranged for copy/paste into NRIIS by a person. GrantThai never submits anything. Every value below is exactly what `project.yaml` says; a missing value prints as `NEEDS_INPUT`, and any NRIIS label, tab name or order not confirmed from a public document prints as `NEEDS_VERIFICATION`. Validation findings are structural and logical checks only: they do not mean the content is true, sound or fundable.
+
+## 1. Readiness summary
+
+- Findings: BLOCK {{ summary.block }} / REVIEW {{ summary.review }} / INFO {{ summary.info }}
+- Submittable against the bound fund profile `{{ fund_profile }}` (trust level {{ trust_level }}): {{ "yes" if submittable else "no" }}
+{% if hold_reasons %}
+- Hold reasons:
+{% for h in hold_reasons %}
+  - {{ h }}
+{% endfor %}
+{% endif %}
+- Open contradictions and conflicts: {{ open_conflicts }} (listed in section 4.4; none is resolved by GrantThai).
+- Human final approval is always required before anything is entered into NRIIS.
+
+### 1.1 BLOCK findings (fix before the project can be locked)
+{% if blocks %}
+{% for f in blocks %}
+- **{{ f.rule_id }}**{% if f.field_ids %} [{{ f.field_ids | join(", ") }}]{% endif %}: {{ f.message_en }} Next step: {{ f.next_step_en }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 1.2 REVIEW findings (a person should look)
+{% if reviews %}
+{% for f in reviews %}
+- **{{ f.rule_id }}**{% if f.field_ids %} [{{ f.field_ids | join(", ") }}]{% endif %}: {{ f.message_en }} Next step: {{ f.next_step_en }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 1.3 NEEDS_INPUT (required NRIIS fields with no value)
+{% if needs_input %}
+{% for fid in needs_input %}
+- `{{ fid }}`: NEEDS_INPUT. Next step: supply the value (`grantthai set {{ fid }} <value>`).
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+{% if record_needs_input %}
+- Other records in project.yaml still NEEDS_INPUT: {% for fid in record_needs_input %}`{{ fid }}`{{ ", " if not loop.last }}{% endfor %}
+
+{% endif %}
+
+### 1.4 Markers
+- Every NRIIS label (Thai), tab name, tab order and field order in section 2 is `NEEDS_VERIFICATION` (observed form `{{ tab_order | join(" > ") }}`, not yet confirmed from a public call or TOR document). Next step: check each against the current call before entering it.
+{% for fid, m, reason in marked %}
+- `{{ fid }}`: {{ m }}{% if reason %} ({{ reason }}){% endif %}. Next step: confirm this value against a current, cited source.
+{% endfor %}
+
+### 1.5 AI-drafted values (the researcher must confirm)
+{% if ai_drafts %}
+{% for fid in ai_drafts %}
+- `{{ fid }}`: authored_by marks an AI draft (DRAFT, not a source). Next step: read it, rewrite or confirm it in your own words, then set authored_by to human.
+{% endfor %}
+{% else %}
+- None declared.
+{% endif %}
+
+### 1.6 Mappings and self-checked reviews
+{% if mappings or author_checked %}
+{% for m in mappings %}
+- Mapping `{{ m.mapping_id or m.id }}`: {{ m.acceptance_state }}. Next step: accept or reject it explicitly.
+{% endfor %}
+{% for r in author_checked %}
+- {{ r.gate_id }}: AUTHOR_CHECKED (self review). Next step: an independent reviewer if the fund requires one.
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 1.7 Rules not evaluated by this version (INFO)
+{% for f in infos %}
+- {{ f.message_en }}
+{% endfor %}
+
+## 2. Copy/paste fields by NRIIS tab
+
+Tab names, their order and the field order within each tab describe one observed form and are **NEEDS_VERIFICATION**. A Thai label marked "candidate" was read from a public document edition (docs/sources.md) and is also NEEDS_VERIFICATION: check it against the current call; it is never an official label.
+{% for t in tabs %}
+
+### Tab {{ loop.index }}: {{ t.tab }} (NEEDS_VERIFICATION){% if t.candidate %}; candidate part label (candidate, NEEDS_VERIFICATION): {{ t.candidate }}{% endif %}
+{% for f in t.fields %}
+
+#### {{ t.tab }}.{{ f.entry_order }} {{ f.label_en }}
+
+LABEL_TH: {{ f.label_th }}{% if f.label_th_candidate %} (candidate, NEEDS_VERIFICATION: {{ f.label_th_candidate }}){% endif %}
+
+
+{{ f.value }}
+
+- FIELD_ID: `{{ f.field_id }}` (NRIIS map: `{{ f.nriis_field_id }}`)
+- ORIGIN: {{ f.origin }}
+- PROVENANCE: {{ f.provenance }}
+{% if f.render_from %}
+- RENDER_FROM: {{ f.render_from }} (write this box from these records; GrantThai does not compose it)
+{% endif %}
+- STATUS: {{ f.status }} (basis: {{ f.basis }}){% if f.markers %}; markers: {{ f.markers | join(", ") }}{% endif %}
+
+- REQUIRED: {{ f.required }}
+- INPUT_CONTROL: {{ f.input_control }}
+- DEPENDENCIES: {{ f.dependencies }}
+- SOURCE_IDS: {{ f.source_ids }}
+- VALIDATION: {{ f.validation }}
+{% if f.conflicts %}
+- CONFLICTS: {{ f.conflicts }} (OPEN; see section 4.4)
+{% endif %}
+- AUTHORED_BY: {{ f.authored_by }}
+{% if f.arith %}
+- ARITHMETIC CHECK: {{ f.arith }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+
+## 3. Machine field metadata
+
+```yaml
+{{ meta_yaml }}
+```
+
+## 4. Validation and provenance appendix
+
+### 4.1 Review gates
+{% for g, v in gates.items() %}
+- {{ g }}: {{ v.state }} ({{ v.basis }})
+{% endfor %}
+
+### 4.2 Source manifest
+{% if sources %}
+{% for s in sources %}
+{% if s.private %}
+- `{{ s.source_id }}` ({{ s.kind }}): [private]
+{% else %}
+- `{{ s.source_id }}` ({{ s.kind }}): {{ s.citation }}{% if s.locator %}; locator: {{ s.locator }}{% endif %}{% if s.url %}; url (not fetched): {{ s.url }}{% endif %}{% if s.sha256 %}; sha256: {{ s.sha256 }}{% endif %}; cited by: {{ s.cited_by }}
+{% endif %}
+{% endfor %}
+{% else %}
+- No sources declared.
+{% endif %}
+
+### 4.3 Unresolved references
+{% if unresolved %}
+{% for u in unresolved %}
+- {{ u }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 4.4 Conflicts and open contradictions
+
+Conflicts are surfaced, never merged. Every reading is printed; the "GrantThai today" line is a working default, not a decision.
+
+#### 4.4.1 Contradictions between the design sources (registry/contradictions.yaml)
+{% for c in package_conflicts %}
+
+- **{{ c.id }}** ({{ c.status }}): {{ c.title }}
+{% for r in c.readings %}
+  - Reading: {{ r }}
+{% endfor %}
+  - GrantThai today: {{ c.handling }}
+  - In this project: {{ c.touched }}
+{% endfor %}
+
+#### 4.4.2 Conflicts recorded in project.yaml
+{% if project_conflicts %}
+{% for c in project_conflicts %}
+
+- **{{ c.id }}** on `{{ c.field_id }}` ({{ c.status }}): {{ c.description }}
+{% for r in c.readings %}
+  - Reading: {{ r }}
+{% endfor %}
+{% if c.decision_note %}
+  - Researcher's note: {{ c.decision_note }}
+{% endif %}
+{% endfor %}
+{% else %}
+- None recorded.
+{% endif %}
+
+### 4.5 Project records not placed on any NRIIS tab
+
+These records are not NRIIS fields (origin AUTHORING_CORE, FUND_PROFILE, DERIVED or RECOMMENDED_EXTENSION, or a system-assigned section). Do not paste them as NRIIS boxes; where `feeds` is shown, they are what the listed narrative box is written from.
+{% if unmapped %}
+{% for u in unmapped %}
+
+`{{ u.field_id }}` (ORIGIN: {{ u.origin }}; chain: {{ u.chain }}; status: {{ u.status }}; not on a tab because: {{ u.why }}{% if u.feeds %}; feeds: {{ u.feeds }}{% endif %})
+
+{{ u.value }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}

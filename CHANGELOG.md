@@ -4,7 +4,118 @@ All notable changes to GrantThai are documented in this file. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/); versions follow
 SemVer from v0.1 onward.
 
-## [Unreleased] — Phase 0
+## [0.1.0] — 2026-09-25
+
+Scope set by the founder on 2026-09-25: "เอาแค่ สกิล mcp และ api ที่นักวิจัยใช้เอไอ ดึงไปใช้สร้างไฟล์สำหรับวางภาพรวมได้" ("only the skill, MCP
+and API that a researcher's AI can pull in to create the overview file").
+The offline web form, launchers, Citizen Mode, review/lock and SHACL are
+deferred. See `docs/BUILD_GUIDE.md` and `GOVERNANCE.md`.
+
+### Added — answering the real forms (audit of the design sources, 2026-09-25)
+
+An audit compared the Phase 0 repository with the original handoff package
+and the public source documents. Applied before release:
+
+- **Origin per field** (core/02 §2): `origin` + `origin_basis` on every
+  registry record; only `NRIIS_NATIVE` fields get an `NRIIS.*` record
+  (100 -> 69 at that step; 82 of 122 after the new fields). Research core and
+  methodology are `AUTHORING_CORE` and appear in the output appendix with
+  the narrative box they feed (`render_from`); the methodology is no longer
+  rendered twice. The output's `ORIGIN` column is the registry origin;
+  `PROVENANCE` is a separate line. ProposalMeta and Audit are `not_on_tab`.
+- **Contradiction register**: `registry/contradictions.yaml` and
+  `docs/contradictions.md` (CX-01..CX-10, all OPEN, both readings kept);
+  `conflicts` on registry records and on project field records; a defined
+  "Conflicts and open contradictions" output section (replacing the
+  undefined "conflict log").
+- **22 new fields** (100 -> 122), each `NEEDS_VERIFICATION`; public-document
+  fields carry `source_status: PUBLIC_DOCUMENT` and `source_document`
+  (document id, edition, PDF pages): programme name, sub-projects, past
+  performance of a continuing project, ISCED broad/narrow/detailed,
+  references, IP check, project risks, entrepreneur information,
+  sustainability, team expertise and ongoing projects, team credentials,
+  project-lead track record and management experience (fund-profile
+  origin), primary/secondary policy pathway, fund objective/KR selection,
+  one-sentence alignment statement, theoretical foundations,
+  propositions, boundary conditions.
+- **Structure**: Need/Problem/Gap/Innovation accept text or core/02
+  objects; outputs `kr_ids` + `kr_role`; outcomes `kr_ids` (the chain's
+  Outcome -> KR edge) and `outcome_type`; impacts `impact_type`,
+  `claim_strength`, `sign`, `directness`, `intended`; partners
+  `in_kind_basis`.
+- **Rules** (60 -> 72): S009, S010, S011, R008, R009, W005, B007, E009,
+  F005 evaluated in v0.1 (REVIEW); C001-C003 classification (v0.2, INFO).
+  `validators/crosswalk.yaml` maps all 37 core/02, 41 core/04 and 12
+  core/05 validation codes.
+- **Candidate options**: "Continuing Project" for the project
+  characteristic and the OECD main/sub code lists, accepted with a REVIEW
+  finding (S011), never a BLOCK.
+- **Candidate Thai labels**: `mappings/nriis/labels@nrct-manual-2566.yaml`
+  (field and part labels, OECD lists, budget categories, output/outcome/
+  impact typologies), each cited to a public document and PDF page, all
+  `NEEDS_VERIFICATION`, shown in the output tagged "candidate"; nothing
+  from the screenshot-derived readout (K14).
+- `docs/sources.md` records the four excluded public documents as SD-1..SD-4
+  (title, issuer and edition as printed on them).
+- `ecosystem/positions@2026-09.yaml`: the six core/02 policy lenses and
+  eleven ecosystem positions, RELAYED.
+- `list_fields` (CLI, Python API, MCP, HTTP) now lists every field: NRIIS
+  boxes first, then fields with tab `NOT_ON_TAB`, each with its `origin`.
+- Deferred to v0.2 and recorded in `docs/deviations.md`: form profiles for
+  the five proposal form types and funding-unit templates, the project
+  lifecycle (V-L01-V-L06), the writing layer (core/02 §4A.2, §4B, §4E, §15;
+  core/01 §30 checklist).
+
+### Added — AI-facing surfaces (thin wrappers over `grantthai.api_py`)
+
+- `skills/grantthai/`: agent skill (`SKILL.md`, Thai/English interview,
+  provenance rules, `answers.yaml` format, Thai rule explanations, a
+  prompt packet for chat-only AIs, helper script `grantthai_skill.py`
+  with `check`/`apply`/`report`) and `docs/use-with-ai.md`,
+  `docs/th/use-with-ai.th.md`.
+- `src/grantthai/mcp/`: stdio MCP server `grantthai-mcp` (official SDK
+  when installed, built-in JSON-RPC fallback otherwise); six tools and two
+  resources; every value written is AI-assisted, capped at `DRAFT`, never
+  `SOURCE`. `spec/mcp/tools.schema.json` updated to the built tools;
+  `docs/mcp.md`.
+- `src/grantthai/api/`: local HTTP API `grantthai-api` (standard-library
+  WSGI, binds 127.0.0.1 unless `--allow-remote`), OpenAPI 3.1 at
+  `spec/api/openapi.yaml`, `docs/api.md`. Like MCP, every value written
+  over HTTP is AI-assisted (`ai_draft`/`INFERENCE`, or
+  `human_ai_assisted`/`DECISION` with `researcher_verbatim`), capped at
+  `DRAFT`, never `SOURCE`; `actor: human` is refused.
+- `pyproject.toml`: extras `mcp`, `api`, `skill`, `all`; console scripts
+  `grantthai-mcp`, `grantthai-api`.
+- `spec/common/parity.yaml`: one entry per MCP tool / API endpoint / skill,
+  each naming its tested human CLI equivalent.
+- Tests: `skills/grantthai/scripts/test_grantthai_skill.py`,
+  `tests/mcp/`, `tests/api/`.
+
+### Added — engine
+
+- `src/grantthai/core/project.py`: load/save `project.yaml`, schema
+  validation through a local `$id` registry of `spec/**/*.schema.json`
+  (never fetches a URL), `new_project`, `set_field` under the status hard
+  ceiling (never above `DRAFT`; an AI draft is `ai_draft`/`INFERENCE`, never
+  `SOURCE`).
+- `src/grantthai/validators/engine.py`: report-only validator for the v0.1
+  rule families (S, R, W, B, T, CH, F, ELIG); every other catalog rule is
+  reported as an explicit INFO "not evaluated" finding (B003, B004, F004 and
+  all v0.2 rules). X003 (an AI draft marked `SOURCE`) ships early, checked
+  on every record, so a hand- or chat-written `project.yaml` cannot bypass
+  the core guard. A status above `DRAFT` typed into `project.yaml` renders
+  as self-declared and not backed by any check.
+- `src/grantthai/render/submission.py` + `templates/nriis_submission.md.j2`:
+  renders exactly one `build/NRIIS_SUBMISSION.md` per the output contract;
+  deterministic (byte-identical for the same input and `--as-of` date).
+- `src/grantthai/api_py.py`: `new_project`, `set_field`, `validate`,
+  `build`, `explain`, `list_fields` — the one surface the skill, MCP server
+  and HTTP API wrap.
+- CLI `grantthai` (`init`, `set`, `validate`, `explain`, `build`, `fields`).
+- `tests/test_engine.py`: end-to-end, determinism, negative cases, hard
+  ceiling.
+
+## [0.0.0] — Phase 0
 
 ### Added
 

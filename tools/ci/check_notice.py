@@ -3,9 +3,10 @@
 
 Guard: the one-line NOTICE constant (spec/output/notice_constant.txt) is
 exactly one non-empty line, and it appears byte for byte in every file
-that claims to reuse it: NOTICE, README.md, ai.json, llms.txt,
-llms-full.txt and GRANTTHAI_STANDALONE.md. The primary render template
-must place `{{ disclaimer }}` (the constant) as the first body line.
+that claims to reuse it: NOTICE, README.md, README.en.md, ai.json,
+llms.txt, llms-full.txt and GRANTTHAI_STANDALONE.md. The primary render
+template must place `{{ disclaimer }}` (the constant) as the first body
+line.
 
 Usage:
     python tools/ci/check_notice.py --root <path>
@@ -19,6 +20,7 @@ from pathlib import Path
 REUSING_FILES = [
     "NOTICE",
     "README.md",
+    "README.en.md",
     "ai.json",
     "llms.txt",
     "llms-full.txt",

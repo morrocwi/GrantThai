@@ -39,7 +39,7 @@
       "required": ["id", "family", "ships", "severity", "severity_basis", "description_en", "inputs", "chain_step", "source", "negative_fixture"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Z]{1,4}[0-9]{3}$"},
-        "family": {"type": "string", "enum": ["S", "R", "W", "B", "T", "CH", "F", "ELIG", "E", "U", "P", "G", "X"]},
+        "family": {"type": "string", "enum": ["S", "R", "W", "B", "T", "CH", "F", "ELIG", "E", "U", "P", "G", "X", "C"]},
         "ships": {"type": "string", "enum": ["v0.1", "v0.2"]},
         "severity": {"type": "string", "enum": ["BLOCK", "REVIEW", "INFO"]},
         "severity_basis": {"type": "string", "enum": ["plan", "proposed_default"]},
@@ -59,7 +59,11 @@
           },
           "additionalProperties": false
         },
-        "negative_fixture": {"type": "string", "pattern": "^tests/fixtures/negative/[A-Za-z0-9_]+/$"},
+        "negative_fixture": {
+          "type": "string",
+          "description": "Where the rule's negative case lives: a real fixture directory (a BLOCK rule that ships in v0.1 and is evaluated by this build), a 'test:<path>::<function>' pointer to the pytest function that exercises it (a REVIEW/INFO rule that v0.1 evaluates but does not get its own fixture directory), or the literal 'not_evaluated_in_v0.1' (a rule this build does not evaluate at all, per grantthai.validators.engine.V01_NOT_EVALUATED or ships != v0.1).",
+          "pattern": "^(tests/fixtures/negative/[A-Za-z0-9_]+/|test:tests/[A-Za-z0-9_./]+\\.py::test_[A-Za-z0-9_]+|not_evaluated_in_v0\\.1)$"
+        },
         "notes": {"type": "string"}
       },
       "additionalProperties": false

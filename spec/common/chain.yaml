@@ -15,7 +15,7 @@
 # In v0.2, ontology/shapes.shacl.ttl is GENERATED from this file — never
 # hand-maintained (docs/design/PLAN.md §E, "Validation engines").
 schema: grantthai.chain.v0
-version: "0.2.0-draft"
+version: "0.3.0-draft"
 status: draft
 
 nodes:
@@ -69,10 +69,10 @@ edges:
     - [RQ, Objective]
     - [Objective, Framework]
     - [Framework, Hypothesis]
-    - [Hypothesis, Method]           # direction choice (plan §E)
+    - [Hypothesis, Method]
     - [Method, Activity]
-    - [Method, EthicsRequirement]    # direction choice (plan §E)
-    - [Activity, BudgetItem]         # direction choice (plan §E)
+    - [Method, EthicsRequirement]    # OPEN contradiction CX-03 (docs/contradictions.md)
+    - [Activity, BudgetItem]         # OPEN contradiction CX-03 (docs/contradictions.md)
     - [Activity, Data]
     - [Data, Analysis]
     - [Analysis, Evidence]
@@ -81,9 +81,9 @@ edges:
     - [Output, User]
     - [User, Adoption]
     - [Adoption, Outcome]
-    - [Outcome, Beneficiary]
-    - [Outcome, Impact]
-    - [Outcome, KR]
+    - [Outcome, Beneficiary]         # OPEN contradiction CX-04 (docs/contradictions.md)
+    - [Outcome, Impact]              # OPEN contradiction CX-04
+    - [Outcome, KR]                  # written as RESULTS.CHAIN.OUTCOMES kr_ids
   feedback:
     - [KR, Need]
     - [Impact, KR]

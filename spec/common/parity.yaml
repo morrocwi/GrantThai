@@ -1,9 +1,10 @@
 # GrantThai AI/human parity manifest (spec/common/parity.yaml)
 # From v0.3, CI fails any `assist`, MCP, or REST command that has no
 # human-equivalent command with a passing test (plan §G "Parity manifest").
-# This file is intentionally EMPTY in Phase 0: no AI feature exists yet to
-# require a parity entry. It ships with its schema comment so the v0.3
-# CI job (test_parity_manifest) has a stable location to populate.
+# v0.1.0 (founder scope change 2026-09-25): the MCP tools and HTTP API
+# endpoints ship early; each wraps one CLI command whose human path is
+# tested in tests/test_engine.py. The v0.3 CI job (test_parity_manifest)
+# will enforce this table.
 schema: grantthai.parity.v0
 version: "0.1.0-draft"
 status: draft
@@ -12,4 +13,25 @@ status: draft
 #   - ai_feature: <string, id of the AI-assisted command/feature>
 #     human_equivalent: <string, id of the command/path with a passing test>
 #     test_ref: <path to the test that proves the human path works>
-entries: []
+entries:
+  - ai_feature: "mcp:grantthai_new_project / api:createProject"
+    human_equivalent: "cli:grantthai init"
+    test_ref: "tests/test_engine.py::test_new_project_set_field_roundtrip"
+  - ai_feature: "mcp:grantthai_list_fields / api:listFields"
+    human_equivalent: "cli:grantthai fields"
+    test_ref: "tests/test_engine.py::test_new_project_set_field_roundtrip"
+  - ai_feature: "mcp:grantthai_set_field / api:setFields"
+    human_equivalent: "cli:grantthai set"
+    test_ref: "tests/test_engine.py::test_new_project_set_field_roundtrip"
+  - ai_feature: "mcp:grantthai_validate / api:validateProject"
+    human_equivalent: "cli:grantthai validate"
+    test_ref: "tests/test_engine.py::test_cli_build_and_validate"
+  - ai_feature: "mcp:grantthai_explain / api:explainRule"
+    human_equivalent: "cli:grantthai explain"
+    test_ref: "tests/test_engine.py::test_cli_build_and_validate"
+  - ai_feature: "mcp:grantthai_build / api:buildSubmission"
+    human_equivalent: "cli:grantthai build"
+    test_ref: "tests/test_engine.py::test_cli_build_and_validate"
+  - ai_feature: "skill:skills/grantthai (grantthai_skill.py apply/report)"
+    human_equivalent: "cli:grantthai set + validate + build, or editing project.yaml by hand"
+    test_ref: "tests/test_engine.py::test_e2e_example_builds_exactly_one_file_block_zero"

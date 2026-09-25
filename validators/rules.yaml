@@ -22,7 +22,7 @@ severity_levels:
 rule_families:
 - family: S
   ships: v0.1
-  checks: structure
+  checks: structure, including required attachments, duration and candidate option lists
   ids_status: enumerated
 - family: R
   ships: v0.1
@@ -71,6 +71,10 @@ rule_families:
 - family: X
   ships: v0.2
   checks: misuse of experience, mappings, AI drafts and review records
+  ids_status: enumerated
+- family: C
+  ships: v0.2
+  checks: classification compatibility (research issue, OECD, ISCED, problem, method)
   ids_status: enumerated
 - family: ECO
   ships: v0.2
@@ -197,6 +201,74 @@ rules:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.2 (source references); spec/common/links-and-sources.md §3
   negative_fixture: tests/fixtures/negative/S008/
+- id: S009
+  family: S
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An attachment item (DOC.ATTACHMENTS.DOCUMENTS) has required_status REQUIRED but supplied
+    is not true.
+  inputs:
+  - DOC.ATTACHMENTS.DOCUMENTS
+  chain_step: project
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: 02 §10.1 V-S06
+  negative_fixture: test:tests/test_rules_added.py::test_S009_required_attachment_not_supplied
+  notes: 'GrantThai never uploads files: the person uploads them in NRIIS. REVIEW, not BLOCK, because
+    a draft normally has attachments still to come.'
+- id: S010
+  family: S
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: 'An activity runs past the project duration: (year - 1) x 12 + its last month exceeds
+    CORE.GENERAL.DURATION_Y x 12 + CORE.GENERAL.DURATION_M.'
+  inputs:
+  - WORK.PLAN.ACTIVITIES
+  - CORE.GENERAL.DURATION_Y
+  - CORE.GENERAL.DURATION_M
+  chain_step: Activity
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: 02 §10.1 V-S07; 04 §30.3 V-I03
+  negative_fixture: test:tests/test_rules_added.py::test_S010_activity_past_duration
+  notes: Months are counted within each activity year (1-12). Only a clear overrun is reported.
+- id: S011
+  family: S
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A value uses a candidate option (NEEDS_VERIFICATION) that is not in the field's observed
+    allowed_values, or a field with a candidate option list (registry candidate_values) has a value outside
+    that list.
+  inputs:
+  - registry:types
+  chain_step: project
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E (NEEDS_VERIFICATION markers); docs/contradictions.md CX-05, CX-10
+  negative_fixture: test:tests/test_rules_added.py::test_S011_candidate_values_review_never_block
+  notes: Candidate lists come from public documents (mappings/nriis/labels@nrct-manual-2566.yaml) and
+    are never official, so a mismatch is REVIEW, never BLOCK.
+- id: S012
+  family: S
+  ships: v0.1
+  severity: BLOCK
+  severity_basis: proposed_default
+  description_en: CORE.GENERAL.DURATION_M is outside 0-11. S010's total project duration is
+    CORE.GENERAL.DURATION_Y x 12 + CORE.GENERAL.DURATION_M, so DURATION_M is the additional months
+    beyond whole years, not a raw month count.
+  inputs:
+  - CORE.GENERAL.DURATION_M
+  chain_step: project
+  source:
+    derived_from: docs/design/PLAN.md
+    locator: plan §E "Rule families" (S family, structure); S010's own arithmetic (core/02 §10.1
+      V-S07; 04 §30.3 V-I03) fixes the DURATION_Y/DURATION_M unit convention this rule enforces.
+  negative_fixture: tests/fixtures/negative/S012/
+  notes: Added in the v0.1.0 release pass alongside the S010 fix to examples/lecturer-no-ai/project.yaml
+    (DURATION_M was 12, i.e. a whole extra year, which S010's formula would silently double-count).
 - id: R001
   family: R
   ships: v0.1
@@ -211,7 +283,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.2 R001
-  negative_fixture: tests/fixtures/negative/R001/
+  negative_fixture: test:tests/test_example_project.py::test_research_logic_R001_to_R007
 - id: R002
   family: R
   ships: v0.1
@@ -228,7 +300,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.2 R002
-  negative_fixture: tests/fixtures/negative/R002/
+  negative_fixture: test:tests/test_example_project.py::test_research_logic_R001_to_R007
 - id: R003
   family: R
   ships: v0.1
@@ -310,6 +382,35 @@ rules:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.2 R007
   negative_fixture: tests/fixtures/negative/R007/
+- id: R008
+  family: R
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A research-instrument item (METHOD.PLAN.INSTRUMENTS) names no construct or variable
+    it measures (no construct_ids and no construct_measured).
+  inputs:
+  - METHOD.PLAN.INSTRUMENTS
+  - METHOD.PLAN.VARIABLES
+  - CORE.RESEARCH.CONSTRUCTS
+  chain_step: Method
+  source:
+    derived_from: core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e
+    locator: 05 VAL.005; 02 §10.2 V-R06; 04 §30.2 V-R07
+  negative_fixture: test:tests/test_rules_added.py::test_R008_instrument_without_construct
+- id: R009
+  family: R
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A hypothesis item (CORE.RESEARCH.HYPOTHESES) has no proposed_test (test strategy).
+  inputs:
+  - CORE.RESEARCH.HYPOTHESES
+  chain_step: Hypothesis
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: 02 §10.2 V-R08
+  negative_fixture: test:tests/test_rules_added.py::test_R009_hypothesis_without_test
 - id: W001
   family: W
   ships: v0.1
@@ -341,7 +442,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.3 W002
-  negative_fixture: tests/fixtures/negative/W002/
+  negative_fixture: test:tests/test_example_project.py::test_workplan_budget_team_W_B_T
 - id: W003
   family: W
   ships: v0.1
@@ -372,6 +473,19 @@ rules:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.3 W004
   negative_fixture: tests/fixtures/negative/W004/
+- id: W005
+  family: W
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A partner item (WORK.PARTNERS.ORGANIZATIONS) has no collaboration_role.
+  inputs:
+  - WORK.PARTNERS.ORGANIZATIONS
+  chain_step: Activity
+  source:
+    derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
+    locator: 02 §10.3 V-I07
+  negative_fixture: test:tests/test_rules_added.py::test_W005_and_B007_partner_checks
 - id: B001
   family: B
   ships: v0.1
@@ -420,7 +534,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.4 B003
-  negative_fixture: tests/fixtures/negative/B003/
+  negative_fixture: not_evaluated_in_v0.1
   notes: Rates live only in the dated fund profile (P6).
 - id: B004
   family: B
@@ -435,7 +549,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.4 B004
-  negative_fixture: tests/fixtures/negative/B004/
+  negative_fixture: not_evaluated_in_v0.1
   notes: Only fires when the fund profile declares prohibited costs.
 - id: B005
   family: B
@@ -449,7 +563,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.4 B005
-  negative_fixture: tests/fixtures/negative/B005/
+  negative_fixture: test:tests/test_negative_fixtures.py::test_negative_equipment_no_justification_B005
 - id: B006
   family: B
   ships: v0.1
@@ -464,6 +578,20 @@ rules:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.4 B006
   negative_fixture: tests/fixtures/negative/B006/
+- id: B007
+  family: B
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: 'A partner''s co-funding is not backed: in_kind > 0 with neither in_kind_basis (how
+    it was valued) nor support_attachment_ids, or total_contribution is not in_cash + in_kind.'
+  inputs:
+  - WORK.PARTNERS.ORGANIZATIONS
+  chain_step: BudgetItem
+  source:
+    derived_from: core/04@sha256:c23217441176d90f129e525248c24103575bcd85841020b2842fd237638d269a
+    locator: 04 §30.4 V-B05
+  negative_fixture: test:tests/test_rules_added.py::test_W005_and_B007_partner_checks
 - id: T001
   family: T
   ships: v0.1
@@ -553,7 +681,7 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (F001-F004)
-  negative_fixture: tests/fixtures/negative/F002/
+  negative_fixture: test:tests/test_engine.py::test_stale_fund_rules_by_as_of
 - id: F003
   family: F
   ships: v0.1
@@ -579,7 +707,22 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (F001-F004)
-  negative_fixture: tests/fixtures/negative/F004/
+  negative_fixture: not_evaluated_in_v0.1
+- id: F005
+  family: F
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: 'Duplicate-funding risk: the proposal is also submitted to another funder (CORE.GENERAL.OTHER_FUNDER
+    true). A person must confirm the difference and that no budget line is funded twice.'
+  inputs:
+  - CORE.GENERAL.OTHER_FUNDER
+  - CORE.GENERAL.OTHER_FUNDER.DIFF
+  chain_step: project
+  source:
+    derived_from: core/04@sha256:c23217441176d90f129e525248c24103575bcd85841020b2842fd237638d269a
+    locator: 04 §30.1 V-F03
+  negative_fixture: test:tests/test_rules_added.py::test_F005_duplicate_funding_risk
 - id: ELIG001
   family: ELIG
   ships: v0.1
@@ -612,7 +755,7 @@ rules:
   source:
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
     locator: 02 claim-strength downgrade; plan §E
-  negative_fixture: tests/fixtures/negative/CH003/
+  negative_fixture: not_evaluated_in_v0.1
 - id: E001
   family: E
   ships: v0.2
@@ -626,7 +769,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.5 E001
-  negative_fixture: tests/fixtures/negative/E001/
+  negative_fixture: not_evaluated_in_v0.1
 - id: E002
   family: E
   ships: v0.2
@@ -640,7 +783,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.5 E002
-  negative_fixture: tests/fixtures/negative/E002/
+  negative_fixture: not_evaluated_in_v0.1
 - id: E003
   family: E
   ships: v0.2
@@ -655,7 +798,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.5 E003
-  negative_fixture: tests/fixtures/negative/E003/
+  negative_fixture: not_evaluated_in_v0.1
 - id: E004
   family: E
   ships: v0.2
@@ -669,7 +812,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.5 E004
-  negative_fixture: tests/fixtures/negative/E004/
+  negative_fixture: not_evaluated_in_v0.1
 - id: E005
   family: E
   ships: v0.2
@@ -683,7 +826,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.5 E005
-  negative_fixture: tests/fixtures/negative/E005/
+  negative_fixture: not_evaluated_in_v0.1
 - id: E006
   family: E
   ships: v0.2
@@ -697,7 +840,7 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (E006-E008)
-  negative_fixture: tests/fixtures/negative/E006/
+  negative_fixture: not_evaluated_in_v0.1
 - id: E007
   family: E
   ships: v0.2
@@ -711,7 +854,7 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (E006-E008)
-  negative_fixture: tests/fixtures/negative/E007/
+  negative_fixture: not_evaluated_in_v0.1
 - id: E008
   family: E
   ships: v0.2
@@ -725,7 +868,22 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (E006-E008)
-  negative_fixture: tests/fixtures/negative/E008/
+  negative_fixture: not_evaluated_in_v0.1
+- id: E009
+  family: E
+  ships: v0.1
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: Related intellectual property the project will use (CORE.NARRATIVE.IP_CHECK related_ip
+    item with use_in_project true) has no ownership or permission status.
+  inputs:
+  - CORE.NARRATIVE.IP_CHECK
+  chain_step: EthicsRequirement
+  source:
+    derived_from: core/04@sha256:c23217441176d90f129e525248c24103575bcd85841020b2842fd237638d269a
+    locator: 04 §30.5 V-E03
+  negative_fixture: test:tests/test_rules_added.py::test_E009_ip_use_without_permission
+  notes: Shipped early in v0.1 (the rest of family E ships v0.2) because the IP check is now a v0.1 field.
 - id: U001
   family: U
   ships: v0.2
@@ -739,7 +897,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.6 U001
-  negative_fixture: tests/fixtures/negative/U001/
+  negative_fixture: not_evaluated_in_v0.1
 - id: U002
   family: U
   ships: v0.2
@@ -753,7 +911,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.6 U002
-  negative_fixture: tests/fixtures/negative/U002/
+  negative_fixture: not_evaluated_in_v0.1
 - id: U003
   family: U
   ships: v0.2
@@ -767,7 +925,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.6 U003
-  negative_fixture: tests/fixtures/negative/U003/
+  negative_fixture: not_evaluated_in_v0.1
 - id: U004
   family: U
   ships: v0.2
@@ -781,7 +939,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.6 U004
-  negative_fixture: tests/fixtures/negative/U004/
+  negative_fixture: not_evaluated_in_v0.1
 - id: U005
   family: U
   ships: v0.2
@@ -795,7 +953,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.6 U005
-  negative_fixture: tests/fixtures/negative/U005/
+  negative_fixture: not_evaluated_in_v0.1
 - id: P001
   family: P
   ships: v0.2
@@ -809,7 +967,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.7 P001
-  negative_fixture: tests/fixtures/negative/P001/
+  negative_fixture: not_evaluated_in_v0.1
 - id: P002
   family: P
   ships: v0.2
@@ -823,7 +981,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.7 P002
-  negative_fixture: tests/fixtures/negative/P002/
+  negative_fixture: not_evaluated_in_v0.1
 - id: P003
   family: P
   ships: v0.2
@@ -837,7 +995,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.7 P003
-  negative_fixture: tests/fixtures/negative/P003/
+  negative_fixture: not_evaluated_in_v0.1
 - id: G001
   family: G
   ships: v0.2
@@ -851,7 +1009,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.8 G001; 05 VAL.011
-  negative_fixture: tests/fixtures/negative/G001/
+  negative_fixture: not_evaluated_in_v0.1
 - id: G002
   family: G
   ships: v0.2
@@ -865,7 +1023,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.8 G002; 05 VAL.011
-  negative_fixture: tests/fixtures/negative/G002/
+  negative_fixture: not_evaluated_in_v0.1
 - id: G003
   family: G
   ships: v0.2
@@ -878,7 +1036,7 @@ rules:
   source:
     derived_from: core/01@sha256:c177c28034a71bd8dfb65965e5bba81efac9ef68e9e0d5c6ba1ed0f1f2cf8512
     locator: 01 §28.8 G003; 05 VAL.011
-  negative_fixture: tests/fixtures/negative/G003/
+  negative_fixture: not_evaluated_in_v0.1
 - id: X001
   family: X
   ships: v0.2
@@ -892,7 +1050,7 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (X001-X006)
-  negative_fixture: tests/fixtures/negative/X001/
+  negative_fixture: not_evaluated_in_v0.1
 - id: X002
   family: X
   ships: v0.2
@@ -905,13 +1063,15 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (X001-X006)
-  negative_fixture: tests/fixtures/negative/X002/
+  negative_fixture: not_evaluated_in_v0.1
 - id: X003
   family: X
-  ships: v0.2
+  ships: v0.1
   severity: BLOCK
   severity_basis: proposed_default
-  description_en: 'A value with authored_by: ai_draft is marked provenance_class SOURCE.'
+  description_en: 'A value with authored_by: ai_draft is marked provenance_class SOURCE. Shipped early
+    in v0.1 and checked on every record (fields and every chain node), because a project.yaml written
+    by hand or by a chat AI does not pass through the core set_field guard.'
   inputs:
   - chain:Evidence
   chain_step: Evidence
@@ -932,7 +1092,7 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (X001-X006)
-  negative_fixture: tests/fixtures/negative/X004/
+  negative_fixture: not_evaluated_in_v0.1
 - id: X005
   family: X
   ships: v0.2
@@ -945,7 +1105,7 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (X001-X006)
-  negative_fixture: tests/fixtures/negative/X005/
+  negative_fixture: not_evaluated_in_v0.1
 - id: X006
   family: X
   ships: v0.2
@@ -959,4 +1119,53 @@ rules:
   source:
     derived_from: docs/design/PLAN.md
     locator: plan §E rule families (X001-X006)
-  negative_fixture: tests/fixtures/negative/X006/
+  negative_fixture: not_evaluated_in_v0.1
+- id: C001
+  family: C
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The research issue (CORE.GENERAL.RESEARCH_ISSUE) is not compatible with the OECD classification.
+  inputs:
+  - CORE.GENERAL.RESEARCH_ISSUE
+  - CORE.GENERAL.OECD.PRIMARY
+  - CORE.GENERAL.OECD.SECONDARY
+  chain_step: project
+  source:
+    derived_from: core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e
+    locator: 05 VAL.012; 02 §10.6 V-C01
+  negative_fixture: not_evaluated_in_v0.1
+  notes: Needs an agreed mapping between call topics and OECD codes; not evaluated in v0.1 (INFO).
+- id: C002
+  family: C
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The classification (keywords, OECD, ISCED) does not describe the same research object
+    as the research problem.
+  inputs:
+  - CORE.GENERAL.KEYWORDS_EN
+  - CORE.GENERAL.OECD.PRIMARY
+  - CORE.GENERAL.ISCED.BROAD
+  - CORE.RESEARCH.PROBLEM
+  chain_step: Problem
+  source:
+    derived_from: core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e
+    locator: 05 VAL.012; 02 §10.6 V-C02; 02 §02 classification rule
+  negative_fixture: not_evaluated_in_v0.1
+  notes: A meaning comparison, not a structural check; not evaluated in v0.1 (INFO).
+- id: C003
+  family: C
+  ships: v0.2
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The classification is not compatible with the methodology (METHOD.PLAN.DESIGN).
+  inputs:
+  - CORE.GENERAL.OECD.PRIMARY
+  - METHOD.PLAN.DESIGN
+  chain_step: Method
+  source:
+    derived_from: core/05@sha256:14e85efafc8633b7f50f792b0a3f71ed7abcd2f27fbea857c90064521004860e
+    locator: 05 VAL.012; 02 §10.6 V-C03
+  negative_fixture: not_evaluated_in_v0.1
+  notes: A meaning comparison, not a structural check; not evaluated in v0.1 (INFO).

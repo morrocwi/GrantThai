@@ -35,7 +35,9 @@ lineage tag so it stays traceable to its source. See `GOVERNANCE.md`,
 What is derived, concretely:
 
 - `registry/fields.jsonl` — the 100 field records of core/05, re-keyed into
-  GrantThai's field-ID namespaces (table in `registry/README.md`).
+  GrantThai's field-ID namespaces (table in `registry/README.md`), plus 22
+  records added in v0.1.0 from core/02 and the public documents SD-1, SD-3
+  and SD-4 below (`source_field_id: NONE (not in core/05)`).
   `label_en` is core/05's descriptive English label, **not** an official
   NRIIS label; every `label_th` is `NEEDS_VERIFICATION`.
 - `mappings/nriis/section_to_tab.yaml` — core/05 sections to NRIIS tabs,
@@ -45,20 +47,46 @@ What is derived, concretely:
   rule families in `docs/design/PLAN.md` §E.
 - The schemas and YAML contracts under `spec/`, as tagged in each file.
 
-## Excluded source PDFs
+## Excluded source PDFs (SD-1 to SD-4)
 
 These documents informed the ecosystem and fund-rule background (core/03,
-core/04) but are excluded entirely. Only a sha256 fingerprint and what is
-known about each is recorded. Titles, issuers and editions are
-`NEEDS_VERIFICATION`: they will be recorded from the public documents
-themselves, not from file names.
+core/04) and, since v0.1.0, some registry fields, candidate labels and the
+contradiction register. The PDFs themselves are excluded from this
+repository. Each has a short id (`SD-n`) that registry records cite
+(`source_document`, `derived_from: sourcedoc/SD-n@sha256:...`).
 
-| Document | Issuer | Edition | sha256 | Official URL |
-|---|---|---|---|---|
-| Excluded source document 1 (PDF, title NEEDS_VERIFICATION) | NEEDS_VERIFICATION | NEEDS_VERIFICATION | `98423019ad17f0f0aafc3863840e9d7aaa81007a84f3ddd64a10aab689a4b52e` | NEEDS_VERIFICATION |
-| Excluded source document 2 (PDF, title NEEDS_VERIFICATION) | NEEDS_VERIFICATION | NEEDS_VERIFICATION | `3382acc8ca922bb39a7ad0f5996b338c992abb76dbb21e10444e2511910a39dc` | NEEDS_VERIFICATION |
-| Excluded source document 3 (PDF, title NEEDS_VERIFICATION) | NEEDS_VERIFICATION | NEEDS_VERIFICATION | `1df827ce8af160dfb5a37e1b6c7ec3c6cc7f1b368812f73c7caf1801c6498105` | NEEDS_VERIFICATION |
-| University lecture slides on writing a research proposal | NEEDS_VERIFICATION | NEEDS_VERIFICATION | `29ace18ff6599bef925b254f5d879b9cc267f628b0325d5c0093fa4f49b924dc` | NEEDS_VERIFICATION |
+Title, issuer and edition below were **read from each document's own cover
+or first page** (not from its file name). They describe the document as
+supplied; whether it is the current edition, and its official URL, are
+`NEEDS_VERIFICATION`. A public document describes a form edition: nothing
+taken from it is declared official or current (founder ruling K14).
+
+| Id | Document (as printed on it) | Issuer (as printed) | Edition | sha256 | Official URL |
+|---|---|---|---|---|---|
+| SD-1 | คู่มือนักวิจัย ในการขอรับทุนวิจัยและนวัตกรรมจาก สำนักงานการวิจัยแห่งชาติ (วช.) (researcher's manual for research and innovation funding) | สำนักงานการวิจัยแห่งชาติ (วช.), กระทรวงการอุดมศึกษา วิทยาศาสตร์ วิจัยและนวัตกรรม | ฉบับปี 2566 | `98423019ad17f0f0aafc3863840e9d7aaa81007a84f3ddd64a10aab689a4b52e` | NEEDS_VERIFICATION |
+| SD-2 | คู่มือในการส่งข้อเสนอโครงการ (proposal submission manual) | หน่วยบริหารและจัดการทุนด้านการเพิ่มความสามารถในการแข่งขันของประเทศ (บพข.) | มีนาคม 2564 | `3382acc8ca922bb39a7ad0f5996b338c992abb76dbb21e10444e2511910a39dc` | NEEDS_VERIFICATION |
+| SD-3 | คู่มือการส่งข้อเสนอโครงการ (บพค.) (proposal submission manual) | as printed on PDF p1: หน่วยบริหารจัดการทุนด้านเทคโนโลยีและนวัตกรรมเพื่ออุตสาหกรรมแห่งอนาคต (บพค.) | ฉบับปรับปรุงครั้งที่ 3 (มิถุนายน 2569) | `1df827ce8af160dfb5a37e1b6c7ec3c6cc7f1b368812f73c7caf1801c6498105` | NEEDS_VERIFICATION |
+| SD-4 | University lecture slides on writing a research proposal for funding (training session handout) | a university research institute's training programme (lecturer not named here) | session dated 2566 | `29ace18ff6599bef925b254f5d879b9cc267f628b0325d5c0093fa4f49b924dc` | NEEDS_VERIFICATION |
+
+Page numbers cited anywhere in this repository are **PDF page numbers**. In
+SD-1 and SD-4 the printed page number equals the PDF page; in SD-3 the
+printed number is one lower (PDF p2 = printed p1).
+
+Notes:
+
+- **SD-1 p5 vs SD-3 PDF p1 (contradiction CX-06, OPEN).** SD-1 p5 expands the
+  abbreviation บพค. as "หน่วยบริหารและจัดการทุนด้านการพัฒนากำลังคน และทุนด้านการพัฒนา
+  สถาบันอุดมศึกษา การวิจัยและการสร้างนวัตกรรม (บพค.)". SD-3 PDF p1 expands the same
+  abbreviation as "หน่วยบริหารจัดการทุนด้านเทคโนโลยีและนวัตกรรมเพื่ออุตสาหกรรมแห่งอนาคต
+  (บพค.)". GrantThai does not choose between them and names no funding unit in
+  its data.
+- **SD-4 text extraction.** The text layer of SD-4 drops the Thai vowel sign
+  "ำ" (sara am) in many words. Where a candidate label in
+  `mappings/nriis/labels@nrct-manual-2566.yaml` comes from SD-4, the sign was
+  restored by hand and the entry says so; the restored spelling is itself
+  `NEEDS_VERIFICATION`.
+- SD-4 quotes a typology from a further, third-party source; that source is
+  not cited here and nothing is taken from it beyond what SD-4 prints.
 
 ## Excluded AI-derived readout of portal screenshots
 

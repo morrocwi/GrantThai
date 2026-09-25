@@ -21,3 +21,9 @@ SPDX-License-Identifier = "CC-BY-4.0"
 path = ["src/**", "tools/**", "tests/**", ".githooks/**", ".github/**", "webform/**", "launchers/**", "pyproject.toml", ".gitignore"]
 SPDX-FileCopyrightText = "2026 Yaoharee Lahtee and ARAYA NIKAH SOCIAL ENTERPRISE CO."
 SPDX-License-Identifier = "Apache-2.0"
+
+# Organisation logo: identification only, all rights reserved (not CC BY 4.0).
+[[annotations]]
+path = ["docs/assets/ai-civic-knowledge-logo.png"]
+SPDX-FileCopyrightText = "2026 ARAYA NIKAH SOCIAL ENTERPRISE CO."
+SPDX-License-Identifier = "LicenseRef-Logo-AllRightsReserved"

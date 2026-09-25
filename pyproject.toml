@@ -1,21 +1,37 @@
 [project]
 name = "grantthai"
-version = "0.0.0-phase0"
-description = "GrantThai — open, unofficial research infrastructure. Phase 0 scaffold, no implementation yet."
+version = "0.1.0"
+description = "GrantThai — open, unofficial research infrastructure. One project.yaml in, one build/NRIIS_SUBMISSION.md out."
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.10"
-dependencies = []
-# Kept intentionally empty in Phase 0. v0.1 is expected to add: pyyaml,
-# jsonschema, jinja2 (renderer) — minimal dependencies by design (P3: no
-# core task may require anything beyond a Python stdlib-adjacent toolchain).
+dependencies = ["pyyaml>=6", "jsonschema>=4.18", "jinja2>=3"]
+# Minimal by design (P3). jsonschema>=4.18 brings `referencing`, used for the
+# local, never-fetching $id registry of spec/**/*.schema.json.
 
 [project.optional-dependencies]
 ai = []
 # Populated in v0.3 (grantthai[ai]). Never imported by the core packages
 # (see spec/common/status_permissions.yaml "hard_ceiling" and
 # tools/ci/check_no_ai_import.py).
-dev = ["pyyaml", "jsonschema", "pytest", "reuse"]
+mcp = ["mcp>=1.2,<2"]
+# Optional: the official MCP SDK transport for `grantthai-mcp`. Without it
+# the server falls back to a built-in JSON-RPC stdio loop (docs/mcp.md).
+# Capped below 2: the 2.x SDK removed the low-level decorator API used here;
+# with 2.x installed, --transport auto uses the built-in loop.
+api = []
+# The local HTTP API (`grantthai-api`, docs/api.md) uses the standard library
+# only (wsgiref); the extra exists so `pip install "grantthai[api]"` is a
+# stable spelling if a dependency is ever needed.
+skill = []
+# The agent skill (skills/grantthai/) needs only the core engine.
+all = ["mcp>=1.2,<2"]
+dev = ["pytest", "reuse"]
+
+[project.scripts]
+grantthai = "grantthai.cli:main"
+grantthai-mcp = "grantthai.mcp.server:main"
+grantthai-api = "grantthai.api.__main__:main"
 
 [build-system]
 requires = ["setuptools>=68"]

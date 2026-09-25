@@ -2,7 +2,8 @@
 
 ## Core Epistemic Structure (role disclosure)
 
-This block and the README footer are the two sanctioned places where an AI
+This block and the README footers (README.md and README.en.md) are the
+sanctioned places where an AI
 model is named as having been used in producing this repository. Other
 mentions of vendor or model names in the repository are guard patterns,
 SDK package names in import-ban lists, tooling file names (such as the `CLAUDE.md`/`GEMINI.md` pointer files) or

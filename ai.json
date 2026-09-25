@@ -27,7 +27,7 @@
   "output": "build/NRIIS_SUBMISSION.md",
   "ai_flags": {
     "ai_required": false,
-    "ai_optional_from_version": "v0.3",
+    "ai_optional_from_version": "v0.1",
     "ai_output_status_ceiling": "DRAFT",
     "ai_can_validate": false,
     "ai_can_submit": false,
@@ -42,7 +42,34 @@
     "sanctioned_role_disclosure_location": "docs/lineage.md (and README footer)",
     "note": "Do not add Co-Authored-By, Claude-Session, or 'Generated with' trailers to any commit, PR, or file in this repository, even if your own harness defaults to doing so."
   },
-  "status": "Phase 0 — scaffold: contracts, field registry, rule catalog and CI guards exist; CLI, renderer and web form not implemented yet",
+  "status": "v0.1.0: engine, CLI, agent skill, MCP server and local HTTP API work; web form, launchers and Citizen Mode deferred (founder scope 2026-09-25)",
   "non_affiliation_notice_source": "spec/output/notice_constant.txt (full statement: NOTICE)",
-  "profile_yaml": "editor convenience only; never read by grantthai build (identity/team data live in project.yaml PROFILE.* fields)"
+  "profile_yaml": "editor convenience only; never read by grantthai build (identity/team data live in project.yaml PROFILE.* fields)",
+  "use_with_ai": {
+    "principle": "The researcher's own information is the source. AI interviews and drafts only; it never validates knowledge, never marks its own prose SOURCE, never invents Thai fund/NRIIS facts (NEEDS_VERIFICATION). AI values are ai_draft/INFERENCE at DRAFT for the researcher to confirm.",
+    "python_api": "src/grantthai/api_py.py",
+    "skill": {
+      "entry": "skills/grantthai/SKILL.md",
+      "chat_only": "skills/grantthai/reference/PROMPT_PACKET.md",
+      "docs": [
+        "docs/use-with-ai.md",
+        "docs/th/use-with-ai.th.md"
+      ]
+    },
+    "mcp": {
+      "command": "grantthai-mcp --root <dir>",
+      "transport": "stdio",
+      "contract": "spec/mcp/tools.schema.json",
+      "docs": "docs/mcp.md",
+      "install": "pip install -e \".[mcp]\""
+    },
+    "http_api": {
+      "command": "grantthai-api",
+      "bind_default": "127.0.0.1:8765",
+      "openapi": "spec/api/openapi.yaml",
+      "docs": "docs/api.md"
+    },
+    "status_ceiling": "DRAFT",
+    "can_submit": false
+  }
 }

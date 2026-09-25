@@ -3,22 +3,94 @@
   "$id": "https://github.com/morrocwi/GrantThai/spec/mappings/section_to_tab.schema.json",
   "title": "GrantThai section -> NRIIS tab table (mappings/nriis/section_to_tab.yaml)",
   "type": "object",
-  "required": ["schema", "version", "derived_from", "observed_form", "status_marker", "tab_order", "mappings"],
+  "required": [
+    "schema",
+    "version",
+    "derived_from",
+    "observed_form",
+    "status_marker",
+    "tab_order",
+    "mappings"
+  ],
   "properties": {
-    "schema": {"const": "grantthai.section_to_tab.v0"},
-    "version": {"type": "string"},
-    "derived_from": {"type": "string", "pattern": "^core/0[1-6]@sha256:[a-f0-9]{64}$"},
-    "observed_form": {"type": "string", "pattern": "^[A-Za-z0-9_\\-]+@(\\d{4}-\\d{2}-\\d{2}|NEEDS_VERIFICATION)$"},
-    "status_marker": {"type": "string", "enum": ["NEEDS_VERIFICATION", "PUBLIC_DOCUMENT"]},
-    "tab_order": {"type": "array", "items": {"type": "string", "enum": ["GENERAL", "PROJECT", "WORKPLAN", "UTILIZATION", "ATTACHMENTS"]}, "uniqueItems": true},
+    "schema": {
+      "const": "grantthai.section_to_tab.v0"
+    },
+    "version": {
+      "type": "string"
+    },
+    "derived_from": {
+      "type": "string",
+      "pattern": "^core/0[1-6]@sha256:[a-f0-9]{64}$"
+    },
+    "observed_form": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_\\-]+@(\\d{4}-\\d{2}-\\d{2}|NEEDS_VERIFICATION)$"
+    },
+    "status_marker": {
+      "type": "string",
+      "enum": [
+        "NEEDS_VERIFICATION",
+        "PUBLIC_DOCUMENT"
+      ]
+    },
+    "tab_order": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "GENERAL",
+          "PROJECT",
+          "WORKPLAN",
+          "UTILIZATION",
+          "ATTACHMENTS"
+        ]
+      },
+      "uniqueItems": true
+    },
     "mappings": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["section", "tab"],
+        "required": [
+          "section",
+          "tab"
+        ],
         "properties": {
-          "section": {"type": "string"},
-          "tab": {"type": "string", "enum": ["GENERAL", "PROJECT", "WORKPLAN", "UTILIZATION", "ATTACHMENTS"]}
+          "section": {
+            "type": "string"
+          },
+          "tab": {
+            "type": "string",
+            "enum": [
+              "GENERAL",
+              "PROJECT",
+              "WORKPLAN",
+              "UTILIZATION",
+              "ATTACHMENTS"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "not_on_tab": {
+      "type": "array",
+      "description": "Sections whose records are never placed on an NRIIS tab, with the reason.",
+      "items": {
+        "type": "object",
+        "required": [
+          "section",
+          "reason"
+        ],
+        "properties": {
+          "section": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
         },
         "additionalProperties": false
       }

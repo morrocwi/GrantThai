@@ -66,6 +66,68 @@
     "links": {
       "$ref": "../registry/structured_fields.schema.json#/$defs/record_links",
       "description": "Record-level links to other nodes (spec/common/links-and-sources.md). Links from items inside a structured value are written as that item's *_ids keys instead."
+    },
+    "conflicts": {
+      "type": "array",
+      "description": "Conflicts the researcher has found for this value (e.g. two sources that disagree). Conflicts are surfaced, never merged: the renderer prints every entry in the output section 'Conflicts and open contradictions' (spec/output/nriis-submission.contract.md). Package-level contradictions are not written here; they live in registry/contradictions.yaml.",
+      "items": {
+        "type": "object",
+        "required": [
+          "conflict_id",
+          "description",
+          "readings",
+          "status"
+        ],
+        "properties": {
+          "conflict_id": {
+            "type": "string",
+            "pattern": "^CF-[A-Z0-9][A-Z0-9-]{0,30}$",
+            "description": "Project-local id, e.g. CF-1."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "readings": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": [
+                "says"
+              ],
+              "properties": {
+                "says": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^SRC-[A-Z0-9][A-Z0-9-]{0,62}$"
+                  },
+                  "uniqueItems": true
+                }
+              },
+              "additionalProperties": false
+            },
+            "description": "Every reading is kept; none is dropped when the value is chosen."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "DECIDED_BY_RESEARCHER"
+            ],
+            "description": "DECIDED_BY_RESEARCHER still prints both readings; it records that the person chose a value knowingly."
+          },
+          "decision_note": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "allOf": [

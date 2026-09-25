@@ -40,20 +40,32 @@ template puts it there.
 1. **Readiness summary.** Every field with status `NEEDS_INPUT`, every
    marker (`NEEDS_VERIFICATION`, `HOLD_FOR_VERIFICATION`, `UI_DRIFT`),
    every `PROPOSED`/`ACCEPTED_BY_REQUESTER` mapping, every `AUTHOR_CHECKED`
-   item, and every `BLOCK` / `REVIEW` finding — each with a plain-language
-   next step.
+   item, every `BLOCK` / `REVIEW` finding — each with a plain-language
+   next step — and the count of open contradictions and conflicts
+   (section 4.4).
 2. **Copy/paste fields by NRIIS tab.** Tabs and order come from
    `mappings/nriis/section_to_tab.yaml` (today: General, Project, Workplan,
    Utilization, Attachments). **These tab names, their order and the field
    order within each tab describe one observed form and are
    `NEEDS_VERIFICATION`** until confirmed from a public call or TOR
    document (founder ruling K14). The rendered section heading says so.
-   Each field block gives: label (EN, plus TH or
-   `LABEL_TH: NEEDS_VERIFICATION`), a fenced plain value, `FIELD_ID`,
-   `ORIGIN`, `STATUS` with its basis, `REQUIRED`, `INPUT_CONTROL`,
-   `DEPENDENCIES`, `SOURCE_IDS`, `VALIDATION`, `AUTHORED_BY`, and an
-   arithmetic-check line where one applies (e.g. workplan-sums-to-100,
-   budget line totals).
+   **Only fields with registry `origin: NRIIS_NATIVE` are placed here**
+   (core/02 rule R4: an authoring-core field is never presented as an
+   NRIIS field). Each field block gives: label (EN, plus TH or
+   `LABEL_TH: NEEDS_VERIFICATION`; where a public document edition gives
+   one, the line adds a candidate Thai label tagged
+   `(candidate, NEEDS_VERIFICATION: "<label>" (<SD-n> p<page>, item <n>))`
+   from `mappings/nriis/labels@<edition>.yaml` — never declared official,
+   never from the screenshot-derived readout, K14; the tab heading shows a
+   candidate part label the same way), a fenced plain value, `FIELD_ID`,
+   `ORIGIN` (the registry origin, core/02 §2), `PROVENANCE` (the record's
+   provenance class, source type and evidence role), `RENDER_FROM` on a
+   narrative field (the records the box is written from; GrantThai never
+   composes the text), `STATUS` with its basis, `REQUIRED`,
+   `INPUT_CONTROL`, `DEPENDENCIES`, `SOURCE_IDS`, `VALIDATION`,
+   `AUTHORED_BY`, `CONFLICTS` when the registry lists an open
+   contradiction for the field, and an arithmetic-check line where one
+   applies (e.g. workplan-sums-to-100, budget line totals).
    - **Structured fields** (`array<object>`, `object`,
      `rich_text|object`; value contracts in
      `spec/registry/structured_fields.schema.json`) render as a table,
@@ -78,10 +90,28 @@ template puts it there.
       `source_id`, `kind` and `[private]`);
    3. unresolved references: every `source_ids` entry (S008) and every
       link reference (S006) that did not resolve, with the field id or
-      item id that holds it.
+      item id that holds it;
+   4. **conflicts and open contradictions** — defined as:
+      1. every entry of `registry/contradictions.yaml` (contradictions
+         between the design sources; see `docs/contradictions.md`), each
+         with its id, status, **every** reading with its source, the
+         current GrantThai behaviour labelled as a working default, and the
+         project records it touches;
+      2. every entry of a field record's `conflicts` list in `project.yaml`
+         (`spec/common/field_record.schema.json`), with the field id, its
+         status, every reading with its `source_ids`, and the researcher's
+         decision note if any.
 
-   (Version 0.1 of this contract also listed a "conflict log". Nothing
-   defined it, so it is removed; see `docs/deviations.md`.)
+      Conflicts are surfaced, never merged: no reading is dropped, and a
+      `DECIDED_BY_RESEARCHER` conflict still prints every reading;
+   5. project records not placed on any NRIIS tab: every record whose
+      field is not `NRIIS_NATIVE` (or whose section is `not_on_tab`), with
+      its `ORIGIN`, the reason it is not a box, the narrative boxes it
+      feeds (`render_from`), and its value. These are never to be pasted as
+      NRIIS boxes.
+
+   (Version 0.1 of this contract listed an undefined "conflict log"; item 4
+   is its defined replacement. See `docs/deviations.md`.)
 
 ## Invariants
 

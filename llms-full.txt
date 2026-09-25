@@ -8,8 +8,9 @@
 
 GrantThai helps any person turn a real problem into one research project
 object, checked against GrantThai's own rules (planned for v0.1), then
-renders it to one file: `build/NRIIS_SUBMISSION.md`. Status: Phase 0
-scaffold; the CLI, renderer and web form are not implemented yet.
+renders it to one file: `build/NRIIS_SUBMISSION.md`. Status: v0.1.0;
+the engine, CLI, agent skill (skills/grantthai/), MCP server and local HTTP
+API work; the web form, launchers and Citizen Mode are deferred.
 It never submits anything automatically; a human always makes the final
 decision and performs the final submission.
 
@@ -70,7 +71,7 @@ No Co-Authored-By trailer naming an AI vendor, no Claude-Session line, no
 enforces it in CI, across full git history, tracked files, and PR
 title/body. The only sanctioned place any AI model is named is the Core
 Epistemic Structure role-disclosure block in docs/lineage.md and the
-README footer — role disclosure only, never authorship.
+README footers — role disclosure only, never authorship.
 
 ## For an AI builder starting from zero
 

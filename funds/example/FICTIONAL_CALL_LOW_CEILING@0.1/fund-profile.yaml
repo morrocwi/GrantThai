@@ -1,0 +1,31 @@
+# funds/example/FICTIONAL_CALL_LOW_CEILING@0.1/fund-profile.yaml
+# FICTIONAL test fixture, used only by tests/fixtures/negative/B006 to make the
+# fund's budget ceiling (F.BUDGET_CEILING) lower than the example project's
+# budget total, so rule B006 fires. Not a real fund call.
+id: "example/FICTIONAL_CALL_LOW_CEILING@0.1"
+status: ACTIVE
+effective_from: "2026-01-01"
+effective_to: "2099-12-31"
+verified_at: "2026-09-25"
+verification_note: "N/A-fictional: fixture date only; never verified against any real source."
+trust_level: FICTIONAL
+source_manifest:
+  title: "GrantThai FICTIONAL test fund call (low ceiling)"
+  issuer: "GrantThai project (not a real funding agency)"
+  edition: "v0.1-fixture"
+  url: "N/A-fictional: no real source"
+  sha256: "372c43cbe0d1ae0425be03a784c7011614a7e080986b2d7f673779dae1779b5d"
+  retrieval_date: "2026-09-25"
+rules:
+  - rule_id: "F.BUDGET_CEILING"
+    value: 40000
+    source_id: "example/FICTIONAL_CALL_LOW_CEILING@0.1"
+    locator: "fixture"
+    quoted_text_th: "(fictional) วงเงินไม่เกิน 40,000 บาทต่อโครงการ"
+    trust_level: FICTIONAL
+    verified_at: "2026-09-25"
+    verified_by_role: "test_fixture_author"
+eligibility:
+  pi_requires_partner_institution: false
+  notes_th: "fictional fixture: used only to test rule B006 (budget ceiling)"
+independent_review_required: false
