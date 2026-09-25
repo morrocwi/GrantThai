@@ -79,9 +79,18 @@ def test_no_thai_string_is_filled_without_a_source():
     """Every Thai-script string is exactly NEEDS_INPUT, or sits next to a
     cited source (a `source` key naming an SD-n from docs/sources.md).
     v0.2 fills none, so this reduces to: no Thai script anywhere but in
-    a NEEDS_INPUT slot."""
+    a NEEDS_INPUT slot. The one exception is practice advice
+    (`fields/<id>/practice/<n>/advice/th`): each
+    practice entry carries its corpus evidence and cites
+    docs/practice/funded-work-patterns.md (tests/test_practice_patterns.py)."""
     doc = _doc()
+    practice_path = re.compile(r"^/fields/[A-Z0-9_.]+/practice/[0-9]+/advice/th$")
+    for fid, entry in doc["fields"].items():
+        for p in entry.get("practice") or []:
+            assert p.get("evidence") and p.get("source") == "docs/practice/funded-work-patterns.md", fid
     for path, s in _walk_strings(doc):
+        if practice_path.match(path):
+            continue
         if THAI_RE.search(s):
             assert False, f"{path}: Thai text without a cited source: {s[:40]!r}"
     # and every bilingual `th` slot is the literal marker
