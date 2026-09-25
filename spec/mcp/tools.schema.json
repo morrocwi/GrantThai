@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/morrocwi/GrantThai/spec/mcp/tools.schema.json",
-  "title": "GrantThai MCP tools — CONTRACT ONLY (implementation ships v0.4)",
-  "description": "Defines the future MCP tool surface as a one-to-one wrapper over the same library functions the CLI uses (docs/design/PLAN.md §G). No implementation before v0.4. Hard rules: (1) no MCP tool may set any field's status above DRAFT (spec/common/status_permissions.yaml, hard_ceiling); (2) no MCP tool can submit anything to NRIIS; (3) tools whose CLI counterpart would persist a validator status (validate) are REPORT-ONLY over MCP: they return a validation report and persist nothing (status_effect: none). The CLI and MCP share the same checking code, so the findings are identical; only persistence differs.",
+  "title": "GrantThai MCP tools (implemented in v0.1, grantthai.mcp)",
+  "description": "The MCP tool surface, a one-to-one wrapper over the same library functions the CLI uses (grantthai.api_py). Implemented in src/grantthai/mcp (docs/mcp.md); the `examples` entry below is the implemented tool list and tests/mcp checks the server against it. Hard rules: (1) no MCP tool may set any field's status above DRAFT (spec/common/status_permissions.yaml, hard_ceiling); (2) no MCP tool can submit anything to NRIIS or any fund; (3) validation over MCP is REPORT-ONLY (status_effect: none); (4) every value written over MCP is recorded as AI-assisted and can never be provenance_class SOURCE. The CLI and MCP share the same checking code, so the findings are identical.",
   "type": "object",
   "properties": {
     "tools": {
@@ -56,7 +56,33 @@
     {
       "tools": [
         {
-          "name": "project_validate",
+          "name": "grantthai_new_project",
+          "wraps_cli_command": "grantthai init",
+          "max_status_ceiling": "DRAFT",
+          "status_effect": "draft_only",
+          "can_submit": false,
+          "input_schema_ref": "../project/project.schema.json",
+          "output_schema_ref": "../project/project.schema.json"
+        },
+        {
+          "name": "grantthai_list_fields",
+          "wraps_cli_command": "grantthai fields",
+          "max_status_ceiling": "DRAFT",
+          "status_effect": "none",
+          "can_submit": false,
+          "output_schema_ref": "../../registry/nriis-fields.jsonl"
+        },
+        {
+          "name": "grantthai_set_field",
+          "wraps_cli_command": "grantthai set",
+          "max_status_ceiling": "DRAFT",
+          "status_effect": "draft_only",
+          "can_submit": false,
+          "input_schema_ref": "../project/project.schema.json",
+          "output_schema_ref": "../project/project.schema.json"
+        },
+        {
+          "name": "grantthai_validate",
           "wraps_cli_command": "grantthai validate",
           "max_status_ceiling": "DRAFT",
           "status_effect": "none",
@@ -65,7 +91,15 @@
           "output_schema_ref": "../common/validation_report.schema.json"
         },
         {
-          "name": "project_build",
+          "name": "grantthai_explain",
+          "wraps_cli_command": "grantthai explain",
+          "max_status_ceiling": "DRAFT",
+          "status_effect": "none",
+          "can_submit": false,
+          "output_schema_ref": "../../validators/rules.yaml"
+        },
+        {
+          "name": "grantthai_build",
           "wraps_cli_command": "grantthai build",
           "max_status_ceiling": "DRAFT",
           "status_effect": "none",
