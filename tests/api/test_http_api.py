@@ -22,10 +22,14 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from grantthai import api_py  # noqa: E402
 from grantthai.api import make_app  # noqa: E402
+from grantthai.core import project as P  # noqa: E402
+from grantthai.routes import registry as R  # noqa: E402
 
 EXAMPLE = ROOT / "examples/lecturer-no-ai/project.yaml"
+GOLDEN = ROOT / "tests/golden/routes/lecturer-no-ai/NRIIS_SUBMISSION.md"
 OPENAPI = ROOT / "spec/api/openapi.yaml"
 AS_OF = "2026-09-25"
+TWO_ROUTES = ("nriis-proposal", "concept-note")
 
 
 class Client:
@@ -69,6 +73,24 @@ def example_client(tmp_path):
     work = tmp_path / "work"
     (work / "lecturer").mkdir(parents=True)
     shutil.copy(EXAMPLE, work / "lecturer" / "project.yaml")
+    return Client(make_app(work)), work
+
+
+@pytest.fixture
+def two_routes(monkeypatch):
+    monkeypatch.setattr(R, "route_ids", lambda include_planned=False: TWO_ROUTES)
+
+
+@pytest.fixture
+def ambiguous_client(tmp_path):
+    """A project folder holding a work.yaml 0.3 whose work_type is the
+    default of no route and that declares no default_route."""
+    work = tmp_path / "work"
+    (work / "amb").mkdir(parents=True)
+    doc = P.migrated(P.load(EXAMPLE))
+    doc.pop("routing")
+    doc["work_type"] = "final_report"
+    P.save(doc, work / "amb" / "work.yaml")
     return Client(make_app(work)), work
 
 
@@ -145,7 +167,81 @@ def test_example_build_matches_engine_and_is_deterministic(example_client, tmp_p
     assert md1 == ref
     s, _, j = client.post("/projects/lecturer/build?format=json", {"as_of": AS_OF})
     assert s == 200 and j["markdown"] == ref and j["filename"] == "NRIIS_SUBMISSION.md"
-    assert j["summary"]["block"] == 0
+    assert j["route"] == "nriis-proposal" and j["summary"]["block"] == 0
+    assert md1 == GOLDEN.read_text(encoding="utf-8")            # AT-R1 over HTTP, no route given
+    s, _, md3 = client.post("/projects/lecturer/build", {"as_of": AS_OF, "route": "nriis-proposal"})
+    assert s == 200 and md3 == md1
+
+
+# ------------------------------------------------------------ v0.3 router
+
+def test_list_routes_never_chooses(client):
+    s, _, j = client.get("/routes")
+    assert s == 200 and j["routes"] == api_py.list_routes()
+    assert {r["id"] for r in j["routes"]} >= {"nriis-proposal", "academic-article", "concept-note"}
+    assert not any(k in j for k in ("route", "chosen", "recommended", "default"))
+
+
+def test_ambiguous_route_is_409_with_candidates_and_writes_nothing(ambiguous_client, two_routes):
+    client, work = ambiguous_client
+    before = (work / "amb/work.yaml").read_bytes()
+    for path in ("/projects/amb/build", "/projects/amb/build?format=json", "/projects/amb/validate"):
+        s, _, j = client.post(path, {"as_of": AS_OF})
+        assert s == 409 and j["candidates"] == list(TWO_ROUTES) and "never picks" in j["error"]
+    assert not (work / "amb/build").exists()
+    assert (work / "amb/work.yaml").read_bytes() == before
+    s, _, md = client.post("/projects/amb/build", {"as_of": AS_OF, "route": "nriis-proposal"})
+    assert s == 200 and "NRIIS" in md
+    assert [p.name for p in (work / "amb/build").iterdir()] == ["NRIIS_SUBMISSION.md"]
+    s, _, j = client.post("/projects/amb/build", {"as_of": AS_OF, "route": "no-such-route"})
+    assert s == 404 and "unknown route" in j["error"]
+
+
+def test_check_route_is_route_scoped_and_report_only(example_client):
+    client, work = example_client
+    before = (work / "lecturer/project.yaml").read_bytes()
+    s, _, rep = client.post("/projects/lecturer/routes/concept-note/check", {"as_of": AS_OF})
+    assert s == 200 and rep == api_py.check_route(work / "lecturer/project.yaml", "concept-note", as_of=AS_OF)
+    ids = {f["rule_id"] for f in rep["findings"]}
+    assert "RT002" in ids and not any(i.startswith(("B", "W", "T", "F")) for i in ids)
+    s2, _, rep2 = client.post("/projects/lecturer/validate", {"as_of": AS_OF, "route": "concept-note"})
+    assert s2 == 200 and rep2 == rep
+    assert (work / "lecturer/project.yaml").read_bytes() == before
+    assert client.post("/projects/lecturer/routes/no-such-route/check")[0] == 404
+    assert client.post("/projects/lecturer/routes/concept-note/check", {"route": "x"})[0] == 400
+
+
+def test_create_with_work_type_writes_work_yaml_and_no_route(client, tmp_path, two_routes):
+    s, _, j = client.post("/projects", {"project_id": "cn", "work_type": "concept_note"})
+    assert s == 201 and j["file"] == "work.yaml" and j["default_route"] == "concept-note"
+    doc = P.load(tmp_path / "work/cn/work.yaml")
+    assert doc["schema_version"] == "0.3.0-draft" and doc["work_type"] == "concept_note"
+    assert "routing" not in doc and "fund_binding" not in doc
+    assert client.get("/projects/cn")[2]["project"] == j["project"]
+    assert client.post("/projects", {"project_id": "cn"})[0] == 409
+    assert client.post("/projects", {"project_id": "bad", "work_type": "poem"})[0] == 400
+    # a legacy create still writes project.yaml 0.2 and binds the example fund
+    s, _, j = client.post("/projects", {"project_id": "legacy"})
+    assert s == 201 and j["file"] == "project.yaml" and j["default_route"] == "nriis-proposal"
+    assert (tmp_path / "work/legacy/project.yaml").is_file()
+
+
+def test_two_canonical_inputs_are_409(example_client):
+    client, work = example_client
+    P.save(P.migrated(P.load(work / "lecturer/project.yaml")), work / "lecturer/work.yaml")
+    for path in ("/projects/lecturer/build", "/projects/lecturer/validate"):
+        s, _, j = client.post(path, {"as_of": AS_OF})
+        assert s == 409 and "two canonical inputs" in j["error"]
+    assert client.get("/projects/lecturer")[0] == 409
+    assert not (work / "lecturer/build").exists()
+
+
+def test_fields_by_route(client):
+    s, _, j = client.get("/fields?route=concept-note&required=true")
+    assert s == 200 and j["route"] == "concept-note"
+    assert {f["field_id"] for f in j["fields"]} == set(R.load("concept-note").required_fields)
+    assert client.get("/fields?route=no-such-route")[0] == 404
+    assert client.get("/fields")[2]["route"] == "nriis-proposal"
 
 
 def test_validate_is_report_only(example_client):

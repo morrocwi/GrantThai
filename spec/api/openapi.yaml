@@ -1,13 +1,24 @@
 openapi: 3.1.0
 info:
   title: GrantThai local API
-  version: 0.1.0
-  summary: One project.yaml in, one build/NRIIS_SUBMISSION.md out.
+  version: 0.3.0-draft
+  summary: One work object in, one output route (the researcher's choice), exactly one file out.
   description: |
     A small, local-first HTTP API over the GrantThai engine (grantthai.api_py).
     A researcher's AI assistant (any vendor) uses it to fill in the
-    researcher's project.yaml and build the one overview file,
-    build/NRIIS_SUBMISSION.md.
+    researcher's work file (work.yaml 0.3, or a legacy project.yaml 0.2) and
+    build exactly one overview file per output route:
+    build/NRIIS_SUBMISSION.md (route nriis-proposal), build/ACADEMIC_ARTICLE.md
+    (route academic-article) or build/RESEARCH_CONCEPT_NOTE.md (route
+    concept-note). NRIIS is one route of the router, not the core.
+
+    The route is the researcher's choice. With no `route` in a request the
+    server resolves it only from what a person declared: routing.default_route
+    in work.yaml, nriis-proposal for a legacy project.yaml, or the one route
+    that is the default for the file's work_type. When none of these decides,
+    validate and build answer 409 with `candidates` and write nothing. The
+    server never picks a route. A legacy call with no route keeps the 0.1
+    behaviour (NRIIS_SUBMISSION.md).
 
     Rules every caller gets, enforced by the engine, not by the caller:
     - The researcher's own information is the source. Values written here
@@ -21,10 +32,10 @@ info:
       way it is listed in the output for the researcher to confirm.
       provenance_class SOURCE and actor "human" are refused (400), and the
       caller cannot choose authored_by.
-    - Do not invent Thai fund, NRIIS or institutional facts. Send the value
-      "NEEDS_VERIFICATION" when a fact is not known from the researcher;
-      it is stored as an empty value plus that marker.
-    - validate is report-only; it never changes project.yaml.
+    - Do not invent Thai fund, NRIIS, institutional or journal facts. Send
+      the value "NEEDS_VERIFICATION" when a fact is not known from the
+      researcher; it is stored as an empty value plus that marker.
+    - validate and check are report-only; they never change the work file.
 
     The API binds 127.0.0.1 by default, has no authentication and stores no
     credentials. Project data lives only in its working directory.
@@ -54,19 +65,24 @@ paths:
   /fields:
     get:
       operationId: listFields
-      summary: List every field of the overview file; NRIIS boxes first in entry order, then fields with tab NOT_ON_TAB.
-      description: Thai labels and NRIIS tab names are NEEDS_VERIFICATION until confirmed.
+      summary: List the fields of one route. Without route (or for nriis-proposal), NRIIS boxes first in entry order, then fields with tab NOT_ON_TAB; for another route its placement order, then NOT_PLACED.
+      description: Thai labels and NRIIS tab names are NEEDS_VERIFICATION until confirmed. `required` is the route's own BLOCK set.
       parameters:
         - name: tab
           in: query
           required: false
           schema: {type: string}
-          description: Only fields on this tab.
+          description: Only fields on this tab (or placement section).
         - name: required
           in: query
           required: false
           schema: {type: boolean}
           description: Only required fields.
+        - name: route
+          in: query
+          required: false
+          schema: {type: string}
+          description: Output route id (GET /routes). Default nriis-proposal.
       responses:
         "200":
           description: The field list.
@@ -76,9 +92,54 @@ paths:
                 type: object
                 required: [fields]
                 properties:
+                  route: {type: string}
                   fields:
                     type: array
                     items: {$ref: "#/components/schemas/FieldInfo"}
+        "404": {$ref: "#/components/responses/Error"}
+  /routes:
+    get:
+      operationId: listRoutes
+      summary: List every output route (routes/INDEX.yaml). The list never chooses; the researcher does.
+      responses:
+        "200":
+          description: The routes, in INDEX order. A route whose file fails its contract is still listed, with `error` set.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [routes]
+                properties:
+                  routes:
+                    type: array
+                    items: {$ref: "#/components/schemas/RouteInfo"}
+                  note: {type: string}
+  /routes/{route}/profiles:
+    get:
+      operationId: listStructureProfiles
+      summary: List a route's structure profiles (academic-article; the 7SSA layouts). The list never chooses; the researcher does.
+      parameters:
+        - name: route
+          in: path
+          required: true
+          schema: {type: string}
+          description: Output route id (GET /routes).
+      responses:
+        "200":
+          description: The profiles with their visible sections; `selected` and `candidates` are null here (they need a work object; see the CLI `route profiles PATH`).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [route, profiles]
+                properties:
+                  route: {type: string}
+                  profiles: {type: array, items: {type: object}}
+                  selected: {type: ["string", "null"]}
+                  candidates: {type: ["object", "null"]}
+                  note: {type: string}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
   /rules/{rule_id}:
     get:
       operationId: explainRule
@@ -98,7 +159,10 @@ paths:
   /projects:
     post:
       operationId: createProject
-      summary: Create a blank project.yaml (required fields present as NEEDS_INPUT).
+      summary: Create a blank work file (required fields present as NEEDS_INPUT). With work_type a work.yaml 0.3; without it a legacy project.yaml 0.2.
+      description: |
+        No route is written: the researcher chooses it later (GET /routes) and
+        names it per request, or declares routing.default_route in the file.
       requestBody:
         required: false
         content:
@@ -110,10 +174,14 @@ paths:
                 project_id:
                   type: string
                   pattern: "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$"
-                  description: Also the id used in URLs. Omit it to get a generated id (project_id in the file stays NEEDS_INPUT).
+                  description: Also the id used in URLs. Omit it to get a generated id (the id in the file stays NEEDS_INPUT).
+                work_type:
+                  type: string
+                  enum: [research_proposal, academic_article, concept_note, thesis_proposal, conference_abstract, final_report]
+                  description: What the researcher is making. Given, the file is work.yaml (schema 0.3) and its NEEDS_INPUT fields are the required set of the work type's default route. Sets defaults only; never refuses a route.
                 fund_profile_id:
                   type: string
-                  description: Defaults to example/FICTIONAL_CALL@0.1.
+                  description: Defaults to example/FICTIONAL_CALL@0.1 for a legacy project.yaml or a work type whose default route needs a fund binding; otherwise none.
                 mode:
                   type: string
                   enum: [expert, human_direct, citizen]
@@ -124,16 +192,26 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [id, project]
+                required: [id, project, data_warning]
                 properties:
                   id: {type: string}
                   project: {type: object, additionalProperties: true}
+                  file: {type: string, enum: [work.yaml, project.yaml]}
+                  default_route: {type: [string, "null"], description: "The route a build with no `route` would use, or null when the researcher must choose (see candidates)."}
+                  candidates: {type: array, items: {type: string}}
+                  data_warning:
+                    type: object
+                    description: Show this to the researcher BEFORE accepting any research data (personal, confidential or dual-use data must not go into a public AI; docs/policy/ai-use-ceiling.md section 5).
+                    required: [en, th]
+                    properties:
+                      en: {type: string}
+                      th: {type: string}
         "400": {$ref: "#/components/responses/Error"}
         "409": {$ref: "#/components/responses/Error"}
   /projects/{id}:
     get:
       operationId: getProject
-      summary: Read project.yaml (returned as JSON).
+      summary: Read the work file (work.yaml or project.yaml, returned as JSON).
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       responses:
@@ -143,10 +221,17 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [id, project]
+                required: [id, project, data_warning]
                 properties:
                   id: {type: string}
                   project: {type: object, additionalProperties: true}
+                  data_warning:
+                    type: object
+                    description: Show this to the researcher BEFORE accepting any research data (personal, confidential or dual-use data must not go into a public AI; docs/policy/ai-use-ceiling.md section 5).
+                    required: [en, th]
+                    properties:
+                      en: {type: string}
+                      th: {type: string}
         "404": {$ref: "#/components/responses/Error"}
   /projects/{id}/fields:
     patch:
@@ -193,44 +278,76 @@ paths:
   /projects/{id}/validate:
     post:
       operationId: validateProject
-      summary: Validation report (report-only; persists nothing).
+      summary: Validation report for one route (report-only; persists nothing).
+      description: |
+        With no `route`, the route is resolved from the researcher's own
+        declaration only; when that does not decide, 409 with `candidates`.
       parameters:
         - $ref: "#/components/parameters/ProjectId"
       requestBody:
         required: false
         content:
           application/json:
-            schema: {$ref: "#/components/schemas/AsOf"}
+            schema: {$ref: "#/components/schemas/RouteRequest"}
       responses:
         "200":
           description: The report (spec/common/validation_report.schema.json).
           content:
             application/json:
-              schema:
-                type: object
-                required: [summary, findings]
-                additionalProperties: true
-                properties:
-                  summary:
-                    type: object
-                    properties:
-                      block: {type: integer}
-                      review: {type: integer}
-                      info: {type: integer}
-                  findings:
-                    type: array
-                    items: {type: object, additionalProperties: true}
+              schema: {$ref: "#/components/schemas/ValidationReport"}
         "400": {$ref: "#/components/responses/Error"}
         "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Candidates"}
+  /projects/{id}/routes/{route}/check:
+    post:
+      operationId: checkRoute
+      summary: Route-scoped validation report for an explicitly named route (report-only).
+      description: |
+        The route is the researcher's choice, named in the path. Only the
+        rules in that route's scope run (RT002 counts the rest in one INFO
+        line). Use it to show the researcher what a route still lacks
+        before they decide.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: route
+          in: path
+          required: true
+          schema: {type: string}
+          description: Output route id (GET /routes).
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                as_of: {type: string, format: date}
+                sub_profile: {type: string}
+                structure_profile: {type: string}
+      responses:
+        "200":
+          description: The report (spec/common/validation_report.schema.json).
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ValidationReport"}
+        "400": {$ref: "#/components/responses/Error"}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
   /projects/{id}/build:
     post:
       operationId: buildSubmission
-      summary: Build the one overview file, build/NRIIS_SUBMISSION.md, and return it.
+      summary: Build exactly one overview file, build/<route output filename>, and return it.
       description: |
-        Always renders; BLOCK findings are listed in the file's readiness
-        summary. The same input and the same as_of give byte-identical text.
-        Default response is the Markdown text; ?format=json wraps it in JSON
-        (easier for some AI tool runners).
+        NRIIS_SUBMISSION.md for nriis-proposal, ACADEMIC_ARTICLE.md for
+        academic-article, RESEARCH_CONCEPT_NOTE.md for concept-note. Always
+        renders; BLOCK findings are listed in the file's readiness summary.
+        The same input, route and as_of give byte-identical text. Building a
+        second route leaves the first route's file byte-identical. With no
+        `route`, the route is resolved from the researcher's own declaration
+        only; when that does not decide, 409 with `candidates` and nothing is
+        written. Default response is the Markdown text; ?format=json wraps it
+        in JSON (easier for some AI tool runners).
       parameters:
         - $ref: "#/components/parameters/ProjectId"
         - name: format
@@ -244,7 +361,7 @@ paths:
         required: false
         content:
           application/json:
-            schema: {$ref: "#/components/schemas/AsOf"}
+            schema: {$ref: "#/components/schemas/RouteRequest"}
       responses:
         "200":
           description: The file text.
@@ -254,10 +371,11 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [id, filename, markdown]
+                required: [id, route, filename, markdown]
                 properties:
                   id: {type: string}
-                  filename: {type: string, const: NRIIS_SUBMISSION.md}
+                  route: {type: string}
+                  filename: {type: string, enum: [NRIIS_SUBMISSION.md, ACADEMIC_ARTICLE.md, RESEARCH_CONCEPT_NOTE.md]}
                   markdown: {type: string}
                   summary:
                     type: object
@@ -267,6 +385,7 @@ paths:
                       info: {type: integer}
         "400": {$ref: "#/components/responses/Error"}
         "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Candidates"}
 components:
   parameters:
     ProjectId:
@@ -286,6 +405,19 @@ components:
             required: [error]
             properties:
               error: {type: string}
+    Candidates:
+      description: No route could be resolved from the researcher's declaration (the server never picks), a renderer is missing, or two canonical inputs sit in the project folder. Nothing was written.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error]
+            properties:
+              error: {type: string}
+              candidates:
+                type: array
+                items: {type: string}
+                description: Route ids the researcher can choose from; pass one as `route`.
   schemas:
     AsOf:
       type: object
@@ -295,14 +427,66 @@ components:
           type: string
           format: date
           description: Date the fund rules are checked against (default today). Fix it for reproducible output.
+    RouteRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        as_of:
+          type: string
+          format: date
+          description: Date the fund rules are checked against (default today). Fix it for reproducible output.
+        route:
+          type: string
+          description: Output route id (GET /routes). Optional; see the description of this endpoint for how a missing route is resolved, and that it is never picked by the server.
+        sub_profile:
+          type: string
+          description: A sub-profile of the route (a form profile for nriis-proposal; thai-journal or international-journal for academic-article, both NEEDS_VERIFICATION). Default routing.sub_profiles[route], else the route's own default.
+        structure_profile:
+          type: string
+          description: A 7SSA structure profile of the academic-article route (7ssa-world, 7ssa-thai-7, 7ssa-thai-5, 7ssa-thai-4; GET /routes/academic-article/profiles), chosen by the researcher. Default routing.structure_profiles[route], else none (the plain overview). The server never chooses one.
+        output_format:
+          type: string
+          enum: [md, tex]
+          description: Build only. md (default) = the route's Markdown file; tex = the academic-article LaTeX export build/ACADEMIC_ARTICLE.tex INSTEAD (needs a selected 7SSA profile; English only; no LaTeX engine is run).
+        glosa_audit:
+          type: boolean
+          description: Build with output_format tex only. Keep the template's glosa audit appendices.
+    ValidationReport:
+      type: object
+      required: [summary, findings]
+      additionalProperties: true
+      properties:
+        summary:
+          type: object
+          properties:
+            block: {type: integer}
+            review: {type: integer}
+            info: {type: integer}
+        findings:
+          type: array
+          items: {type: object, additionalProperties: true}
+    RouteInfo:
+      type: object
+      additionalProperties: true
+      properties:
+        id: {type: string}
+        status: {type: string}
+        version: {type: string}
+        title_en: {type: [string, "null"]}
+        output_filename: {type: [string, "null"]}
+        accepts_work_types: {type: array, items: {type: string}}
+        default_for_work_types: {type: array, items: {type: string}}
+        needs_fund_binding: {type: [boolean, "null"]}
+        ready_flag: {type: [string, "null"], description: "submittable (nriis-proposal), manuscript_ready (academic-article; never means accepted or publishable), or the always-false flag of concept-note."}
+        error: {type: [string, "null"]}
     FieldInfo:
       type: object
       additionalProperties: true
       properties:
         field_id: {type: string}
-        tab: {type: string, description: "An NRIIS tab (NEEDS_VERIFICATION), or NOT_ON_TAB for a field that is not an NRIIS box."}
+        tab: {type: string, description: "An NRIIS tab (NEEDS_VERIFICATION), NOT_ON_TAB for a field that is not an NRIIS box, a placement section of another route, or NOT_PLACED."}
         entry_order: {type: integer}
-        origin: {type: [string, "null"], enum: [NRIIS_NATIVE, FUND_PROFILE, AUTHORING_CORE, DERIVED, RECOMMENDED_EXTENSION, null]}
+        origin: {type: [string, "null"], enum: [NRIIS_NATIVE, FUND_PROFILE, AUTHORING_CORE, DERIVED, RECOMMENDED_EXTENSION, VENUE_NATIVE, null]}
         label_en: {type: string}
         label_th: {type: string}
         type: {type: [string, "null"]}
@@ -347,4 +531,11 @@ components:
           additionalProperties: true
         tool:
           type: string
-          description: The AI tool to disclose (recorded under authoring.tools_disclosed). Default http-client.
+          description: The AI tool to disclose (recorded under authoring.tools_disclosed and authoring.ai_use_declaration.tools). Default http-client.
+        tool_version:
+          type: string
+          description: The tool's version, recorded in authoring.ai_use_declaration.tools. Omitted = NEEDS_INPUT for the researcher to fill.
+        stage:
+          type: string
+          enum: [idea, proposal_writing, literature, data, analysis, writing, language_editing, review, publication]
+          description: Research stage of this AI use. Default proposal_writing.

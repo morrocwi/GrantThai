@@ -1,4 +1,4 @@
-"""grantthai.render.submission — renders the one output,
+"""grantthai.render.submission — renders the one output of the nriis-proposal route,
 build/NRIIS_SUBMISSION.md, per spec/output/nriis-submission.contract.md.
 
 Deterministic: no timestamps, no set/dict-order dependence, every list in
@@ -23,7 +23,7 @@ from grantthai.review import records as RR
 from grantthai.validators import engine as E
 
 TEMPLATE = "nriis_submission.md.j2"
-RENDERER_VERSION = "nriis_submission.md.j2@0.2.0"
+RENDERER_VERSION = "nriis_submission.md.j2@0.3.0"
 STRUCTURED_TYPES = ("array<object>", "object", "rich_text|object")
 AI_AUTHORED = ("ai_draft", "human_ai_assisted")
 
@@ -90,9 +90,16 @@ def _props(fid: str) -> tuple[str, list[str]]:
     return "object", []
 
 
+# Columns printed only when some item carries them (the 7SSA sector tags on
+# ARTICLE.BODY.SECTIONS items), so a table without them is unchanged.
+OPTIONAL_COLUMNS = frozenset({"ssa_sector", "ssa_slot"})
+
+
 def _table(fid: str, value: Any, unresolved: set) -> str:
     kind, keys = _props(fid)
     if kind == "array" and isinstance(value, list):
+        keys = [k for k in keys if k not in OPTIONAL_COLUMNS
+                or any(isinstance(it, dict) and k in it for it in value)]
         extra = []
         for it in value:
             if isinstance(it, dict):
@@ -305,6 +312,11 @@ def build_context(raw: dict, result: E.Result) -> dict:
     present = {rec.get("field_id") for rec, _ in P.iter_records(doc)}
     package_conflicts = []
     for cx in P.contradictions():
+        # An entry scoped to other routes (e.g. the 7SSA entries, routes:
+        # [academic-article]) is not an NRIIS contradiction; an entry with no
+        # `routes` key belongs to this route, as before the router.
+        if cx.get("routes") and "nriis-proposal" not in cx["routes"]:
+            continue
         aff = cx.get("affects") or {}
         in_scope = set(aff.get("fields") or []) | {fid for fid, r in reg.items()
                                                     if r.get("section") in (aff.get("sections") or [])}
@@ -390,7 +402,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
         "grantthai_version": __version__,
         "schema_version": str(raw.get("schema_version")),
         "renderer_version": RENDERER_VERSION,
-        "project_id": str(raw.get("project_id")),
+        "project_id": P.work_id(raw),
         "project_content_sha256": csha,
         "project_state_sha256": state_sha256(raw),
         "project_locked": locked,
@@ -400,7 +412,11 @@ def build_context(raw: dict, result: E.Result) -> dict:
         "form_profile": fp_id,
         "authoring": {"mode": auth.get("mode", "human"),
                       "tools_disclosed": list(auth.get("tools_disclosed") or []),
-                      "self_declared": True},
+                      "self_declared": True,
+                      "ai_use_declaration": ("none" if not isinstance(auth.get("ai_use_declaration"), dict)
+                                             else "confirmed_by_researcher"
+                                             if auth["ai_use_declaration"].get("declaration_confirmed_by_human") is True
+                                             else "unconfirmed")},
         "submission_mode": {"human_copy_paste": True, "ai_assisted_fill": False, "direct_submit": False},
         "human_final_approval_required": True,
         "review": gates,
@@ -416,7 +432,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
     return {
         "frontmatter_yaml": yaml.safe_dump(frontmatter, sort_keys=False, allow_unicode=True, width=10**6).rstrip("\n"),
         "disclaimer": P.notice_constant(),
-        "project_id": str(raw.get("project_id")),
+        "project_id": P.work_id(raw),
         "summary": summary,
         "submittable": result.submittable,
         "hold_reasons": hold,
@@ -424,6 +440,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
         "profile_extra_items": list(fp.extra_items) if fp_id else [],
         "profile_budget_rules": list(fp.budget_rules) if fp_id else [],
         "checklist": W.checklist(raw),
+        "ai_decl": ai_declaration_context(raw, doc),
         "blocks": [vars(f) for f in result.findings if f.severity == "BLOCK"],
         "reviews": [vars(f) for f in result.findings if f.severity == "REVIEW"],
         "infos": [vars(f) for f in result.findings if f.severity == "INFO"],
@@ -446,6 +463,70 @@ def build_context(raw: dict, result: E.Result) -> dict:
         "fund_profile": result.fund_profile_id or "NEEDS_INPUT",
         "trust_level": result.trust_level,
     }
+
+
+RISK_LABELS = {
+    "impact_on_conclusions": "Impact on research conclusions",
+    "accuracy_hallucination": "Accuracy risk (hallucination)",
+    "data_sensitivity": "Data sensitivity",
+    "bias": "Bias risk",
+    "reproducibility": "Reproducibility / checkability",
+}
+
+
+def _text(v) -> str:
+    """A declaration value as the researcher wrote it; NEEDS_INPUT when empty.
+    Continuation lines are indented so they stay inside the list item."""
+    if v is None or (isinstance(v, str) and not v.strip()):
+        return "NEEDS_INPUT"
+    return str(v).replace("\n", "\n  ")
+
+
+def ai_declaration_context(raw: dict, doc: dict) -> dict:
+    """Section 4.7, the AI Use Declaration: a GrantThai appendix modelled on
+    the sample form in Appendix A (p.34) of the GenAI guideline 2569
+    (docs/policy/ai-use-ceiling.md). Not an NRIIS field. Printed exactly as
+    the researcher wrote it; the one derived number, the risk level, is
+    labelled as GrantThai's convention."""
+    auth = raw.get("authoring") if isinstance(raw.get("authoring"), dict) else {}
+    decl = auth.get("ai_use_declaration") if isinstance(auth.get("ai_use_declaration"), dict) else None
+    used = E.ai_use_recorded(raw, doc)
+    recs = P.records_by_id(doc)
+    title = next((recs[f].get("value") for f in ("CORE.GENERAL.TITLE_TH", "CORE.GENERAL.TITLE_EN")
+                  if f in recs and recs[f].get("value")), None)
+    ai_records = sum(1 for rec, _ in P.iter_records(doc)
+                     if (rec.get("provenance") or {}).get("authored_by") in AI_AUTHORED)
+    out = {"used": used, "present": decl is not None, "title": _text(title), "ai_records": ai_records,
+           "tools": [], "rows": [], "risk": [], "risk_level": None, "confirmed": False,
+           "confirmed_by": "", "confirmed_on": "",
+           "gaps": [] if decl is not None else ["authoring.ai_use_declaration is missing"]}
+    present = decl is not None
+    decl = decl or {}
+    for t in decl.get("tools") or []:
+        if isinstance(t, dict):
+            out["tools"].append({"name": _text(t.get("name")), "developer": _text(t.get("developer")),
+                                 "version": _text(t.get("version")),
+                                 "stages": ", ".join(t.get("stages") or []) or "NEEDS_INPUT",
+                                 "purpose": _text(t.get("purpose")), "used_on": _text(t.get("used_on"))})
+    out["rows"] = [
+        ("Influence on decisions or conclusions (p.11)", _text(decl.get("influence_on_conclusions"))),
+        ("Types of data given to the AI and how personal or confidential data was kept out "
+         "(p.14-16; p.34 item 5)", _text(decl.get("data_handling"))),
+        ("Prompts, settings and output log kept at (p.12-13 item 7; p.34 item 6)", _text(decl.get("log_ref"))),
+        ("Human verification: what was checked, how, and who signs (p.12 item 4; p.34 item 7)",
+         _text(decl.get("human_verification"))),
+    ]
+    scores = decl.get("risk_self_assessment") if isinstance(decl.get("risk_self_assessment"), dict) else {}
+    if scores:
+        out["risk"] = [(RISK_LABELS[k], scores.get(k) if scores.get(k) is not None else "NEEDS_INPUT")
+                       for k in E.RISK_DIMENSIONS]
+        out["risk_level"] = E.convention_risk_level(scores)
+    out["confirmed"] = decl.get("declaration_confirmed_by_human") is True
+    out["confirmed_by"] = _text(decl.get("confirmed_by"))
+    out["confirmed_on"] = _text(decl.get("confirmed_on"))
+    if present:
+        out["gaps"] = E.declaration_gaps(decl, auth.get("tools_disclosed") or [])
+    return out
 
 
 def render(raw: dict, project_dir: Path | None = None, as_of: str | None = None) -> tuple[str, E.Result]:

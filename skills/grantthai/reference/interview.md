@@ -61,6 +61,13 @@ How to run the interview:
 
 ## 3. Team (`PROFILE.TEAM.MEMBERS`, R)
 
+Names, organisations and ORCID are personal data. Ask for them in the chat
+only if you run locally or under an enterprise agreement and the researcher
+agrees; otherwise ask the researcher to enter them with `grantthai set`
+(without `--ai`) or by editing `project.yaml` (SKILL.md non-negotiable 7;
+guideline p.14, p.23). Rule AI003 flags ID-number, phone and e-mail shapes
+in values written with AI assistance.
+
 | Ask (TH) | Ask (EN) |
 |---|---|
 | ใครอยู่ในทีมบ้าง ชื่อ หน่วยงาน บทบาท | Who is on the team: name, organisation, role? |
@@ -85,6 +92,27 @@ the bound call asks for them, `PROFILE.TEAM.PI_TRACK_RECORD` (items
 states.
 
 Never add yourself (the AI) as a team member.
+
+## 3a. What funded work usually has: ask for it
+
+The 100 funded final reports in the GrantThai corpus
+(`docs/practice/funded-work-patterns.md`) share a few parts. Ask for them
+during sections 4 to 9 below. They are **practice, not fund rules**: say
+the count when it helps ("77 of 100 funded reports number their
+objectives"), never "the fund requires it". The researcher decides.
+
+| Pattern (tier, evidence) | Ask (TH) | Ask (EN) | Field ids |
+|---|---|---|---|
+| Numbered objectives, each tied to a method (CORE, 77/100; FW002) | วัตถุประสงค์มีกี่ข้อ ขอเป็นข้อ 1) 2) 3) ข้อละหนึ่งเป้าหมาย แต่ละข้อจะตอบด้วยวิธีการหรือขั้นตอนไหน | How many objectives? Please give them as 1) 2) 3), one aim each. Which method step answers each one? | `CORE.RESEARCH.OBJECTIVES` (`method_ids`), `CORE.NARRATIVE.OBJECTIVES` |
+| A reference list behind the theory (CORE, 78/100; FW001) | แนวคิดหรือผลการศึกษาเดิมที่ใช้ มาจากเอกสารเรื่องไหนบ้าง ขอรายการอ้างอิง | Which works do the concepts and prior findings come from? Please list the references. | `CORE.NARRATIVE.REFERENCES`, `CORE.NARRATIVE.THEORY` |
+| Literature scope as a topic list ending in related studies (CONTEXTUAL, 64/100, rising) | จะทบทวนวรรณกรรมเรื่องอะไรบ้าง เรียงตามวัตถุประสงค์ได้ไหม งานวิจัยใกล้เคียงที่สุดมีเรื่องไหน | Which topics will the review cover, in objective order? Which earlier studies are closest to this one? | `CORE.RESEARCH.THEORETICAL_FOUNDATIONS`, `CORE.PRIORKNOWLEDGE.*`, `CORE.RESEARCH.GAP` |
+| Population, sample basis, instruments, analysis (CONTEXTUAL, 66/100; sample basis EMERGING, 35/100) | ประชากรคือใคร ขนาดตัวอย่างคิดจากอะไร (สูตร ค่าที่ใช้ แหล่งที่มา) ใช้เครื่องมืออะไร ตรวจคุณภาพอย่างไร วิเคราะห์แต่ละวัตถุประสงค์ด้วยวิธีใด | Who is the population? What is the sample-size basis (method, parameters, source)? Which instruments, checked how? Which analysis answers each objective? | `METHOD.PLAN.POPULATION`, `.SAMPLE`, `.INSTRUMENTS`, `.QUALITY`, `.ANALYSIS` |
+| Ethics written inside the method (EMERGING, 29/100; undercounted) | ขอความยินยอมอย่างไร ผู้ร่วมถอนตัวได้ไหม เก็บรักษาข้อมูลนานเท่าไร จะยื่นคณะกรรมการจริยธรรมที่ไหน | How is consent obtained? Can participants withdraw? How long are data kept? Which ethics committee will review it? | `METHOD.PLAN.ETHICS`, `COMP.STANDARD.HUMAN` |
+| Who receives the recommendations (CONTEXTUAL, 59/100, concentrated in health-systems work; users named EMERGING, 16/100) | ถ้าผลนำไปสู่ข้อเสนอแนะ หน่วยงานหรือระดับไหนควรนำไปใช้ และจะใช้เรื่องอะไร | If the results lead to recommendations, which agency or level should act, and on what? | `RESULTS.CHAIN.USERS`, `RESULTS.CHAIN.UTILIZATION_DESC` |
+| Known limitations of data and design (EMERGING, 15/100) | แหล่งข้อมูลหรือแบบการวิจัยมีข้อจำกัดอะไรที่รู้อยู่แล้ว จะจัดการอย่างไร | What known limits do the data sources or design have, and how will you handle them? | `METHOD.PLAN.QUALITY` |
+
+`grantthai explain <FIELD_ID>` shows the full practice entry (advice in
+English and Thai, what not to do, and the deep-read report pages).
 
 ## 4. The research chain (Need to RQ to Objectives)
 

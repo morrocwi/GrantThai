@@ -1,0 +1,5 @@
+schema: grantthai.routes_index.v0
+routes:
+  - id: nriis-proposal
+    path: routes/nriis-proposal/route.yaml
+    output_filename: NRIIS_SUBMISSION.md

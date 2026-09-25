@@ -24,7 +24,7 @@ EXAMPLE = ROOT / "examples/lecturer-no-ai/project.yaml"
 def test_register_matches_docs_and_is_open():
     ids = [c["id"] for c in REG]
     assert len(ids) == len(set(ids))
-    assert ids == sorted(re.findall(r"^\| (CX-\d\d) \|", DOC, flags=re.M))
+    assert ids == sorted(re.findall(r"^\| (CX-(?:\d\d|7SSA-\d\d)) \|", DOC, flags=re.M))
     for c in REG:
         assert c["status"] == "OPEN"
         assert len(c["readings"]) >= 2 and all(r["source"] and r["says"] for r in c["readings"])
@@ -61,6 +61,10 @@ def test_output_prints_every_reading_and_project_conflicts():
     text, _ = R.render(doc, EXAMPLE.parent, "2026-09-25")
     sec = text[text.index("### 4.4 Conflicts and open contradictions"):text.index("### 4.5 ")]
     for c in REG:
+        if c.get("routes") and "nriis-proposal" not in c["routes"]:
+            # scoped to another route (the CX-7SSA-* entries): never printed in the NRIIS output
+            assert f"**{c['id']}**" not in sec
+            continue
         assert f"**{c['id']}** (OPEN)" in sec
         for r in c["readings"]:
             assert f"Reading: {r['source']}: {r['says']}" in sec

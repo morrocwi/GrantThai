@@ -13,7 +13,7 @@
   "properties": {
     "field_id": {
       "type": "string",
-      "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}$",
+      "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE|ARTICLE)(\\.[A-Z0-9_]+){2,}$",
       "description": "<NS>.<GROUP>[.<SUB>].<NAME>. Fields listed in registry/fields.jsonl use their registry id; chain content without a registry field uses CORE.<NODE>.<NAME> (e.g. CORE.EVIDENCE.E1). IDs are never reused; renames go through registry/aliases.yaml."
     },
     "value": {

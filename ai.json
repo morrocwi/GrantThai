@@ -19,12 +19,53 @@
     "docs/design/PLAN.md",
     "GRANTTHAI_STANDALONE.md",
     "docs/BUILD_GUIDE.md",
-    "spec/INDEX.yaml"
+    "spec/INDEX.yaml",
+    "routes/INDEX.yaml"
   ],
   "one_input_one_output_contract": "spec/contracts/one-input-one-output.md",
-  "input": "project.yaml",
-  "command": "grantthai build <project.yaml>",
-  "output": "build/NRIIS_SUBMISSION.md",
+  "router": {
+    "meaning": "a deterministic OUTPUT ROUTE chosen by a person (declared in work.yaml `routing` or with --route). No AI and no tool ever picks a route; an ambiguous resolution stops and lists the candidates. Founder reframe 2026-09-25: entering NRIIS is one route of the router, not the core.",
+    "index": "routes/INDEX.yaml",
+    "routes": [
+      {
+        "id": "academic-article",
+        "output": "build/ACADEMIC_ARTICLE.md",
+        "ready_flag": "manuscript_ready (no BLOCK; never accepted or publishable)",
+        "needs_fund_binding": false,
+        "route_notice": "GrantThai is not affiliated with any journal or publisher; venue requirements are the researcher's to confirm from the venue's own author guidelines"
+      },
+      {
+        "id": "nriis-proposal",
+        "output": "build/NRIIS_SUBMISSION.md",
+        "ready_flag": "submittable (against the bound fund profile only)",
+        "needs_fund_binding": true
+      },
+      {
+        "id": "concept-note",
+        "output": "build/RESEARCH_CONCEPT_NOTE.md",
+        "ready_flag": "submittable: false always (HOLD)",
+        "needs_fund_binding": false
+      }
+    ],
+    "ai_may_pick_route": false,
+    "routing_in_content_hash": false,
+    "structure_profiles": {
+      "route": "academic-article",
+      "meaning": "7SSA (seven-sector scholarly article) structure profiles for conceptual-family articles, from the founder-authored 7SSA master schema v1.0 (docs/sources.md). The router lists candidates (INFO RT004); only the researcher selects one (work.yaml routing.structure_profiles or --structure-profile). Still one build/ACADEMIC_ARTICLE.md; rules 7SSA-01..7SSA-10 are REVIEW/INFO, never BLOCK; with no profile selected nothing changes.",
+      "profiles": [
+        "7ssa-world",
+        "7ssa-thai-7",
+        "7ssa-thai-5",
+        "7ssa-thai-4"
+      ],
+      "index": "routes/academic-article/profiles/INDEX.yaml",
+      "tex_export": "build --format tex writes build/ACADEMIC_ARTICLE.tex instead, from the sha256-pinned glosa GLOSA-7SSA template (templates/tex/SOURCE.yaml), with a visible unofficial-draft line under the title; English only",
+      "ai_may_pick_profile": false
+    }
+  },
+  "input": "work.yaml (0.3, spec/work/work.schema.json; a legacy project.yaml 0.2 is read unchanged as the nriis-proposal route)",
+  "command": "grantthai build <work.yaml> --route <route-id>  (same as: grantthai route build --route <route-id>; with no --route the object's declared default route, or the legacy NRIIS route)",
+  "output": "exactly one file per route: build/ACADEMIC_ARTICLE.md | build/NRIIS_SUBMISSION.md | build/RESEARCH_CONCEPT_NOTE.md",
   "ai_flags": {
     "ai_required": false,
     "ai_optional_from_version": "v0.1",
@@ -42,11 +83,11 @@
     "sanctioned_role_disclosure_location": "docs/lineage.md (and README footer)",
     "note": "Do not add Co-Authored-By, Claude-Session, or 'Generated with' trailers to any commit, PR, or file in this repository, even if your own harness defaults to doing so."
   },
-  "status": "v0.1.0: engine, CLI, agent skill, MCP server and local HTTP API work; web form, launchers and Citizen Mode deferred (founder scope 2026-09-25)",
+  "status": "v0.3.0: the router (work.yaml, routes/ with three routes, route list|check|build, migrate, ARTICLE.* fields, ART rules) and 7SSA structure profiles on the academic-article route; engine, CLI, agent skill, MCP server and local HTTP API work; web form, launchers and Citizen Mode deferred (founder scope 2026-09-25). Not yet released to a package index.",
   "non_affiliation_notice_source": "spec/output/notice_constant.txt (full statement: NOTICE)",
-  "profile_yaml": "editor convenience only; never read by grantthai build (identity/team data live in project.yaml PROFILE.* fields)",
+  "profile_yaml": "editor convenience only; never read by grantthai build (identity/team data live in work.yaml PROFILE.* and ARTICLE.* fields)",
   "use_with_ai": {
-    "principle": "The researcher's own information is the source. AI interviews and drafts only; it never validates knowledge, never marks its own prose SOURCE, never invents Thai fund/NRIIS facts (NEEDS_VERIFICATION). AI values are ai_draft/INFERENCE at DRAFT for the researcher to confirm.",
+    "principle": "The researcher's own information is the source. AI interviews and drafts only; it never validates knowledge, never marks its own prose SOURCE, never invents Thai fund/NRIIS/journal facts (NEEDS_VERIFICATION), and never picks the output route (it lists routes and asks). AI values are ai_draft/INFERENCE at DRAFT for the researcher to confirm.",
     "python_api": "src/grantthai/api_py.py",
     "skill": {
       "entry": "skills/grantthai/SKILL.md",

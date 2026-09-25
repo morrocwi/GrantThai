@@ -27,3 +27,11 @@ SPDX-License-Identifier = "Apache-2.0"
 path = ["docs/assets/ai-civic-knowledge-logo.png"]
 SPDX-FileCopyrightText = "2026 ARAYA NIKAH SOCIAL ENTERPRISE CO."
 SPDX-License-Identifier = "LicenseRef-Logo-AllRightsReserved"
+
+# Vendored LaTeX template: a byte-identical copy of the glosa-registered
+# GLOSA-7SSA paper template (templates/tex/SOURCE.yaml pins its sha256 and
+# origin). glosa is CC BY 4.0; the copyright stays with its author.
+[[annotations]]
+path = ["templates/tex/glosa_7ssa_v1.tex"]
+SPDX-FileCopyrightText = "2026 Yaoharee Lahtee"
+SPDX-License-Identifier = "CC-BY-4.0"

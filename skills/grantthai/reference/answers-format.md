@@ -1,8 +1,9 @@
 # The answers file (`answers.yaml`)
 
-`scripts/grantthai_skill.py apply answers.yaml --project project.yaml`
-writes an interview's answers into `project.yaml` through the GrantThai
-Python API (`grantthai.api_py.set_field`). It is the easiest way for an AI
+`scripts/grantthai_skill.py apply answers.yaml --project work.yaml`
+writes an interview's answers into the work file (`work.yaml` 0.3, or a
+legacy `project.yaml`) through the GrantThai Python API
+(`grantthai.api_py.set_field`). It is the easiest way for an AI
 with a shell to write many fields, sources and links at once. Every rule
 in `provenance.md` is enforced by the engine, not by this file.
 
@@ -11,19 +12,57 @@ one record, so a second apply replaces the earlier value rather than
 adding a copy. Sources are matched by `source_id` the same way.
 
 ```yaml
-# Used with --init, when project.yaml does not exist yet (form_profile: every run).
+# Used with --init, when the work file does not exist yet (route, sub_profile
+# and form_profile: every run).
 project:
-  project_id: "MY-PROJECT-001"
-  fund_profile_id: "example/FICTIONAL_CALL@0.1"   # the only profile shipped in v0.1
+  work_id: "MY-WORK-001"            # project_id is accepted as an alias
+  # v0.3: what the researcher is making. With --init this writes work.yaml
+  # (schema 0.3); without it a legacy project.yaml (0.2) is written.
+  # research_proposal | academic_article | concept_note | thesis_proposal |
+  # conference_abstract | final_report. Sets defaults only.
+  work_type: academic_article
+  fund_profile_id: "example/FICTIONAL_CALL@0.1"   # only needed by the nriis-proposal route
   mode: expert
+  # v0.3: the output route THE RESEARCHER CHOSE (step 0 of SKILL.md), recorded
+  # as routing.default_route. Never write a route the researcher did not
+  # choose; leave it out and `report` will list the candidates instead.
+  # Only on a work.yaml 0.3 (a legacy project.yaml has no routing block).
+  # route: academic-article
+  # sub_profile: thai-journal        # a sub-profile of that route, if the researcher named one
   # v0.2, optional: the proposal form type, only if the researcher names it
   # (`grantthai profiles`; every profile is NEEDS_VERIFICATION). Applied on
-  # every run, not only with --init.
+  # every run, not only with --init (on a work.yaml it is stored as
+  # routing.sub_profiles.nriis-proposal).
   # form_profile: "ff_full_proposal@nriis-2570"
 
-# The AI product name, as the researcher wants it disclosed.
-# Needed only when some answer has by: ai.
+# The AI product name and version, as the researcher wants them disclosed.
+# Needed only when some answer has by: ai (or by: researcher_edited_ai_draft).
+# Both are recorded in authoring.ai_use_declaration.tools.
 tool: "NAME OF THE AI TOOL"
+tool_version: "VERSION, as the researcher states it"   # optional; else NEEDS_INPUT
+# tool_stage: proposal_writing   # optional: idea, proposal_writing, literature, data,
+#                                 # analysis, writing, language_editing, review, publication
+
+# Optional: the rest of the AI Use Declaration, in the researcher's own words
+# (docs/policy/ai-use-ceiling.md; output section 4.7). Merged into
+# authoring.ai_use_declaration; tools merge by name. Any change resets the
+# researcher's confirmation. declaration_confirmed_by_human, confirmed_by and
+# confirmed_on are REFUSED here: only the researcher sets them, in project.yaml.
+ai_use_declaration:
+  tools:
+    - name: "NAME OF THE AI TOOL"
+      developer: "who makes it"
+      stages: [proposal_writing, language_editing]
+      purpose: "what the researcher used it for"
+      used_on: "dates or a date range"
+  influence_on_conclusions: "how the AI output influenced decisions or conclusions"
+  human_verification: "what the researcher checked, how, and who signs for it"
+  data_handling: "which TYPES of data went to the AI; how personal or confidential data was kept out"
+  log_ref: "where the researcher keeps the prompt and output log"
+  # The researcher's own scores, 1 (low) to 3 (high), on the guideline's five
+  # example dimensions (p.10-11). The single level GrantThai prints is its own
+  # convention (the highest score), not the guideline's.
+  risk_self_assessment: {impact_on_conclusions: 1, accuracy_hallucination: 2, data_sensitivity: 1, bias: 1, reproducibility: 2}
 
 # The researcher's own sources. Never add one the researcher did not give you.
 sources:

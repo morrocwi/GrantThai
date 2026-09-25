@@ -6,13 +6,17 @@
   "x-grantthai-nonchain-node-types": [
     "Attachment",
     "AuditEntry",
+    "Author",
     "BenefitArea",
     "BudgetYear",
+    "Contribution",
     "Credential",
     "Equipment",
     "ExpertContact",
+    "FigureTable",
     "FundObjective",
     "IntellectualProperty",
+    "ManuscriptSection",
     "Partner",
     "PastPerformance",
     "Person",
@@ -20,6 +24,7 @@
     "Risk",
     "Site",
     "Stakeholder",
+    "Statement",
     "SubProject",
     "TeamExpertise",
     "TrackRecordItem",
@@ -28,7 +33,7 @@
   "$defs": {
     "_node_id": {
       "type": "string",
-      "pattern": "^([A-Z]{1,5}[0-9]{1,4}|(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,})$",
+      "pattern": "^([A-Z]{1,5}[0-9]{1,4}|(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}|ARTICLE(\\.[A-Z0-9_]+){1,})$",
       "description": "A node id: an item id (prefix + digits) or a field record's field_id."
     },
     "_money": {
@@ -3231,6 +3236,715 @@
       "additionalProperties": false,
       "description": "Entrepreneur information for a startup or spin-off company, if any (SD-1 p18 part 4; tab placement CX-09).",
       "x-grantthai-derived-from": "sourcedoc/SD-1@sha256:98423019ad17f0f0aafc3863840e9d7aaa81007a84f3ddd64a10aab689a4b52e p18"
+    },
+    "ARTICLE.FRONT.ABSTRACT_TH": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "background": {
+              "type": "string"
+            },
+            "methods": {
+              "type": "string"
+            },
+            "results": {
+              "type": "string"
+            },
+            "conclusion": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ],
+      "description": "Thai abstract: plain text, or the structured parts {background, methods, results, conclusion}. Researcher-written; GrantThai never composes it. Which languages a venue asks for is NEEDS_VERIFICATION (sub-profile default only; rule ART001).",
+      "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
+    },
+    "ARTICLE.FRONT.ABSTRACT_EN": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "background": {
+              "type": "string"
+            },
+            "methods": {
+              "type": "string"
+            },
+            "results": {
+              "type": "string"
+            },
+            "conclusion": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ],
+      "description": "English abstract: plain text, or the structured parts {background, methods, results, conclusion}. Researcher-written; GrantThai never composes it (rule ART001).",
+      "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
+    },
+    "ARTICLE.FRONT.AUTHORS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "member_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^AU[0-9]{1,4}$",
+            "description": "Item id, unique in the whole work object (prefix AU)."
+          },
+          "member_id": {
+            "$ref": "#/$defs/_node_id",
+            "x-grantthai-ref": {
+              "targets": [
+                "PROFILE.TEAM.MEMBERS"
+              ],
+              "edge": "attribute"
+            },
+            "description": "The PROFILE.TEAM.MEMBERS item (TM-n) this author is. Name, ORCID and identifiers come by reference from that shared record; no lookup, no copy."
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Author order as the researcher declares it."
+          },
+          "corresponding": {
+            "type": "boolean"
+          },
+          "affiliation_as_typed": {
+            "type": "string",
+            "description": "Affiliation exactly as the researcher types it for this manuscript. Personal data: rendered only into the private build/ directory (PRIVACY.md)."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "AU",
+          "node_type": "Author"
+        }
+      },
+      "description": "Author list of the manuscript, by reference to the shared team record. An entry whose referenced member or affiliation matches a disclosed AI tool name is rule ART007 (BLOCK): an AI is never an author (AGENTS.md non-negotiable 4).",
+      "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
+    },
+    "ARTICLE.FRONT.CONTRIBUTIONS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "member_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^CRT[0-9]{1,4}$",
+            "description": "Item id, unique in the whole work object (prefix CRT)."
+          },
+          "member_id": {
+            "$ref": "#/$defs/_node_id",
+            "x-grantthai-ref": {
+              "targets": [
+                "PROFILE.TEAM.MEMBERS"
+              ],
+              "edge": "attribute"
+            },
+            "description": "The PROFILE.TEAM.MEMBERS item (TM-n) whose contribution this is."
+          },
+          "roles": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "enum": [
+                "conceptualization",
+                "data_curation",
+                "formal_analysis",
+                "funding_acquisition",
+                "investigation",
+                "methodology",
+                "project_administration",
+                "resources",
+                "software",
+                "supervision",
+                "validation",
+                "visualization",
+                "writing_original_draft",
+                "writing_review_editing"
+              ]
+            },
+            "description": "Role codes. The vocabulary is the 14-role CRediT taxonomy (Contributor Roles Taxonomy, ANSI/NISO Z39.104-2022), RELAYED: the role labels here are GrantThai's snake_case codes and stay NEEDS_VERIFICATION until a maintainer cites the standard's public page in docs/sources.md. Whether a venue uses CRediT is NEEDS_VERIFICATION."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "CRT",
+          "node_type": "Contribution"
+        }
+      },
+      "description": "Contributor roles per team member (rule ART006: more than one author needs a role for each). An entry naming a disclosed AI tool is rule ART007 (BLOCK).",
+      "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
+    },
+    "ARTICLE.BODY.SECTIONS": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "heading"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^MSC[0-9]{1,4}$",
+            "description": "Item id, unique in the whole work object (prefix MSC)."
+          },
+          "heading": {
+            "type": "string",
+            "description": "The researcher's own heading."
+          },
+          "text": {
+            "type": "string",
+            "description": "Researcher-written section text. GrantThai never composes it."
+          },
+          "render_from": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/_node_id"
+            },
+            "description": "Records (field ids or item ids) the researcher writes this section from. Informational; not a link the validator resolves."
+          },
+          "ssa_sector": {
+            "type": "string",
+            "enum": [
+              "S1",
+              "S2",
+              "S3",
+              "S4",
+              "S5",
+              "S6",
+              "S7"
+            ],
+            "description": "7SSA sector (S1-S7, 7SSA v1 §1) this body item belongs to. Read only when a 7SSA structure profile is selected; several items may share a sector (Thai sub-headings, 7SSA v1 §8.3). Absent = the item has no sector and is listed, never dropped."
+          },
+          "ssa_slot": {
+            "type": "string",
+            "description": "The 7SSA slot this item fills, from the closed vocabulary of its sector (7SSA v1 §19 keys, plus the article-type method slots of §7.2 for S2). Requires ssa_sector. The vocabulary per sector is also listed in routes/academic-article/profiles/INDEX.yaml (tests keep the two equal)."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "MSC",
+          "node_type": "ManuscriptSection"
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "ssa_slot"
+              ]
+            },
+            "then": {
+              "required": [
+                "ssa_sector"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S1"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "phenomenon",
+                    "importance",
+                    "scholarly_conversation",
+                    "gap_preview",
+                    "central_argument",
+                    "contributions",
+                    "roadmap"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S2"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "methodology",
+                    "source_base",
+                    "inclusion_logic",
+                    "exclusions",
+                    "scope",
+                    "ai_use",
+                    "limitations_of_approach",
+                    "conceptual_method",
+                    "construct_logic",
+                    "theory_building_logic",
+                    "assumptions",
+                    "argumentative_method",
+                    "premise_scope",
+                    "objections_strategy",
+                    "corpus_method",
+                    "synthesis_method",
+                    "legal_sources",
+                    "jurisdiction_scope",
+                    "doctrinal_or_normative_method",
+                    "definitions",
+                    "formal_system"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S3"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "constructs",
+                    "theories",
+                    "debates",
+                    "canonical_sources",
+                    "recent_sources",
+                    "competing_literatures"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S4"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "gap_type",
+                    "unresolved_problem",
+                    "why_existing_knowledge_fails",
+                    "consequence_if_unresolved",
+                    "strongest_prior_attempt"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S5"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "contribution_type",
+                    "name",
+                    "definition",
+                    "components",
+                    "relationships",
+                    "mechanism",
+                    "propositions",
+                    "nearest_prior_framework",
+                    "difference_from_prior"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S6"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "strongest_objection",
+                    "alternative_explanation",
+                    "counterexample",
+                    "response",
+                    "boundary_conditions",
+                    "limitations",
+                    "theoretical_implications",
+                    "practical_implications",
+                    "future_research"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ssa_sector": {
+                  "const": "S7"
+                }
+              },
+              "required": [
+                "ssa_sector"
+              ]
+            },
+            "then": {
+              "properties": {
+                "ssa_slot": {
+                  "enum": [
+                    "answer_to_problem",
+                    "before_state",
+                    "after_state",
+                    "contribution_restatement",
+                    "non_claims",
+                    "next_frontier"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "description": "Free-structure body for kinds other than empirical_research (review, conceptual, case_study, short_communication, other): the researcher's own headings, in order (rule ART003).",
+      "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
+    },
+    "ARTICLE.STATEMENT.AI_USE": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The in-text AI-use statement, researcher-written (tool, stage, purpose, influence on conclusions, human checking: GenAI research-ethics guideline 2569 p.11-12). GrantThai never composes it."
+        },
+        "placement": {
+          "type": "string",
+          "enum": [
+            "methods",
+            "acknowledgements"
+          ],
+          "description": "Where the statement goes in the manuscript (guideline p.12: methodology or acknowledgement). The venue's own rule, if any, is NEEDS_VERIFICATION and comes first (p.27)."
+        }
+      },
+      "additionalProperties": false,
+      "description": "In-text AI-use statement (rule ART005). Complements the structured authoring.ai_use_declaration (rule AI001).",
+      "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
+    },
+    "ARTICLE.BODY.FIGURES_TABLES": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^FIG[0-9]{1,4}$",
+            "description": "Item id, unique in the whole work object (prefix FIG)."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "figure",
+              "table",
+              "supplementary"
+            ]
+          },
+          "caption": {
+            "type": "string",
+            "description": "The researcher's caption, as typed."
+          },
+          "data_bearing": {
+            "type": "boolean",
+            "description": "True when the item shows research data, results or a factual image."
+          },
+          "ai_generated_illustration": {
+            "type": "boolean",
+            "description": "True when an AI tool made or altered the image. With data_bearing true this is rule ART009 (guideline p.11, p.24-25: no GenAI-generated data or factual images); an AI-made illustration whose caption carries no disclosure is rule ART011 (p.11, p.25 item 6; p.12)."
+          },
+          "source_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "source_id values from the work object's sources manifest that the item rests on (a string list, not a resolved link; S008 applies only to record-level source_ids)."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "FIG",
+          "node_type": "FigureTable"
+        }
+      },
+      "description": "Figures, tables and supplementary items, as declared by the researcher. GrantThai makes no images and checks only the declared flags.",
+      "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
+    },
+    "ARTICLE.VENUE.TARGET": {
+      "type": "object",
+      "properties": {
+        "name_as_typed": {
+          "type": "string",
+          "description": "The venue name exactly as the researcher types it. GrantThai holds no venue registry and never completes or corrects it."
+        },
+        "sub_profile": {
+          "type": "string",
+          "description": "A sub-profile id of routes/academic-article/sub_profiles/ (thai-journal, international-journal), both NEEDS_VERIFICATION GrantThai defaults."
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "source_id values from the sources manifest that describe this venue (its current author guidelines as the researcher obtained them). A name with no source at all is rule ART010."
+        },
+        "stated_requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "item",
+              "value"
+            ],
+            "properties": {
+              "item": {
+                "type": "string",
+                "description": "What the venue asks for, in the researcher's words (e.g. word limit, abstract languages, keyword count, reference style)."
+              },
+              "value": {
+                "type": "string",
+                "description": "The requirement as the researcher read it."
+              },
+              "source_ref": {
+                "type": "string",
+                "description": "The source_id (sources manifest) this requirement was read from. An item without one prints NEEDS_VERIFICATION (rule ART010). An item with one overrides the sub-profile default it names (rule ART002)."
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "description": "Target venue as supplied by the researcher. No venue fact without a source the researcher supplied (AGENTS.md non-negotiable 3; rule ART010).",
+      "x-grantthai-derived-from": "spec/router (2026-09-25 design, §1.3 route academic-article); GrantThai DECISION"
+    },
+    "ARTICLE.SSA.GAP": {
+      "type": "object",
+      "properties": {
+        "gap_type": {
+          "type": "string",
+          "enum": [
+            "CONCEPTUAL_AMBIGUITY",
+            "CONTRADICTION",
+            "MISSING_MECHANISM",
+            "FRAGMENTATION",
+            "BOUNDARY_GAP",
+            "ASSUMPTION_FAILURE",
+            "FORMALIZATION_GAP",
+            "CLASSIFICATION_GAP",
+            "NEW_PHENOMENON",
+            "LEVEL_OF_ANALYSIS_GAP",
+            "NORMATIVE_GAP"
+          ],
+          "description": "One of the eleven gap types of 7SSA v1 §9.1, as the researcher classifies the problem."
+        },
+        "unresolved_problem": {
+          "type": "string",
+          "description": "The unresolved problem, researcher-written."
+        },
+        "why_existing_knowledge_fails": {
+          "type": "string",
+          "description": "Why existing knowledge does not resolve it, researcher-written."
+        },
+        "consequence_if_unresolved": {
+          "type": "string",
+          "description": "What the field cannot explain, distinguish or decide while the problem stays open (7SSA v1 §9.2; rule 7SSA-06)."
+        },
+        "strongest_prior_attempt": {
+          "type": "string",
+          "description": "The strongest existing attempt, stated charitably, researcher-written."
+        }
+      },
+      "additionalProperties": false,
+      "description": "7SSA Sector 4 (problem in existing knowledge). Researcher-written; GrantThai never judges whether the gap is real.",
+      "x-grantthai-derived-from": "7SSA master schema v1.0 (founder-authored, sha256 1c8989c0...f980); GrantThai DECISION (routes/academic-article/profiles)"
+    },
+    "ARTICLE.SSA.CONTRIBUTION": {
+      "type": "object",
+      "properties": {
+        "one_sentence": {
+          "type": "string",
+          "description": "The contribution in one sentence (7SSA v1 §23 step 1; rule 7SSA-05)."
+        },
+        "object_name": {
+          "type": "string",
+          "description": "The name of the new intellectual object."
+        },
+        "contribution_type": {
+          "type": "string",
+          "enum": [
+            "new_construct",
+            "new_definition",
+            "new_distinction",
+            "new_mechanism",
+            "new_proposition",
+            "new_theory",
+            "new_framework",
+            "new_model",
+            "new_taxonomy",
+            "new_typology",
+            "new_ontology",
+            "new_architecture",
+            "new_formalization",
+            "new_principle",
+            "new_interpretation",
+            "new_legal_doctrine_or_reading",
+            "new_research_agenda"
+          ],
+          "description": "One of the seventeen contribution objects of 7SSA v1 §10.1."
+        },
+        "definition": {
+          "type": "string",
+          "description": "Its definition, researcher-written."
+        },
+        "nearest_prior": {
+          "type": "string",
+          "description": "The nearest existing object, framework or theory."
+        },
+        "difference_from_prior": {
+          "type": "string",
+          "description": "How the contribution differs from the nearest prior object (rule 7SSA-05)."
+        }
+      },
+      "additionalProperties": false,
+      "description": "7SSA Sector 5 (new contribution). Researcher-written; GrantThai never judges whether it is new.",
+      "x-grantthai-derived-from": "7SSA master schema v1.0 (founder-authored, sha256 1c8989c0...f980); GrantThai DECISION (routes/academic-article/profiles)"
+    },
+    "ARTICLE.SSA.BEFORE_AFTER": {
+      "type": "object",
+      "properties": {
+        "before_state": {
+          "type": "string",
+          "description": "What the field could not adequately distinguish, explain or organize before the article."
+        },
+        "after_state": {
+          "type": "string",
+          "description": "What the field can do after it."
+        },
+        "non_claims": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "What the article explicitly does not claim."
+        }
+      },
+      "additionalProperties": false,
+      "description": "7SSA v1 §12.2 before-and-after test (Sector 7; rule 7SSA-07). Researcher-written.",
+      "x-grantthai-derived-from": "7SSA master schema v1.0 (founder-authored, sha256 1c8989c0...f980); GrantThai DECISION (routes/academic-article/profiles)"
+    },
+    "ARTICLE.STATEMENT.OTHER": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^STM[0-9]{1,4}$",
+            "description": "Item id, unique in the whole work object (prefix STM)."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "authorship_accountability",
+              "consent_participate",
+              "consent_publication",
+              "code_availability",
+              "materials_protocol",
+              "reproducibility",
+              "ip_permissions",
+              "dual_use",
+              "prior_dissemination",
+              "reporting_guideline"
+            ],
+            "description": "Which declaration this is (the declaration blocks of the GLOSA-7SSA LaTeX template not already an ARTICLE.STATEMENT.* field)."
+          },
+          "text": {
+            "type": "string",
+            "description": "The declaration as the researcher writes it. GrantThai never composes it; the venue's own wording is NEEDS_VERIFICATION."
+          }
+        },
+        "additionalProperties": false,
+        "x-grantthai-node": {
+          "id_prefix": "STM",
+          "node_type": "Statement"
+        }
+      },
+      "description": "Declarations not covered by another ARTICLE.STATEMENT.* field, one item each.",
+      "x-grantthai-derived-from": "GLOSA-7SSA LaTeX template (Statements and Declarations layer); GrantThai DECISION"
     }
   }
 }

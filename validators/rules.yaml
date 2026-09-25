@@ -12,6 +12,21 @@
 # implementation ships (acceptance test AT-4). No rule here quotes a
 # time-bound fund value: thresholds, rates and eligibility live only in the
 # bound fund profile (P6).
+#
+# v0.3 router: every rule carries `routes:` — the output routes
+# (routes/INDEX.yaml ids: nriis-proposal, academic-article, concept-note)
+# it is evaluated for, or `[all]`. A route is chosen by a person, never by
+# an AI. The engine evaluates a rule for a route only if the rule's family
+# is in the route's include_families, its id is not in exclude_ids and
+# `routes` names the route or all; rules outside the scope are reported
+# once as INFO RT002, never silently skipped. Scope per family is recorded
+# in validators/crosswalk.yaml `route_scope` and checked against this file
+# by tests/test_rules_added.py. The ART family (ART001-ART011) is
+# academic-article only: REVIEW except ART007 (BLOCK). Its practice
+# citations come from corpus-100, which is funded FINAL REPORTS, not
+# articles; every such locator says so. The SSA family (7SSA-01..7SSA-10) is
+# academic-article only and fires only while a 7SSA structure profile is
+# selected (routes/academic-article/profiles/); REVIEW or INFO, never BLOCK.
 schema: grantthai.rules.v0
 version: 0.1.0-draft
 severity_levels:
@@ -76,6 +91,28 @@ rule_families:
   ships: v0.2
   checks: classification compatibility (research issue, OECD, ISCED, problem, method)
   ids_status: enumerated
+- family: FW
+  ships: v0.3
+  checks: practice shared by funded work (CORE patterns of docs/practice/funded-work-patterns.md, REVIEW only, never BLOCK)
+  ids_status: enumerated
+- family: AI
+  ships: v0.3
+  checks: the AI-use ceiling (docs/policy/ai-use-ceiling.md, built on the National Research Council of
+    Thailand GenAI guideline, September 2569); REVIEW only, never BLOCK
+  ids_status: enumerated
+- family: ART
+  ships: v0.3
+  checks: academic-article route only (routes/academic-article/route.yaml); structural checks of a manuscript
+    overview. REVIEW only, except ART007 (BLOCK, an AI tool listed as an author, GrantThai's own non-negotiable).
+    No rule in this family rests on a journal fact; every venue requirement is NEEDS_VERIFICATION.
+  ids_status: enumerated
+- family: SSA
+  ships: v0.3
+  checks: academic-article route, and only while a 7SSA structure profile is selected (routing.structure_profiles
+    or --structure-profile; routes/academic-article/profiles/). Structural presence checks of the seven 7SSA sectors
+    (founder-authored 7SSA master schema v1.0). REVIEW or INFO only, never BLOCK; none judges whether a gap is real,
+    a contribution new or an argument sound. With no profile selected the family finds nothing.
+  ids_status: enumerated
 - family: ECO
   ships: v0.2
   checks: ecosystem checks for declared positions only
@@ -88,6 +125,7 @@ rules:
 - id: S001
   family: S
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: 'A required field (registry/fields.jsonl required: true) is missing or still NEEDS_INPUT.'
@@ -101,6 +139,7 @@ rules:
 - id: S002
   family: S
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: 'A field value does not match the type declared in registry/fields.jsonl (semantics:
@@ -116,6 +155,7 @@ rules:
 - id: S003
   family: S
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A field value is not one of the allowed_values declared for that field.
@@ -129,6 +169,7 @@ rules:
 - id: S004
   family: S
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A registry field_id appears as more than one record in project.yaml (each registry field
@@ -144,6 +185,7 @@ rules:
 - id: S005
   family: S
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A conditional field (dependency of the form <field_id>=<value>) is required by its condition
@@ -161,6 +203,7 @@ rules:
 - id: S006
   family: S
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: 'A reference (an item *_id / *_ids key, a record links key, or an evidence supports_claim_id)
@@ -177,6 +220,7 @@ rules:
 - id: S007
   family: S
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: Two nodes in project.yaml share one id (item ids must be unique across the whole file).
@@ -190,6 +234,7 @@ rules:
 - id: S008
   family: S
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A source_ids entry is not resolvable offline (spec/common/links-and-sources.md §3),
@@ -204,6 +249,7 @@ rules:
 - id: S009
   family: S
   ships: v0.1
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: An attachment item (DOC.ATTACHMENTS.DOCUMENTS) has required_status REQUIRED but supplied
@@ -220,6 +266,7 @@ rules:
 - id: S010
   family: S
   ships: v0.1
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: 'An activity runs past the project duration: (year - 1) x 12 + its last month exceeds
@@ -237,6 +284,7 @@ rules:
 - id: S011
   family: S
   ships: v0.1
+  routes: [all]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A value uses a candidate option (NEEDS_VERIFICATION) that is not in the field's observed
@@ -254,6 +302,7 @@ rules:
 - id: S012
   family: S
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: CORE.GENERAL.DURATION_M is outside 0-11. S010's total project duration is
@@ -272,6 +321,7 @@ rules:
 - id: R001
   family: R
   ships: v0.1
+  routes: [all]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: The research problem record has no resolvable source reference (source_ids resolving
@@ -287,6 +337,7 @@ rules:
 - id: R002
   family: R
   ships: v0.1
+  routes: [all]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: The Gap record has no incoming causal edge from a PriorKnowledge record (Gap links.prior_knowledge_ids),
@@ -304,6 +355,7 @@ rules:
 - id: R003
   family: R
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: The primary research question record has no incoming causal edge from the CORE.RESEARCH.GAP
@@ -320,6 +372,7 @@ rules:
 - id: R004
   family: R
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: An objective item (CORE.RESEARCH.OBJECTIVES) has no incoming causal edge from a research-question
@@ -337,6 +390,7 @@ rules:
 - id: R005
   family: R
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: An objective item has no outgoing causal edge to METHOD.PLAN.DESIGN or one of its method-phase
@@ -353,6 +407,7 @@ rules:
 - id: R006
   family: R
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A method-phase item of METHOD.PLAN.DESIGN (or the design record itself when it has no
@@ -369,6 +424,7 @@ rules:
 - id: R007
   family: R
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: The analysis plan (METHOD.PLAN.ANALYSIS) has no incoming causal edge from a data-collection
@@ -385,6 +441,7 @@ rules:
 - id: R008
   family: R
   ships: v0.1
+  routes: [all]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A research-instrument item (METHOD.PLAN.INSTRUMENTS) names no construct or variable
@@ -401,6 +458,7 @@ rules:
 - id: R009
   family: R
   ships: v0.1
+  routes: [all]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A hypothesis item (CORE.RESEARCH.HYPOTHESES) has no proposed_test (test strategy).
@@ -414,6 +472,7 @@ rules:
 - id: W001
   family: W
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: An activity item has no incoming causal edge from an objective item, METHOD.PLAN.DESIGN
@@ -431,6 +490,7 @@ rules:
 - id: W002
   family: W
   ships: v0.1
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: An activity item has no resolved responsible_person_ids entry (a PROFILE.TEAM.MEMBERS
@@ -446,6 +506,7 @@ rules:
 - id: W003
   family: W
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: plan
   description_en: The weight_percent values of the WORK.PLAN.ACTIVITIES items do not sum to 100 (compared
@@ -460,6 +521,7 @@ rules:
 - id: W004
   family: W
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: An output item (RESULTS.CHAIN.OUTPUTS) has no incoming causal edge from an activity
@@ -476,6 +538,7 @@ rules:
 - id: W005
   family: W
   ships: v0.1
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A partner item (WORK.PARTNERS.ORGANIZATIONS) has no collaboration_role.
@@ -489,6 +552,7 @@ rules:
 - id: W101
   family: W
   ships: v0.2
+  routes: [all]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A non-empty value is above its writing length target (guidance/writing_intent.yaml
@@ -508,6 +572,7 @@ rules:
 - id: W102
   family: W
   ships: v0.2
+  routes: [all]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A non-empty value is below its writing length target (length_target.min). Not raised
@@ -527,6 +592,7 @@ rules:
 - id: B001
   family: B
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A budget line item (BUDGET.PLAN.ITEMS) has no incoming causal edge from an activity
@@ -543,6 +609,7 @@ rules:
 - id: B002
   family: B
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: plan
   description_en: A budget line_total does not equal quantity x persons_or_items x times_or_months x unit_price
@@ -562,6 +629,7 @@ rules:
 - id: B003
   family: B
   ships: v0.1
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A budget rate is not supported by a current rule in the bound fund profile.
@@ -577,6 +645,7 @@ rules:
 - id: B004
   family: B
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A budget item is a cost the bound fund profile lists as prohibited.
@@ -592,6 +661,7 @@ rules:
 - id: B005
   family: B
   ships: v0.1
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: An equipment item has no stated necessity.
@@ -605,6 +675,7 @@ rules:
 - id: B006
   family: B
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: The calculated total exceeds a ceiling in the bound, ACTIVE fund profile.
@@ -619,6 +690,7 @@ rules:
 - id: B007
   family: B
   ships: v0.1
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: 'A partner''s co-funding is not backed: in_kind > 0 with neither in_kind_basis (how
@@ -633,6 +705,7 @@ rules:
 - id: T001
   family: T
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: plan
   description_en: The contribution_percent values of the PROFILE.TEAM.MEMBERS items do not sum to 100
@@ -647,6 +720,7 @@ rules:
 - id: T002
   family: T
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: PROFILE.TEAM.MEMBERS does not have exactly one member with project_role PI.
@@ -661,6 +735,7 @@ rules:
 - id: CH001
   family: CH
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: plan
   description_en: The causal edges of project:chain_edges (derived from resolved references as defined
@@ -676,6 +751,7 @@ rules:
 - id: CH002
   family: CH
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: plan
   description_en: A required chain stage (spec/common/chain.yaml required_stages) is not populated.
@@ -696,6 +772,7 @@ rules:
 - id: F001
   family: F
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: plan
   description_en: A fund-profile rule used by the project has no source_id.
@@ -709,6 +786,7 @@ rules:
 - id: F002
   family: F
   ships: v0.1
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A fund-profile rule used by the project is stale (verified_at older than the profile
@@ -723,6 +801,7 @@ rules:
 - id: F003
   family: F
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: plan
   description_en: The bound fund profile is not ACTIVE.
@@ -736,6 +815,7 @@ rules:
 - id: F004
   family: F
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: plan
   description_en: A rule from a historical (EXPIRED or superseded) fund profile is reused.
@@ -749,6 +829,7 @@ rules:
 - id: F005
   family: F
   ships: v0.1
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: 'Duplicate-funding risk: the proposal is also submitted to another funder (CORE.GENERAL.OTHER_FUNDER
@@ -764,6 +845,7 @@ rules:
 - id: ELIG001
   family: ELIG
   ships: v0.1
+  routes: [nriis-proposal]
   severity: BLOCK
   severity_basis: plan
   description_en: The declared PI (the one PROFILE.TEAM.MEMBERS item with project_role PI) does not meet
@@ -781,6 +863,7 @@ rules:
 - id: CH003
   family: CH
   ships: v0.2
+  routes: [all]
   severity: REVIEW
   severity_basis: plan
   description_en: A claim is stronger than its evidence path allows (e.g. supported only by an ACCEPTED_BY_REQUESTER
@@ -797,6 +880,7 @@ rules:
 - id: E001
   family: E
   ships: v0.2
+  routes: [nriis-proposal, academic-article]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: Human subjects or human-derived data are used but no ethics route is specified.
@@ -811,6 +895,7 @@ rules:
 - id: E002
   family: E
   ships: v0.2
+  routes: [nriis-proposal, academic-article]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: Sensitive data is collected but no protection plan is given.
@@ -825,6 +910,7 @@ rules:
 - id: E003
   family: E
   ships: v0.2
+  routes: [nriis-proposal, academic-article]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A dependent relationship exists between researcher and participants without a coercion
@@ -840,6 +926,7 @@ rules:
 - id: E004
   family: E
   ships: v0.2
+  routes: [nriis-proposal, academic-article]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: Participant compensation is not explained.
@@ -854,6 +941,7 @@ rules:
 - id: E005
   family: E
   ships: v0.2
+  routes: [nriis-proposal, academic-article]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A conflict of interest is not managed.
@@ -868,6 +956,7 @@ rules:
 - id: E006
   family: E
   ships: v0.2
+  routes: [nriis-proposal, academic-article]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: An experience account names or identifies third parties without their consent route.
@@ -882,6 +971,7 @@ rules:
 - id: E007
   family: E
   ships: v0.2
+  routes: [nriis-proposal, academic-article]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A person holds dual roles (e.g. researcher and community member) that are not disclosed.
@@ -896,6 +986,7 @@ rules:
 - id: E008
   family: E
   ships: v0.2
+  routes: [nriis-proposal, academic-article]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: An experience account involves a vulnerable group without an ethics safeguard.
@@ -910,6 +1001,7 @@ rules:
 - id: E009
   family: E
   ships: v0.1
+  routes: [nriis-proposal, academic-article]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: Related intellectual property the project will use (CORE.NARRATIVE.IP_CHECK related_ip
@@ -925,6 +1017,7 @@ rules:
 - id: U001
   family: U
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: An output has no identified user.
@@ -939,6 +1032,7 @@ rules:
 - id: U002
   family: U
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A user has no adoption action.
@@ -953,6 +1047,7 @@ rules:
 - id: U003
   family: U
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: An outcome has no adoption pathway.
@@ -967,6 +1062,7 @@ rules:
 - id: U004
   family: U
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A beneficiary is not linked to any outcome.
@@ -981,6 +1077,7 @@ rules:
 - id: U005
   family: U
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: An impact is not traceable to an outcome.
@@ -995,6 +1092,7 @@ rules:
 - id: P001
   family: P
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A policy is named but no mechanism links the project to it.
@@ -1009,6 +1107,7 @@ rules:
 - id: P002
   family: P
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: An impact or KR link is unsupported.
@@ -1023,6 +1122,7 @@ rules:
 - id: P003
   family: P
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A national claim is made from a local pilot without a scaling path.
@@ -1037,6 +1137,7 @@ rules:
 - id: G001
   family: G
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A research site has no activity.
@@ -1051,6 +1152,7 @@ rules:
 - id: G002
   family: G
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A benefit area has no beneficiary.
@@ -1065,6 +1167,7 @@ rules:
 - id: G003
   family: G
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: A nationwide benefit is inferred from digital reach only.
@@ -1078,6 +1181,7 @@ rules:
 - id: X001
   family: X
   ships: v0.2
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: Lived experience (evidence_role ORIENTING) is used as SUPPORTING evidence without re-collection
@@ -1092,6 +1196,7 @@ rules:
 - id: X002
   family: X
   ships: v0.2
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A PROPOSED mapping is used downstream.
@@ -1105,6 +1210,7 @@ rules:
 - id: X003
   family: X
   ships: v0.1
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: 'A value with authored_by: ai_draft is marked provenance_class SOURCE. Shipped early
@@ -1120,6 +1226,7 @@ rules:
 - id: X004
   family: X
   ships: v0.2
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A claim has no evidence path.
@@ -1134,6 +1241,7 @@ rules:
 - id: X005
   family: X
   ships: v0.2
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A review record lacks scope, reviewer identity or date.
@@ -1147,6 +1255,7 @@ rules:
 - id: X006
   family: X
   ships: v0.2
+  routes: [all]
   severity: BLOCK
   severity_basis: proposed_default
   description_en: A review record is used as empirical evidence.
@@ -1161,6 +1270,7 @@ rules:
 - id: C001
   family: C
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: The research issue (CORE.GENERAL.RESEARCH_ISSUE) is not compatible with the OECD classification.
@@ -1177,6 +1287,7 @@ rules:
 - id: C002
   family: C
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: The classification (keywords, OECD, ISCED) does not describe the same research object
@@ -1195,6 +1306,7 @@ rules:
 - id: C003
   family: C
   ships: v0.2
+  routes: [nriis-proposal]
   severity: REVIEW
   severity_basis: proposed_default
   description_en: The classification is not compatible with the methodology (METHOD.PLAN.DESIGN).
@@ -1207,3 +1319,552 @@ rules:
     locator: 05 VAL.012; 02 §10.6 V-C03
   negative_fixture: not_evaluated_in_v0.1
   notes: A meaning comparison, not a structural check; not evaluated in v0.1 (INFO).
+- id: FW001
+  family: FW
+  ships: v0.3
+  routes: [all]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The theory box (CORE.NARRATIVE.THEORY) or the theoretical foundations
+    (CORE.RESEARCH.THEORETICAL_FOUNDATIONS) has content, but the reference list (CORE.NARRATIVE.REFERENCES)
+    is empty or not supplied. Practice, not a fund rule.
+  inputs:
+  - CORE.NARRATIVE.THEORY
+  - CORE.RESEARCH.THEORETICAL_FOUNDATIONS
+  - CORE.NARRATIVE.REFERENCES
+  chain_step: project
+  source:
+    derived_from: docs/practice/funded-work-patterns.md
+    locator: corpus-100 pattern FWP-06 (78/100; CORE)
+  negative_fixture: test:tests/test_practice_patterns.py::test_FW001_theory_without_references
+  notes: A reference list is present in 78 of the 100 funded final reports (HSRI repository 78%, PSU
+    repository 76%). REVIEW only; it never blocks, and it does not judge the references themselves.
+- id: FW002
+  family: FW
+  ships: v0.3
+  routes: [nriis-proposal]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The project has two or more objective items (CORE.RESEARCH.OBJECTIVES), but the objectives
+    narrative (CORE.NARRATIVE.OBJECTIVES) does not number them (fewer than two distinct item numbers such
+    as 1) 2), (1) (2) or 1. 2.). Practice, not a fund rule.
+  inputs:
+  - CORE.RESEARCH.OBJECTIVES
+  - CORE.NARRATIVE.OBJECTIVES
+  chain_step: Objective
+  source:
+    derived_from: docs/practice/funded-work-patterns.md
+    locator: corpus-100 pattern FWP-03 (77/100; CORE)
+  negative_fixture: test:tests/test_practice_patterns.py::test_FW002_objectives_not_numbered
+  notes: Objectives are written as a numbered list of two or more items in 77 of the 100 funded final
+    reports (HSRI repository 76%, PSU repository 82%). Thai digits count as numbers. REVIEW only.
+- id: AI001
+  family: AI
+  ships: v0.3
+  routes: [all]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: AI assistance is recorded (authoring.mode ai_assisted, a disclosed tool, or a value authored
+    ai_draft or human_ai_assisted), but authoring.ai_use_declaration is missing, incomplete (a tool without
+    version, stage or purpose; no statement of influence on conclusions, human verification or data handling),
+    or not confirmed by the researcher (declaration_confirmed_by_human is not true).
+  inputs:
+  - project:authoring
+  - project:records
+  chain_step: project
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: National Research Council of Thailand GenAI guideline 2569 p.6, p.10-12, p.22, p.34 (Appendix A)
+  negative_fixture: test:tests/test_ai_use_ceiling.py::test_AI001_ai_use_without_confirmed_declaration
+  notes: The guideline says every use must be disclosed (p.10) with tool, stage, purpose, influence and
+    oversight (p.11), and that the user must confirm the output was checked (p.12); funders should ask for
+    disclosure at the proposal stage (p.22), and Appendix A (p.34) is a sample form. GrantThai checks only
+    that the declaration exists, is filled and is marked confirmed; it cannot check that it is true.
+- id: AI002
+  family: AI
+  ships: v0.3
+  routes: [all]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A data-bearing record (a chain Evidence, Observation or LivedExperience record, or any record
+    whose provenance source_type is PRIMARY_DATA) is authored_by ai_draft. An AI may reword the researcher's
+    data but must never generate or alter research data, results or factual images.
+  inputs:
+  - chain:Evidence
+  - chain:Observation
+  - chain:LivedExperience
+  - project:records
+  chain_step: Evidence
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: National Research Council of Thailand GenAI guideline 2569 p.11 item 1, p.24, p.25 items 1-5
+  negative_fixture: test:tests/test_ai_use_ceiling.py::test_AI002_ai_drafted_evidence
+  notes: Extends X003. X003 (BLOCK) stops an AI draft from being marked SOURCE anywhere; AI002 (REVIEW) asks
+    the researcher to confirm that an AI-drafted data-bearing record only restates their own data. Plans
+    (METHOD.PLAN.DATA_COLLECTION, METHOD.PLAN.ANALYSIS) are not data and are not checked.
+- id: AI003
+  family: AI
+  ships: v0.3
+  routes: [all]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A value authored with AI assistance (ai_draft or human_ai_assisted) contains a
+    personal-data-shaped string (a checksum-valid Thai national ID, a phone number or an e-mail address), so
+    that data passed through an AI tool.
+  inputs:
+  - project:records
+  chain_step: project
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: National Research Council of Thailand GenAI guideline 2569 p.14 item 1.1, p.15 item 1.2, p.23
+  negative_fixture: test:tests/test_ai_use_ceiling.py::test_AI003_pii_in_ai_assisted_value
+  notes: Uses the same patterns as the repository leak/PII guard (src/grantthai/core/pii.py). The finding
+    names the kind of string, never the string itself. Names, addresses and health details are not detected;
+    a quiet AI003 never means no personal data reached an AI.
+- id: AI004
+  family: AI
+  ships: v0.3
+  routes: [all]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The researcher's own risk self-assessment (authoring.ai_use_declaration.risk_self_assessment)
+    scores at least one of the five dimensions 3 (high). The single level GrantThai prints is its own
+    convention (the highest of the five scores); the guideline's scoring table is an example and gives no
+    rule for combining the scores.
+  inputs:
+  - project:authoring
+  chain_step: project
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: National Research Council of Thailand GenAI guideline 2569 p.10-11 (example scoring table), p.14-16
+  negative_fixture: test:tests/test_ai_use_ceiling.py::test_AI004_high_self_assessed_risk
+  notes: In the guideline's example reading, level 3 means detailed disclosure of the AI use and of the human
+    validation (p.11). A data-sensitivity score of 3 also means the data must stay out of public AI (p.14-16).
+- id: ART001
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The abstract is empty in a language the sub-profile in force enables (ARTICLE.FRONT.ABSTRACT_TH for th,
+    ARTICLE.FRONT.ABSTRACT_EN for en), or in a language an ARTICLE.VENUE.TARGET stated_requirements item with a source
+    asks for. Which languages a venue asks for is NEEDS_VERIFICATION; the sub-profile default is proposed_default.
+  inputs:
+  - ARTICLE.FRONT.ABSTRACT_TH
+  - ARTICLE.FRONT.ABSTRACT_EN
+  - ARTICLE.VENUE.TARGET
+  - route:sub_profile
+  chain_step: project
+  source:
+    derived_from: docs/practice/funded-work-patterns.md
+    locator: corpus-100 pattern FWP-11 (64/100; CONTEXTUAL, rising 35->87%; funded final reports, not articles)
+  negative_fixture: tests/fixtures/negative/ART001/
+  notes: An abstract (Thai or English) is present in 64 of the 100 funded final reports. That corpus is final reports,
+    not journal articles, so this is descriptive context only; the rule checks presence against the sub-profile's
+    language list, never a venue's word limit. REVIEW only.
+- id: ART002
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The keyword count (CORE.GENERAL.KEYWORDS_TH or CORE.GENERAL.KEYWORDS_EN, per the sub-profile's
+    keyword languages) is outside [min, max]. The shipped band 3-6 is proposed_default and NEEDS_VERIFICATION; a
+    sub-profile value or an ARTICLE.VENUE.TARGET stated_requirements item with a source_ref overrides it.
+  inputs:
+  - CORE.GENERAL.KEYWORDS_TH
+  - CORE.GENERAL.KEYWORDS_EN
+  - ARTICLE.VENUE.TARGET
+  - route:sub_profile
+  chain_step: project
+  source:
+    derived_from: docs/practice/funded-work-patterns.md
+    locator: corpus-100 pattern FWP-12 (50/100; CONTEXTUAL; presence only, no count basis; funded final reports,
+      not articles)
+  negative_fixture: tests/fixtures/negative/ART002/
+  notes: The corpus shows keyword presence in 50 of 100 funded final reports and gives no count basis; the band
+    3-6 is GrantThai's own default. REVIEW only, never a venue fact.
+- id: ART003
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: ARTICLE.META.KIND is empirical_research and any of ARTICLE.SECTION.INTRODUCTION, .METHODS, .RESULTS
+    or .DISCUSSION is empty; for every other kind, ARTICLE.BODY.SECTIONS is empty. Structural presence only; the
+    researcher writes every section from their own records.
+  inputs:
+  - ARTICLE.META.KIND
+  - ARTICLE.SECTION.INTRODUCTION
+  - ARTICLE.SECTION.METHODS
+  - ARTICLE.SECTION.RESULTS
+  - ARTICLE.SECTION.DISCUSSION
+  - ARTICLE.BODY.SECTIONS
+  chain_step: project
+  source:
+    derived_from: docs/practice/funded-work-patterns.md
+    locator: corpus-100 patterns FWP-01 (91/100) background, FWP-04 (80/100) method, FWP-07 (85/100) results,
+      FWP-08 (90/100) discussion; all CORE; FWP-07 and FWP-08 are report-stage; funded final reports, not articles
+  negative_fixture: tests/fixtures/negative/ART003/
+  notes: The four IMRaD parts are each present in 80 or more of the 100 funded final reports. Those are reports, not
+    articles; the rule asks only whether each part has text. REVIEW only.
+- id: ART004
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The reference list (CORE.NARRATIVE.REFERENCES) is empty or not supplied while at least one article
+    section (ARTICLE.SECTION.* or an ARTICLE.BODY.SECTIONS item) has text. Same pattern as FW001. GrantThai never
+    reformats or judges the references themselves.
+  inputs:
+  - CORE.NARRATIVE.REFERENCES
+  - ARTICLE.SECTION.INTRODUCTION
+  - ARTICLE.SECTION.METHODS
+  - ARTICLE.SECTION.RESULTS
+  - ARTICLE.SECTION.DISCUSSION
+  - ARTICLE.SECTION.CONCLUSION
+  - ARTICLE.BODY.SECTIONS
+  chain_step: project
+  source:
+    derived_from: docs/practice/funded-work-patterns.md
+    locator: corpus-100 pattern FWP-06 (78/100; CORE; funded final reports, not articles)
+  negative_fixture: tests/fixtures/negative/ART004/
+  notes: A reference list is present in 78 of the 100 funded final reports (reports, not articles). REVIEW only.
+- id: ART005
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: AI use is recorded (authoring.mode ai_assisted, a disclosed tool, or a value authored ai_draft or
+    human_ai_assisted; the same test as AI001) but the in-text statement ARTICLE.STATEMENT.AI_USE has no text or no
+    placement (methods or acknowledgements). Complements AI001, which checks the structured declaration.
+  inputs:
+  - project:authoring
+  - project:records
+  - ARTICLE.STATEMENT.AI_USE
+  chain_step: project
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: GenAI research-ethics guideline 2569 N12 p.11-12 (tool, stage, purpose, influence, checking; in
+      methodology or acknowledgement), N16 p.12, N18 p.12 and p.27 (journal policy first, else disclose by risk)
+  negative_fixture: tests/fixtures/negative/ART005/
+  notes: The venue's own GenAI rule, if any, comes first (p.27) and is NEEDS_VERIFICATION; the placement enum only
+    mirrors the guideline's two examples (p.12). GrantThai never writes the statement. REVIEW only.
+- id: ART006
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: ARTICLE.FRONT.AUTHORS has more than one entry and ARTICLE.FRONT.CONTRIBUTIONS is empty, or an author has no
+    ARTICLE.FRONT.CONTRIBUTIONS entry with at least one role. The role vocabulary is the CRediT taxonomy (ANSI/NISO
+    Z39.104-2022), RELAYED and NEEDS_VERIFICATION; whether a venue uses it is NEEDS_VERIFICATION.
+  inputs:
+  - ARTICLE.FRONT.AUTHORS
+  - ARTICLE.FRONT.CONTRIBUTIONS
+  chain_step: project
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: N13, guideline p.5 (ICMJE authorship criteria, a substantive and accountable contribution per author);
+      role labels from CRediT, RELAYED, NEEDS_VERIFICATION until docs/sources.md cites the standard's public page
+  negative_fixture: tests/fixtures/negative/ART006/
+  notes: Structural only. GrantThai does not judge whether a contribution merits authorship. REVIEW only.
+- id: ART007
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: BLOCK
+  severity_basis: plan
+  description_en: An ARTICLE.FRONT.AUTHORS or ARTICLE.FRONT.CONTRIBUTIONS entry names an AI tool. Either the referenced
+    PROFILE.TEAM.MEMBERS full_name or organization, or affiliation_as_typed, and an authoring.ai_use_declaration
+    tools[].name or authoring.tools_disclosed entry contain one another as whole words (case-insensitive, both
+    directions, a parenthetical in the tool name also tried on its own and removed); or, whether or not anything
+    was disclosed, the member's full_name matches a generic AI-tool name pattern in
+    validators/ai_tool_name_patterns.yaml (data; generic terms plus Thai transliterations of common tool words); or
+    the member's full_name and a disclosed tool name share a distinctive word (at least 3 characters once digits
+    are removed; version, generic product and fiction-marker words do not count). Every name is first folded
+    (v0.3.0) by NFKC, Unicode format (Cf) and zero-width characters removed, Cyrillic/Greek look-alike letters
+    folded to Latin inside a mixed word, hyphens and underscores read as spaces, whitespace folded, casefolded,
+    spaced single letters joined. A miss is still possible, since the folding covers known spelling tricks, not every
+    one. An AI is never an author.
+  inputs:
+  - project:authoring
+  - ARTICLE.FRONT.AUTHORS
+  - ARTICLE.FRONT.CONTRIBUTIONS
+  - PROFILE.TEAM.MEMBERS
+  chain_step: project
+  source:
+    derived_from: AGENTS.md
+    locator: non-negotiable 4 (no AI/vendor authorship anywhere); supporting policy N13, GenAI research-ethics
+      guideline 2569 p.5, p.11-12, p.23 (GenAI cannot be an author under the ICMJE criteria)
+  negative_fixture: tests/fixtures/negative/ART007/
+  notes: The one BLOCK of the ART family. It rests on GrantThai's own non-negotiable, not on a journal fact. The
+    finding names the entry, never the tool's text beyond the matched name. A build still renders (a BLOCK never
+    stops rendering); manuscript_ready is false.
+- id: ART008
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: Human-participant signals are present (COMP.STANDARD.HUMAN affirmative, a chain EthicsRequirement
+    record, or METHOD.PLAN.POPULATION filled) and ARTICLE.STATEMENT.ETHICS is empty. Mirrors the E family for the
+    manuscript's own ethics statement; the committee name and approval identifier are the researcher's, as typed.
+  inputs:
+  - COMP.STANDARD.HUMAN
+  - chain:EthicsRequirement
+  - METHOD.PLAN.POPULATION
+  - ARTICLE.STATEMENT.ETHICS
+  chain_step: EthicsRequirement
+  source:
+    derived_from: docs/practice/funded-work-patterns.md
+    locator: corpus-100 pattern FWP-24 (29/100; EMERGING, undercounted; funded final reports, not articles)
+  negative_fixture: tests/fixtures/negative/ART008/
+  notes: Ethics wording is present in 29 of the 100 funded final reports and undercounted (reports, not articles);
+    the rule mirrors E001 for the manuscript statement. REVIEW only.
+- id: ART009
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An ARTICLE.BODY.FIGURES_TABLES item has data_bearing true and ai_generated_illustration true. An AI may
+    not generate or alter research data, results or factual images.
+  inputs:
+  - ARTICLE.BODY.FIGURES_TABLES
+  chain_step: Evidence
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: N10, GenAI research-ethics guideline 2569 p.11 item 1, p.24, p.25 items 1-5
+  negative_fixture: tests/fixtures/negative/ART009/
+  notes: REVIEW, as the AI family is never BLOCK (the guideline's binding status is OPEN). GrantThai reads only the
+    two flags the researcher declared; it sees no image.
+- id: ART010
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: plan
+  description_en: An ARTICLE.VENUE.TARGET stated_requirements item has no source_ref, or name_as_typed is set with no
+    source_refs at all. No venue fact without a source the researcher supplied; the item prints NEEDS_VERIFICATION.
+  inputs:
+  - ARTICLE.VENUE.TARGET
+  - project:sources
+  chain_step: project
+  source:
+    derived_from: AGENTS.md
+    locator: non-negotiable 3 (no invented facts; unsourced facts print NEEDS_VERIFICATION), extended to venues by
+      the v0.3 router
+  negative_fixture: tests/fixtures/negative/ART010/
+  notes: GrantThai ships no venue registry and never fills a venue fact from recall. REVIEW only; the researcher
+    supplies the venue's own current author guidelines as a source.
+- id: ART011
+  family: ART
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: An ARTICLE.BODY.FIGURES_TABLES item has ai_generated_illustration true and its caption is empty or
+    carries no disclosure (no mention of AI, generated or the disclosed tool's name).
+  inputs:
+  - ARTICLE.BODY.FIGURES_TABLES
+  - project:authoring
+  chain_step: project
+  source:
+    derived_from: docs/policy/ai-use-ceiling.md
+    locator: N11, GenAI research-ethics guideline 2569 p.11, p.25 items 4 and 6; N15 p.12 (caption AI-made images)
+  negative_fixture: tests/fixtures/negative/ART011/
+  notes: The check is a disclosure-word test on the caption, not a judgement of the image. A venue's own captioning
+    rule is NEEDS_VERIFICATION. REVIEW only.
+- id: 7SSA-01
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and one of the sectors S1-S7 has no ARTICLE.BODY.SECTIONS item tagged
+    with it and none of its required slots filled (from a tagged item or from the ARTICLE.SSA.* field the slot reads). The
+    sector still prints, with NEEDS_INPUT under its marker; nothing is dropped.
+  inputs:
+  - ARTICLE.BODY.SECTIONS
+  - ARTICLE.SSA.GAP
+  - ARTICLE.SSA.CONTRIBUTION
+  - ARTICLE.SSA.BEFORE_AFTER
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: '7SSA schema v1 §5 (invariant: sectors must not disappear), §31 (audit table), §40 Invariant 8'
+  negative_fixture: tests/fixtures/negative/7SSA-01/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-02
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: 'A 7SSA structure profile is selected and the problem is not stated before the contribution: the first
+    ARTICLE.BODY.SECTIONS item tagged S5 comes before the first item tagged S4, or ARTICLE.SSA.GAP is empty while ARTICLE.SSA.CONTRIBUTION
+    is filled.'
+  inputs:
+  - ARTICLE.BODY.SECTIONS
+  - ARTICLE.SSA.GAP
+  - ARTICLE.SSA.CONTRIBUTION
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §21 (Sector 4 must make Sector 5 necessary)
+  negative_fixture: tests/fixtures/negative/7SSA-02/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-03
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and Sector 6 has no filled strongest_objection, boundary_conditions
+    or limitations slot (each one missing is named).
+  inputs:
+  - ARTICLE.BODY.SECTIONS
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §11.4, §24 GATE_6
+  negative_fixture: tests/fixtures/negative/7SSA-03/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-04
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile with Thai headings is selected and ARTICLE.FRONT.ABSTRACT_TH or ARTICLE.FRONT.ABSTRACT_EN
+    is empty (the source's Thai layout carries both). Complements ART001, which reads the sub-profile.
+  inputs:
+  - ARTICLE.FRONT.ABSTRACT_TH
+  - ARTICLE.FRONT.ABSTRACT_EN
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §5.1 (บทคัดย่อ and Abstract), §13.3
+  negative_fixture: tests/fixtures/negative/7SSA-04/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-05
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and ARTICLE.SSA.CONTRIBUTION has no one_sentence or no difference_from_prior.
+  inputs:
+  - ARTICLE.SSA.CONTRIBUTION
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §10.3, §23 steps 1-3
+  negative_fixture: tests/fixtures/negative/7SSA-05/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-06
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and ARTICLE.SSA.GAP has no consequence_if_unresolved (a gap must
+    have consequences).
+  inputs:
+  - ARTICLE.SSA.GAP
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §9.2, §40 Invariant 4
+  negative_fixture: tests/fixtures/negative/7SSA-06/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-07
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: 'A 7SSA structure profile is selected and Sector 7 has no before/after statement: ARTICLE.SSA.BEFORE_AFTER
+    has neither before_state nor after_state, and no body item tagged S7 fills those slots.'
+  inputs:
+  - ARTICLE.SSA.BEFORE_AFTER
+  - ARTICLE.BODY.SECTIONS
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §12.2, §40 Invariant 7
+  negative_fixture: tests/fixtures/negative/7SSA-07/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).
+- id: 7SSA-08
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: INFO
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected and ARTICLE.META.KIND is empirical_research, which the source places
+    outside 7SSA (not IMRaD). The build still renders; this never refuses.
+  inputs:
+  - ARTICLE.META.KIND
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §39
+  negative_fixture: tests/fixtures/negative/7SSA-08/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    INFO only.
+- id: 7SSA-09
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: INFO
+  severity_basis: proposed_default
+  description_en: The selected 7SSA structure profile pairs with a different sub-profile language than the sub-profile in
+    force (for example a Thai-heading profile with international-journal). The build still renders; this never refuses.
+  inputs:
+  - route:sub_profile
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: 7SSA schema v1 §3-§5 (world and Thai renderers); GrantThai pairing, INSTINCT
+  negative_fixture: tests/fixtures/negative/7SSA-09/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    INFO only.
+- id: 7SSA-10
+  family: SSA
+  ships: v0.3
+  routes: [academic-article]
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: A 7SSA structure profile is selected, ARTICLE.SSA.ARTICLE_TYPE is integrative_review or cs_sok, and Sector
+    2 has no filled corpus_method or inclusion_logic slot. The wording check for 'systematic' stays with GrantThai's other
+    rules; this checks presence only.
+  inputs:
+  - ARTICLE.SSA.ARTICLE_TYPE
+  - ARTICLE.BODY.SECTIONS
+  - route:structure_profile
+  chain_step: project
+  source:
+    derived_from: 7ssa/v1@sha256:1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+    locator: '7SSA schema v1 §7.2 REVIEW_PAPER (corpus_method, inclusion_logic: required), §15.5, §15.7'
+  negative_fixture: tests/fixtures/negative/7SSA-10/
+  notes: Fires only while a 7SSA structure profile is selected; a structural presence check, never a judgement of the argument.
+    REVIEW only; never BLOCK (7SSA is a founder-authored structure, not a venue fact).

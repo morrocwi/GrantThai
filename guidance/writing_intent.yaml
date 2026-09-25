@@ -28,7 +28,28 @@
 #   funded report by id and PDF page (R1 p8) — never quoted text. No reader
 #   has recorded such pages yet, so every seen_in is NEEDS_INPUT.
 # - Every Thai string is NEEDS_INPUT: no Thai wording is filled without a
-#   cited source (tests/test_writing_intent.py).
+#   cited source (tests/test_writing_intent.py). The one exception is the
+#   `practice:` advice below (unreleased, after v0.2.0).
+# - `practice:` entries record what the 100 funded final reports in
+#   docs/demo/corpus-100.csv share (docs/practice/funded-work-patterns.md).
+#   `evidence` and `tier` are recomputed from the CSV by
+#   tools/corpus/practice_stats.py and checked by
+#   tests/test_practice_patterns.py. Tiers: CORE (>=70/100 and >=50% in each
+#   source), CONTEXTUAL (40-69%, or concentrated in one source), EMERGING
+#   (<40% but rising across year bands). The advice (English and Thai) is
+#   GrantThai's own practice wording, DRAFT, not a form label and not a fund
+#   rule; `seen_in` cites a deep-read report by corpus id and PDF page only.
+#   These are final reports, so budget, workplan, key results, TRL and SRL
+#   get no practice entry from this corpus.
+# - v0.3 router: ARTICLE.* entries (routes/academic-article) carry
+#   `length_target: null` (no article length target is shipped; W101/W102
+#   skip them until a target has a sourced basis) and a `practice_context`
+#   string instead of `practice` entries. Every practice_context cites
+#   corpus-100 patterns AND says that corpus-100 is funded FINAL REPORTS,
+#   not articles: the counts are descriptive context for the box, never a
+#   venue fact and never a rule basis on their own. No venue is named.
+#   No ARTICLE checklist item is added here: the checklist is rendered into
+#   every route's output and pinned by a golden file for the NRIIS route.
 schema: grantthai.writing_intent.v0
 version: 0.2.0-draft
 status: DRAFT
@@ -169,6 +190,15 @@ fields:
     length_target: {unit: items, min: 3, max: 5, basis: "SD-5 p3 (at most 5 keywords, FF full-proposal form 2570); proposed_default minimum 3; NEEDS_VERIFICATION for other forms and editions"}
     keep_out: ["whole sentences as keywords", "keywords absent from the title and objectives"]
     quality_traits: [{trait: "each keyword appears in the title, objectives or method", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-12
+      evidence: "50/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "Keywords appear in 50/100 overall, rising from 29% to 69% across the year bands."
+      advice: {en: "Choose keywords that name the object, the population or site and the method.", th: "เลือกคำสำคัญที่บอกสิ่งที่ศึกษา กลุ่มประชากรหรือพื้นที่ และวิธีการ"}
+      do_not: ["keywords that only repeat words of the title"]
+      seen_in: ["PSU-015 p67"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: registry/fields.jsonl
   CORE.GENERAL.KEYWORDS_EN:
     purpose: {en: "The same keywords in English, one to one with the Thai list.", th: NEEDS_INPUT}
@@ -176,6 +206,15 @@ fields:
     length_target: {unit: items, min: 3, max: 5, basis: "SD-5 p3 (at most 5 keywords, FF full-proposal form 2570); proposed_default minimum 3; NEEDS_VERIFICATION for other forms and editions"}
     keep_out: ["a different number of keywords from the Thai list"]
     quality_traits: [{trait: "one-to-one with the Thai list", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-12
+      evidence: "50/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "Keywords appear in 50/100 overall, rising from 29% to 69% across the year bands."
+      advice: {en: "Use the same concepts as the Thai keywords, in the terms the field uses in English.", th: "ใช้แนวคิดชุดเดียวกับคำสำคัญภาษาไทย ในศัพท์ที่สาขานั้นใช้ในภาษาอังกฤษ"}
+      do_not: ["a literal word-for-word translation of the Thai keywords"]
+      seen_in: ["PSU-015 p67"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: registry/fields.jsonl
   CORE.GENERAL.OECD.PRIMARY:
     purpose: {en: "The OECD main field the project's method and object belong to (contradiction CX-10, OPEN).", th: NEEDS_INPUT}
@@ -278,6 +317,20 @@ fields:
     length_target: {unit: words, min: 40, max: 300, basis: "proposed_default; core/02 §4A.2 compression target NEEDS_VERIFICATION (source excluded from the public repo)"}
     keep_out: ["a need with no source record", "a need broader than any objective addresses"]
     quality_traits: [{trait: "every factual claim has a source id", seen_in: NEEDS_INPUT}, {trait: "the need is the one the impacts return to", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-01
+      evidence: "91/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Tie the need to the problem's size and to who is affected, with a source.", th: "ผูกความจำเป็นเข้ากับขนาดของปัญหาและกลุ่มที่ได้รับผลกระทบ พร้อมแหล่งอ้างอิง"}
+      do_not: ["a need argued only from national-plan wording"]
+      source: docs/practice/funded-work-patterns.md
+    - pattern_id: FWP-16
+      evidence: "58/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "Health-systems reports (HSRI repository 65%) name a strategy or national plan far more often than the PSU repository reports (24%)."
+      advice: {en: "If the call asks for alignment, name the plan line and show how the results chain reaches it; otherwise the problem itself carries the case.", th: "ถ้าประกาศทุนขอให้แสดงความสอดคล้อง ให้ระบุประเด็นของแผนและแสดงว่าห่วงโซ่ผลลัพธ์ไปถึงประเด็นนั้นอย่างไร ถ้าไม่ได้ขอ ให้ตัวปัญหาเป็นเหตุผลหลัก"}
+      do_not: ["a plan line chosen for prestige that the results chain does not reach"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.RESEARCH.PROBLEM:
     purpose: {en: "The specific problem, in a named site or group, that the project will work on.", th: NEEDS_INPUT}
@@ -285,6 +338,14 @@ fields:
     length_target: {unit: words, min: 40, max: 300, basis: "proposed_default; core/02 §4A.2 compression target NEEDS_VERIFICATION (source excluded from the public repo)"}
     keep_out: ["a restatement of the national need without a site", "a cause the method cannot reach"]
     quality_traits: [{trait: "names site or group, harm, evidence and the addressed cause", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-01
+      evidence: "91/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "State the problem with at least one figure or documented fact and its source; the rationale box then builds on it.", th: "ระบุปัญหาพร้อมตัวเลขหรือข้อเท็จจริงอย่างน้อยหนึ่งอย่างและแหล่งที่มา แล้วให้ช่องความเป็นมาต่อยอดจากตรงนี้"}
+      do_not: ["a problem stated with no source (rule R001 already checks this)"]
+      seen_in: ["HSRI-047 p21"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.RESEARCH.GAP:
     purpose: {en: "What is known, what is unknown or not yet done, and why existing approaches fall short.", th: NEEDS_INPUT}
@@ -292,6 +353,15 @@ fields:
     length_target: {unit: words, min: 30, max: 250, basis: "proposed_default; core/02 §4A.2 compression target NEEDS_VERIFICATION (source excluded from the public repo)"}
     keep_out: ["'no study exists' without a prior-knowledge record", "a gap the research question does not enter"]
     quality_traits: [{trait: "links to at least one PriorKnowledge record", seen_in: NEEDS_INPUT}, {trait: "the primary RQ is phrased inside this gap", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-09
+      evidence: "64/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "A literature-review chapter appears in 64/100 overall, rising over time."
+      advice: {en: "Let the gap come out of the related-studies block: what earlier studies did, and what they left open for this site or group.", th: "ให้ช่องว่างความรู้มาจากส่วนงานวิจัยที่เกี่ยวข้อง ว่างานเดิมทำอะไรไปแล้ว และยังเหลืออะไรที่ยังไม่ได้ตอบสำหรับพื้นที่หรือกลุ่มนี้"}
+      do_not: ["a gap claimed without naming the prior studies"]
+      seen_in: ["HSRI-047 p21"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.RESEARCH.RQ.PRIMARY:
     purpose: {en: "The one question the project answers; every objective answers part of it.", th: NEEDS_INPUT}
@@ -313,6 +383,29 @@ fields:
     length_target: {unit: items, min: 1, max: 5, basis: "registry:CORE.RESEARCH.OBJECTIVES guidance (id, statement, linked RQ, method, output, KR); proposed_default for the cap; core/02 §4A.2 NEEDS_VERIFICATION"}
     keep_out: ["an objective with no rq_ids", "an objective no method or output reaches", "prestige metrics without relevance (core/02 §4B, relayed)"]
     quality_traits: [{trait: "one objective per research question, numbered 1:1", seen_in: NEEDS_INPUT}, {trait: "every objective starts with a measurable verb", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-02
+      evidence: "82/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Give the objectives their own list; every objective item needs a method and an output link (rules R004, R005).", th: "แยกวัตถุประสงค์เป็นรายการของตัวเอง และทุกข้อต้องเชื่อมกับวิธีการและผลผลิต (กฎ R004, R005)"}
+      do_not: ["objectives hidden inside the rationale text"]
+      seen_in: ["HSRI-010 p13", "HSRI-080 p13"]
+      source: docs/practice/funded-work-patterns.md
+    - pattern_id: FWP-03
+      evidence: "77/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Number the objectives in a fixed order and keep the same numbers in the method and analysis, so a reader can match objective k to its data and analysis.", th: "ใส่เลขกำกับวัตถุประสงค์ตามลำดับที่แน่นอน และใช้เลขเดียวกันในบทวิธีการและการวิเคราะห์ ผู้อ่านจะจับคู่วัตถุประสงค์แต่ละข้อกับข้อมูลและการวิเคราะห์ได้ทันที"}
+      do_not: ["one long objective that joins several aims with 'and'", "renumbering objectives between sections"]
+      seen_in: ["HSRI-010 p13", "HSRI-010 p24", "HSRI-041 p19", "PSU-026 p12", "PSU-015 p10"]
+      rule: FW002
+      source: docs/practice/funded-work-patterns.md
+    - pattern_id: FWP-05
+      evidence: "74/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Pair every objective with the part of the method that answers it; a design table (objective, data, informants, analysis) does this in one place.", th: "จับคู่วัตถุประสงค์ทุกข้อกับส่วนของวิธีการที่ตอบข้อนั้น ตารางออกแบบการวิจัย (วัตถุประสงค์ ข้อมูล ผู้ให้ข้อมูล การวิเคราะห์) ทำได้ในที่เดียว"}
+      do_not: ["an objective that no method step or analysis answers"]
+      seen_in: ["HSRI-041 p56", "HSRI-047 p26"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.RESEARCH.CONSTRUCTS:
     purpose: {en: "The named ideas the study measures or observes, each with a definition, an operational definition and indicators.", th: NEEDS_INPUT}
@@ -355,6 +448,15 @@ fields:
     length_target: {unit: items, min: 0, max: 5, basis: "registry:CORE.RESEARCH.THEORETICAL_FOUNDATIONS guidance (one theory per entry); proposed_default for the cap"}
     keep_out: ["a theory cited but never used by a construct or relation"]
     quality_traits: [{trait: "each theory is used by a construct, relation or proposition", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-09
+      evidence: "64/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "A literature-review chapter appears in 64/100 overall (HSRI repository 65%, PSU repository 59%)."
+      advice: {en: "List each foundation as a short topic the review covers, in the order of the objectives.", th: "เขียนฐานทางทฤษฎีแต่ละข้อเป็นหัวข้อสั้น ๆ ที่การทบทวนวรรณกรรมจะครอบคลุม เรียงตามลำดับวัตถุประสงค์"}
+      do_not: ["foundations that no objective or construct uses"]
+      seen_in: ["HSRI-041 p23"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.RESEARCH.PROPOSITIONS:
     purpose: {en: "Statements an exploratory or qualitative study will explore, one per entry.", th: NEEDS_INPUT}
@@ -378,6 +480,14 @@ fields:
     length_target: {unit: words, min: 100, max: 3000, basis: "registry:CORE.NARRATIVE.SUMMARY guidance (observed instruction, not more than 3,000 words); SD-5 p3 (FF full-proposal form 2570, at most 3000 words, read at v0.2 integration); NEEDS_VERIFICATION for other forms and editions"}
     keep_out: ["content absent from the render_from records", "results that have not happened yet stated as findings"]
     quality_traits: [{trait: "every sentence traces to a render_from record", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-11
+      evidence: "64/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "An abstract appears in 64/100 overall (PSU repository 88%, HSRI repository 59%) and rose from 35% to 87% across the year bands."
+      advice: {en: "Write the summary so it stands alone: problem, objectives, method, expected results, in that order.", th: "เขียนบทสรุปให้อ่านจบในตัว เรียงเป็น ปัญหา วัตถุประสงค์ วิธีการ และผลที่คาดว่าจะได้รับ"}
+      do_not: ["a summary that repeats the title and rationale only"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.NARRATIVE.RATIONALE:
     purpose: {en: "The rationale box: why this problem, why now, why this question, written from Need, Problem, Gap and the primary RQ.", th: NEEDS_INPUT}
@@ -385,6 +495,14 @@ fields:
     length_target: {unit: words, min: 100, max: 3000, basis: "registry:CORE.NARRATIVE.RATIONALE guidance (observed instruction, not more than 3,000 words); NEEDS_VERIFICATION"}
     keep_out: ["evidence with no source record", "a rationale that argues for a different question than RQ.PRIMARY"]
     quality_traits: [{trait: "ends on the primary research question", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-01
+      evidence: "91/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Open with the problem as it stands now, with its size or trend from a cited source, then say why it matters and what is still unknown.", th: "เปิดด้วยสภาพปัญหาปัจจุบัน พร้อมขนาดหรือแนวโน้มจากแหล่งที่อ้างอิงได้ แล้วบอกว่าทำไมสำคัญ และยังไม่รู้อะไร"}
+      do_not: ["a rationale made only of general statements with no source", "a background that never reaches the gap the project fills"]
+      seen_in: ["HSRI-047 p21", "PSU-026 p12"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.NARRATIVE.OBJECTIVES:
     purpose: {en: "The objectives box: the numbered objectives, verbatim from CORE.RESEARCH.OBJECTIVES.", th: NEEDS_INPUT}
@@ -392,6 +510,15 @@ fields:
     length_target: {unit: words, min: 10, max: 500, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["an objective not in CORE.RESEARCH.OBJECTIVES", "re-ordered numbering"]
     quality_traits: [{trait: "same count and order as the core objectives", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-03
+      evidence: "77/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Write the objectives as 1) 2) 3), one aim each, starting with an action verb, in the same order as the objective items.", th: "เขียนวัตถุประสงค์เป็นข้อ 1) 2) 3) ข้อละหนึ่งเป้าหมาย ขึ้นต้นด้วยคำกริยา และเรียงตามลำดับเดียวกับรายการวัตถุประสงค์"}
+      do_not: ["prose that runs the objectives together without numbers"]
+      seen_in: ["HSRI-010 p13", "HSRI-041 p19", "HSRI-080 p13"]
+      rule: FW002
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.NARRATIVE.FRAMEWORK:
     purpose: {en: "The conceptual-framework box: constructs, their relations and the boundary conditions, in prose.", th: NEEDS_INPUT}
@@ -399,6 +526,15 @@ fields:
     length_target: {unit: words, min: 50, max: 1500, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["a construct or relation absent from the core records"]
     quality_traits: [{trait: "every named construct exists in CORE.RESEARCH.CONSTRUCTS", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-22
+      evidence: "31/100 funded reports (corpus-100)"
+      tier: EMERGING
+      context: "A framework section appears in 31/100, rising from 23% to 46% across the year bands; none of the 17 PSU repository reports has one."
+      advice: {en: "Draw the framework as a diagram whose boxes are the constructs the instruments measure and the objectives address.", th: "วาดกรอบแนวคิดเป็นแผนภาพ ให้แต่ละกล่องเป็นตัวแปรหรือแนวคิดที่เครื่องมือวัดและวัตถุประสงค์กล่าวถึง"}
+      do_not: ["a framework diagram with boxes that no instrument or objective uses"]
+      seen_in: ["HSRI-041 p20", "HSRI-047 p26"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.NARRATIVE.THEORY:
     purpose: {en: "The theory box: the theoretical foundations and the hypotheses or propositions they lead to.", th: NEEDS_INPUT}
@@ -406,6 +542,23 @@ fields:
     length_target: {unit: words, min: 50, max: 1500, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["a theory with no source record"]
     quality_traits: [{trait: "each theory appears in CORE.RESEARCH.THEORETICAL_FOUNDATIONS", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-06
+      evidence: "78/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Every concept or prior finding the theory box relies on should point to an entry in the reference list.", th: "ทุกแนวคิดหรือผลการศึกษาเดิมที่ช่องทฤษฎีอาศัย ควรชี้ไปที่รายการในบัญชีเอกสารอ้างอิงได้"}
+      do_not: ["theory written from memory with no citation"]
+      seen_in: ["PSU-026 p14"]
+      rule: FW001
+      source: docs/practice/funded-work-patterns.md
+    - pattern_id: FWP-09
+      evidence: "64/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "A literature-review chapter appears in 64/100 overall, rising from 55% (BE 2559 or earlier) to 74% (BE 2563-68)."
+      advice: {en: "Open the review with a numbered list of topics that mirrors the objectives or framework parts, and end with a block on related studies.", th: "เปิดการทบทวนวรรณกรรมด้วยรายการหัวข้อที่มีเลขกำกับ ให้ตรงกับวัตถุประสงค์หรือองค์ประกอบของกรอบแนวคิด แล้วปิดด้วยส่วนงานวิจัยที่เกี่ยวข้อง"}
+      do_not: ["a review organised by author rather than by the questions the project asks"]
+      seen_in: ["HSRI-010 p14", "HSRI-041 p23", "PSU-026 p14"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.NARRATIVE.METHOD:
     purpose: {en: "The methodology box: design, population and sample, instruments, data collection, analysis, quality and ethics, from the METHOD.PLAN records.", th: NEEDS_INPUT}
@@ -413,6 +566,22 @@ fields:
     length_target: {unit: words, min: 100, max: 3000, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["a method step with no METHOD.PLAN record", "an instrument not in METHOD.PLAN.INSTRUMENTS"]
     quality_traits: [{trait: "each paragraph maps to one METHOD.PLAN record", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-04
+      evidence: "80/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Keep a method section that says who or what is studied, how data are collected and how they are analysed.", th: "มีบทวิธีการที่บอกว่าศึกษาใครหรืออะไร เก็บข้อมูลอย่างไร และวิเคราะห์อย่างไร"}
+      do_not: ["a method box that only names the design"]
+      seen_in: ["HSRI-010 p21-24", "PSU-026 p36"]
+      source: docs/practice/funded-work-patterns.md
+    - pattern_id: FWP-10
+      evidence: "66/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "Sub-headings for population, instruments, data collection or analysis appear in 70% of HSRI repository reports but 47% of PSU repository reports; experimental work often describes treatments and design instead."
+      advice: {en: "Use the sub-parts that fit the design: population and sample, instruments and their quality check, data collection, analysis; an experiment names its design, treatments and duration instead.", th: "ใช้หัวข้อย่อยที่เหมาะกับแบบการวิจัย ได้แก่ ประชากรและกลุ่มตัวอย่าง เครื่องมือและการตรวจคุณภาพ การเก็บข้อมูล การวิเคราะห์ ส่วนงานทดลองให้ระบุแผนการทดลอง ทรีตเมนต์ และระยะเวลาแทน"}
+      do_not: ["forcing survey sub-headings onto a laboratory design"]
+      seen_in: ["HSRI-010 p21-24", "PSU-026 p36", "PSU-039 p6"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.NARRATIVE.REFERENCES:
     purpose: {en: "The reference list, one entry per item, one citation style throughout.", th: NEEDS_INPUT}
@@ -420,6 +589,15 @@ fields:
     length_target: {unit: items, min: 0, max: 100, basis: "registry:CORE.NARRATIVE.REFERENCES guidance (one entry per item); proposed_default for the cap"}
     keep_out: ["a reference no record cites", "mixed citation styles"]
     quality_traits: [{trait: "every source record with kind PUBLISHED_LITERATURE has an entry", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-06
+      evidence: "78/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Keep a reference list and cite from it in the theory, gap and method boxes; where the extractor could count them (70 reports), the median list has about 40 works.", th: "มีรายการเอกสารอ้างอิง และอ้างจากรายการนี้ในช่องทฤษฎี ช่องว่างความรู้ และวิธีการ รายงานที่ได้รับทุนซึ่งนับได้มีค่ามัธยฐานราว 40 รายการ"}
+      do_not: ["a theory box with no reference list", "references that the text never cites", "padding the list to reach a number"]
+      seen_in: ["PSU-026 p14", "HSRI-047 p21"]
+      rule: FW001
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   CORE.NARRATIVE.IP_CHECK:
     purpose: {en: "Whether related intellectual property was searched for, where, and what was found.", th: NEEDS_INPUT}
@@ -436,6 +614,14 @@ fields:
     length_target: {unit: words, min: 20, max: 400, basis: "proposed_default; core/02 §4A.2 NEEDS_VERIFICATION"}
     keep_out: ["a design type the objectives cannot be answered by", "phases with no workplan activity"]
     quality_traits: [{trait: "every objective's method_ids point into this design", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-05
+      evidence: "74/100 funded reports (corpus-100)"
+      tier: CORE
+      advice: {en: "Name the design and show which objective each phase serves.", th: "ระบุแบบการวิจัย และแสดงว่าแต่ละระยะตอบวัตถุประสงค์ข้อใด"}
+      do_not: ["a design with phases that no objective needs"]
+      seen_in: ["HSRI-041 p56"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   METHOD.PLAN.POPULATION:
     purpose: {en: "Who the study is about, how many there are, and who is in or out.", th: NEEDS_INPUT}
@@ -443,6 +629,15 @@ fields:
     length_target: {unit: words, min: 15, max: 300, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["a population size with no source record"]
     quality_traits: [{trait: "criteria match the boundary conditions", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-18
+      evidence: "38/100 funded reports (corpus-100)"
+      tier: EMERGING
+      context: "A population/sample sub-section appears in 38/100, rising from 23% to 51%; in the HSRI repository only (0 of 17 PSU repository reports)."
+      advice: {en: "Define the population, then the site and why it was chosen.", th: "นิยามประชากร แล้วบอกพื้นที่ศึกษาและเหตุผลที่เลือกพื้นที่นั้น"}
+      do_not: ["a sample described before the population it is drawn from"]
+      seen_in: ["HSRI-010 p21-22"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   METHOD.PLAN.SAMPLE:
     purpose: {en: "How the sample is drawn, its groups, and why the size is enough.", th: NEEDS_INPUT}
@@ -450,6 +645,15 @@ fields:
     length_target: {unit: words, min: 15, max: 300, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["a sample size with no justification"]
     quality_traits: [{trait: "group sizes add up to the total stated elsewhere", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-19
+      evidence: "35/100 funded reports (corpus-100)"
+      tier: EMERGING
+      context: "A stated sample-size basis (formula or named method) appears in 35/100, rising from 26% to 54% in BE 2563-68."
+      advice: {en: "For a quantitative design, give the sample-size method with every parameter and the source; for a purposive or stratified sample, give the selection criteria and why.", th: "งานเชิงปริมาณให้ระบุวิธีคำนวณขนาดตัวอย่างพร้อมค่าพารามิเตอร์ทุกตัวและแหล่งที่มา ส่วนการเลือกแบบเจาะจงหรือแบบแบ่งชั้นให้ระบุเกณฑ์การเลือกและเหตุผล"}
+      do_not: ["a sample size with no basis", "a formula with parameters left unstated"]
+      seen_in: ["HSRI-010 p21-22", "PSU-039 p6"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   METHOD.PLAN.RECRUITMENT:
     purpose: {en: "How participants are reached and consented, and how coercion and conflicts of interest are prevented.", th: NEEDS_INPUT}
@@ -485,6 +689,15 @@ fields:
     length_target: {unit: items, min: 1, max: 10, basis: "proposed_default; core/02 §4A.2 NEEDS_VERIFICATION"}
     keep_out: ["a data source with no instrument and no activity"]
     quality_traits: [{trait: "every instrument is used by a data-collection row", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-20
+      evidence: "33/100 funded reports (corpus-100)"
+      tier: EMERGING
+      context: "A data-collection sub-section appears in 33/100, rising from 23% to 44%."
+      advice: {en: "Say who collects which data, from whom, with which instrument, and how consent is obtained.", th: "บอกว่าใครเก็บข้อมูลอะไร จากใคร ด้วยเครื่องมือใด และขอความยินยอมอย่างไร"}
+      do_not: ["a data-collection step with no instrument"]
+      seen_in: ["HSRI-010 p23"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   METHOD.PLAN.ANALYSIS:
     purpose: {en: "How each data set is analysed, with which methods and tools, and how strands are integrated.", th: NEEDS_INPUT}
@@ -492,6 +705,15 @@ fields:
     length_target: {unit: words, min: 15, max: 400, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["an analysis method with no data source (data_ids)"]
     quality_traits: [{trait: "each analysis answers a named objective", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-17
+      evidence: "44/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "A data-analysis sub-section appears in 44/100 overall (HSRI repository 48%, PSU repository 24%), rising to 67% in BE 2563-68."
+      advice: {en: "Number the analyses in the order of the objectives, naming for each the data and the statistic or qualitative method.", th: "เรียงการวิเคราะห์เป็นข้อตามลำดับวัตถุประสงค์ แต่ละข้อบอกว่าใช้ข้อมูลใด และใช้สถิติหรือวิธีวิเคราะห์เชิงคุณภาพแบบใด"}
+      do_not: ["one analysis sentence for all objectives"]
+      seen_in: ["HSRI-010 p24", "PSU-039 p6"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   METHOD.PLAN.QUALITY:
     purpose: {en: "How the study guards validity and reliability: triangulation, inter-rater checks, audit trail, member checks, reproducibility.", th: NEEDS_INPUT}
@@ -499,6 +721,23 @@ fields:
     length_target: {unit: words, min: 15, max: 300, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["a quality strategy that names no concrete step"]
     quality_traits: [{trait: "each strategy names who does what and when", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-23
+      evidence: "32/100 funded reports (corpus-100)"
+      tier: EMERGING
+      context: "Expert or stakeholder validation is mentioned in 32/100, rising from 29% to 49%."
+      advice: {en: "State how the instruments or draft findings are checked: expert review with an index, a pilot, trustworthiness criteria, or a named standard.", th: "ระบุวิธีตรวจคุณภาพเครื่องมือหรือร่างข้อค้นพบ เช่น ให้ผู้ทรงคุณวุฒิตรวจพร้อมค่าดัชนี การทดลองใช้ เกณฑ์ความน่าเชื่อถือ หรือมาตรฐานที่อ้างถึง"}
+      do_not: ["'the instrument was validated' with no method"]
+      seen_in: ["HSRI-010 p23", "HSRI-041 p56"]
+      source: docs/practice/funded-work-patterns.md
+    - pattern_id: FWP-25
+      evidence: "15/100 funded reports (corpus-100)"
+      tier: EMERGING
+      context: "Limitations are stated in 15/100, rising from 6% to 31% in BE 2563-68; none in the PSU repository reports."
+      advice: {en: "Name the known limits of the data sources and the design now, and how the analysis will handle them.", th: "ระบุข้อจำกัดที่รู้อยู่แล้วของแหล่งข้อมูลและแบบการวิจัยไว้ตั้งแต่ต้น และบอกว่าจะจัดการในการวิเคราะห์อย่างไร"}
+      do_not: ["promising results the data cannot support"]
+      seen_in: ["HSRI-047 p87-88"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   METHOD.PLAN.ETHICS:
     purpose: {en: "Human participation, consent, privacy, confidentiality, withdrawal, compensation, risk level and management, vulnerable groups and conflicts of interest.", th: NEEDS_INPUT}
@@ -506,6 +745,15 @@ fields:
     length_target: {unit: words, min: 20, max: 500, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["an ethics approval number typed before it is issued", "'no risk' for a study with human participants"]
     quality_traits: [{trait: "each vulnerable group named has a specific protection", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-24
+      evidence: "29/100 funded reports (corpus-100)"
+      tier: EMERGING
+      context: "Ethics (a section, committee approval or informed consent) is found in 29/100, rising from 23% to 38%; heading detection undercounts it, because reports often place ethics inside the method chapter."
+      advice: {en: "Write the protection of participants inside the method: consent, the right to withdraw, confidentiality and data retention, and the committee that will review it.", th: "เขียนการพิทักษ์สิทธิผู้ให้ข้อมูลไว้ในบทวิธีการ ได้แก่ การขอความยินยอม สิทธิถอนตัว การรักษาความลับ ระยะเวลาเก็บข้อมูล และคณะกรรมการจริยธรรมที่จะพิจารณา"}
+      do_not: ["an approval number before the committee has approved", "copying another project's consent text"]
+      seen_in: ["HSRI-041 p56", "PSU-039 p7", "HSRI-010 p23"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
 
   # ---------------------------------------------------------------- RESULTS.CHAIN
@@ -522,6 +770,23 @@ fields:
     length_target: {unit: words, min: 20, max: 300, basis: "proposed_default; core/02 §4A.2 NEEDS_VERIFICATION"}
     keep_out: ["a use with no named user group", "a user group absent from RESULTS.CHAIN.USERS"]
     quality_traits: [{trait: "each use names an output id and a user id", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-13
+      evidence: "59/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "Recommendations of some kind appear in 59/100 overall but are concentrated in the HSRI repository (67%) against the PSU repository (18%); they rose to 87% in BE 2563-68."
+      advice: {en: "Where the project aims at policy or practice, say which agency or level is expected to act, and on what.", th: "ถ้าโครงการมุ่งไปที่นโยบายหรือการปฏิบัติ ให้ระบุว่าหน่วยงานหรือระดับใดคาดว่าจะนำไปใช้ และนำไปใช้เรื่องใด"}
+      do_not: ["'policy makers' with no agency or level named"]
+      seen_in: ["HSRI-041 p122", "HSRI-073 p167"]
+      source: docs/practice/funded-work-patterns.md
+    - pattern_id: FWP-14
+      evidence: "47/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "A policy-recommendation phrase appears in 47/100 (HSRI repository 54%, PSU repository 12%)."
+      advice: {en: "Group intended recommendations by the framework's parts, each opening with the responsible agency and the action; quantify where the analysis allows (a price, a budget impact).", th: "จัดกลุ่มข้อเสนอที่ตั้งใจจะได้ตามองค์ประกอบของกรอบแนวคิด แต่ละข้อขึ้นต้นด้วยหน่วยงานที่รับผิดชอบและสิ่งที่ต้องทำ และใส่ตัวเลขเมื่อการวิเคราะห์ให้ได้ เช่น ราคา หรือผลกระทบต่องบประมาณ"}
+      do_not: ["a recommendation with no actor", "promising a policy change the project cannot cause"]
+      seen_in: ["HSRI-041 p7", "HSRI-041 p122", "HSRI-073 p167"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   RESULTS.CHAIN.BENEFIT_SUMMARY:
     purpose: {en: "One short paragraph on who benefits and how, consistent with the beneficiaries table.", th: NEEDS_INPUT}
@@ -529,6 +794,15 @@ fields:
     length_target: {unit: words, min: 15, max: 200, basis: "proposed_default; NEEDS_VERIFICATION"}
     keep_out: ["a benefit with no beneficiary row"]
     quality_traits: [{trait: "each benefit appears in RESULTS.CHAIN.BENEFICIARIES", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-15
+      evidence: "58/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "An outputs, expected-benefit or utilization section appears in 58/100, rising over time."
+      advice: {en: "Split expected benefits by kind (for example policy and commercial) and say who gains each.", th: "แยกประโยชน์ที่คาดว่าจะได้รับตามประเภท เช่น ด้านนโยบาย และด้านพาณิชย์ และบอกว่าใครได้รับประโยชน์แต่ละด้าน"}
+      do_not: ["benefits that no output leads to"]
+      seen_in: ["HSRI-080 p13-14"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   RESULTS.CHAIN.USERS:
     purpose: {en: "Who will use each output: group, name, target number and unit, and the intended use.", th: NEEDS_INPUT}
@@ -536,6 +810,15 @@ fields:
     length_target: {unit: items, min: 0, max: 8, basis: "registry:RESULTS.CHAIN.USERS guidance (group, name, target number, unit); proposed_default for the cap"}
     keep_out: ["a user with no output_ids"]
     quality_traits: [{trait: "every output has at least one user", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-26
+      evidence: "16/100 funded reports (corpus-100)"
+      tier: EMERGING
+      context: "Research users are named in 16/100, rising from 6% to 26%."
+      advice: {en: "Name the user agencies (not only 'the public') and link each one to the output it will use.", th: "ระบุหน่วยงานผู้ใช้ประโยชน์ (ไม่ใช่แค่ 'ประชาชน') และเชื่อมแต่ละหน่วยงานกับผลผลิตที่จะนำไปใช้"}
+      do_not: ["a user list with no link to any output"]
+      seen_in: ["HSRI-080 p14"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   RESULTS.CHAIN.BENEFICIARIES:
     purpose: {en: "Who gains from the outcomes: group, nature of benefit, target number and unit.", th: NEEDS_INPUT}
@@ -550,6 +833,15 @@ fields:
     length_target: {unit: items, min: 1, max: 10, basis: "registry:RESULTS.CHAIN.OUTPUTS guidance (output, quantity/unit, details); proposed_default for the cap"}
     keep_out: ["an output no objective produces", "an output with no quantity"]
     quality_traits: [{trait: "every objective yields at least one output", seen_in: NEEDS_INPUT}, {trait: "every output has a user", seen_in: NEEDS_INPUT}]
+    practice:
+    - pattern_id: FWP-15
+      evidence: "58/100 funded reports (corpus-100)"
+      tier: CONTEXTUAL
+      context: "An outputs, expected-benefit or utilization section appears in 58/100, rising from 45% to 79%; PSU repository 47%."
+      advice: {en: "List outputs by type (knowledge, product, technology transfer, policy proposal) with a count and how each will be shown to exist (a publication, an event, a document).", th: "เขียนผลผลิตแยกตามประเภท (องค์ความรู้ ผลิตภัณฑ์ การถ่ายทอดเทคโนโลยี ข้อเสนอเชิงนโยบาย) พร้อมจำนวน และหลักฐานที่จะแสดงว่าเกิดขึ้นจริง เช่น บทความ งานประชุม หรือเอกสาร"}
+      do_not: ["an output with no way to verify it"]
+      seen_in: ["PSU-015 p67-68", "HSRI-080 p13-14"]
+      source: docs/practice/funded-work-patterns.md
     derived_from: core/02@sha256:d36e6922a01296bd5001733ca7d5e1d2f6927fbcc08ffebde176d0d2159535a4
   RESULTS.CHAIN.OUTCOME_PROCESS:
     purpose: {en: "The adoption step between output and outcome: what process turns the output into use, in what quantity, by which users.", th: NEEDS_INPUT}
@@ -581,6 +873,188 @@ fields:
 # stands as GrantThai's proposed default. Deterministic items are evaluated
 # by src/grantthai/guidance/writing.py (PASS/OPEN); human items always
 # render HUMAN_CHECK. Rendered as output section 4.6 (integrator).
+  # ------------------------------------------------------ ARTICLE (v0.3 router)
+  # Route academic-article only. No length target shipped (null); every Thai
+  # string NEEDS_INPUT; no venue named anywhere.
+  ARTICLE.META.KIND:
+    purpose: {en: "The kind of article, from GrantThai's descriptive list (not any venue's article types).", th: NEEDS_INPUT}
+    micro_template: {en: "<empirical_research | review | conceptual | case_study | short_communication | other>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a venue's own article-type label copied as the kind"]
+    quality_traits: [{trait: "the kind matches the body structure used (IMRaD or free sections)", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.META.LANGUAGE:
+    purpose: {en: "The manuscript language: th, en or th+en. Drives which abstract and title languages the overview expects together with the sub-profile.", th: NEEDS_INPUT}
+    micro_template: {en: "<th | en | th+en>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a language the venue has not been confirmed to accept (NEEDS_VERIFICATION)"]
+    quality_traits: [{trait: "consistent with the abstract and title languages supplied", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.META.TITLE_TH:
+    purpose: {en: "The manuscript's Thai title. Empty means the shared CORE.GENERAL.TITLE_TH is copied as-is (never composed).", th: NEEDS_INPUT}
+    micro_template: {en: "<object> <relation or method> <site or group>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a title that promises a result the Results section does not show"]
+    quality_traits: [{trait: "names the object, the setting and the design", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.META.TITLE_EN:
+    purpose: {en: "The manuscript's English title. Empty means the shared CORE.GENERAL.TITLE_EN is copied as-is (never composed).", th: NEEDS_INPUT}
+    micro_template: {en: "<object> <relation or method> <site or group>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a literal word-for-word rendering of the Thai title"]
+    quality_traits: [{trait: "one to one in meaning with the Thai title", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.FRONT.ABSTRACT_TH:
+    purpose: {en: "The Thai abstract: what was asked, how, what was found, what it means. Plain text or the four parts.", th: NEEDS_INPUT}
+    micro_template: {en: "{background: <why>, methods: <design, sample, analysis>, results: <main finding>, conclusion: <what it means>}", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["results not in the Results section", "citations", "a word limit taken from memory of a venue (NEEDS_VERIFICATION)"]
+    quality_traits: [{trait: "every claim in the abstract appears in the body", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-11: an abstract (Thai or English) is present in 64/100 funded final reports, rising 35% to 87% across the year bands; Thai abstract lengths in that corpus (median about 2,500 characters) are report figures and are not article targets (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.FRONT.ABSTRACT_EN:
+    purpose: {en: "The English abstract, same content as the Thai one. Plain text or the four parts.", th: NEEDS_INPUT}
+    micro_template: {en: "{background: <why>, methods: <design, sample, analysis>, results: <main finding>, conclusion: <what it means>}", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["results not in the Results section", "citations"]
+    quality_traits: [{trait: "same findings as the Thai abstract", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-11: an abstract (Thai or English) is present in 64/100 funded final reports (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.FRONT.AUTHORS:
+    purpose: {en: "Who the authors are, by reference to the shared team record, in order, with the corresponding author marked.", th: NEEDS_INPUT}
+    micro_template: {en: "[{id: AU1, member_id: TM1, order: 1, corresponding: true, affiliation_as_typed: <as it should print>}]", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["an AI tool as an author (ART007, BLOCK)", "a person not in PROFILE.TEAM.MEMBERS"]
+    quality_traits: [{trait: "every author has a role in ARTICLE.FRONT.CONTRIBUTIONS", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.FRONT.CONTRIBUTIONS:
+    purpose: {en: "What each author did, as role codes (CRediT vocabulary, RELAYED, NEEDS_VERIFICATION).", th: NEEDS_INPUT}
+    micro_template: {en: "[{id: CRT1, member_id: TM1, roles: [conceptualization, methodology, writing_original_draft]}]", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a role for an AI tool (ART007)", "roles nobody can stand behind"]
+    quality_traits: [{trait: "one entry per author; the corresponding author carries at least one writing role", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.INTRODUCTION:
+    purpose: {en: "Why the study: the problem, what is known, the gap, and the question. Written by the researcher from the Problem, PriorKnowledge and Gap records.", th: NEEDS_INPUT}
+    micro_template: {en: "<problem with a sourced figure> <what prior work shows> <the gap> <this study asks RQ>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["results", "text not traceable to a chain record", "AI-composed prose adopted unread"]
+    quality_traits: [{trait: "ends with the research question or objective", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-01: a background or rationale section is present in 91/100 funded final reports; FWP-09: a literature-review section in 64/100 (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.METHODS:
+    purpose: {en: "How the study was done: design, population and sample, instruments, data collection, analysis, ethics. Written from the METHOD.PLAN.* records as executed.", th: NEEDS_INPUT}
+    micro_template: {en: "Design: <design>. Participants: <population, sample, size basis>. Instruments: <INS list>. Procedure: <collection>. Analysis: <analysis per objective>. Ethics: <approval as typed>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["the planned method where the executed one differed, without saying so", "AI-generated or AI-altered data (AI002)"]
+    quality_traits: [{trait: "each objective has an analysis", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-04: a method section is present in 80/100 funded final reports; FWP-10: method sub-parts in 66/100 (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.RESULTS:
+    purpose: {en: "What was found, per objective, from the Evidence records only. No interpretation here.", th: NEEDS_INPUT}
+    micro_template: {en: "Objective 1: <finding, figure or table ref>. Objective 2: <finding>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["interpretation (belongs in Discussion)", "a result with no Evidence record", "an AI-drafted data-bearing value (AI002)"]
+    quality_traits: [{trait: "every figure or table is cited once", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-07: a results section is present in 85/100 funded final reports, report-stage (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.DISCUSSION:
+    purpose: {en: "What the findings mean against prior work: the Claim records set against PriorKnowledge, with the claim strength the evidence allows (CH003).", th: NEEDS_INPUT}
+    micro_template: {en: "<finding> <agrees or differs with prior work, cited> <why> <what follows for practice or policy>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a claim stronger than its evidence path (CH003)", "new results"]
+    quality_traits: [{trait: "each claim names the evidence it rests on", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-08: a discussion or conclusion section is present in 90/100 funded final reports, report-stage (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.CONCLUSION:
+    purpose: {en: "The answer to the research question in a few sentences, and what should happen next.", th: NEEDS_INPUT}
+    micro_template: {en: "<answer to RQ> <main implication> <next step>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["claims absent from the Discussion"]
+    quality_traits: [{trait: "answers the research question as asked", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-08: a discussion or conclusion section is present in 90/100 funded final reports, report-stage (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.SECTION.LIMITATIONS:
+    purpose: {en: "Known limits of the design, data and setting, in the researcher's own words. Optional.", th: NEEDS_INPUT}
+    micro_template: {en: "<limit> <what it may affect> <how it was reduced or why it stands>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a generic limitation list not tied to this study"]
+    quality_traits: [{trait: "each limit points at a specific design or data choice", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-25: limitations are stated in 15/100 funded final reports, EMERGING and rising (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.BODY.SECTIONS:
+    purpose: {en: "For kinds other than empirical_research: the researcher's own headings, in order, each with its text and the records it was written from.", th: NEEDS_INPUT}
+    micro_template: {en: "[{id: MSC1, heading: <heading>, text: <text>, render_from: [<record ids>]}]", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["IMRaD sections duplicated here for an empirical article"]
+    quality_traits: [{trait: "headings follow the argument, not a venue template from memory", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.ETHICS:
+    purpose: {en: "The ethics statement as it should print: committee name and approval identifier exactly as the researcher has them, and consent.", th: NEEDS_INPUT}
+    micro_template: {en: "Approved by <committee as typed>, <identifier as typed>; informed consent <how>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a committee name or identifier filled from memory", "an approval that has not happened"]
+    quality_traits: [{trait: "identifier matches the ethics record in METHOD.PLAN.ETHICS", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-24: ethics wording appears in 29/100 funded final reports, EMERGING and undercounted (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.AI_USE:
+    purpose: {en: "The in-text AI-use statement, researcher-written: tool, stage, purpose, influence on conclusions, human checking; and where it goes (methods or acknowledgements). The venue's own rule comes first and is NEEDS_VERIFICATION.", th: NEEDS_INPUT}
+    micro_template: {en: "{text: '<tool, version> was used for <purpose> at <stage>; it did not <influence>; all output was checked by <who>.', placement: <methods | acknowledgements>}", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a statement written by the AI tool itself and adopted unread", "prompts containing sensitive data"]
+    quality_traits: [{trait: "consistent with authoring.ai_use_declaration", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.DATA_AVAILABILITY:
+    purpose: {en: "Where the data are, or why they cannot be shared. Optional.", th: NEEDS_INPUT}
+    micro_template: {en: "<data> are available <where, under what condition> | cannot be shared because <reason>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a repository or identifier not yet created"]
+    quality_traits: [{trait: "matches the privacy plan in METHOD.PLAN.ETHICS", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.CONFLICT_OF_INTEREST:
+    purpose: {en: "Interests that could be read as influencing the work, or a statement that there are none. Optional.", th: NEEDS_INPUT}
+    micro_template: {en: "The authors declare <no competing interests | the following: ...>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a blanket denial where E005 raised a finding"]
+    quality_traits: [{trait: "consistent with the conflict-of-interest record in METHOD.PLAN.ETHICS", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.STATEMENT.FUNDING:
+    purpose: {en: "Who funded the work, as the funder asks to be named, with the grant identifier as typed. Optional; no fund binding is required by this route.", th: NEEDS_INPUT}
+    micro_template: {en: "This work was supported by <funder as typed> (<identifier as typed>).", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a funder's required wording taken from memory (NEEDS_VERIFICATION)"]
+    quality_traits: [{trait: "the identifier matches the fund_binding or the researcher's award letter", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.BACK.ACKNOWLEDGEMENTS:
+    purpose: {en: "People and organisations to thank who are not authors. Optional. An AI-use statement may be placed here (ARTICLE.STATEMENT.AI_USE placement).", th: NEEDS_INPUT}
+    micro_template: {en: "The authors thank <who> for <what>.", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["an author listed here instead of in ARTICLE.FRONT.AUTHORS", "an AI tool thanked as if a contributor"]
+    quality_traits: [{trait: "names only people and organisations with a stated contribution", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-34: an acknowledgement is present in 62/100 funded final reports, report-stage (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
+  ARTICLE.BODY.FIGURES_TABLES:
+    purpose: {en: "Each figure, table or supplementary item: its caption, whether it bears data, whether an AI made or altered it, and the sources it rests on.", th: NEEDS_INPUT}
+    micro_template: {en: "[{id: FIG1, kind: figure, caption: <caption>, data_bearing: true, ai_generated_illustration: false, source_refs: [SRC-1]}]", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a data-bearing item made or altered by an AI (ART009)", "an AI-made illustration with no disclosure in its caption (ART011)"]
+    quality_traits: [{trait: "every item is cited from Results", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.VENUE.TARGET:
+    purpose: {en: "The venue the researcher is writing for, exactly as typed, with the venue's requirements as the researcher read them, each with the source it was read from. GrantThai holds no venue registry.", th: NEEDS_INPUT}
+    micro_template: {en: "{name_as_typed: <name>, sub_profile: <thai-journal | international-journal>, source_refs: [SRC-n], stated_requirements: [{item: <what>, value: <as read>, source_ref: SRC-n}]}", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["any requirement without a source_ref (ART010)", "scope, indexing, fees or review time from memory (NEEDS_VERIFICATION)"]
+    quality_traits: [{trait: "every stated requirement names the page of the venue's current author guidelines", seen_in: NEEDS_INPUT}]
+    derived_from: registry/fields.jsonl
+  ARTICLE.META.REFERENCE_STYLE:
+    purpose: {en: "The citation style the researcher declares for the reference list, as a label. GrantThai never reformats citations.", th: NEEDS_INPUT}
+    micro_template: {en: "<style label as the venue names it>", th: NEEDS_INPUT}
+    length_target: null
+    keep_out: ["a style label the venue has not been confirmed to require"]
+    quality_traits: [{trait: "one style throughout CORE.NARRATIVE.REFERENCES", seen_in: NEEDS_INPUT}]
+    practice_context: "FWP-06: a reference list is present in 78/100 funded final reports (corpus-100 is funded final reports, not articles; descriptive context only, never a venue fact)"
+    derived_from: registry/fields.jsonl
 completeness_checklist:
   - id: WC01
     check: {en: "Need, problem, gap and the primary research question are all written.", th: NEEDS_INPUT}

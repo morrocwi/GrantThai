@@ -42,8 +42,15 @@ SOURCES = (ROOT / "docs/sources.md").read_text(encoding="utf-8")
 # Re-pinned for the v0.2.0 release: package version 0.2.0 in the
 # frontmatter, the FICTIONAL-call banner and "n/a (fictional call)"
 # submittable line, and the split section 1.5 advice.
-GOLDEN_V010_SHA256 = "50547741e8e989fe7ad4226b10192720e375d9ce86a4f11f9b9bba53e054792a"
-GOLDEN_V010_BYTES = 109846
+# Re-pinned for renderer 0.3.0 (the AI-use ceiling): renderer_version, the
+# frontmatter line authoring.ai_use_declaration: none, and section 4.7 (the
+# AI Use Declaration appendix, "no AI use recorded" for this example). No
+# other byte changed.
+# Re-pinned 2026-09-25 for the 0.3.0 version string (frontmatter
+# grantthai_version 0.2.0 -> 0.3.0); content unchanged, diff checked, same
+# byte count.
+GOLDEN_V010_SHA256 = "0f444646c0a3db5fb1c574541351483fb8fc24e8b524299c4aa0fe0ef480188a"
+GOLDEN_V010_BYTES = 110716
 
 EXPECTED_IDS = {
     "research@sd1-2566", "innovation@sd1-2566", "personnel_development@sd1-2566",

@@ -1,0 +1,232 @@
+# routes/academic-article/profiles/INDEX.yaml — the 7SSA structure-profile
+# index of the academic-article route (schema
+# grantthai.structure_profile_index.v0, spec/routes/structure_profile.schema.json).
+#
+# 7SSA = Seven-Section Scholarly Architecture, from the founder-authored 7SSA
+# master schema v1.0 (pinned below by sha256; cited by section, never
+# reproduced). One stable seven-sector core, several visible layouts:
+# "visible sections may merge but intellectual sectors must not disappear"
+# (§5 invariant; §40 Invariant 8).
+#
+# What this file holds:
+#   profiles                 the four shipped layouts (world, thai-7, thai-5, thai-4)
+#   selection                when the router PROPOSES them (INFO RT004); it never selects
+#   sectors                  S1-S7: names, the §31 audit question, the §21 dependency,
+#                            the registry fields read, and the slots (MD §19 keys) with
+#                            required / optional per sector
+#   writing_order            the §22 authoring order (the skill's interview order)
+#   compression_rules        §16 Rules A-D (flags; GrantThai writes no bridging prose)
+#   article_kind_overlays    the eight §15 article types: English headings per sector,
+#                            plus the extra S2/S6 slots of §7.2
+#
+# Nothing here is a venue fact. "required" means only that an empty slot
+# prints NEEDS_INPUT in the sector map and may feed a REVIEW finding
+# (7SSA-01..10); nothing a profile drives is ever a BLOCK. Semantic quality
+# conditions of the source (its "fail conditions" and "gates") are interview
+# prompts in the skill, never validators (GrantThai judges no knowledge).
+schema: grantthai.structure_profile_index.v0
+version: "0.1.0-draft"
+route: academic-article
+family: 7ssa
+source:
+  doc: "7SSA master schema v1.0 (founder-authored)"
+  sha256: 1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+  locator: "§1, §5, §7.2, §9.1, §10.1, §12.2, §15, §16, §19, §21, §22, §24, §31, §39"
+
+profiles:
+  - {id: 7ssa-world, path: routes/academic-article/profiles/7ssa-world.yaml, heading_lang: en}
+  - {id: 7ssa-thai-7, path: routes/academic-article/profiles/7ssa-thai-7.yaml, heading_lang: th}
+  - {id: 7ssa-thai-5, path: routes/academic-article/profiles/7ssa-thai-5.yaml, heading_lang: th}
+  - {id: 7ssa-thai-4, path: routes/academic-article/profiles/7ssa-thai-4.yaml, heading_lang: th}
+
+selection:
+  work_types: [academic_article]
+  article_type_field: ARTICLE.SSA.ARTICLE_TYPE
+  article_types: [conceptual, theory, philosophical, legal, integrative_review, formal_conceptual, cs_sok, policy]
+  candidates_by_sub_profile:
+    thai-journal: [7ssa-thai-7, 7ssa-thai-5, 7ssa-thai-4]
+    international-journal: [7ssa-world]
+  note: >-
+    Propose, never select. When work_type is academic_article, the route is
+    academic-article, ARTICLE.SSA.ARTICLE_TYPE is one of article_types and no
+    structure profile is selected, route check and the output print INFO RT004
+    listing the candidates that match the sub-profile in force (the other
+    profiles are named too). The researcher writes routing.structure_profiles
+    (or passes --structure-profile); no tool, MCP call or AI ever writes it.
+    With no profile selected the academic-article output is byte-identical to
+    the output without 7SSA.
+
+sectors:
+  - id: S1
+    chain: P
+    name_en: "Introduction"
+    name_th: "บทนำ"
+    audit_question_en: "Why does this article exist?"
+    dependency_en: "Previews Sector 4 and Sector 5 (§21)."
+    fields: [ARTICLE.BODY.SECTIONS]
+    slots:
+      - {slot: phenomenon, required: true, basis: "§6.2 phenomenon_or_problem: required"}
+      - {slot: importance, required: true, basis: "§6.2 importance: required"}
+      - {slot: scholarly_conversation, required: true, basis: "§6.2 current_scholarly_conversation: required"}
+      - {slot: gap_preview, required: true, basis: "§6.2 precise_tension_or_gap: required"}
+      - {slot: central_argument, required: true, basis: "§6.2 central_argument: required"}
+      - {slot: contributions, required: true, basis: "§6.2 contribution_statement: required"}
+      - {slot: roadmap, required: false, basis: "§6.2 roadmap: optional_but_common"}
+  - id: S2
+    chain: M
+    name_en: "Approach, Scope & Knowledge Base"
+    name_th: "แนวทาง ขอบเขต และฐานความรู้"
+    audit_question_en: "How does it reason / what sources does it use?"
+    dependency_en: "Controls the epistemic legitimacy of Sectors 3-6 (§21)."
+    fields: [ARTICLE.BODY.SECTIONS]
+    slots:
+      - {slot: methodology, required: true, basis: "§24 GATE_2 method_matches_claim"}
+      - {slot: source_base, required: true, basis: "§24 GATE_2 source_logic_visible"}
+      - {slot: scope, required: true, basis: "§24 GATE_2 scope_reconstructible"}
+      - {slot: inclusion_logic, required: false, basis: "§19 sector_2_approach_scope"}
+      - {slot: exclusions, required: false, basis: "§19 sector_2_approach_scope"}
+      - {slot: ai_use, required: false, basis: "§19; §7.4 (the researcher's own disclosure; see also ARTICLE.STATEMENT.AI_USE)"}
+      - {slot: limitations_of_approach, required: false, basis: "§19 sector_2_approach_scope"}
+      - {slot: conceptual_method, required: false, basis: "§7.2 CONCEPTUAL_PAPER (required by the conceptual overlay)"}
+      - {slot: construct_logic, required: false, basis: "§7.2 CONCEPTUAL_PAPER (required by the conceptual overlay)"}
+      - {slot: theory_building_logic, required: false, basis: "§7.2 THEORY_PAPER (required by the theory overlay)"}
+      - {slot: assumptions, required: false, basis: "§7.2 THEORY_PAPER, FORMAL_PAPER"}
+      - {slot: argumentative_method, required: false, basis: "§7.2 PHILOSOPHICAL_PAPER (implicit_or_explicit)"}
+      - {slot: premise_scope, required: false, basis: "§7.2 PHILOSOPHICAL_PAPER (required by the philosophical overlay)"}
+      - {slot: objections_strategy, required: false, basis: "§7.2 PHILOSOPHICAL_PAPER (recommended)"}
+      - {slot: corpus_method, required: false, basis: "§7.2 REVIEW_PAPER (required by the integrative_review and cs_sok overlays; rule 7SSA-10)"}
+      - {slot: synthesis_method, required: false, basis: "§7.2 REVIEW_PAPER"}
+      - {slot: legal_sources, required: false, basis: "§7.2 LEGAL_PAPER (required by the legal overlay)"}
+      - {slot: jurisdiction_scope, required: false, basis: "§7.2 LEGAL_PAPER (required by the legal overlay)"}
+      - {slot: doctrinal_or_normative_method, required: false, basis: "§7.2 LEGAL_PAPER (required by the legal overlay)"}
+      - {slot: definitions, required: false, basis: "§7.2 FORMAL_PAPER (required by the formal_conceptual overlay)"}
+      - {slot: formal_system, required: false, basis: "§7.2 FORMAL_PAPER (required by the formal_conceptual overlay)"}
+  - id: S3
+    chain: K0
+    name_en: "Existing Knowledge & Theoretical Foundation"
+    name_th: "ฐานแนวคิดและองค์ความรู้เดิม"
+    audit_question_en: "What is already known?"
+    dependency_en: "Must justify Sector 4 (§21)."
+    fields: [ARTICLE.BODY.SECTIONS]
+    slots:
+      - {slot: constructs, required: false, basis: "§19 sector_3_existing_knowledge; §8.1"}
+      - {slot: theories, required: false, basis: "§19 sector_3_existing_knowledge; §8.1"}
+      - {slot: debates, required: false, basis: "§19 sector_3_existing_knowledge"}
+      - {slot: canonical_sources, required: true, basis: "§24 GATE_3 canonical_work_covered"}
+      - {slot: recent_sources, required: true, basis: "§24 GATE_3 recent_work_covered"}
+      - {slot: competing_literatures, required: true, basis: "§24 GATE_3 rival_literature_covered"}
+  - id: S4
+    chain: G
+    name_en: "Problem in Existing Knowledge"
+    name_th: "ปัญหา ช่องว่าง หรือข้อจำกัดขององค์ความรู้เดิม"
+    audit_question_en: "What exactly is wrong or missing?"
+    dependency_en: "Must make Sector 5 necessary (§21)."
+    fields: [ARTICLE.SSA.GAP, ARTICLE.BODY.SECTIONS]
+    slots:
+      - {slot: gap_type, required: true, from_field: "ARTICLE.SSA.GAP#gap_type", basis: "§9.1 (eleven gap types); §24 GATE_4"}
+      - {slot: unresolved_problem, required: true, from_field: "ARTICLE.SSA.GAP#unresolved_problem", basis: "§24 GATE_4 gap_documented"}
+      - {slot: why_existing_knowledge_fails, required: false, from_field: "ARTICLE.SSA.GAP#why_existing_knowledge_fails", basis: "§19 sector_4_problem"}
+      - {slot: consequence_if_unresolved, required: true, from_field: "ARTICLE.SSA.GAP#consequence_if_unresolved", basis: "§9.2; §24 GATE_4 consequence_clear; rule 7SSA-06"}
+      - {slot: strongest_prior_attempt, required: false, from_field: "ARTICLE.SSA.GAP#strongest_prior_attempt", basis: "§19 sector_4_problem"}
+  - id: S5
+    chain: C
+    name_en: "New Contribution"
+    name_th: "ข้อเสนอใหม่ของบทความ"
+    audit_question_en: "What is new here?"
+    dependency_en: "Must answer Sector 4 (§21)."
+    fields: [ARTICLE.SSA.CONTRIBUTION, ARTICLE.BODY.SECTIONS]
+    slots:
+      - {slot: contribution_type, required: false, from_field: "ARTICLE.SSA.CONTRIBUTION#contribution_type", basis: "§10.1 (seventeen contribution objects)"}
+      - {slot: name, required: true, from_field: "ARTICLE.SSA.CONTRIBUTION#object_name", basis: "§24 GATE_5 contribution_named"}
+      - {slot: definition, required: false, from_field: "ARTICLE.SSA.CONTRIBUTION#definition", basis: "§19 sector_5_contribution"}
+      - {slot: components, required: false, basis: "§19 sector_5_contribution"}
+      - {slot: relationships, required: false, basis: "§19 sector_5_contribution"}
+      - {slot: mechanism, required: false, basis: "§19 sector_5_contribution"}
+      - {slot: propositions, required: false, basis: "§19 sector_5_contribution"}
+      - {slot: nearest_prior_framework, required: true, from_field: "ARTICLE.SSA.CONTRIBUTION#nearest_prior", basis: "§24 GATE_5 relation_to_prior_clear"}
+      - {slot: difference_from_prior, required: true, from_field: "ARTICLE.SSA.CONTRIBUTION#difference_from_prior", basis: "§24 GATE_5 relation_to_prior_clear; rule 7SSA-05"}
+  - id: S6
+    chain: V/I
+    name_en: "Critical Evaluation & Implications"
+    name_th: "การวิพากษ์ ทดสอบ ข้อจำกัด และนัยสำคัญ"
+    audit_question_en: "Why should we believe/use it, and where does it fail?"
+    dependency_en: "Must attack and delimit Sector 5 (§21)."
+    fields: [ARTICLE.BODY.SECTIONS]
+    slots:
+      - {slot: strongest_objection, required: true, basis: "§24 GATE_6 objection_present; rule 7SSA-03"}
+      - {slot: alternative_explanation, required: false, basis: "§19 sector_6_critical_evaluation; §11.4"}
+      - {slot: counterexample, required: false, basis: "§19 sector_6_critical_evaluation"}
+      - {slot: response, required: false, basis: "§19 sector_6_critical_evaluation (required by the philosophical overlay)"}
+      - {slot: boundary_conditions, required: true, basis: "§24 GATE_6 boundary_present; rule 7SSA-03"}
+      - {slot: limitations, required: true, basis: "§24 GATE_6 limitations_present; rule 7SSA-03"}
+      - {slot: theoretical_implications, required: false, basis: "§19 sector_6_critical_evaluation"}
+      - {slot: practical_implications, required: false, basis: "§19 sector_6_critical_evaluation"}
+      - {slot: future_research, required: false, basis: "§19 sector_6_critical_evaluation"}
+  - id: S7
+    chain: A
+    name_en: "Conclusion"
+    name_th: "บทสรุป"
+    audit_question_en: "What changed by the end?"
+    dependency_en: "Must answer Sector 1 using the results of Sectors 5-6 (§21)."
+    fields: [ARTICLE.SSA.BEFORE_AFTER, ARTICLE.BODY.SECTIONS]
+    slots:
+      - {slot: answer_to_problem, required: true, basis: "§24 GATE_7 answers_original_problem"}
+      - {slot: before_state, required: true, from_field: "ARTICLE.SSA.BEFORE_AFTER#before_state", basis: "§12.2; §24 GATE_7 states_before_after_change; rule 7SSA-07"}
+      - {slot: after_state, required: true, from_field: "ARTICLE.SSA.BEFORE_AFTER#after_state", basis: "§12.2; §24 GATE_7 states_before_after_change; rule 7SSA-07"}
+      - {slot: contribution_restatement, required: false, basis: "§19 sector_7_conclusion"}
+      - {slot: non_claims, required: false, from_field: "ARTICLE.SSA.BEFORE_AFTER#non_claims", basis: "§19 sector_7_conclusion"}
+      - {slot: next_frontier, required: false, basis: "§19 sector_7_conclusion"}
+
+writing_order: [S5, S4, S3, S6, S2, S1, S7]
+
+compression_rules:
+  RULE_A:
+    text_en: "Never delete the contribution: Sector 5 must remain intellectually identifiable (its [S5] marker is always printed)."
+    locator: "§16 Rule A"
+  RULE_B:
+    text_en: "Sector 2 may be embedded (one to three paragraphs) in the merged concepts-and-framework section."
+    locator: "§16 Rule B"
+  RULE_C:
+    text_en: "Sector 4 may be embedded in the analysis if the gap stays explicit (its [S4] marker is kept). The source's example transition sentence is guidance only; GrantThai never inserts it."
+    locator: "§16 Rule C"
+  RULE_D:
+    text_en: "Sector 6 may be distributed inside the discussion, but objections, limitations and implications must all remain."
+    locator: "§16 Rule D"
+
+article_kind_overlays:
+  conceptual:
+    locator: "§15.1; §7.2 CONCEPTUAL_PAPER"
+    headings_en: {S1: "Introduction", S2: "Conceptual Approach and Scope", S3: "Existing Concepts / Theories", S4: "Conceptual Problem", S5: "New Construct / Framework", S6: "Evaluation, Boundaries, Implications", S7: "Conclusion"}
+    extra_required_slots: {S2: [conceptual_method, construct_logic]}
+  theory:
+    locator: "§15.2; §7.2 THEORY_PAPER"
+    headings_en: {S1: "Introduction", S2: "Scope and Theory-Building Approach", S3: "Theoretical Foundations", S4: "Theoretical Inadequacy", S5: "Theory Development + Propositions", S6: "Rival Theories + Boundaries + Implications", S7: "Conclusion"}
+    extra_required_slots: {S2: [theory_building_logic]}
+  philosophical:
+    locator: "§15.3; §7.2 PHILOSOPHICAL_PAPER"
+    headings_en: {S1: "Introduction", S2: "Analytical Scope / Definitions", S3: "Existing Positions", S4: "Philosophical Problem", S5: "Main Argument", S6: "Objections and Replies", S7: "Conclusion"}
+    extra_required_slots: {S2: [premise_scope], S6: [response]}
+  legal:
+    locator: "§15.4; §7.2 LEGAL_PAPER"
+    headings_en: {S1: "Introduction", S2: "Jurisdiction / Sources / Analytical Approach", S3: "Existing Law / Doctrine", S4: "Doctrinal or Normative Problem", S5: "Proposed Interpretation / Principle", S6: "Counterauthority / Consequences / Limits", S7: "Conclusion"}
+    extra_required_slots: {S2: [legal_sources, jurisdiction_scope, doctrinal_or_normative_method]}
+  integrative_review:
+    locator: "§15.5; §7.2 REVIEW_PAPER"
+    headings_en: {S1: "Introduction", S2: "Review Approach / Corpus", S3: "State of Knowledge", S4: "Contradictions / Fragmentation", S5: "New Synthesis / Framework", S6: "Evaluation / Research Agenda", S7: "Conclusion"}
+    extra_required_slots: {S2: [corpus_method, inclusion_logic, synthesis_method]}
+  formal_conceptual:
+    locator: "§15.6; §7.2 FORMAL_PAPER"
+    headings_en: {S1: "Introduction", S2: "Scope + Formal Language", S3: "Existing Formal/Theoretical Basis", S4: "Formal Problem", S5: "Definitions + Axioms + Model + Derivation", S6: "Consistency / Countermodel / Interpretation / Limits", S7: "Conclusion"}
+    extra_required_slots: {S2: [definitions, assumptions, formal_system]}
+  cs_sok:
+    locator: "§15.7"
+    headings_en: {S1: "Introduction", S2: "Scope + Search / Selection Logic", S3: "Existing Technical Landscape", S4: "Fragmentation / Terminology Problem", S5: "Taxonomy / SoK / Architecture", S6: "Comparative Evaluation + Open Problems", S7: "Conclusion"}
+    extra_required_slots: {S2: [corpus_method, inclusion_logic]}
+    basis_extra: "§15.7 names 'Search / Selection Logic' but §7.2 has no SoK entry; the REVIEW_PAPER corpus slots are applied (GrantThai reading, INSTINCT)."
+  policy:
+    locator: "§15.8"
+    headings_en: {S1: "Introduction", S2: "Analytical Scope", S3: "Existing Governance Approaches", S4: "Governance Failure / Institutional Problem", S5: "Proposed Governance Framework", S6: "Trade-offs / Feasibility / Boundary / Implications", S7: "Conclusion"}
+
+notes:
+  - "Not imported from the source (7SSA integration spec §4.3): any quartile as a gate or readiness input; per-sector VERIFIED status or integrity booleans as stored truth (review records hold review state); AI journal analysis or desk-reject simulation as review; the word budget, contribution density and the source's formula-like labels (none is registered as an equation, and nothing computes them); publisher summaries as facts; auto-written bridging prose."
+  - "Tier: every 7SSA-driven check is a structural presence check (REVIEW or INFO). None judges whether a gap is real, a contribution new, or an argument sound."

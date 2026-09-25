@@ -1,0 +1,285 @@
+{#- templates/academic_article.md.j2 — renderer template for the
+    academic-article route (v0.3 router).
+    output_kind: route_output
+    route: academic-article
+    The ONE output template of routes/academic-article/route.yaml
+    (spec/output/academic-article.contract.md; the one-input-one-output
+    contract restated per route in spec/contracts/one-input-one-output.md).
+    Rendered by src/grantthai/render/article.py; all values arrive
+    pre-formatted. `disclaimer` is the NOTICE constant, read byte for byte
+    from spec/output/notice_constant.txt; it must stay the first body line
+    (tools/ci/check_notice.py). `route_notice` is route.yaml's
+    route_notice_en and is the second body line. No timestamps anywhere
+    (determinism). GrantThai never composes section text: every value below
+    is exactly what the work object says. When the researcher has selected a
+    7SSA structure profile, the partial templates/article_7ssa.md.j2 is
+    included after the placed sections (still one output file). -#}
+---
+{{ frontmatter_yaml }}
+---
+{{ disclaimer }}
+{{ route_notice }}
+{% if fictional %}
+
+> **FICTIONAL / สมมติ.** This work object is a fictional example. Nothing in this overview is a manuscript for any real venue.
+{% endif %}
+
+# Academic article manuscript overview: {{ work_id }}
+
+This file is the researcher's own information, arranged as a manuscript overview for the researcher to write the article from. GrantThai composes no section text, reformats no citation and submits nothing anywhere. Every value below is exactly what the work object says; a missing value prints as `NEEDS_INPUT`; any venue fact without a source the researcher supplied, and any Thai label not read from a cited document, prints as `NEEDS_VERIFICATION`. Validation findings are structural and logical checks only: they do not mean the manuscript is sound, novel, publishable or accepted anywhere.
+
+- Route: `{{ route_id }}` (chosen by the researcher, never by the tool); sub-profile: `{{ sub_profile }}` (NEEDS_VERIFICATION: GrantThai defaults, not a venue profile)
+- Work type: `{{ work_type }}`; article kind: `{{ article_kind }}`; language: `{{ article_language }}`
+
+## 1. Readiness summary
+
+- Findings: BLOCK {{ summary.block }} / REVIEW {{ summary.review }} / INFO {{ summary.info }}
+- manuscript_ready: {{ "yes" if manuscript_ready else "no" }} (no open BLOCK finding; this never means accepted or publishable)
+{% if hold_reasons %}
+- Hold reasons:
+{% for h in hold_reasons %}
+  - {{ h }}
+{% endfor %}
+{% endif %}
+- Human final approval is always required before anything is sent to any venue.
+
+### 1.1 BLOCK findings (fix before the work object can be locked)
+{% if blocks %}
+{% for f in blocks %}
+- **{{ f.rule_id }}**{% if f.field_ids %} [{{ f.field_ids | join(", ") }}]{% endif %}: {{ f.message_en }} Next step: {{ f.next_step_en }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 1.2 REVIEW findings (a person should look)
+{% if reviews %}
+{% for f in reviews %}
+- **{{ f.rule_id }}**{% if f.field_ids %} [{{ f.field_ids | join(", ") }}]{% endif %}: {{ f.message_en }} Next step: {{ f.next_step_en }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 1.3 NEEDS_INPUT (route fields with no value)
+{% if needs_input %}
+{% for fid in needs_input %}
+- `{{ fid }}`: NEEDS_INPUT. Next step: supply the value (`grantthai set {{ fid }} <value>`).
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+{% if record_needs_input %}
+- Other records in the work object still NEEDS_INPUT: {% for fid in record_needs_input %}`{{ fid }}`{{ ", " if not loop.last }}{% endfor %}
+
+{% endif %}
+
+### 1.4 NEEDS_VERIFICATION
+- Every venue requirement is NEEDS_VERIFICATION until confirmed from the venue's own current author guidelines. GrantThai ships no venue registry; a venue fact appears here only if the researcher recorded it in `ARTICLE.VENUE.TARGET` with its source.
+- Every Thai section heading and label in this overview is NEEDS_INPUT or NEEDS_VERIFICATION (no Thai wording is filled without a cited source).
+{% for fid, m, reason in marked %}
+- `{{ fid }}`: {{ m }}{% if reason %} ({{ reason }}){% endif %}. Next step: confirm this value against a current, cited source.
+{% endfor %}
+
+### 1.5 AI-drafted values (the researcher must confirm)
+{% if ai_drafts %}
+{% for fid, by in ai_drafts %}
+{% if by == "ai_draft" %}
+- `{{ fid }}`: authored_by is `ai_draft`, an AI draft not yet adopted (DRAFT, not a source). Next step: rewrite it in your own words and set authored_by to human, or adopt it as it stands and set authored_by to human_ai_assisted.
+{% else %}
+- `{{ fid }}`: authored_by is `human_ai_assisted`, an AI-assisted value the researcher adopted (DRAFT, not a source). Next step: read it and confirm it says what you mean; keep authored_by as human_ai_assisted unless you rewrite it yourself.
+{% endif %}
+{% endfor %}
+{% else %}
+- None declared.
+{% endif %}
+
+### 1.6 Rules not evaluated by this version or not in scope for this route (INFO)
+{% for f in infos %}
+- {{ f.message_en }}
+{% endfor %}
+
+## 2. Manuscript overview by section
+
+Section names are GrantThai's own descriptive headings (`routes/academic-article/placement.yaml`), not any venue's. The researcher writes each section from the records listed under `RENDER_FROM`; GrantThai never composes it.
+{% for s in sections %}
+
+### {{ loop.index }}. {{ s.title_en }} (TH: {{ s.title_th }})
+{% if s.note %}
+
+{{ s.note }}
+{% endif %}
+{% for f in s.fields %}
+
+#### {{ loop.index }}. {{ f.label_en }}
+
+LABEL_TH: {{ f.label_th }}
+
+
+{{ f.value }}
+
+- FIELD_ID: `{{ f.field_id }}`{% if f.shared %} (shared core: identical in every route built from this object){% endif %}
+
+- ORIGIN: {{ f.origin }}
+- PROVENANCE: {{ f.provenance }}
+{% if f.render_from %}
+- RENDER_FROM: {{ f.render_from }} (write this section from these records; GrantThai does not compose it)
+{% endif %}
+{% if f.copied_from %}
+- COPIED_FROM: `{{ f.copied_from }}` (the route field is empty; this is the shared value copied as-is, never composed)
+{% endif %}
+- STATUS: {{ f.status }} (basis: {{ f.basis }}){% if f.markers %}; markers: {{ f.markers | join(", ") }}{% endif %}
+
+- REQUIRED: {{ f.required }}
+- SOURCE_IDS: {{ f.source_ids }}
+- VALIDATION: {{ f.validation }}
+- AUTHORED_BY: {{ f.authored_by }}
+{% endfor %}
+{% endfor %}
+{% if ssa %}
+
+{% include "article_7ssa.md.j2" %}
+{% endif %}
+
+## 3. Machine field metadata
+
+```yaml
+{{ meta_yaml }}
+```
+
+## 4. Validation and provenance appendix
+
+### 4.1 Review gates
+{% for g, v in gates.items() %}
+- {{ g }}: {{ v.state }} ({{ v.basis }})
+{% endfor %}
+
+### 4.2 Source manifest
+{% if sources %}
+{% for s in sources %}
+{% if s.private %}
+- `{{ s.source_id }}` ({{ s.kind }}): [private]
+{% else %}
+- `{{ s.source_id }}` ({{ s.kind }}): {{ s.citation }}{% if s.locator %}; locator: {{ s.locator }}{% endif %}{% if s.url %}; url (not fetched): {{ s.url }}{% endif %}{% if s.sha256 %}; sha256: {{ s.sha256 }}{% endif %}; cited by: {{ s.cited_by }}
+{% endif %}
+{% endfor %}
+{% else %}
+- No sources declared.
+{% endif %}
+
+### 4.3 Unresolved references
+{% if unresolved %}
+{% for u in unresolved %}
+- {{ u }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 4.4 Conflicts recorded in the work object
+{% if project_conflicts %}
+{% for c in project_conflicts %}
+
+- **{{ c.id }}** on `{{ c.field_id }}` ({{ c.status }}): {{ c.description }}
+{% for r in c.readings %}
+  - Reading: {{ r }}
+{% endfor %}
+{% if c.decision_note %}
+  - Researcher's note: {{ c.decision_note }}
+{% endif %}
+{% endfor %}
+{% else %}
+- None recorded.
+{% endif %}
+
+### 4.5 Records not placed in the manuscript overview
+
+Records of the work object that this route does not place in a section (route-specific fields of another route, or fields with no placement). They are never dropped; they are simply not part of this route's output body.
+{% if unmapped %}
+{% for u in unmapped %}
+
+`{{ u.field_id }}` (ORIGIN: {{ u.origin }}; scope: {{ u.scope }}; status: {{ u.status }}; not placed because: {{ u.why }})
+
+{{ u.value }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 4.6 Shared records read by this route
+
+Shared-core records the manuscript rests on (identical in every route built from this object). Listed so the researcher can see what the sections were written from.
+{% if shared_records %}
+{% for u in shared_records %}
+
+`{{ u.field_id }}` (chain: {{ u.chain }}; status: {{ u.status }})
+
+{{ u.value }}
+{% endfor %}
+{% else %}
+- None.
+{% endif %}
+
+### 4.7 AI Use Declaration (GrantThai appendix)
+
+A GrantThai appendix. Whether the target venue asks for such a declaration, and in which form, is NEEDS_VERIFICATION: the GenAI research-ethics guideline 2569 (National Research Council of Thailand; docs/sources.md) says to check the venue's own GenAI rules first (p.27) and otherwise disclose by risk (p.12). The in-text statement the researcher writes is `ARTICLE.STATEMENT.AI_USE` (section 2; rule ART005). Everything below is self-declared by the researcher and unverified; GrantThai checks only that it is filled in and confirmed (rule AI001), never that it is true.
+{% if not ai_decl.used and not ai_decl.present %}
+
+- No AI use is recorded in the work object (authoring.mode is human and no value is authored with AI assistance). If you used an AI tool anywhere in preparing this manuscript, the guideline asks you to disclose it (p.10): fill authoring.ai_use_declaration.
+{% else %}
+
+1. Title (p.34 item 1): {{ ai_decl.title }}
+2. Responsible person (p.34 item 2): the corresponding author in `ARTICLE.FRONT.AUTHORS` (section 2).
+3. AI tools used (p.34 items 3-4; p.11 tool, stage and purpose):
+{% if ai_decl.tools %}
+
+| tool | developer | version | stages | purpose | used on |
+|---|---|---|---|---|---|
+{% for t in ai_decl.tools %}
+| {{ t.name | replace("|", "\\|") }} | {{ t.developer | replace("|", "\\|") }} | {{ t.version | replace("|", "\\|") }} | {{ t.stages }} | {{ t.purpose | replace("|", "\\|") | replace("\n", " ") }} | {{ t.used_on | replace("|", "\\|") }} |
+{% endfor %}
+
+{% else %}
+   - NEEDS_INPUT: no tool is listed in authoring.ai_use_declaration.tools.
+{% endif %}
+{% for label, v in ai_decl.rows %}
+{{ loop.index + 3 }}. {{ label }}: {{ v }}
+{% endfor %}
+8. Values in the work object written with AI assistance: {{ ai_decl.ai_records }} (listed in section 1.5 for the researcher to confirm).
+{% if ai_decl.risk %}
+9. The researcher's own risk self-assessment, 1 (low) to 3 (high), on the five dimensions of the guideline's example scoring table (p.10-11, an example only):
+{% for label, score in ai_decl.risk %}
+   - {{ label }}: {{ score }}
+{% endfor %}
+   - GrantThai convention level: {{ ai_decl.risk_level if ai_decl.risk_level else "NEEDS_INPUT" }}. This is GrantThai's own convention (the highest of the five scores), not the guideline's.
+{% else %}
+9. Risk self-assessment (optional; p.10-11 example table): not given.
+{% endif %}
+10. Declaration of responsibility (p.12 item 4; p.15 item 2.3; p.34 item 8): {% if ai_decl.confirmed %}confirmed by the researcher (declaration_confirmed_by_human: true; by {{ ai_decl.confirmed_by }}, on {{ ai_decl.confirmed_on }}). The researcher states that they checked every AI-assisted value and take full responsibility for the content.{% else %}NOT CONFIRMED (NEEDS_INPUT). Only the researcher can confirm, after reading this declaration, by setting declaration_confirmed_by_human: true in the work object. An AI never sets it.{% endif %}
+
+
+{% if ai_decl.gaps %}
+- Still missing (rule AI001): {{ ai_decl.gaps | join("; ") }}.
+{% endif %}
+{% endif %}
+
+### 4.8 Core Epistemic Structure (role disclosure)
+
+Who stands behind this manuscript, by role. An AI tool is named here only as role disclosure; it is never an author, co-author or credited contributor (rule ART007, BLOCK).
+
+- Core respondent / experience-based expert: {{ core_epistemic.experience_based_expert }}
+- Interactional expert: {{ core_epistemic.interactional_expert }}
+- AI model(s) used, each with its role: {{ core_epistemic.ai_models }}
+{% if advisories %}
+
+## 5. Advisories (not decisions)
+
+Route-adjacent advisories printed only because their own fields are filled. An advisory never changes readiness, never ranks and never says eligible, granted or free. The researcher decides.
+{% for a in advisories %}
+
+### {{ a.title_en }}
+{% for line in a.lines %}
+- {{ line }}
+{% endfor %}
+{% endfor %}
+{% endif %}

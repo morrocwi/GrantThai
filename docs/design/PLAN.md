@@ -653,3 +653,81 @@ The first five items block the first public push; no scaffolding work is blocked
 **Other chair changes:**
 - The version order is now AI-free Expert → AI-free Citizen → AI → interfaces → real funds. This follows from the founder amendment together with feasible 1.
 - The draft's AT-1 for v0.1 moved to v0.2.
+## N. Addendum 2026-09-25 — the router: one work object, many routes
+
+*(Appended, not edited in: sections A–L above are the historical record of
+the 2026-09-25 plan and stay as written. Where this addendum and `spec/`,
+`routes/` or `docs/deviations.md` differ, those files win. Design source:
+the router design proposal of 2026-09-25, implemented on the `router/*`
+work packages R1–R7.)*
+
+**Founder reframe (binding, verbatim):** "ปรับรูปแบบ การลงใน NRIIS ไม่ใช่แกนหลัก
+อีกต่อไป แต่เป็นแค่ทางเลือกหนึ่งของ router เพราะเราจะเปิดให้ตั้งแต่การทำบทความวิชาการด้วย
+ไม่ใช่แค่วิจัย" — entering NRIIS is no longer the core; it is one option of a
+router, because GrantThai opens to academic articles as well, not only
+research. The 2026-09-25 core goal quoted in §A ("one input path in, one
+NRIIS-ready file out") is unchanged for the NRIIS route and becomes one
+route among several.
+
+**The word "router" (K-R1).** §A above says "router" is dropped from all
+repo prose. That ruling concerned the brief's sense of *AI as router*
+(B:12-25: "AI is a translator, scaffold, router"), which stays dropped.
+This addendum re-allows the word in a different, defined sense: **a
+deterministic output route chosen by a person**, declared in `work.yaml`
+(`routing`) or on the command line (`--route`). No AI and no tool ever
+picks a route; an ambiguous resolution stops and lists the candidates.
+Recorded in `docs/deviations.md`.
+
+**What changed.**
+- Canonical object: `work.yaml` (`spec/work/work.schema.json` 0.3.0-draft),
+  a superset of `project.yaml` 0.2 with `work_type`, `routing` and an
+  optional `fund_binding` (required only by routes with
+  `needs_fund_binding`). Legacy 0.2 files are read unchanged as the NRIIS
+  route; `grantthai migrate` rewrites explicitly. `routing` is excluded
+  from `content_sha256` (K-R3): choosing a route is not authored content.
+- Router: `routes/INDEX.yaml` and one `route.yaml` per route —
+  `nriis-proposal` (wraps the existing assets in place; nothing moved),
+  `academic-article` (new; placement, two `NEEDS_VERIFICATION`
+  sub-profiles, 24 `ARTICLE.*` fields with the new origin `VENUE_NATIVE`,
+  K-R2), `concept-note` (the former "one exception" of the contract, now
+  an ordinary route, never submittable).
+- Contract: `spec/contracts/one-input-one-output.md` 0.3 — one input, one
+  command per route, exactly one file per route (`NRIIS_SUBMISSION.md`,
+  `ACADEMIC_ARTICLE.md`, `RESEARCH_CONCEPT_NOTE.md`); each build leaves the
+  other routes' files byte-identical. Ready flags: `submittable` (fund
+  only), `manuscript_ready` (no BLOCK; never "accepted"), `submittable:
+  false` always for the concept note.
+- Validators: rules carry `routes:`; the engine evaluates a route's
+  families only and reports out-of-scope rules as one INFO; family ART
+  (ART001–ART011) is REVIEW except ART007 (an AI tool named as an author,
+  BLOCK on GrantThai's own non-negotiable 4). No BLOCK rests on a journal
+  fact; GrantThai ships no venue registry (ART010).
+- Surfaces: `route list|check|build`, `build --route`, `init
+  --work-type`, `migrate`; the same in `api_py`, MCP and HTTP, each
+  returning candidates rather than defaulting when ambiguous; the skill
+  gains step 0 "choose the route with the researcher".
+- NOTICE: the constant is unchanged (K-R6 open) and stays body line 1 of
+  every route; the article route adds its own line 2, "not affiliated with
+  any journal or publisher".
+- Guards: `check_one_output.py` restated per route with three seeded bad
+  fixtures; `check_notice.py` checks every route template.
+
+**Acceptance:** AT-R1 (0.2 files build byte-identical NRIIS output), AT-R2
+(the fictional article builds exactly one file), AT-R3 (one object, two
+routes, two invocations, each leaves the other byte-identical; `routing`
+edits do not change the content hash). Details: `docs/BUILD_GUIDE.md`
+"v0.3 router".
+
+**Interaction with the TOKE integration.** The TOKE proposal's `grantthai
+route --claim-type` and `route_candidates()` are renamed `advise infra` /
+`advise_infra()` so that "route" means output route only (K-R8: router
+first, TOKE rebased onto it). Not built in the router waves.
+
+**Decisions for the founder (K-R):** K-R1 the word "router" (recorded as
+re-allowed in the new sense); K-R2 origin `VENUE_NATIVE` (shipped); K-R3
+`routing` outside the hash (shipped); K-R4 `work.yaml` vs `project.yaml` as
+the file name (OPEN; both are read); K-R5 output name `ACADEMIC_ARTICLE.md`
+and both sub-profiles shipped as `NEEDS_VERIFICATION` (OPEN); K-R6 NOTICE
+wording (OPEN; constant unchanged); K-R7 next routes and whether a dated
+venue profile should ever exist (OPEN); K-R8 order against TOKE (INSTINCT:
+router first).

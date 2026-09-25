@@ -1,0 +1,1219 @@
+# templates/tex/glosa_7ssa_v1.fillmap.yaml — one row per [FILL token of
+# templates/tex/glosa_7ssa_v1.tex (sha256 8009550b80208d5d3aad0a62be10891c6e1085a595b52d15f43b71205cbae770),
+# in file order. Read by src/grantthai/render/article_tex.py for
+# `grantthai build --route academic-article --format tex`.
+#
+# Each row: n (ordinal of the token), line (1-based line of its first
+# character), anchor (its first 40 characters, whitespace folded; the
+# renderer refuses a template whose tokens do not match), label (what the
+# slot is, for the NEEDS_INPUT marker), source (where the value comes from),
+# block (true: paragraphs kept; otherwise whitespace is folded to one line).
+#
+# Sources (literal, LaTeX-escaped replacement; GrantThai composes no text):
+#   field:FID[#key]        a work-object value (a list joins with '; ', an
+#                          object's filled string values join as paragraphs)
+#   slot:S#.slot[@k]       the text of the body item(s) tagged with that 7SSA
+#                          sector and slot (@k = the k-th such item), else the
+#                          ARTICLE.SSA.* key the slot reads
+#   a|b                    the first of a, b that has a value
+#   a+b                    every one of a, b that has a value, as paragraphs
+#   author:N.name|orcid|affiliation, author:corresponding, authors:human_names
+#   credit:<role>          names of the members with that CRediT role
+#                          (ARTICLE.FRONT.CONTRIBUTIONS; vocabulary RELAYED)
+#   ces:experience|interactional|ai   the Core Epistemic Structure roles
+#   ai_tool:N.key, ai_decl:key        authoring.ai_use_declaration
+#   statement:<kind>       the ARTICLE.STATEMENT.OTHER item of that kind
+#   reference:N, references_from:N    CORE.NARRATIVE.REFERENCES (every
+#                          further reference gets its own \bibitem)
+#   claim:N                the N-th chain Claim record
+#   work:content_sha256    the work object's content hash
+#   profile:target_note    what the selected structure profile says about the target
+#   keep                   leave the token (the \Fill macro definition)
+#   empty                  remove the token
+#   NEEDS_INPUT            never filled by GrantThai
+# An unresolved source prints [NEEDS\_INPUT: <label>]. A Thai value prints
+# a NEEDS_INPUT note instead (pdflatex cannot set Thai script). Review and
+# audit state (R1-R14 status, K-state, Human Mastery Gate, silent-lift
+# flags, Blackbox lines) is always NEEDS_INPUT.
+schema: grantthai.tex_fillmap.v0
+template: templates/tex/glosa_7ssa_v1.tex
+template_sha256: 8009550b80208d5d3aad0a62be10891c6e1085a595b52d15f43b71205cbae770
+token_count: 212
+rows:
+- n: 1
+  line: 91
+  anchor: '[FILL: Human author(s)]'
+  label: Human author(s) (PDF metadata)
+  source: authors:human_names
+- n: 2
+  line: 125
+  anchor: '[FILL: journal / venue]'
+  label: Target venue
+  source: field:ARTICLE.VENUE.TARGET#name_as_typed
+- n: 3
+  line: 126
+  anchor: '[FILL: conceptual / theory / review / le'
+  label: Article type
+  source: field:ARTICLE.SSA.ARTICLE_TYPE
+- n: 4
+  line: 127
+  anchor: '[FILL: Q1 World / Thai leading journal /'
+  label: Target system
+  source: profile:target_note
+- n: 5
+  line: 128
+  anchor: '[FILL: YYYY-MM-DD]'
+  label: Journal policy last checked (YYYY-MM-DD)
+  source: NEEDS_INPUT
+- n: 6
+  line: 145
+  anchor: '[FILL]'
+  label: FILL macro definition
+  source: keep
+- n: 7
+  line: 176
+  anchor: '[FILL: Manuscript Title]'
+  label: Manuscript title
+  source: field:ARTICLE.META.TITLE_EN|field:CORE.GENERAL.TITLE_EN
+- n: 8
+  line: 177
+  anchor: '[FILL: Optional subtitle]'
+  label: Optional subtitle
+  source: NEEDS_INPUT
+- n: 9
+  line: 178
+  anchor: '[FILL: Author One]'
+  label: Author 1 name
+  source: author:1.name
+- n: 10
+  line: 178
+  anchor: '[FILL]'
+  label: Author 1 ORCID
+  source: author:1.orcid
+- n: 11
+  line: 179
+  anchor: '[FILL: Author Two]'
+  label: Author 2 name (or delete this author line)
+  source: author:2.name
+- n: 12
+  line: 179
+  anchor: '[FILL]'
+  label: Author 2 ORCID
+  source: author:2.orcid
+- n: 13
+  line: 180
+  anchor: '[FILL: Affiliation or ``Independent Rese'
+  label: Author 1 affiliation
+  source: author:1.affiliation
+- n: 14
+  line: 181
+  anchor: '[FILL: Affiliation]'
+  label: Author 2 affiliation
+  source: author:2.affiliation
+- n: 15
+  line: 195
+  anchor: '[FILL: name, email]'
+  label: 'Corresponding author: SchemaName v SchemaVersion ( SchemaDate)'
+  source: author:corresponding
+- n: 16
+  line: 196
+  anchor: '[FILL: draft / preprint / submitted / re'
+  label: 'Manuscript status: SchemaName v SchemaVersion ( SchemaDate)'
+  source: NEEDS_INPUT
+- n: 17
+  line: 197
+  anchor: '[FILL: DOI/URL/id or N/A]'
+  label: 'Registration / protocol / preregistration: SchemaName v SchemaVersion ( SchemaDa'
+  source: NEEDS_INPUT
+- n: 18
+  line: 198
+  anchor: '[FILL: DOI/URL or N/A]'
+  label: 'Repository / archival record: SchemaName v SchemaVersion ( SchemaDate)'
+  source: NEEDS_INPUT
+- n: 19
+  line: 204
+  anchor: '[FILL: 150--250 words, adapted to the ta'
+  label: '150--250 words, adapted to the target journal. Functional order: (1) important p'
+  source: field:ARTICLE.FRONT.ABSTRACT_EN
+  block: true
+- n: 20
+  line: 217
+  anchor: '[FILL: 4--8 terms]'
+  label: Keywords (4--8 terms)
+  source: field:CORE.GENERAL.KEYWORDS_EN
+- n: 21
+  line: 233
+  anchor: '[FILL: name or anonymised role]'
+  label: Core Respondent / Experience-Based Expert
+  source: ces:experience
+- n: 22
+  line: 234
+  anchor: '[FILL: lived experience; selections; int'
+  label: lived experience; selections; interpretation
+  source: NEEDS_INPUT
+- n: 23
+  line: 235
+  anchor: '[FILL: name / role, or \textbf{None}]'
+  label: Interactional Expert (name / role, or \textbf{None})
+  source: ces:interactional
+- n: 24
+  line: 236
+  anchor: '[FILL: Model 1 --- role]'
+  label: AI Model(s) Used (Model 1 --- role)
+  source: ces:ai
+- n: 25
+  line: 236
+  anchor: '[FILL: Model 2 --- role]'
+  label: AI Model(s) Used (Model 2 --- role)
+  source: empty
+- n: 26
+  line: 251
+  anchor: '[FILL: State the phenomenon or intellect'
+  label: State the phenomenon or intellectual problem without smuggling the proposed answ
+  source: slot:S1.phenomenon
+  block: true
+- n: 27
+  line: 255
+  anchor: '[FILL: Explain why the target field or r'
+  label: Explain why the target field or readership should care. Separate disciplinary im
+  source: slot:S1.importance
+  block: true
+- n: 28
+  line: 259
+  anchor: '[FILL: Locate the active conversation, i'
+  label: Locate the active conversation, including the closest international and, where r
+  source: slot:S1.scholarly_conversation
+  block: true
+- n: 29
+  line: 263
+  anchor: '[FILL: Preview the contradiction, missin'
+  label: Preview the contradiction, missing mechanism, conceptual ambiguity, boundary fai
+  source: slot:S1.gap_preview
+  block: true
+- n: 30
+  line: 268
+  anchor: '[FILL: one sentence beginning, if useful'
+  label: one sentence beginning, if useful, ``We argue that ...''
+  source: slot:S1.central_argument
+  block: true
+- n: 31
+  line: 271
+  anchor: '[FILL: name the new intellectual object:'
+  label: 'name the new intellectual object: construct, distinction, theory, framework, mec'
+  source: slot:S1.contributions
+  block: true
+- n: 32
+  line: 276
+  anchor: '[FILL: optional; follow target-journal s'
+  label: optional; follow target-journal style.
+  source: slot:S1.roadmap
+  block: true
+- n: 33
+  line: 290
+  anchor: '[FILL: conceptual analysis / theory cons'
+  label: conceptual analysis / theory construction / philosophical argument / integrative
+  source: slot:S2.methodology
+  block: true
+- n: 34
+  line: 296
+  anchor: '[FILL]'
+  label: Domain/population/object
+  source: slot:S2.scope
+  block: true
+- n: 35
+  line: 297
+  anchor: '[FILL]'
+  label: Geography/jurisdiction
+  source: NEEDS_INPUT
+- n: 36
+  line: 298
+  anchor: '[FILL]'
+  label: Time window
+  source: NEEDS_INPUT
+- n: 37
+  line: 299
+  anchor: '[FILL]'
+  label: Languages/source families
+  source: NEEDS_INPUT
+- n: 38
+  line: 300
+  anchor: '[FILL]'
+  label: Explicit exclusions
+  source: slot:S2.exclusions
+  block: true
+- n: 39
+  line: 304
+  anchor: '[FILL: databases/search routes, canonica'
+  label: 'databases/search routes, canonical sources, target-journal literature, adjacent '
+  source: slot:S2.source_base
+  block: true
+- n: 40
+  line: 312
+  anchor: '[FILL]'
+  label: Targeted scholarly search
+  source: NEEDS_INPUT
+- n: 41
+  line: 313
+  anchor: '[FILL]'
+  label: Integrative review
+  source: NEEDS_INPUT
+- n: 42
+  line: 314
+  anchor: '[FILL]'
+  label: Systematic review / scoping review / SoK (only if protocol supports it)
+  source: NEEDS_INPUT
+- n: 43
+  line: 315
+  anchor: '[FILL]'
+  label: Doctrinal/legal corpus
+  source: NEEDS_INPUT
+- n: 44
+  line: 316
+  anchor: '[FILL]'
+  label: Archival/historical corpus
+  source: NEEDS_INPUT
+- n: 45
+  line: 343
+  anchor: '[FILL: Define the constructs used by the'
+  label: Define the constructs used by the argument; distinguish neighboring constructs a
+  source: slot:S3.constructs
+  block: true
+- n: 46
+  line: 347
+  anchor: '[FILL: Organize by problems/positions/me'
+  label: Organize by problems/positions/mechanisms, not by a chronological ``Author A sai
+  source: slot:S3.theories
+  block: true
+- n: 47
+  line: 351
+  anchor: '[FILL: Identify the strongest prior theo'
+  label: 'Identify the strongest prior theory/framework/method that could make this paper '
+  source: slot:S3.competing_literatures
+  block: true
+- n: 48
+  line: 355
+  anchor: '[FILL: State K0---the knowledge state be'
+  label: State K0---the knowledge state before this paper---with claim-matched citations.
+  source: slot:S3.canonical_sources+slot:S3.recent_sources
+  block: true
+- n: 49
+  line: 383
+  anchor: '[FILL: What can the field not explain, d'
+  label: What can the field not explain, distinguish, justify, predict, organize, or deci
+  source: slot:S4.gap_type+slot:S4.unresolved_problem+slot:S4.why_existing_knowledge_fails+slot:S4.consequence_if_unresolved
+  block: true
+- n: 50
+  line: 387
+  anchor: '[FILL: Treat the strongest existing solu'
+  label: Treat the strongest existing solution charitably. Explain why it is still insuff
+  source: slot:S4.strongest_prior_attempt
+  block: true
+- n: 51
+  line: 399
+  anchor: '[FILL]'
+  label: Name
+  source: field:ARTICLE.SSA.CONTRIBUTION#object_name|slot:S5.name
+- n: 52
+  line: 400
+  anchor: '[FILL: construct / distinction / mechani'
+  label: Type (construct / distinction / mechanism / theory / framework / taxonomy / onto
+  source: field:ARTICLE.SSA.CONTRIBUTION#contribution_type
+- n: 53
+  line: 402
+  anchor: '[FILL]'
+  label: Definition
+  source: field:ARTICLE.SSA.CONTRIBUTION#definition|slot:S5.definition
+- n: 54
+  line: 405
+  anchor: '[FILL: Explain nodes, entities, dimensio'
+  label: Explain nodes, entities, dimensions, mechanisms, transitions, or inferential ste
+  source: slot:S5.components+slot:S5.relationships+slot:S5.mechanism
+  block: true
+- n: 55
+  line: 409
+  anchor: '[FILL: Show how the contribution follows'
+  label: 'Show how the contribution follows from Sectors 3 and 4 rather than appearing as '
+  source: NEEDS_INPUT
+- n: 56
+  line: 414
+  anchor: '[FILL]'
+  label: P1
+  source: slot:S5.propositions@1
+  block: true
+- n: 57
+  line: 415
+  anchor: '[FILL]'
+  label: P2
+  source: slot:S5.propositions@2
+  block: true
+- n: 58
+  line: 416
+  anchor: '[FILL]'
+  label: P3
+  source: slot:S5.propositions@3
+  block: true
+- n: 59
+  line: 420
+  anchor: '[FILL: same / different / extends / chal'
+  label: 'same / different / extends / challenges. Avoid unsupported priority claims such '
+  source: field:ARTICLE.SSA.CONTRIBUTION#nearest_prior+field:ARTICLE.SSA.CONTRIBUTION#difference_from_prior
+- n: 60
+  line: 432
+  anchor: '[FILL: State the strongest plausible obj'
+  label: State the strongest plausible objection in a form its proponent would recognize.
+  source: slot:S6.strongest_objection
+  block: true
+- n: 61
+  line: 436
+  anchor: '[FILL]'
+  label: item 61
+  source: slot:S6.alternative_explanation
+  block: true
+- n: 62
+  line: 439
+  anchor: '[FILL]'
+  label: item 62
+  source: slot:S6.counterexample
+  block: true
+- n: 63
+  line: 442
+  anchor: '[FILL: Defend, revise, or narrow the con'
+  label: Defend, revise, or narrow the contribution. A narrow honest theory is better tha
+  source: slot:S6.response
+  block: true
+- n: 64
+  line: 446
+  anchor: '[FILL: Where should the contribution app'
+  label: Where should the contribution apply? Where should it not apply?
+  source: slot:S6.boundary_conditions
+  block: true
+- n: 65
+  line: 449
+  anchor: '[FILL: epistemic, conceptual, methodolog'
+  label: epistemic, conceptual, methodological, empirical, legal, cultural, technical, da
+  source: slot:S6.limitations
+  block: true
+- n: 66
+  line: 454
+  anchor: '[FILL]'
+  label: Theoretical implications
+  source: slot:S6.theoretical_implications
+  block: true
+- n: 67
+  line: 455
+  anchor: '[FILL]'
+  label: Methodological implications
+  source: NEEDS_INPUT
+- n: 68
+  line: 456
+  anchor: '[FILL or N/A]'
+  label: Practical/professional implications
+  source: slot:S6.practical_implications
+  block: true
+- n: 69
+  line: 457
+  anchor: '[FILL or N/A]'
+  label: Policy/governance implications
+  source: NEEDS_INPUT
+- n: 70
+  line: 458
+  anchor: '[FILL]'
+  label: Future research
+  source: slot:S6.future_research
+  block: true
+- n: 71
+  line: 470
+  anchor: '[FILL]'
+  label: item 71
+  source: slot:S7.answer_to_problem
+  block: true
+- n: 72
+  line: 474
+  anchor: '[FILL: what the field could not adequate'
+  label: Before this paper (what the field could not adequately distinguish/explain/organ
+  source: field:ARTICLE.SSA.BEFORE_AFTER#before_state|slot:S7.before_state
+- n: 73
+  line: 476
+  anchor: '[FILL: the precise new capability suppli'
+  label: After this paper (the precise new capability supplied by the contribution.)
+  source: field:ARTICLE.SSA.BEFORE_AFTER#after_state|slot:S7.after_state
+- n: 74
+  line: 481
+  anchor: '[FILL: explicit non-claims.]'
+  label: explicit non-claims.
+  source: field:ARTICLE.SSA.BEFORE_AFTER#non_claims|slot:S7.non_claims
+- n: 75
+  line: 484
+  anchor: '[FILL]'
+  label: item 75
+  source: slot:S7.next_frontier
+  block: true
+- n: 76
+  line: 503
+  anchor: '[FILL]'
+  label: 'Conceptualization: Contributor(s)'
+  source: credit:conceptualization
+- n: 77
+  line: 504
+  anchor: '[FILL / N/A]'
+  label: 'Data curation: Contributor(s)'
+  source: credit:data_curation
+- n: 78
+  line: 505
+  anchor: '[FILL / N/A]'
+  label: 'Formal analysis: Contributor(s)'
+  source: credit:formal_analysis
+- n: 79
+  line: 506
+  anchor: '[FILL / N/A]'
+  label: 'Funding acquisition: Contributor(s)'
+  source: credit:funding_acquisition
+- n: 80
+  line: 507
+  anchor: '[FILL / N/A]'
+  label: 'Investigation: Contributor(s)'
+  source: credit:investigation
+- n: 81
+  line: 508
+  anchor: '[FILL]'
+  label: 'Methodology: Contributor(s)'
+  source: credit:methodology
+- n: 82
+  line: 509
+  anchor: '[FILL / N/A]'
+  label: 'Project administration: Contributor(s)'
+  source: credit:project_administration
+- n: 83
+  line: 510
+  anchor: '[FILL / N/A]'
+  label: 'Resources: Contributor(s)'
+  source: credit:resources
+- n: 84
+  line: 511
+  anchor: '[FILL / N/A]'
+  label: 'Software: Contributor(s)'
+  source: credit:software
+- n: 85
+  line: 512
+  anchor: '[FILL / N/A]'
+  label: 'Supervision: Contributor(s)'
+  source: credit:supervision
+- n: 86
+  line: 513
+  anchor: '[FILL]'
+  label: 'Validation: Contributor(s)'
+  source: credit:validation
+- n: 87
+  line: 514
+  anchor: '[FILL / N/A]'
+  label: 'Visualization: Contributor(s)'
+  source: credit:visualization
+- n: 88
+  line: 515
+  anchor: '[FILL]'
+  label: 'Writing -- original draft: Contributor(s)'
+  source: credit:writing_original_draft
+- n: 89
+  line: 516
+  anchor: '[FILL]'
+  label: 'Writing -- review / editing: column 3'
+  source: credit:writing_review_editing
+- n: 90
+  line: 522
+  anchor: '[FILL: Confirm that every listed author '
+  label: Confirm that every listed author satisfies the target journal's authorship crite
+  source: statement:authorship_accountability
+- n: 91
+  line: 538
+  anchor: '[FILL: tool/service/model]'
+  label: used (tool/service/model)
+  source: ai_tool:1.name
+- n: 92
+  line: 538
+  anchor: '[FILL: purpose and research/manuscript s'
+  label: used for (purpose and research/manuscript stage)
+  source: ai_tool:1.purpose
+- n: 93
+  line: 550
+  anchor: '[FILL: product/service/model]'
+  label: 'Tool/service: Disclosure'
+  source: ai_tool:1.name
+- n: 94
+  line: 551
+  anchor: '[FILL]'
+  label: 'Provider/developer: Disclosure'
+  source: ai_tool:1.developer
+- n: 95
+  line: 552
+  anchor: '[FILL: where available]'
+  label: 'Model/version/release: Disclosure'
+  source: ai_tool:1.version
+- n: 96
+  line: 553
+  anchor: '[FILL]'
+  label: 'Dates accessed: Disclosure'
+  source: ai_tool:1.used_on
+- n: 97
+  line: 554
+  anchor: '[FILL: ideation; information discovery; '
+  label: 'Use category: Disclosure'
+  source: NEEDS_INPUT
+- n: 98
+  line: 556
+  anchor: '[FILL: question; literature; design; cod'
+  label: 'Research/manuscript stage: Disclosure'
+  source: ai_tool:1.stages
+- n: 99
+  line: 558
+  anchor: '[FILL]'
+  label: 'Purpose: Disclosure'
+  source: ai_tool:1.purpose
+- n: 100
+  line: 559
+  anchor: '[FILL: did it affect central arguments, '
+  label: 'Extent/influence: Disclosure'
+  source: ai_decl:influence_on_conclusions
+- n: 101
+  line: 560
+  anchor: '[FILL: public / licensed / internal / co'
+  label: 'Input-data class: Disclosure'
+  source: ai_decl:data_handling
+- n: 102
+  line: 562
+  anchor: '[FILL: yes/no; location; explain any law'
+  label: 'Prompt/settings retained: Disclosure'
+  source: ai_decl:log_ref
+- n: 103
+  line: 563
+  anchor: '[FILL: yes/no; location]'
+  label: 'Outputs retained: Disclosure'
+  source: NEEDS_INPUT
+- n: 104
+  line: 564
+  anchor: '[FILL: what was checked; against what in'
+  label: 'Human verification: Disclosure'
+  source: ai_decl:human_verification
+- n: 105
+  line: 565
+  anchor: '[FILL]'
+  label: 'Human checker/approver: Disclosure'
+  source: ai_decl:confirmed_by
+- n: 106
+  line: 566
+  anchor: '[FILL: source-first verification route]'
+  label: 'Citation verification: Disclosure'
+  source: NEEDS_INPUT
+- n: 107
+  line: 567
+  anchor: '[FILL: tests/oracle/review, or N/A]'
+  label: 'Code verification: Disclosure'
+  source: NEEDS_INPUT
+- n: 108
+  line: 568
+  anchor: '[FILL: underlying verifiable source/data'
+  label: 'Visual-content verification: Disclosure'
+  source: NEEDS_INPUT
+- n: 109
+  line: 569
+  anchor: '[FILL]'
+  label: 'Privacy/IP/terms check: Disclosure'
+  source: NEEDS_INPUT
+- n: 110
+  line: 570
+  anchor: '[FILL: none / limited / substantive; exp'
+  label: 'Material effect on conclusion: Disclosure'
+  source: NEEDS_INPUT
+- n: 111
+  line: 582
+  anchor: '[FILL one: (a) This work received suppor'
+  label: 'one: (a) This work received support from [funder, grant number], and the funder '
+  source: field:ARTICLE.STATEMENT.FUNDING
+  block: true
+- n: 112
+  line: 597
+  anchor: '[FILL: Declare relevant competing intere'
+  label: Declare relevant competing interests, or state that none are declared.
+  source: field:ARTICLE.STATEMENT.CONFLICT_OF_INTEREST
+  block: true
+- n: 113
+  line: 601
+  anchor: '[FILL according to the work: - approving'
+  label: 'according to the work: - approving REC/IRB/ethics body and approval number; - wa'
+  source: field:ARTICLE.STATEMENT.ETHICS
+  block: true
+- n: 114
+  line: 611
+  anchor: '[FILL: approval/consent details or N/A.]'
+  label: approval/consent details or N/A.
+  source: statement:consent_participate
+- n: 115
+  line: 615
+  anchor: '[FILL: consent for identifiable material'
+  label: consent for identifiable material, quotations, images, case details, or N/A.
+  source: statement:consent_publication
+- n: 116
+  line: 619
+  anchor: '[FILL one: - data DOI/repository and acc'
+  label: 'one: - data DOI/repository and access conditions; - restricted data + justified '
+  source: field:ARTICLE.STATEMENT.DATA_AVAILABILITY
+  block: true
+- n: 117
+  line: 627
+  anchor: '[FILL: repository, commit/tag, license, '
+  label: repository, commit/tag, license, environment/lock file, DOI, or N/A.
+  source: statement:code_availability
+- n: 118
+  line: 631
+  anchor: '[FILL: protocol DOI/registration, materi'
+  label: 'protocol DOI/registration, materials repository, preregistration id, or N/A. Do '
+  source: statement:materials_protocol
+- n: 119
+  line: 637
+  anchor: '[FILL: identify what another scholar can'
+  label: 'identify what another scholar can inspect or rerun: search manifest, source ledg'
+  source: statement:reproducibility
+- n: 120
+  line: 643
+  anchor: '[FILL: permissions/licenses for copyrigh'
+  label: permissions/licenses for copyrighted figures/tables/text/data; patent or confide
+  source: statement:ip_permissions
+- n: 121
+  line: 648
+  anchor: '[FILL where relevant: safety review, con'
+  label: 'where relevant: safety review, controlled details, risk mitigation, or N/A.'
+  source: statement:dual_use
+- n: 122
+  line: 652
+  anchor: '[FILL: people, organizations, facilities'
+  label: people, organizations, facilities, language/editorial assistance, non-author con
+  source: field:ARTICLE.BACK.ACKNOWLEDGEMENTS
+  block: true
+- n: 123
+  line: 657
+  anchor: '[FILL: preprint/working-paper DOI, confe'
+  label: preprint/working-paper DOI, conference abstract, thesis chapter, translation, pr
+  source: statement:prior_dissemination
+- n: 124
+  line: 662
+  anchor: '[FILL if applicable: PRISMA, CONSORT, ST'
+  label: 'if applicable: PRISMA, CONSORT, STROBE, CARE, SRQR, COREQ, ARRIVE, TRIPOD, CHEER'
+  source: statement:reporting_guideline
+- n: 125
+  line: 677
+  anchor: '[FILL: Reference 1.]'
+  label: Reference 1.
+  source: reference:1
+- n: 126
+  line: 680
+  anchor: '[FILL: Reference 2.]'
+  label: Reference 2.
+  source: references_from:2
+- n: 127
+  line: 698
+  anchor: '[FILL: who brought the world/problem in]'
+  label: Experience-based / core respondent
+  source: ces:experience
+- n: 128
+  line: 699
+  anchor: '[FILL or None]'
+  label: Interactional expert / bridge
+  source: ces:interactional
+- n: 129
+  line: 700
+  anchor: '[FILL: model + role]'
+  label: AI model(s)/tool(s) (model + role)
+  source: ces:ai
+- n: 130
+  line: 701
+  anchor: '[FILL]'
+  label: Human accountable author/approver
+  source: NEEDS_INPUT
+- n: 131
+  line: 715
+  anchor: '[FILL]'
+  label: Standpoint
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 132
+  line: 716
+  anchor: '[FILL]'
+  label: Disciplines/competencies explicitly not claimed
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 133
+  line: 717
+  anchor: '[FILL]'
+  label: Local/practice knowledge scope
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 134
+  line: 722
+  anchor: '[FILL: verbatim human wording]'
+  label: Question as lived (verbatim human wording)
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 135
+  line: 723
+  anchor: '[FILL: what is actually observed/disting'
+  label: Question as readout (what is actually observed/distinguished)
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 136
+  line: 724
+  anchor: '[FILL]'
+  label: World-language hypothesis
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 137
+  line: 725
+  anchor: '[FILL: what record would defeat/narrow t'
+  label: Falsifier (what record would defeat/narrow the claim)
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 138
+  line: 737
+  anchor: '[FILL]'
+  label: 'C1: Claim'
+  source: claim:1
+- n: 139
+  line: 737
+  anchor: '[FILL]'
+  label: 'C1: Evidence/formal support'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 140
+  line: 737
+  anchor: '[FILL]'
+  label: 'C1: Tier'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 141
+  line: 738
+  anchor: '[FILL]'
+  label: 'C2: Claim'
+  source: claim:2
+- n: 142
+  line: 738
+  anchor: '[FILL]'
+  label: 'C2: Evidence/formal support'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 143
+  line: 738
+  anchor: '[FILL]'
+  label: 'C2: Tier'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 144
+  line: 759
+  anchor: '[FILL]'
+  label: 'C1: seen'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 145
+  line: 759
+  anchor: '[FILL]'
+  label: 'C1: separates'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 146
+  line: 759
+  anchor: '[FILL]'
+  label: 'C1: ai _filled'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 147
+  line: 759
+  anchor: '[FILL]'
+  label: 'C1: assumed'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 148
+  line: 759
+  anchor: '[FILL]'
+  label: 'C1: tested'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 149
+  line: 760
+  anchor: '[FILL]'
+  label: 'C2: seen'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 150
+  line: 760
+  anchor: '[FILL]'
+  label: 'C2: separates'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 151
+  line: 760
+  anchor: '[FILL]'
+  label: 'C2: ai _filled'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 152
+  line: 760
+  anchor: '[FILL]'
+  label: 'C2: assumed'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 153
+  line: 760
+  anchor: '[FILL]'
+  label: 'C2: tested'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 154
+  line: 773
+  anchor: '[FILL / none identified]'
+  label: 'Current evidence supplied/handled by AI: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 155
+  line: 774
+  anchor: '[FILL / none identified]'
+  label: 'Retrieved tool evidence: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 156
+  line: 775
+  anchor: '[FILL / none identified]'
+  label: 'Retained-record route: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 157
+  line: 776
+  anchor: '[FILL / none identified]'
+  label: 'Model/calibration assumption: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 158
+  line: 777
+  anchor: '[FILL / none identified]'
+  label: 'Prompt/system constraint: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 159
+  line: 778
+  anchor: '[FILL / none identified]'
+  label: 'Decision policy proposed by AI: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 160
+  line: 779
+  anchor: '[FILL]'
+  label: 'Represented dependency set: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 161
+  line: 780
+  anchor: '[FILL]'
+  label: 'Actual dependency set: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 162
+  line: 781
+  anchor: '[FILL: none / list]'
+  label: 'Silent-lift flags: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 163
+  line: 782
+  anchor: '[FILL]'
+  label: 'Human completeness judgment: Record'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 164
+  line: 796
+  anchor: '[FILL]'
+  label: 'L1 / Frozen question/scope: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 165
+  line: 797
+  anchor: '[FILL]'
+  label: 'L2 / Search protocol / honest review mode: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 166
+  line: 798
+  anchor: '[FILL]'
+  label: 'L3 / Acquisition log: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 167
+  line: 799
+  anchor: '[FILL]'
+  label: 'L4 / Source reading/extraction records: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 168
+  line: 800
+  anchor: '[FILL]'
+  label: 'L5 / Metadata + claim-match verification: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 169
+  line: 801
+  anchor: '[FILL]'
+  label: 'L6 / Manifest + neighbour/dialogue table: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 170
+  line: 806
+  anchor: '[FILL: PASS / PASS WITH LIMITS / FAIL]'
+  label: Accuracy gate (PASS / PASS WITH LIMITS / FAIL)
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 171
+  line: 807
+  anchor: '[FILL: PASS / PASS WITH LIMITS / FAIL]'
+  label: Diversity gate (PASS / PASS WITH LIMITS / FAIL)
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 172
+  line: 808
+  anchor: '[FILL]'
+  label: Secondary-citation audit
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 173
+  line: 809
+  anchor: '[FILL]'
+  label: Retraction/correction check
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 174
+  line: 810
+  anchor: '[FILL; never call targeted search ``syst'
+  label: Review-mode claim (; never call targeted search ``systematic'')
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 175
+  line: 820
+  anchor: '[FILL]'
+  label: 'BB-001: Role'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 176
+  line: 820
+  anchor: '[FILL]'
+  label: 'BB-001: Kind'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 177
+  line: 820
+  anchor: '[FILL: exact retained wording]'
+  label: 'BB-001: Verbatim retained human line'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 178
+  line: 820
+  anchor: '[FILL: claim/rule]'
+  label: 'BB-001: Became'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 179
+  line: 830
+  anchor: '[FILL]'
+  label: human/AI/joint
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 180
+  line: 830
+  anchor: '[FILL]'
+  label: 'human/AI/joint: Input'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 181
+  line: 830
+  anchor: '[FILL]'
+  label: 'human/AI/joint: Transformation / output'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 182
+  line: 837
+  anchor: '[FILL]'
+  label: Overall K-state
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 183
+  line: 838
+  anchor: '[FILL]'
+  label: Highest claim tier
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 184
+  line: 839
+  anchor: '[FILL]'
+  label: Independence class(es)
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 185
+  line: 840
+  anchor: '[FILL]'
+  label: Known route dependence
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 186
+  line: 841
+  anchor: '[FILL]'
+  label: Claims on HOLD/Open
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 187
+  line: 861
+  anchor: '[FILL: PASS / PASS WITH NAMED GAPS / NOT'
+  label: Gate status (PASS / PASS WITH NAMED GAPS / NOT READY)
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 188
+  line: 862
+  anchor: '[FILL]'
+  label: Named gaps
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 189
+  line: 872
+  anchor: '[FILL]'
+  label: 'R1 / Leak/privacy/confidentiality scan: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 190
+  line: 873
+  anchor: '[FILL]'
+  label: 'R2 / License, copyright, permissions, and IP coverage: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 191
+  line: 874
+  anchor: '[FILL]'
+  label: 'R3 / Claim-tier / evidence-strength fidelity: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 192
+  line: 875
+  anchor: '[FILL]'
+  label: 'R4 / Citation accuracy and source-match recheck: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 193
+  line: 876
+  anchor: '[FILL]'
+  label: 'R5 / Lineage / anchor-preservation audit: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 194
+  line: 877
+  anchor: '[FILL]'
+  label: 'R6 / Overclaim/register scan (contaminated-concept table): Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 195
+  line: 878
+  anchor: '[FILL]'
+  label: 'R7 / Completeness / dangling-reference / supplement check: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 196
+  line: 879
+  anchor: '[FILL]'
+  label: 'R8 / Human Mastery Gate: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 197
+  line: 880
+  anchor: '[FILL]'
+  label: 'R9 / Authorship + CRediT + acknowledgements consistency: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 198
+  line: 881
+  anchor: '[FILL]'
+  label: 'R10 / Funding + competing-interest disclosure completeness: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 199
+  line: 882
+  anchor: '[FILL]'
+  label: 'R11 / Ethics/consent/data/code/protocol declarations: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 200
+  line: 883
+  anchor: '[FILL]'
+  label: 'R12 / AI public disclosure matches internal AI-use log: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 201
+  line: 884
+  anchor: '[FILL]'
+  label: 'R13 / Target-journal current policy checked: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 202
+  line: 885
+  anchor: '[FILL]'
+  label: 'R14 / Confidential peer-review material not exposed to non-permitted AI: Status'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 203
+  line: 897
+  anchor: '[FILL: commit/tag/hash]'
+  label: 'Manuscript source: Immutable/reproducible locator'
+  source: work:content_sha256
+- n: 204
+  line: 898
+  anchor: '[FILL]'
+  label: 'Bibliography/source manifest: Immutable/reproducible locator'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 205
+  line: 899
+  anchor: '[FILL / N/A]'
+  label: 'Data: Immutable/reproducible locator'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 206
+  line: 900
+  anchor: '[FILL / N/A]'
+  label: 'Code: Immutable/reproducible locator'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 207
+  line: 901
+  anchor: '[FILL / N/A]'
+  label: 'Environment: Immutable/reproducible locator'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 208
+  line: 902
+  anchor: '[FILL / N/A]'
+  label: 'Formal proof: Immutable/reproducible locator'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 209
+  line: 903
+  anchor: '[FILL / N/A]'
+  label: 'Figures/tables generation: Immutable/reproducible locator'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 210
+  line: 904
+  anchor: '[FILL / restricted + reason]'
+  label: 'AI prompt/output log: Immutable/reproducible locator'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 211
+  line: 905
+  anchor: '[FILL]'
+  label: 'Validation records: Immutable/reproducible locator'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)
+- n: 212
+  line: 906
+  anchor: '[FILL / N/A]'
+  label: 'Zenodo/OSF/other DOI: Immutable/reproducible locator'
+  source: NEEDS_INPUT
+  note: review or audit state; GrantThai never fills it (only the researcher and independent reviewers do)

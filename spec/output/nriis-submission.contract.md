@@ -2,7 +2,9 @@
 
 Draft, Phase 0 (contract only; renderer ships v0.1; v0.2 adds the
 `form_profile` key, gate hold reasons, the form-profile subsection and the
-completeness checklist, renderer `nriis_submission.md.j2@0.2.0`). This is the **one
+completeness checklist, renderer `nriis_submission.md.j2@0.2.0`; the AI-use
+ceiling adds the AI Use Declaration appendix, section 4.7, renderer
+`nriis_submission.md.j2@0.3.0`). This is the **one
 canonical output** of GrantThai's one-input, one-output pipeline — see
 `spec/contracts/one-input-one-output.md`.
 
@@ -21,7 +23,7 @@ canonical output** of GrantThai's one-input, one-output pipeline — see
 | `fund_profile_trust_level` | string | `FICTIONAL` < `COMMUNITY_EXTRACTED` < `HUMAN_VERIFIED` < `SECOND_CHECKED` (ordered). The rendered value is the **lowest** trust level among the profile itself and every rule the project used |
 | `nriis_mapping` | string | `<form>@<observed-date>`; today `nrct-master-hss@NEEDS_VERIFICATION` |
 | `form_profile` | string or null | v0.2: the form profile in force (`mappings/nriis/form_profiles/`), or `null` for the observed form. Every profile is `NEEDS_VERIFICATION` |
-| `authoring` | object | `{mode: human|ai_assisted, tools_disclosed: [], self_declared: true}` — default `human` |
+| `authoring` | object | `{mode: human|ai_assisted, tools_disclosed: [], self_declared: true, ai_use_declaration: none|unconfirmed|confirmed_by_researcher}` — default `human`. `ai_use_declaration` summarises `authoring.ai_use_declaration` in `project.yaml` (self-declared; `confirmed_by_researcher` only when the researcher set `declaration_confirmed_by_human: true`) |
 | `submission_mode` | object | `{human_copy_paste: true, ai_assisted_fill: false, direct_submit: false}` — `ai_assisted_fill` becomes true only on explicit opt-in (never the package's original default of true) |
 | `human_final_approval_required` | boolean | always `true` |
 | `review` | object | `{RG0..RG4: {state, basis}}` |
@@ -127,6 +129,27 @@ template puts it there.
       renderer. No timestamps. A line above the table states the file's
       status (`DRAFT`, `NEEDS_VERIFICATION`) and that it is guidance, not
       validation.
+
+   7. **AI Use Declaration** (the AI-use ceiling, `docs/policy/ai-use-ceiling.md`).
+      A GrantThai appendix, **not an NRIIS field**: its heading says so,
+      and whether NRIIS or a call asks for such a declaration is
+      `NEEDS_VERIFICATION`. It follows the order of the sample form in
+      Appendix A (p.34) of the GenAI guideline 2569 (`docs/sources.md`):
+      project title; responsible person (a pointer to the PI in
+      `PROFILE.TEAM.MEMBERS`, never a second copy of personal data); a table
+      of AI tools (name, developer, version, stages, purpose, used on);
+      influence on decisions or conclusions; types of data given to the AI
+      and how personal or confidential data was kept out; where the prompt
+      and output log is kept; human verification; the count of AI-assisted
+      values (section 1.5); the researcher's own risk self-assessment on the
+      guideline's five example dimensions, with one **GrantThai convention
+      level** (the highest score) labelled as GrantThai's convention, never
+      the guideline's; and the declaration of responsibility, printed as
+      confirmed only when `declaration_confirmed_by_human` is true, otherwise
+      `NOT CONFIRMED (NEEDS_INPUT)`. Missing items are listed (rule AI001).
+      Values print exactly as written; an empty value prints `NEEDS_INPUT`.
+      When no AI use is recorded and no declaration exists, one line says
+      so. Nothing in this section is ever placed on an NRIIS tab.
 
    (Version 0.1 of this contract listed an undefined "conflict log"; item 4
    is its defined replacement. See `docs/deviations.md`.)

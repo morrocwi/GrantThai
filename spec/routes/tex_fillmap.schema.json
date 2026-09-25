@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/morrocwi/GrantThai/spec/routes/tex_fillmap.schema.json",
+  "title": "GrantThai LaTeX export fill map (templates/tex/*.fillmap.yaml)",
+  "description": "Draft 0.1.0. One row per [FILL token of a vendored, sha256-pinned LaTeX template, in file order (route.yaml `exports`). The renderer (src/grantthai/render/article_tex.py) refuses a template whose sha256, token count or token anchors differ, replaces each token literally (LaTeX-escaped) from the named source, and prints [NEEDS_INPUT: <label>] for an unresolved source. GrantThai composes no text and never fills review or audit state.",
+  "type": "object",
+  "required": [
+    "schema",
+    "template",
+    "template_sha256",
+    "token_count",
+    "rows"
+  ],
+  "properties": {
+    "schema": {
+      "const": "grantthai.tex_fillmap.v0"
+    },
+    "template": {
+      "type": "string",
+      "pattern": "^templates/tex/[a-z0-9_]+\\.tex$"
+    },
+    "template_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "token_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "n",
+          "line",
+          "anchor",
+          "label",
+          "source"
+        ],
+        "properties": {
+          "n": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "anchor": {
+            "type": "string",
+            "pattern": "^\\[FILL"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^(keep|empty|NEEDS_INPUT|profile:target_note|work:content_sha256|((field:[A-Z][A-Z0-9_.]+(#[a-z_]+)?|slot:S[1-7]\\.[a-z_]+(@[0-9]+)?|author:([0-9]+\\.(name|orcid|affiliation)|corresponding)|authors:human_names|credit:[a-z_]+|ces:(experience|interactional|ai)|ai_tool:[0-9]+\\.[a-z_]+|ai_decl:[a-z_]+|statement:[a-z_]+|reference:[0-9]+|references_from:[0-9]+|claim:[0-9]+)([|+](field:[A-Z][A-Z0-9_.]+(#[a-z_]+)?|slot:S[1-7]\\.[a-z_]+(@[0-9]+)?))*))$"
+          },
+          "block": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

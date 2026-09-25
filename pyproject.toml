@@ -1,7 +1,7 @@
 [project]
 name = "grantthai"
-version = "0.2.0"
-description = "GrantThai — open, unofficial research infrastructure. One project.yaml in, one build/NRIIS_SUBMISSION.md out."
+version = "0.3.0"
+description = "GrantThai — one work object, many routes: one file per chosen route (NRIIS_SUBMISSION.md / ACADEMIC_ARTICLE.md / RESEARCH_CONCEPT_NOTE.md); unofficial."
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.10"

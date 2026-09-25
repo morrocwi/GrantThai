@@ -50,6 +50,20 @@ not reproduced, and quotes are at most 15 words.
 | R3 | โครงการการสังเคราะห์งานวิจัยภายใต้กรอบการวิจัยการพัฒนาคน ชุมชน และสังคมไทย | สมจิต แดนสีแก้ว | National Research Council of Thailand and Thailand Research Fund, contract RDG5840049 (May 2561) | final report, 101 | same terms as R1 | `054e1678a577a626691b534a00e6ed11e8efc37a3d6776f35fe6e1c0db79c0ec` |
 | R4 (withdrawn; not used) | Outcome and impact evaluation of a large research and innovation programme: Genomics Thailand (English description; the Thai cover title names the funder by acronym) | not recorded | Thailand Science Research and Innovation, contract ORG65F3010 | evaluation report, 137 (`pdfinfo`, independent reviewer) | relayed, OPEN; withdrawn as the D7 anchor until its terms and contents are re-checked | `6b0408b1e93e18146bf31858c7f7292ddfea4e1efb95223a6bc15d5a7b04cc0a` |
 
+**Note added 2026-09-25: how R1, R3 and R4 were reached.** The
+e-Library of Thailand Science Research and Innovation gates its own
+download path: its download link returns a member login page to a visitor
+who is not logged in, and its record pages load a CAPTCHA. R1, R3 and R4
+were reached through direct file URLs that served the PDF without a login.
+A file that answers is not the same as a file the site means to serve
+openly: that route may bypass the gate the site intends. For this reason
+the corpus-100 work (`docs/demo/corpus-100.md` §2) excluded this e-Library
+entirely. R1, R3 and R4 remain cited here by public title and contract
+number only, as recorded above. They get no further use (no new reading,
+scoring, quotation or pattern evidence) pending the founder's decision.
+The "no login" wording in the R1 row describes what the direct file URL
+returned, not the site's intended access.
+
 One repository was excluded (relayed): its full texts need membership,
 allow non-commercial use only, are watermarked with the downloader's name
 and expire after 15 days. That does not fit a public repository.
@@ -86,7 +100,7 @@ the GrantThai field and the status the demo build shows.
 
 - 59 records: 54 `DRAFT`, 5 `NEEDS_INPUT`; 8 `NEEDS_VERIFICATION` markers; no record above `DRAFT`; no `SOURCE` record.
 - Authored by: 53 "human" (meaning the **simulated persona**; see section 5, gap G8), 4 AI drafts the persona adopted, 2 AI drafts not adopted.
-- 51 of the 122 registry fields have a value. `grantthai validate`: BLOCK 0, REVIEW 0, INFO 31 (as of 2026-09-25). BLOCK 0 is structure and links only; it says nothing about quality.
+- 51 of the 122 registry fields have a value. `grantthai validate`: BLOCK 0, REVIEW 0, INFO 31 (as of 2026-09-25, v0.2.0 rules; with the unreleased FW and AI rules the demo shows REVIEW 3: FW001, see `docs/practice/funded-work-patterns.md`, and AI001 twice, see `docs/policy/ai-use-ceiling.md`). BLOCK 0 is structure and links only; it says nothing about quality.
 
 ## 3. Rubric (for the scorers)
 

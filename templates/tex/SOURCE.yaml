@@ -1,0 +1,38 @@
+# templates/tex/SOURCE.yaml — provenance of the vendored LaTeX template used by
+# `grantthai build --route academic-article --format tex` (routes/academic-article/route.yaml `exports`).
+#
+# glosa_7ssa_v1.tex is a BYTE-IDENTICAL copy of the glosa-registered GLOSA-7SSA
+# paper template. GrantThai never edits it: the renderer
+# (src/grantthai/render/article_tex.py) checks the sha256 below before every
+# export and refuses a template that does not match; the filled copy is
+# written to build/ACADEMIC_ARTICLE.tex only. To take a newer glosa version,
+# replace the file, re-pin the sha256, regenerate the fill map and record it
+# in CHANGELOG.md.
+schema: grantthai.tex_source.v0
+files:
+  - path: templates/tex/glosa_7ssa_v1.tex
+    sha256: 8009550b80208d5d3aad0a62be10891c6e1085a595b52d15f43b71205cbae770
+    fillmap: templates/tex/glosa_7ssa_v1.fillmap.yaml
+    fill_tokens: 212
+origin:
+  repository: "https://github.com/morrocwi/glosa"
+  path: templates/paper/glosa-7ssa/main.tex
+  ref: "glosa main, merge commit f2856ce (2026-09-25, PR #11; the vendored file was first taken from branch templates/glosa-7ssa commit 417392e). main.tex at f2856ce has sha256 8009550b80208d5d3aad0a62be10891c6e1085a595b52d15f43b71205cbae770, identical to the vendored copy (re-pinned 2026-09-25, checked byte for byte)."
+  license: CC-BY-4.0
+  copyright: "2026 Yaoharee Lahtee"
+  based_on:
+    - doc: "GLOSA-7SSA Global Scholarly Schema v1 (founder-authored LaTeX source, 2026-09-25)"
+      sha256: 8e38ff0acd98357ae04274d4cb38ab4b9b2fedadde83b7d237a966da7e56c503
+    - doc: "7SSA master schema v1.0 (founder-authored)"
+      sha256: 1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+  changes_in_glosa_against_the_founder_source:
+    - "Core Epistemic Structure block (glosa P20) inserted before the Introduction, always on (contradiction CX-7SSA-05)."
+    - "Publish-gate row R6 label aligned with glosa P10 R6."
+what_the_export_changes_in_the_filled_copy:
+  - "Every [FILL token is replaced literally, LaTeX-escaped, by a work-object value named in the fill map, or by [NEEDS_INPUT: ...]; GrantThai composes no text."
+  - "The seven sector section titles are replaced by the resolved English 7SSA headings (article-type overlay, else the world profile headings; CX-7SSA-02)."
+  - "\\glosaaudittrue becomes \\glosaauditfalse unless --glosa-audit is given; \\thaiarticlefalse is kept (English-only export, CX-7SSA-06)."
+  - "In the internal policy-interoperability table (audit appendix) every check/recommended/documented/journal-dependent cell becomes NEEDS_VERIFICATION: the publisher readings are relayed, never GrantThai facts."
+  - "A comment header (the NOTICE constant, the route notice, the work id and the template sha256) is added before the first line."
+  - "One visible plain line is typeset directly under \\maketitle: \"Draft prepared with GrantThai (unofficial); check the target journal's current instructions.\" (v0.3.0; docs/deviations.md)."
+status_note: "The template's cross-publisher policy text is the founder's relayed reading and stays NEEDS_VERIFICATION against each venue's current author guidelines. The export is a draft for the researcher; it submits nothing and never says a manuscript is ready for any venue."

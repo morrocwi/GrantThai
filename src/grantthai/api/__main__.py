@@ -23,7 +23,8 @@ def _is_loopback(host: str) -> bool:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m grantthai.api",
-                                 description="GrantThai local HTTP API (project.yaml -> build/NRIIS_SUBMISSION.md).")
+                                 description="GrantThai local HTTP API (work.yaml -> one file per "
+                                             "chosen route in build/).")
     ap.add_argument("--host", default="127.0.0.1", help="bind address (default 127.0.0.1, local only)")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--workdir", default="grantthai-work",

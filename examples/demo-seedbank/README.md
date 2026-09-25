@@ -37,8 +37,19 @@ byte for byte what `build --as-of 2026-09-25` gives for the committed
 
 ## What the result says, and does not say
 
-- `grantthai validate`: BLOCK 0, REVIEW 0 (structure and links only). This
-  does not mean the project is sound, novel or fundable.
+- `grantthai validate`: BLOCK 0, REVIEW 3 (structure and links only). This
+  does not mean the project is sound, novel or fundable. The REVIEW
+  findings (unreleased, after v0.2.0) are FW001: the theory box has content
+  but the reference list is empty, while 78 of 100 funded final reports
+  carry one (`docs/practice/funded-work-patterns.md`); and AI001, twice:
+  the AI Use Declaration has no human verification yet and is not confirmed
+  (`docs/policy/ai-use-ceiling.md`). The demo is left this way on purpose
+  so the findings stay visible.
+- The AI Use Declaration (`authoring.ai_use_declaration`, output section
+  4.7) is written for the simulated persona, including its risk
+  self-assessment. The level printed there is GrantThai's convention, not
+  the guideline's. `declaration_confirmed_by_human` stays false: only a
+  real researcher can confirm it.
 - No value is `SOURCE`; every record is `DRAFT` or `NEEDS_INPUT`; there are
   no review records and no lock, because no named human has reviewed
   anything. `authoring.mode` is `ai_assisted` and the tool is disclosed

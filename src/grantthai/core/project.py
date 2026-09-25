@@ -55,11 +55,23 @@ FUND_SCHEMA_ID = "https://github.com/morrocwi/GrantThai/spec/fund/fund-profile.s
 STRUCTURED_SCHEMA_ID = "https://github.com/morrocwi/GrantThai/spec/registry/structured_fields.schema.json"
 REPORT_SCHEMA_ID = "https://github.com/morrocwi/GrantThai/spec/common/validation_report.schema.json"
 
-SCHEMA_VERSION = "0.2.0-draft"
+WORK_SCHEMA_ID = "https://github.com/morrocwi/GrantThai/spec/work/work.schema.json"
+
+SCHEMA_VERSION = "0.2.0-draft"          # a legacy project.yaml (read unchanged, never rewritten)
+WORK_SCHEMA_VERSION = "0.3.0-draft"     # work.yaml, a superset of project.yaml 0.2
+WORK_FILE = "work.yaml"
+PROJECT_FILE = "project.yaml"
+LEGACY_ROUTE = "nriis-proposal"         # what a 0.2 project.yaml is read as
+LEGACY_WORK_TYPE = "research_proposal"
 DEFAULT_FUND_PROFILE = "example/FICTIONAL_CALL@0.1"
 
 ACTORS = ("human", "ai_assisted")
 AI_AUTHORED = ("ai_draft", "human_ai_assisted")
+# Research stages of authoring.ai_use_declaration.tools[].stages
+# (spec/project/project.schema.json#/$defs/ai_use_stage).
+AI_USE_STAGES = ("idea", "proposal_writing", "literature", "data", "analysis", "writing",
+                 "language_editing", "review", "publication")
+DEFAULT_AI_STAGE = "proposal_writing"   # what an AI does through GrantThai's surfaces
 
 
 # --------------------------------------------------------------------------
@@ -329,14 +341,17 @@ def new_project(project_id: str = "NEEDS_INPUT", fund_profile_id: str = DEFAULT_
 def set_field(doc: dict, field_id: str, value: Any, *, actor: str = "human",
               chain_node: str | None = None, provenance: dict | None = None,
               source_ids: list[str] | None = None, links: dict | None = None,
-              tool: str | None = None) -> dict:
+              tool: str | None = None, tool_version: str | None = None,
+              stage: str | None = None) -> dict:
     """Write one field record (in place) and return it.
 
     The resulting status is always DRAFT, or NEEDS_INPUT when the value is
     cleared (None / "NEEDS_INPUT"). A value of "NEEDS_VERIFICATION" is stored
     as null plus that marker. `actor` is "human" or "ai_assisted"; an AI
     draft is recorded with authored_by ai_draft and may never claim the
-    provenance class SOURCE (ValueError)."""
+    provenance class SOURCE (ValueError). An AI-assisted write that names
+    its `tool` also records it in authoring.ai_use_declaration.tools
+    (record_ai_tool), with `tool_version` and `stage` when given."""
     if actor not in ACTORS:
         raise ValueError(f"actor must be one of {ACTORS}")
     if not isinstance(field_id, str) or not field_id:
@@ -397,8 +412,212 @@ def set_field(doc: dict, field_id: str, value: Any, *, actor: str = "human",
         auth["mode"] = "ai_assisted"
         auth.setdefault("self_declared", True)
         if tool:
-            tools = list(auth.get("tools_disclosed") or [])
-            if tool not in tools:
-                tools.append(tool)
-            auth["tools_disclosed"] = tools
+            record_ai_tool(doc, tool, version=tool_version, stage=stage or DEFAULT_AI_STAGE)
     return existing
+
+
+def record_ai_tool(doc: dict, name: str, *, version: str | None = None,
+                   stage: str | None = None) -> bool:
+    """Record an AI tool the way an AI surface may: add its name to
+    authoring.tools_disclosed and an entry to authoring.ai_use_declaration
+    .tools (docs/policy/ai-use-ceiling.md). An existing entry of the same
+    name gains the stage, and a version when it had none. purpose stays
+    NEEDS_INPUT for the researcher. Returns True when tools[] changed; the
+    researcher's confirmation (declaration_confirmed_by_human) is then reset
+    to false, because the declaration no longer covers every use. Nothing
+    else in the declaration is touched."""
+    if not isinstance(name, str) or not name.strip():
+        raise ValueError("tool name must be a non-empty string")
+    if stage is not None and stage not in AI_USE_STAGES:
+        raise ValueError(f"stage must be one of {AI_USE_STAGES}")
+    auth = doc.setdefault("authoring", {"mode": "human", "tools_disclosed": [], "self_declared": True})
+    auth["mode"] = "ai_assisted"
+    auth.setdefault("self_declared", True)
+    disclosed = list(auth.get("tools_disclosed") or [])
+    if name not in disclosed:
+        disclosed.append(name)
+    auth["tools_disclosed"] = disclosed
+    decl = auth.setdefault("ai_use_declaration", {})
+    tools = decl.setdefault("tools", [])
+    entry = next((t for t in tools if isinstance(t, dict) and t.get("name") == name), None)
+    changed = False
+    if entry is None:
+        entry = {"name": name, "version": version or "NEEDS_INPUT", "stages": [], "purpose": "NEEDS_INPUT"}
+        tools.append(entry)
+        changed = True
+    elif version and entry.get("version") in (None, "", "NEEDS_INPUT"):
+        entry["version"] = version
+        changed = True
+    if stage and stage not in (entry.get("stages") or []):
+        entry["stages"] = list(entry.get("stages") or []) + [stage]
+        changed = True
+    if changed or "declaration_confirmed_by_human" not in decl:
+        decl["declaration_confirmed_by_human"] = False
+    return changed
+
+
+# --------------------------------------------------------------------------
+# work.yaml 0.3: discovery, the legacy view, and the explicit migration
+# --------------------------------------------------------------------------
+
+class TwoCanonicalInputs(ValueError):
+    """work.yaml and project.yaml sit in the same directory. The one-input
+    rule is enforced, not assumed: the command stops (CLI exit 2)."""
+
+
+def is_work(doc: dict) -> bool:
+    """True for a work.yaml 0.3 object; False for a legacy 0.2 project.yaml
+    (or anything else, which the 0.2 schema then reports)."""
+    return isinstance(doc, dict) and doc.get("schema_version") == WORK_SCHEMA_VERSION
+
+
+def object_schema_id(doc: dict) -> str:
+    """The schema a loaded object validates against: work.schema.json for
+    0.3, the frozen project.schema.json for everything else."""
+    return WORK_SCHEMA_ID if is_work(doc) else PROJECT_SCHEMA_ID
+
+
+def work_id(doc: dict) -> str:
+    """The object's identifier: `project_id` when present (legacy files and
+    0.3 files that keep it), else `work_id`. Printed exactly as written."""
+    v = doc.get("project_id") if isinstance(doc, dict) else None
+    if v is None and isinstance(doc, dict):
+        v = doc.get("work_id")
+    return str(v)
+
+
+def work_view(doc: dict) -> dict:
+    """The in-memory reading of the object for the router, never written
+    back. A legacy 0.2 file reads as work_type research_proposal,
+    default_route nriis-proposal and sub_profiles.nriis-proposal =
+    form_profile; its bytes and content_sha256 do not change. For a 0.3
+    file the legacy top-level form_profile is still read when routing does
+    not name an nriis-proposal sub-profile."""
+    legacy = not is_work(doc)
+    routing = doc.get("routing") if isinstance(doc.get("routing"), dict) else {}
+    subs = dict(routing.get("sub_profiles") or {}) if isinstance(routing.get("sub_profiles"), dict) else {}
+    fp = doc.get("form_profile")
+    if LEGACY_ROUTE not in subs and fp is not None:
+        subs[LEGACY_ROUTE] = fp
+    if legacy:
+        return {"legacy": True, "work_id": work_id(doc), "work_type": LEGACY_WORK_TYPE,
+                "declared_routes": [LEGACY_ROUTE], "default_route": LEGACY_ROUTE, "sub_profiles": subs}
+    return {"legacy": False, "work_id": work_id(doc),
+            "work_type": doc.get("work_type") or LEGACY_WORK_TYPE,
+            "declared_routes": list(routing.get("declared_routes") or []),
+            "default_route": routing.get("default_route"), "sub_profiles": subs}
+
+
+def discover(path: str | Path | None = None) -> Path:
+    """The one canonical input. `path` may be a file, a directory, or None
+    (the current directory). In a directory, work.yaml is preferred, then
+    project.yaml. If both exist in the input's directory the call raises
+    TwoCanonicalInputs, whichever file was named."""
+    p = Path(path) if path is not None else Path.cwd()
+    folder = p if p.is_dir() else p.parent
+    work, proj = folder / WORK_FILE, folder / PROJECT_FILE
+    if work.is_file() and proj.is_file():
+        raise TwoCanonicalInputs(f"two canonical inputs in {folder}: {WORK_FILE} and {PROJECT_FILE}; keep one "
+                                 f"(`grantthai migrate --rename` turns a project.yaml into a work.yaml)")
+    if p.is_dir():
+        for cand in (work, proj):
+            if cand.is_file():
+                return cand
+        raise FileNotFoundError(f"no {WORK_FILE} or {PROJECT_FILE} in {folder}")
+    if not p.is_file():
+        raise FileNotFoundError(f"{p} does not exist")
+    return p
+
+
+def new_work(work_id_: str = "NEEDS_INPUT", work_type: str = LEGACY_WORK_TYPE,
+             fund_profile_id: str | None = None, mode: str = "expert",
+             required_fields: list[str] | None = None) -> dict:
+    """A blank work.yaml 0.3 object. `routing` is left out: the route is the
+    researcher's declaration, never a default GrantThai writes. The fields
+    in `required_fields` (default: the registry's required flags) are
+    present as NEEDS_INPUT so the file doubles as a form."""
+    doc: dict = {
+        "schema_version": WORK_SCHEMA_VERSION,
+        "work_id": work_id_,
+        "work_type": work_type,
+        "mode": mode,
+        "authoring": {"mode": "human", "tools_disclosed": [], "self_declared": True},
+    }
+    if fund_profile_id:
+        doc["fund_binding"] = {"fund_profile_id": fund_profile_id}
+    doc.update({"sources": [], "fields": [], "chain": {}, "ecosystem_positions": [], "review_records": [],
+                "mappings": [], "lock": {"locked": False}})
+    reg = registry_by_id()
+    wanted = ([r["field_id"] for r in registry() if r.get("required")] if required_fields is None
+              else list(required_fields))
+    for fid in wanted:
+        rec = {"field_id": fid, "value": None, "status": "NEEDS_INPUT", "provenance": _default_provenance("human")}
+        node = (reg.get(fid) or {}).get("chain_node")
+        if node:
+            doc["chain"].setdefault(node, []).append(rec)
+        else:
+            doc["fields"].append(rec)
+    return doc
+
+
+def migrated(doc: dict) -> dict:
+    """The 0.3 form of a legacy 0.2 object (a new dict; `doc` is untouched):
+    schema_version 0.3.0-draft, work_id (from project_id), work_type
+    research_proposal, routing {declared_routes, default_route,
+    sub_profiles} with form_profile moved under sub_profiles.nriis-proposal.
+    Every other key keeps its value and order."""
+    if is_work(doc):
+        return copy.deepcopy(doc)
+    view = work_view(doc)
+    routing: dict = {"declared_routes": [LEGACY_ROUTE], "default_route": LEGACY_ROUTE}
+    if view["sub_profiles"].get(LEGACY_ROUTE) is not None:
+        routing["sub_profiles"] = {LEGACY_ROUTE: view["sub_profiles"][LEGACY_ROUTE]}
+    head = {"schema_version": WORK_SCHEMA_VERSION,
+            "work_id": copy.deepcopy(doc.get("project_id", "NEEDS_INPUT")),
+            "work_type": LEGACY_WORK_TYPE}
+    for k in ("mode", "authoring"):
+        if k in doc:
+            head[k] = copy.deepcopy(doc[k])
+    head["routing"] = routing
+    rest = {k: copy.deepcopy(v) for k, v in doc.items()
+            if k not in head and k not in ("project_id", "form_profile")}
+    out = {**head, **rest}
+    return out
+
+
+def migrate(path: str | Path, *, rename: bool = False, dry_run: bool = False) -> dict:
+    """grantthai migrate: rewrite a legacy project.yaml as work.yaml 0.3.
+
+    Reports which review gates go stale BEFORE anything is written:
+    `work_type` and `work_id` are hashed content, `routing` is not
+    (spec/common/object-hash.md), so a migration changes content_sha256 and
+    every review gate that was current becomes stale. With dry_run nothing
+    is written. With rename the file is written as work.yaml next to it and
+    project.yaml is removed (refused if work.yaml already exists)."""
+    from grantthai.core.object_hash import content_sha256
+    from grantthai.review import records as RR
+
+    src = Path(path)
+    doc = load(src)
+    if is_work(doc):
+        return {"path": str(src), "changed": False, "written": None, "schema_version": WORK_SCHEMA_VERSION,
+                "content_sha256_before": content_sha256(doc), "content_sha256_after": content_sha256(doc),
+                "stale_gates": [], "note": "already work.yaml 0.3; nothing to do"}
+    new = migrated(doc)
+    before, after = content_sha256(doc), content_sha256(new)
+    cur = [g for g, st in RR.gate_states(doc).items() if st["state"] == "current"]
+    stale = [g for g in cur if RR.gate_states(new)[g]["state"] != "current"]
+    target = src.with_name(WORK_FILE) if rename else src
+    if rename and target.exists() and target.resolve() != src.resolve():
+        raise FileExistsError(f"{target} already exists; refusing to overwrite")
+    out = {"path": str(src), "changed": True, "written": None if dry_run else str(target),
+           "schema_version_from": str(doc.get("schema_version")), "schema_version": WORK_SCHEMA_VERSION,
+           "content_sha256_before": before, "content_sha256_after": after, "stale_gates": stale,
+           "note": ("work_type and work_id are hashed content, routing is not; review gates current before the "
+                    "migration become stale" if stale else "no review gate was current, so none goes stale")}
+    if dry_run:
+        return out
+    save(new, target)
+    if rename and target.resolve() != src.resolve():
+        src.unlink()
+    return out

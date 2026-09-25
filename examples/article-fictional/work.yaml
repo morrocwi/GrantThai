@@ -1,0 +1,311 @@
+# examples/article-fictional/work.yaml — FICTIONAL. Every name, number,
+# place, venue and source below is synthetic. No real journal, publisher,
+# index, place or institution is named (PRIVACY.md). The target venue is an
+# invented name; GrantThai ships no venue registry.
+#
+# A worked example of the academic-article route (routes/academic-article/):
+# one work.yaml 0.3 object, work_type academic_article, built with
+#   grantthai build examples/article-fictional        (default_route below)
+# into exactly one file, build/ACADEMIC_ARTICLE.md.
+#
+# It is designed to give BLOCK == 0 (manuscript_ready: true, which never
+# means accepted or publishable) with three REVIEW findings seeded on
+# purpose, so the readiness summary shows what a person should look at
+# (tests/test_article_route.py, acceptance AT-R2):
+#   ART002  only two English keywords (the default band is 3-6,
+#           proposed_default, NEEDS_VERIFICATION);
+#   ART006  author AU2 has no contribution role;
+#   ART010  one venue requirement has no source_ref (prints NEEDS_VERIFICATION).
+# The article titles are left empty on purpose: the output copies the
+# shared CORE.GENERAL.TITLE_* values and says so (COPIED_FROM).
+schema_version: "0.3.0-draft"
+work_id: "FICTIONAL-ARTICLE-EXAMPLE-0001"
+work_type: academic_article
+fictional: true            # explicit marker: outputs print the FICTIONAL banner
+mode: expert
+authoring:
+  mode: ai_assisted
+  tools_disclosed: ["FICTIONAL text-editing assistant"]
+  self_declared: true
+  ai_use_declaration:
+    tools:
+      - name: "FICTIONAL text-editing assistant"
+        developer: "FICTIONAL developer"
+        version: "FICTIONAL 1.0"
+        stages: [language_editing]
+        purpose: "Suggested grammar corrections to the English abstract, which the researcher then accepted or rejected line by line."
+        used_on: "FICTIONAL month 11"
+    influence_on_conclusions: "None: the tool saw only the finished English abstract; results and conclusions were written before it was used."
+    human_verification: "FICTIONAL Lecturer A read every suggestion against the Thai original and signs for the final wording."
+    data_handling: "Only the English abstract text was given to the tool; no survey data and no personal data."
+    log_ref: "FICTIONAL: the researcher's own editing log, kept offline"
+    declaration_confirmed_by_human: true
+    confirmed_by: "FICTIONAL Lecturer A"
+    confirmed_on: "2026-09-25"
+routing:
+  declared_routes: [academic-article]
+  default_route: academic-article
+  sub_profiles:
+    academic-article: international-journal
+
+sources:
+  - source_id: SRC-1
+    kind: OFFICIAL_DOCUMENT
+    citation: "FICTIONAL Provincial Office. (2025). FICTIONAL annual report on community water use. Synthetic document."
+    locator: "Table 3"
+    contains_personal_data: false
+  - source_id: SRC-2
+    kind: PUBLISHED_LITERATURE
+    citation: "FICTIONAL Author A. (2024). A synthetic review of small-reservoir management. FICTIONAL Journal of Examples, 1(1), 1-10."
+    locator: "Section 4"
+    contains_personal_data: false
+  - source_id: SRC-3
+    kind: PRIMARY_DATA
+    citation: "FICTIONAL household survey dataset, two waves (synthetic)."
+    contains_personal_data: false
+  - source_id: SRC-VENUE-1
+    kind: OFFICIAL_DOCUMENT
+    citation: "FICTIONAL Journal of Example Studies. Author guidelines (synthetic document, supplied by the researcher)."
+    locator: "Section 2, manuscript preparation"
+    contains_personal_data: false
+
+fields:
+  - field_id: CORE.GENERAL.TITLE_TH
+    value: "ตัวอย่างสมมติ: ตารางใช้น้ำที่ออกแบบร่วมกันกับข้อพิพาทเรื่องน้ำในชุมชนตัวอย่าง"
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.GENERAL.TITLE_EN
+    value: "FICTIONAL: A co-designed water-use schedule and reported disputes in an example community"
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.GENERAL.KEYWORDS_EN
+    value: ["FICTIONAL example", "shared water use"]
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: PROFILE.TEAM.MEMBERS
+    value:
+      - id: TM1
+        full_name: "FICTIONAL Lecturer A"
+        organization: "FICTIONAL Example University"
+        project_role: PI
+        contribution_percent: 60
+      - id: TM2
+        full_name: "FICTIONAL Lecturer B"
+        organization: "FICTIONAL Example University"
+        project_role: CO_RESEARCHER
+        contribution_percent: 40
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: CORE.NARRATIVE.REFERENCES
+    value:
+      - "FICTIONAL Author A. (2024). A synthetic review of small-reservoir management. FICTIONAL Journal of Examples, 1(1), 1-10."
+    status: DRAFT
+    source_ids: [SRC-2]
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: COMP.STANDARD.HUMAN
+    value:
+      applicable: true
+      status: "FICTIONAL: approved"
+      committee: "FICTIONAL Example University ethics committee"
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.META.KIND
+    value: empirical_research
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.META.LANGUAGE
+    value: en
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.META.REFERENCE_STYLE
+    value: "FICTIONAL: author-date, as the venue's guidelines say (the researcher's own label)"
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.FRONT.ABSTRACT_EN
+    value:
+      background: "FICTIONAL: Households sharing one small reservoir had no agreed schedule, and disputes rose each dry season."
+      methods: "FICTIONAL: A before-after household survey (two waves) around two co-design workshops."
+      results: "FICTIONAL: Reported disputes were lower in the second wave than in the first."
+      conclusion: "FICTIONAL: A co-designed written schedule was feasible in this one example community."
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human_ai_assisted}
+  - field_id: ARTICLE.FRONT.AUTHORS
+    value:
+      - id: AU1
+        member_id: TM1
+        order: 1
+        corresponding: true
+        affiliation_as_typed: "FICTIONAL Example University"
+      - id: AU2
+        member_id: TM2
+        order: 2
+        corresponding: false
+        affiliation_as_typed: "FICTIONAL Example University"
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.FRONT.CONTRIBUTIONS
+    value:
+      - id: CRT1
+        member_id: TM1
+        roles: [conceptualization, methodology, formal_analysis, writing_original_draft]
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.SECTION.INTRODUCTION
+    value: "FICTIONAL introduction, written by the researcher from the Problem, Gap and theory records."
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.SECTION.METHODS
+    value: "FICTIONAL methods, written by the researcher from the METHOD.PLAN records."
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.SECTION.RESULTS
+    value: "FICTIONAL results, written by the researcher from the Evidence records."
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.SECTION.DISCUSSION
+    value: "FICTIONAL discussion, written by the researcher from the Claim and theory records."
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.SECTION.CONCLUSION
+    value: "FICTIONAL conclusion, written by the researcher."
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.STATEMENT.ETHICS
+    value: "FICTIONAL: approved by the FICTIONAL Example University ethics committee, approval FICTIONAL-EC-0000 (as typed by the researcher)."
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.STATEMENT.AI_USE
+    value:
+      text: "FICTIONAL: A text-editing assistant (FICTIONAL 1.0) suggested grammar corrections to the English abstract; the authors accepted or rejected each suggestion and take full responsibility for the text."
+      placement: acknowledgements
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.STATEMENT.CONFLICT_OF_INTEREST
+    value: "FICTIONAL: none declared."
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.BODY.FIGURES_TABLES
+    value:
+      - id: FIG1
+        kind: table
+        caption: "FICTIONAL Table 1. Reported disputes per household, wave 1 and wave 2."
+        data_bearing: true
+        ai_generated_illustration: false
+        source_refs: [SRC-3]
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  - field_id: ARTICLE.VENUE.TARGET
+    value:
+      name_as_typed: "FICTIONAL Journal of Example Studies"
+      sub_profile: international-journal
+      source_refs: [SRC-VENUE-1]
+      stated_requirements:
+        - item: abstract_structured
+          value: "background, methods, results, conclusion"
+          source_ref: SRC-VENUE-1
+        - item: word_limit
+          value: "FICTIONAL: remembered as about 6000 words (not yet checked against the guidelines)"
+    status: DRAFT
+    provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+
+chain:
+  Problem:
+    - field_id: CORE.RESEARCH.PROBLEM
+      value: "FICTIONAL problem: the example community's reservoir had no agreed use schedule, and disputes rose in the dry months."
+      status: DRAFT
+      source_ids: [SRC-1]
+      provenance: {provenance_class: SOURCE, source_type: OFFICIAL_DOCUMENT, evidence_role: SUPPORTING, authored_by: human}
+  PriorKnowledge:
+    - field_id: CORE.PRIORKNOWLEDGE.PK1
+      value: "FICTIONAL prior knowledge: written, locally agreed schedules are reported to reduce disputes in comparable settings."
+      status: DRAFT
+      source_ids: [SRC-2]
+      links:
+        problem_ids: [CORE.RESEARCH.PROBLEM]
+      provenance: {provenance_class: SOURCE, source_type: PUBLISHED_LITERATURE, evidence_role: SUPPORTING, authored_by: human}
+  Gap:
+    - field_id: CORE.RESEARCH.GAP
+      value: "FICTIONAL gap: no study had tested a co-designed schedule in a community of this size and type."
+      status: DRAFT
+      links:
+        prior_knowledge_ids: [CORE.PRIORKNOWLEDGE.PK1]
+      provenance: {provenance_class: INFERENCE, source_type: PUBLISHED_LITERATURE, evidence_role: ORIENTING, authored_by: human}
+  RQ:
+    - field_id: CORE.RESEARCH.RQ.PRIMARY
+      value: "FICTIONAL RQ: did a co-designed written schedule reduce reported water-use disputes over one dry season?"
+      status: DRAFT
+      links:
+        gap_ids: [CORE.RESEARCH.GAP]
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Objective:
+    - field_id: CORE.RESEARCH.OBJECTIVES
+      value:
+        - id: OBJ1
+          statement: "FICTIONAL: compare reported disputes before and after the co-designed schedule."
+          rq_ids: [CORE.RESEARCH.RQ.PRIMARY]
+          method_ids: [MP1]
+      status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Method:
+    - field_id: METHOD.PLAN.DESIGN
+      value:
+        paradigm: "pragmatic"
+        design_type: "FICTIONAL: before-after community study"
+        approach: "quantitative"
+        phases:
+          - id: MP1
+            name: "Two survey waves around the workshops"
+            description: "Survey, co-design workshops, follow-up survey."
+            objective_ids: [OBJ1]
+      status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Framework:
+    - field_id: CORE.RESEARCH.THEORETICAL_FOUNDATIONS
+      value: ["FICTIONAL: common-pool resource governance, in the researcher's own words."]
+      status: DRAFT
+      source_ids: [SRC-2]
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  EthicsRequirement:
+    - field_id: METHOD.PLAN.ETHICS
+      value:
+        human_participants: true
+        informed_consent: "Written consent from each household representative."
+        privacy: "Household codes only; no names in the dataset."
+      status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Data:
+    - field_id: METHOD.PLAN.DATA_COLLECTION
+      value:
+        - id: DC1
+          source: "FICTIONAL households (two survey waves)"
+          collection_method: "questionnaire"
+          timing: "FICTIONAL months 1 and 9"
+          method_ids: [MP1]
+      status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Analysis:
+    - field_id: METHOD.PLAN.ANALYSIS
+      value:
+        quantitative_methods: ["before-after comparison of reported disputes"]
+        data_ids: [DC1]
+      status: DRAFT
+      provenance: {provenance_class: DECISION, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+  Evidence:
+    - field_id: CORE.EVIDENCE.E1
+      value: "FICTIONAL evidence: in the synthetic survey, reported disputes were lower in wave 2 than in wave 1."
+      status: DRAFT
+      source_ids: [SRC-3]
+      supports_claim_id: CORE.CLAIM.C1
+      claim_strength_cap: FULL
+      provenance: {provenance_class: SOURCE, source_type: PRIMARY_DATA, evidence_role: SUPPORTING, authored_by: human}
+  Claim:
+    - field_id: CORE.CLAIM.C1
+      value: "FICTIONAL claim: a co-designed written schedule was feasible in this one example community."
+      status: DRAFT
+      provenance: {provenance_class: INFERENCE, source_type: PROJECT_DOCUMENT, evidence_role: ORIENTING, authored_by: human}
+
+ecosystem_positions: []
+review_records: []
+mappings: []
+lock:
+  locked: false

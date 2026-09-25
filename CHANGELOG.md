@@ -4,6 +4,258 @@ All notable changes to GrantThai are documented in this file. Format loosely
 follows [Keep a Changelog](https://keepachangelog.com/); versions follow
 SemVer from v0.1 onward.
 
+## [Unreleased]
+
+## [0.3.0] — 2026-09-25
+
+Version 0.3.0 in `pyproject.toml`, `src/grantthai/__init__.py` and
+`CITATION.cff`. One work object, many routes: one file per chosen route
+(`NRIIS_SUBMISSION.md` / `ACADEMIC_ARTICLE.md` /
+`RESEARCH_CONCEPT_NOTE.md`); unofficial. Release prepared; the founder
+approves any release.
+
+### Changed — release review (2026-09-25)
+- Version string: the NRIIS goldens (`tests/golden/routes/*`), the
+  committed `examples/demo-seedbank/NRIIS_SUBMISSION.md` and the pinned
+  sha256 in `tests/test_form_profiles.py` were re-pinned for
+  `grantthai_version: 0.3.0`; content unchanged, diff checked (that one
+  line only; same byte count).
+- Metadata: `CITATION.cff` abstract and the `pyproject.toml` description
+  now describe the router, not the v0.1 single-output pipeline.
+- ART007 hardening: names are NFKC-normalised, stripped of Unicode format
+  (Cf) and zero-width characters, look-alike Cyrillic/Greek letters are
+  folded inside a mixed word, hyphens/underscores/whitespace folded,
+  casefolded and spaced single letters joined before matching; a member
+  full_name and a disclosed tool also match on a shared distinctive token
+  (at least 3 characters, digits and version/generic/fiction-marker words
+  removed); Thai transliterations of common tool words added to
+  `validators/ai_tool_name_patterns.yaml` as pattern data. Six new negative
+  fixtures under `tests/fixtures/negative/ART007/`. A miss is still
+  possible, and a real person whose name shares a distinctive word with a
+  disclosed tool is now BLOCKed (fail-closed).
+- LaTeX export: a visible line under `\maketitle`, "Draft prepared with
+  GrantThai (unofficial); check the target journal's current
+  instructions." (`docs/deviations.md`).
+- `templates/tex/SOURCE.yaml` origin re-pinned to glosa main merge
+  `f2856ce` (main.tex sha256 identical); `docs/sources.md` gains the 7SSA
+  master schema entry; README.en.md, llms.txt, llms-full.txt and ai.json
+  describe the 7SSA structure profiles; the README role-disclosure footer
+  lists interoperability/how-to mentions of AI products as an exception;
+  `docs/BUILD_GUIDE.md` path and "planned (not present)" fixes.
+
+### Added — 7SSA structure profiles on the academic-article route
+- Founder request (2026-09-25): "ให้ router ใช้เทมเพลทนี้เมื่อต้องทำงานประเภทนี้" —
+  the router uses the 7SSA (seven-sector scholarly article) template for
+  conceptual-family articles. Sources: the founder-authored 7SSA master
+  schema v1.0 and the glosa-registered GLOSA-7SSA LaTeX template, both
+  pinned by sha256.
+- `routes/academic-article/profiles/`: `7ssa-world`, `7ssa-thai-7`,
+  `7ssa-thai-5`, `7ssa-thai-4` and `INDEX.yaml` (sectors S1-S7 with slots,
+  required/optional, fields read, writing order, compression rules A-D,
+  eight article-type overlays); `spec/routes/structure_profile.schema.json`,
+  linted by `check_schema_lint`.
+- Registry: `ARTICLE.SSA.ARTICLE_TYPE`, `.GAP`, `.CONTRIBUTION`,
+  `.BEFORE_AFTER`, `ARTICLE.STATEMENT.OTHER` (`RECOMMENDED_EXTENSION`,
+  151 fields); `ssa_sector` / `ssa_slot` on body-section items.
+- `work.yaml` `routing.structure_profiles` (outside `content_sha256`) and
+  `--structure-profile` on `validate`, `route check`, `build`, `route
+  build`, the skill script, MCP and HTTP; `grantthai route profiles`, MCP
+  `grantthai_list_structure_profiles`, `GET /routes/{route}/profiles`. The
+  router lists candidates (INFO RT004); only the researcher selects.
+- Rules 7SSA-01..7SSA-10 (family SSA, REVIEW/INFO; the rule schema refuses
+  a BLOCK from a 7SSA source) with negative fixtures and Thai explanations.
+- Render: the 7SSA body (`templates/article_7ssa.md.j2`, included by the
+  article template; still one `ACADEMIC_ARTICLE.md`), compressed 7 -> 5 -> 4
+  by a pure function that keeps an `[S#]` marker per sector and drops no
+  text; placement sections may carry `when`.
+- `build --format tex`: `build/ACADEMIC_ARTICLE.tex` from a byte-identical,
+  sha256-pinned copy of the glosa template (`templates/tex/`, 212-row fill
+  map; English only; review and audit state always `NEEDS_INPUT`;
+  publisher-policy cells `NEEDS_VERIFICATION`). Route schema `exports`.
+- Contradictions CX-7SSA-01..12 (scoped to the article route), deviations,
+  `examples/article-7ssa-fictional/`, `tests/test_7ssa.py` (AT-7SSA-1..3).
+- Unchanged: every output built without a structure profile is
+  byte-identical to before (AT-R1 goldens; AT-R2/R3 outputs).
+
+### Changed — the router: NRIIS is one route, not the core
+- Founder reframe (2026-09-25, verbatim): "การลงใน NRIIS ไม่ใช่แกนหลักอีกต่อไป
+  แต่เป็นแค่ทางเลือกหนึ่งของ router เพราะเราจะเปิดให้ตั้งแต่การทำบทความวิชาการด้วย" —
+  entering NRIIS is no longer the core; it is one option of a router,
+  because GrantThai opens to academic articles as well. "Router" means a
+  deterministic output route chosen by a person, never by an AI; the old
+  sense "AI as router" stays dropped (`docs/deviations.md`, K-R1; PLAN §N).
+- `spec/contracts/one-input-one-output.md` 0.3.0-draft: one input, one
+  command per route, exactly one file per route. The concept note is an
+  ordinary route, no longer "the one exception". The NRIIS route's output
+  is byte-identical to before (AT-R1, `tests/golden/routes/`).
+- `tools/ci/check_one_output.py` is restated per route (one template and
+  one unique output filename per route, contract cross-references, a
+  runtime one-file-per-build check on every shipped example) with three
+  seeded bad fixtures; `tools/ci/check_notice.py` checks every route
+  template for the NOTICE on body line 1 and the route notice on line 2.
+- The NOTICE constant is unchanged (K-R6 open). The article route adds its
+  own line under it: GrantThai is not affiliated with any journal or
+  publisher.
+- `README.md`, `README.en.md`, `AGENTS.md`, `GRANTTHAI_STANDALONE.md`,
+  `docs/ecosystem.md` (the GrantThai box shows the routes),
+  `docs/BUILD_GUIDE.md` ("v0.3 router"), `docs/design/PLAN.md` §N
+  (appended addendum), `llms.txt`, `llms-full.txt`, `ai.json`.
+
+### Added — the router
+- `work.yaml` 0.3 (`spec/work/work.schema.json`): `work_id`, `work_type`,
+  `routing` (declared routes, default route, sub-profiles) and an optional
+  `fund_binding`, required only by routes with `needs_fund_binding`. A
+  superset of `project.yaml` 0.2; legacy files are read unchanged as the
+  NRIIS route. `routing` is excluded from `content_sha256`
+  (`spec/common/object-hash.md`, K-R3).
+- `routes/`: `INDEX.yaml` and three routes — `nriis-proposal` (wraps the
+  existing assets in place), `academic-article` (placement, sub-profiles
+  `thai-journal` and `international-journal`, both `NEEDS_VERIFICATION`),
+  `concept-note`; schemas in `spec/routes/`.
+- `grantthai route list | check | build`, `build --route`, `init
+  --work-type`, `migrate [--rename] [--dry-run]`; `api_py.list_routes`,
+  `check_route`, `build(route=)`, `migrate`, `new_work`; MCP
+  `grantthai_list_routes`, `grantthai_check_route` and a `route` argument;
+  HTTP `GET /routes`, `POST /projects/{id}/routes/{route}/check`. Every
+  surface returns the candidate list instead of picking when the route is
+  ambiguous.
+- Registry: `scope` and `route_ids` on every field
+  (`tools/registry/partition.py`); the `ARTICLE.*` fields with the new
+  origin `VENUE_NATIVE` (K-R2), every Thai label `NEEDS_VERIFICATION`.
+- Family ART (ART001–ART011): REVIEW, except ART007 (an AI tool listed as
+  an author) BLOCK. No rule rests on a journal fact; GrantThai ships no
+  venue registry (ART010). Rules carry `routes:` and the engine evaluates
+  only the families in the chosen route's scope (RT001/RT002 INFO).
+- Review fixes: route resolution honours `routing.declared_routes` before
+  the `work_type` default (several declared and no `default_route`: stop
+  and list them; RT003 INFO when the route in force is not declared).
+  ART007 matches a disclosed tool name in both directions (a parenthetical
+  is tried on its own and removed) and, even when nothing is disclosed,
+  a member full_name against generic AI-tool name patterns
+  (`validators/ai_tool_name_patterns.yaml`, no product names). Route data
+  files now validate against their schemas and the schema-lint guard
+  checks them; the FICTIONAL banner rests on an explicit `fictional: true`
+  key; the concept-note route evaluates the S family so its
+  `required_fields` are checked (`docs/deviations.md`).
+- `build/ACADEMIC_ARTICLE.md` (`spec/output/academic-article.contract.md`,
+  `templates/academic_article.md.j2`, `render/article.py`) and
+  `build/RESEARCH_CONCEPT_NOTE.md` as a route
+  (`spec/output/research-concept-note.contract.md`, `render/concept_note.py`);
+  fictional examples `examples/article-fictional/` and
+  `examples/both-routes-fictional/` (no real journal named).
+
+### Removed — the router
+- Nothing. 0.2 files are read unchanged; `build --concept-note` (never
+  implemented) is superseded by the `concept-note` route.
+
+### Added — the AI-use ceiling (GenAI guideline 2569)
+- `docs/policy/ai-use-ceiling.md` and `docs/policy/ai-use-ceiling.th.md`:
+  the most any AI may do in GrantThai, each line citing the page of the
+  National Research Council of Thailand's GenAI guideline for researchers
+  (September 2569) and the force of its Thai wording; stage-by-stage limits,
+  disclosure, accountability, data rules, record keeping, where GrantThai is
+  stricter, human duties GrantThai cannot check, a crosswalk of every
+  normative point (N01-N58), and the glosa P20/P06/P10 comparison. The
+  guideline is guidance; its binding status is OPEN. `docs/sources.md`
+  records it (public URL `NEEDS_VERIFICATION`).
+- `authoring.ai_use_declaration` in `project.yaml`, following the sample
+  form in the guideline's Appendix A (p.34). Every AI-assisted write
+  (`grantthai set --ai`, MCP `grantthai_set_field`, HTTP field writes, the
+  skill's `apply`) records the tool, its version and the stage; new options
+  `--tool-version` / `--stage`, `tool_version` / `stage`. Adding a tool or
+  stage resets `declaration_confirmed_by_human`, which only the researcher
+  sets.
+- Rules AI001 (declaration missing, incomplete or unconfirmed), AI002
+  (AI-drafted data or evidence record; extends X003), AI003
+  (personal-data-shaped string in an AI-assisted value) and AI004
+  (self-assessed risk of 3; the single level is labelled GrantThai's
+  convention, since the guideline gives no rule for combining its five
+  example scores). Family AI, REVIEW only; Thai explanations in
+  `skills/grantthai/reference/rules-th.md`.
+- Output section 4.7, the AI Use Declaration: a GrantThai appendix, never
+  an NRIIS field (whether a call asks for one is `NEEDS_VERIFICATION`).
+  Frontmatter `authoring.ai_use_declaration`: `none`, `unconfirmed` or
+  `confirmed_by_researcher`. Renderer `nriis_submission.md.j2@0.3.0`,
+  output contract 0.4.0-draft.
+- The personal/confidential-data warning (guideline p.14-16), shown before
+  any data is accepted: `grantthai_skill.py warning`, `data_warning` in the
+  MCP `grantthai_new_project` result and the HTTP `POST /projects`
+  response. The skill keeps team members' personal data out of a public AI
+  chat and stops drafting a dual-use topic.
+- `src/grantthai/core/pii.py`: one set of personal-data patterns, shared by
+  the validator (AI003) and the leak/PII guard.
+- `tests/test_ai_use_ceiling.py`.
+
+### Changed — the AI-use ceiling
+- The worked example's golden output is re-pinned: renderer version, one
+  frontmatter line and section 4.7 ("no AI use recorded") are the only
+  changes.
+- The fictional demo gains an AI Use Declaration for its simulated persona
+  and now shows **REVIEW 3** (FW001, and AI001 twice: no human verification
+  yet, not confirmed). `examples/demo-seedbank/NRIIS_SUBMISSION.md` is
+  rebuilt with `--as-of 2026-09-25`.
+
+### Added — practice shared by funded work
+- `docs/practice/funded-work-patterns.md` (English) and
+  `docs/practice/funded-work-patterns.th.md` (Thai): what the 100 funded
+  final reports share, with tiers fixed in advance (CORE: at least 70/100
+  and at least 50% in each source; CONTEXTUAL: 40–69% or concentrated in
+  one source; EMERGING: under 40% but rising across year bands), an
+  evidence table of 37 patterns, a close reading of 8 stratified documents
+  (cited by corpus id and PDF page), and limits. Six proposal-relevant
+  patterns are CORE: background, objectives section, numbered objectives,
+  method section, objectives with method, and a reference list.
+- `tools/corpus/practice_stats.py`: recomputes the evidence table from
+  `docs/demo/corpus-100.csv` alone.
+- Rules FW001 (theory or foundations filled, reference list empty; 78/100)
+  and FW002 (two or more objectives, objectives narrative not numbered;
+  77/100), family FW, REVIEW only. The rule schema allows the source
+  `docs/practice/funded-work-patterns.md` and forbids BLOCK for it. This
+  implements the rule the corpus key finding below had only proposed.
+- `guidance/writing_intent.yaml`: a `practice:` list on 25 fields (32
+  entries: pattern id, evidence count, tier, context, advice in English and
+  Thai, what not to do, deep-read pages); schema updated. The Thai advice is
+  the only filled Thai text in that file, and it sits next to its evidence.
+- Skill: `SKILL.md`, `reference/interview.md` (section 3a),
+  `reference/writing.md` and `reference/rules-th.md` ask for and explain
+  these patterns.
+- `tests/test_practice_patterns.py`: negative tests for FW001 and FW002,
+  and a check that every count and tier matches the CSV.
+
+### Changed
+- The fictional demo now shows **REVIEW 1** (FW001: its theory box has
+  content, its reference list is empty). The demo is left unchanged so the
+  finding stays visible; `examples/demo-seedbank/NRIIS_SUBMISSION.md` is
+  rebuilt with `--as-of 2026-09-25`.
+- `docs/demo/comparison.md`: a dated note (2026-09-25) that the e-Library's
+  own download path requires a login, that R1, R3 and R4 were reached
+  through direct file URLs that may bypass that gate, that the corpus-100
+  work therefore excluded the e-Library, and that R1, R3 and R4 stay cited
+  by public title and contract only, with no further use pending the
+  founder's decision.
+
+### Added — funded-document corpus (n=100)
+- `docs/demo/corpus-100.md` (English) and `docs/demo/corpus-100.th.md`
+  (Thai): 100 funded Thai research documents that anyone can download
+  without an account (83 from the Health Systems Research Institute
+  repository, 17 from the Prince of Songkla University repository),
+  compared with the fictional demo and the field registry: method, sources
+  and terms, metadata for every document, section frequencies, a close
+  reading of 8 documents, 14 ranked improvements, and limitations. No
+  document text is reproduced and no PDF is committed.
+- `docs/demo/corpus-100.csv`: metadata (as each repository records it),
+  sha256, page count and structural flags per document.
+- `tools/corpus/corpus_extract.py`: the structural extractor (`extract`,
+  local PDFs only, never downloads), plus `publish` (builds the CSV) and
+  `stats` (recomputes every number in the corpus documents from the CSV).
+- Key finding: the demo passes with BLOCK 0 / REVIEW 0 although its
+  required theory box cites nothing and its references box is empty; 78% of
+  the funded reports have a reference list. The proposed rule is listed,
+  not implemented.
+- The national research funding agency's e-Library was not used: its own
+  download link requires a login. 53 of its records are set aside pending a
+  founder decision.
+
 ## [0.2.0] — 2026-09-25
 
 Founder scope 2026-09-25: build v0.2, make our own fictional demo proposal

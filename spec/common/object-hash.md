@@ -1,7 +1,9 @@
 # Project object hashes (`content_sha256`, `state_sha256`)
 
-Draft, version 0.2. Two hashes of `project.yaml`, defined once and used
-everywhere a hash of the project appears.
+Draft, version 0.3. Two hashes of the work object (`work.yaml` 0.3, or a
+legacy `project.yaml` 0.2, read unchanged), defined once and used everywhere
+a hash of the object appears. 0.3 adds one exclusion, `routing` (item 4
+below); a 0.2 file has no `routing` key, so its hashes are unchanged.
 
 | Hash | Covers | Used by |
 |---|---|---|
@@ -23,16 +25,23 @@ Exactly these keys, and nothing else:
 2. `status` on every field record (under `fields` and under every
    `chain.<Node>`, including Evidence records);
 3. `acceptance_state` and `review` on every item of `mappings` (accepting
-   or reviewing a mapping is a review act).
+   or reviewing a mapping is a review act);
+4. the top-level key `routing` (0.3, decision K-R3). Choosing an output
+   route is not authored content: declaring, adding or changing a route or
+   a sub-profile makes no review record and no lock stale. `work_type`
+   stays inside the hash (it is part of what the person declares about the
+   work). The legacy top-level `form_profile` also stays inside the hash,
+   exactly as in 0.2; only the 0.3 `routing.sub_profiles` spelling is
+   excluded, so a `migrate` that moves it reports the gates that go stale.
 
-Everything else is content, including `markers` and `hold_reason` (an
+Everything else is content, including `work_type`, `markers` and `hold_reason` (an
 edit to them is an authored change and regresses the field to `DRAFT`,
 `spec/common/status_permissions.yaml`), `links`, `source_ids` and the
 top-level `sources`.
 
 ## Algorithm (both hashes)
 
-1. **Load.** Parse `project.yaml` with a YAML 1.2 core-schema safe loader
+1. **Load.** Parse the work object (`work.yaml` or `project.yaml`) with a YAML 1.2 core-schema safe loader
    into plain data (maps, lists, strings, numbers, booleans, null).
    Booleans are only `true`/`false` (never `yes`/`no`/`on`/`off`) and
    there are no implicit timestamps: dates are written as quoted strings
@@ -54,7 +63,8 @@ top-level `sources`.
 5. **Hash.** `sha256` over the UTF-8 bytes, written as 64 lowercase hex
    characters.
 
-Reference implementation: `src/grantthai/core/object_hash.py`. Golden
+Reference implementation: `src/grantthai/core/object_hash.py`
+(`TOP_LEVEL_STATE_KEYS` must list `routing` for 0.3). Golden
 vectors: `tests/golden/object-hash/` (input YAML, the exact canonical
 content JSON for the small vector, and both expected hashes); an
 implementation conforms when it reproduces every vector

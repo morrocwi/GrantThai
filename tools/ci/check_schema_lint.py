@@ -19,6 +19,15 @@ Guard: the data contracts hold, not only parse.
        interview/*.yaml                     -> spec/interview/question_set.schema.json
        mappings/nriis/form_profiles/*.yaml  -> spec/mappings/form_profile.schema.json (v0.2)
        guidance/writing_intent.yaml         -> spec/guidance/writing_intent.schema.json (v0.2)
+       routes/*/route.yaml                  -> spec/routes/route.schema.json (v0.3)
+       routes/**/placement.yaml             -> spec/routes/placement.schema.json (v0.3)
+       routes/*/profiles/*.yaml             -> spec/routes/structure_profile.schema.json (7SSA;
+                                               id = file name; S1-S7 covered in order;
+                                               INDEX.yaml cross-checked)
+       templates/tex/*.fillmap.yaml         -> spec/routes/tex_fillmap.schema.json (7SSA tex export;
+                                               rows numbered 1..n = token_count)
+       routes/*/sub_profiles/*.yaml         -> spec/routes/sub_profile.schema.json (v0.3;
+                                               id must equal the file name, route the folder)
   5. Cross-file checks: every chain.yaml edge endpoint is a declared node,
      no edge is listed twice, causal edges form a DAG; every fund profile id
      matches its path and its trust level is not above its rules'; every
@@ -76,7 +85,7 @@ STRUCTURED_REL = "registry/structured_fields.schema.json"
 SKIP_DIRS = {".git", ".venv", "venv", "node_modules", ".pytest_cache"}
 TRUST_ORDER = ["FICTIONAL", "COMMUNITY_EXTRACTED", "HUMAN_VERIFIED", "SECOND_CHECKED"]
 FIELD_ID_PREFIXES = ("PROFILE.", "FUND.", "CORE.", "METHOD.", "WORK.", "GEO.", "BUDGET.",
-                     "COMP.", "READY.", "RESULTS.", "DOC.", "AUDIT.", "BRIDGE.")
+                     "COMP.", "READY.", "RESULTS.", "DOC.", "AUDIT.", "BRIDGE.", "ARTICLE.")
 
 
 def is_within_negative_fixtures(rel_parts) -> bool:
@@ -390,6 +399,80 @@ def check_project(doc: dict, rel: str, project_dir, registry, schemas, structure
     return v
 
 
+SSA_SECTORS = [f"S{n}" for n in range(1, 8)]
+
+
+def check_structure_profile(doc: dict, rel: str) -> list:
+    """A 7SSA profile's visible sections list S1-S7 exactly once each, in
+    order (a merge joins consecutive sectors; nothing is reordered or
+    dropped), and are numbered 1..n."""
+    v = []
+    secs = doc.get("visible_sections") or []
+    flat = [s for sec in secs if isinstance(sec, dict) for s in sec.get("sectors") or []]
+    if flat != SSA_SECTORS:
+        v.append(f"{rel}: visible_sections must cover S1-S7 exactly once, in order (got {flat})")
+    if [sec.get("n") for sec in secs if isinstance(sec, dict)] != list(range(1, len(secs) + 1)):
+        v.append(f"{rel}: visible_sections must be numbered 1..{len(secs)}")
+    return v
+
+
+def check_structure_index(doc: dict, rel: str, root: Path, fields) -> list:
+    """The 7SSA profile index: profiles resolve, sectors are S1-S7 in order,
+    candidates are shipped profile ids, overlay slots exist, from_field and
+    sector fields are registry fields, the slot vocabulary equals
+    ARTICLE.BODY.SECTIONS' ssa_slot vocabulary in the structured contract."""
+    v = []
+    ids = []
+    for p in doc.get("profiles") or []:
+        ids.append(p.get("id"))
+        path = root / str(p.get("path"))
+        if not path.is_file():
+            v.append(f"{rel}: profile {p.get('id')} path {p.get('path')} does not exist")
+        elif (load_yaml(path) or {}).get("id") != p.get("id"):
+            v.append(f"{rel}: profile {p.get('id')} does not match the id inside {p.get('path')}")
+    sectors = doc.get("sectors") or []
+    if [s.get("id") for s in sectors] != SSA_SECTORS:
+        v.append(f"{rel}: sectors must be S1-S7 in order")
+    if sorted(doc.get("writing_order") or []) != SSA_SECTORS:
+        v.append(f"{rel}: writing_order must list S1-S7 once each")
+    sel = doc.get("selection") or {}
+    for sp, cands in (sel.get("candidates_by_sub_profile") or {}).items():
+        if not (root / "routes" / str(doc.get("route")) / "sub_profiles" / f"{sp}.yaml").is_file():
+            v.append(f"{rel}: candidates_by_sub_profile names {sp}, which is not a shipped sub-profile")
+        for c in cands:
+            if c not in ids:
+                v.append(f"{rel}: candidate {c} is not a listed profile")
+    reg = {r.get("field_id") for r in fields} if isinstance(fields, list) else set()
+    vocab = {}
+    for s in sectors:
+        names = [x.get("slot") for x in s.get("slots") or []]
+        if len(names) != len(set(names)):
+            v.append(f"{rel}: {s.get('id')} lists a slot twice")
+        vocab[s.get("id")] = set(names)
+        for f in list(s.get("fields") or []) + [x.get("from_field") for x in s.get("slots") or [] if x.get("from_field")]:
+            if reg and f.split("#", 1)[0] not in reg:
+                v.append(f"{rel}: {s.get('id')}: {f} is not a registry field")
+    for kind, ov in (doc.get("article_kind_overlays") or {}).items():
+        for sec, slots in (ov.get("extra_required_slots") or {}).items():
+            for slot in slots:
+                if slot not in vocab.get(sec, set()):
+                    v.append(f"{rel}: overlay {kind}: {sec} slot {slot} is not a slot of {sec}")
+    if set(doc.get("article_kind_overlays") or {}) != set(sel.get("article_types") or []):
+        v.append(f"{rel}: article_kind_overlays must cover exactly selection.article_types")
+    structured_path = REPO_ROOT / "spec" / STRUCTURED_REL
+    if (root / "spec" / STRUCTURED_REL).is_file():
+        structured_path = root / "spec" / STRUCTURED_REL
+    try:
+        items = json.loads(structured_path.read_text(encoding="utf-8"))["$defs"]["ARTICLE.BODY.SECTIONS"]["items"]
+        spec_vocab = {b["if"]["properties"]["ssa_sector"]["const"]: set(b["then"]["properties"]["ssa_slot"]["enum"])
+                      for b in items.get("allOf") or [] if "ssa_sector" in (b.get("if") or {}).get("properties", {})}
+    except (KeyError, OSError, ValueError):
+        spec_vocab = {}
+    if spec_vocab != vocab:
+        v.append(f"{rel}: slot vocabulary differs from ARTICLE.BODY.SECTIONS ssa_slot in spec/{STRUCTURED_REL}")
+    return v
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=".")
@@ -512,6 +595,38 @@ def main() -> int:
             validate(violations, registry, schemas, "mappings/form_profile.schema.json", get(rel), rel)
         if rel == "guidance/writing_intent.yaml":
             validate(violations, registry, schemas, "guidance/writing_intent.schema.json", get(rel), rel)
+        if rel.startswith("templates/tex/") and rel.endswith(".fillmap.yaml"):
+            validate(violations, registry, schemas, "routes/tex_fillmap.schema.json", get(rel), rel)
+            doc = get(rel)
+            if isinstance(doc, dict):
+                rows = doc.get("rows") or []
+                if [r.get("n") for r in rows] != list(range(1, len(rows) + 1)) or doc.get("token_count") != len(rows):
+                    violations.append(f"{rel}: rows must be numbered 1..n and token_count must equal the row count")
+        if rel.startswith("routes/"):
+            parts = rel.split("/")
+            if len(parts) == 3 and parts[2] == "route.yaml":
+                validate(violations, registry, schemas, "routes/route.schema.json", get(rel), rel)
+            elif parts[-1] == "placement.yaml":
+                validate(violations, registry, schemas, "routes/placement.schema.json", get(rel), rel)
+            elif len(parts) == 4 and parts[2] == "profiles" and rel.endswith(".yaml"):
+                validate(violations, registry, schemas, "routes/structure_profile.schema.json", get(rel), rel)
+                doc = get(rel)
+                if isinstance(doc, dict) and parts[3] != "INDEX.yaml":
+                    if doc.get("id") != parts[3][:-len(".yaml")]:
+                        violations.append(f"{rel}: id {doc.get('id')!r} must equal its file name")
+                    if doc.get("route") != parts[1]:
+                        violations.append(f"{rel}: route {doc.get('route')!r} must equal its folder {parts[1]!r}")
+                    violations += check_structure_profile(doc, rel)
+                elif isinstance(doc, dict):
+                    violations += check_structure_index(doc, rel, root, get("registry/fields.jsonl"))
+            elif len(parts) == 4 and parts[2] == "sub_profiles" and rel.endswith(".yaml"):
+                validate(violations, registry, schemas, "routes/sub_profile.schema.json", get(rel), rel)
+                doc = get(rel)
+                if isinstance(doc, dict):
+                    if doc.get("id") != parts[3][:-len(".yaml")]:
+                        violations.append(f"{rel}: id {doc.get('id')!r} must equal its file name")
+                    if doc.get("route") != parts[1]:
+                        violations.append(f"{rel}: route {doc.get('route')!r} must equal its folder {parts[1]!r}")
 
     # 5. Cross-file checks
     chain = get("spec/common/chain.yaml")

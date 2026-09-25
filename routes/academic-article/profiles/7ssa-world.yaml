@@ -1,0 +1,38 @@
+# routes/academic-article/profiles/7ssa-world.yaml — 7SSA structure profile,
+# seven visible English sections (schema grantthai.structure_profile.v0,
+# spec/routes/structure_profile.schema.json).
+#
+# A structure profile says how the manuscript body is ARRANGED; it is chosen
+# by the researcher only (work.yaml routing.structure_profiles, which is
+# outside content_sha256, or --structure-profile). The headings are the
+# founder's own text in the 7SSA master schema v1.0 §4; they are not any
+# journal's headings. Whether a venue accepts this layout is
+# NEEDS_VERIFICATION (the venue's own current author guidelines, ART010).
+# "Q1" appears here only as the name the source gives its renderer; GrantThai
+# never states, checks or gates on a quartile (contradiction CX-7SSA-07).
+schema: grantthai.structure_profile.v0
+id: 7ssa-world
+version: "0.1.0-draft"
+route: academic-article
+family: 7ssa
+title_en: "7SSA, seven visible sections, English headings (the source's world renderer)"
+source:
+  doc: "7SSA master schema v1.0 (founder-authored)"
+  sha256: 1c8989c033254605e5df7c6e1a434cc3d640d061c6bcafe7408fc365d59df980
+  locator: "§4 (default renderer), §15 (article-type overlays), §18 (every sector kept)"
+status_note: "Founder-authored structure. Whether any venue accepts it: NEEDS_VERIFICATION (the researcher's venue source, ART010)."
+heading_lang: en
+pairs_with_sub_profile: international-journal
+excludes_article_kind: [empirical_research]
+use_overlay_headings: true
+visible_sections:
+  - {n: 1, sectors: [S1], heading: "Introduction"}
+  - {n: 2, sectors: [S2], heading: "Approach and Scope"}
+  - {n: 3, sectors: [S3], heading: "Theoretical / Conceptual Foundations"}
+  - {n: 4, sectors: [S4], heading: "The Unresolved Problem"}
+  - {n: 5, sectors: [S5], heading: "Theory / Framework / New Contribution"}
+  - {n: 6, sectors: [S6], heading: "Critical Evaluation, Boundary Conditions, and Implications"}
+  - {n: 7, sectors: [S7], heading: "Conclusion"}
+notes:
+  - "With ARTICLE.SSA.ARTICLE_TYPE set, each heading is replaced by that type's heading from INDEX.yaml article_kind_overlays (7SSA v1 §15); the overlay wins (CX-7SSA-02)."
+  - "The source's alternative eight-section form (§4, Objections and Implications split) is not shipped in this version."

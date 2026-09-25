@@ -8,6 +8,16 @@ fails; a rule that v0.1 does NOT evaluate yields exactly one INFO finding
 saying so and why (no silent skip).
 
 Report-only: running the validator never changes a status in project.yaml.
+
+v0.3 router: `run(..., route=ID)` evaluates only the rules in scope for that
+output route (routes/<id>/route.yaml `rules` block plus each rule's own
+`routes` list; grantthai.routes.registry.in_scope). A rule whose own
+`routes` does not name the route is not applicable to it by declaration
+(catalog data, shown by `grantthai explain`). A rule that names the route
+(or `all`) but is filtered out by the route's include_families/exclude_ids
+is accounted for in ONE INFO finding, RT002 (no silent skip). With no route
+the engine runs the nriis-proposal route, which admits every family, so a
+legacy project.yaml validates exactly as before.
 """
 from __future__ import annotations
 
@@ -19,9 +29,13 @@ from pathlib import Path
 from typing import Any
 
 from grantthai.core import links
+from grantthai.core import pii
 from grantthai.core import project as P
 from grantthai.core.object_hash import content_sha256, state_sha256
 from grantthai.mapping import form_profile as FP
+from grantthai.routes import registry as RTR
+from grantthai.routes import resolve as RTS
+from grantthai.routes import structure as RTST
 
 # Rules whose ids ship in v0.1 but which this build does not evaluate, with
 # the reason printed in their INFO finding.
@@ -33,6 +47,41 @@ V01_NOT_EVALUATED = {
 
 # Rules shipped in v0.2 that this engine evaluates (not reported as INFO).
 V02_EVALUATED = frozenset({"W101", "W102"})
+# Rules shipped after v0.2 that this engine evaluates: the FW family, practice
+# shared by funded work (docs/practice/funded-work-patterns.md). REVIEW only.
+V03_EVALUATED = frozenset({"FW001", "FW002",
+                           # the AI-use ceiling (docs/policy/ai-use-ceiling.md). REVIEW only.
+                           "AI001", "AI002", "AI003", "AI004"})
+EVALUATED_AFTER_V01 = V02_EVALUATED | V03_EVALUATED
+
+# Route-owned rule families implemented in their own module (loaded only when
+# the family is in the route's scope). The module exposes `EVALUATED`
+# (frozenset of rule ids it evaluates) and `check(ctx)` (adds findings via
+# ctx.add). A family whose module is not present yet is reported by the
+# ordinary "not evaluated" INFO lines.
+ROUTE_FAMILY_MODULES = {"ART": "grantthai.validators.article", "SSA": "grantthai.validators.ssa"}
+
+# Router findings. Not catalog rules: they describe the route choice itself,
+# are always INFO and never change readiness.
+ROUTER_FINDINGS = {
+    "RT001": "The chosen route does not list the object's work_type in accepts_work_types. Any route can build "
+             "from any object; this only says the route was not designed for this kind of work.",
+    "RT002": "Catalog rules that declare this route (or all routes) but that the route's own `rules` block "
+             "(include_families / exclude_ids) does not evaluate, counted in one line.",
+    "RT003": "The route in force is not among the routes the researcher declared in routing.declared_routes. "
+             "The build still renders; this only says the output differs from the declared intent.",
+    "RT004": "Structure-profile candidates: the work is an academic article of one of the eight 7SSA article types "
+             "(ARTICLE.SSA.ARTICLE_TYPE) and no structure profile is selected. The 7SSA profiles are listed for the "
+             "researcher to choose from (routing.structure_profiles or --structure-profile); the tool never selects "
+             "one, and the output is the plain overview until the researcher does.",
+}
+
+# An item number in an objectives narrative: 1) 2) / (1) (2) / 1. 2. / ข้อ 1,
+# with Thai digits allowed. A decimal such as 2.5 is not an item number.
+_ITEM_NO_RE = re.compile(r"(?:\(\s*([0-9๐-๙]{1,2})\s*\)"
+                         r"|(?<![0-9๐-๙.])([0-9๐-๙]{1,2})\s*[).](?![0-9๐-๙])"
+                         r"|ข้อ(?:ที่)?\s*([0-9๐-๙]{1,2}))")
+_THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "".join(map(str, range(10))))
 
 TRUST_ORDER = ["FICTIONAL", "COMMUNITY_EXTRACTED", "HUMAN_VERIFIED", "SECOND_CHECKED"]
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$")
@@ -74,6 +123,14 @@ class Result:
     # v0.2: the form profile in force (grantthai.mapping.form_profile.ProfileView);
     # the renderer reads .rendered, .tab_order, .extra_items, .budget_rules.
     form_profile: Any = None
+    # v0.3 router: the route this result was computed for, its sub-profile id
+    # (None = the route's observed default), and the route's ready-flag name.
+    # `submittable` holds that flag's value: BLOCK == 0 and no hold reason.
+    route: str = "nriis-proposal"
+    sub_profile: str | None = None
+    ready_flag: str = "submittable"
+    # the structure profile a person selected (7SSA; None = plain output)
+    structure_profile: str | None = None
 
 
 def q(x) -> Decimal:
@@ -91,9 +148,15 @@ def _num(x) -> Decimal | None:
 
 
 class _Ctx:
-    def __init__(self, raw: dict, project_dir: Path | None, as_of: str):
+    def __init__(self, raw: dict, project_dir: Path | None, as_of: str,
+                 route: "RTR.Route | None" = None, sub_profile: str | None = None,
+                 structure_profile: str | None = None):
         self.raw = raw
+        # the 7SSA structure profile a person selected (None = plain output)
+        self.structure_profile = structure_profile
         self.doc = P.normalized(raw)
+        self.route = route if route is not None else RTR.load(P.LEGACY_ROUTE)
+        self.sub_profile = sub_profile
         self.project_dir = project_dir
         self.as_of = as_of
         self.reg = P.registry_by_id()
@@ -101,21 +164,28 @@ class _Ctx:
         self.rep = links.derive(self.doc, self.structured, P.chain_config())
         self.recs = P.records_by_id(self.doc)
         self.source_problems = links.resolve_sources(self.doc, project_dir)
-        self.fund, self.fund_id, self.fund_problems = P.load_fund_profile(self.doc)
+        if self.route.needs_fund_binding:
+            self.fund, self.fund_id, self.fund_problems = P.load_fund_profile(self.doc)
+        else:
+            self.fund, self.fund_id, self.fund_problems = None, None, []
         self.findings: list[Finding] = []
         # v0.2 form profile (mappings/nriis/form_profiles/): absent or null =
         # the observed form. An unknown or malformed profile id falls back to
         # the observed form AND is reported (never a silent fallback).
         self.profile_problem: str | None = None
+        # The NRIIS route's sub-profile is the form profile. It is passed in
+        # (resolved from --sub-profile / routing.sub_profiles / legacy
+        # form_profile); other routes read the observed form here.
+        fp_doc = {FP.PROJECT_KEY: sub_profile} if self.route.id == P.LEGACY_ROUTE else {}
         try:
-            self.profile = FP.resolve(self.doc)
+            self.profile = FP.resolve(fp_doc)
         except FP.FormProfileNotFound:
             self.profile = FP.view(None)
-            self.profile_problem = (f"form_profile {FP.selected(self.doc)!r} is not a shipped profile "
+            self.profile_problem = (f"form_profile {FP.selected(fp_doc)!r} is not a shipped profile "
                                     f"(known: {', '.join(FP.profile_ids()) or 'none'}).")
         except FP.FormProfileError as e:
             self.profile = FP.view(None)
-            self.profile_problem = f"form_profile {FP.selected(self.doc)!r} fails its contract: {e}"
+            self.profile_problem = f"form_profile {FP.selected(fp_doc)!r} fails its contract: {e}"
         rules = P.rules_catalog()["rules"]
         self.rules = {r["id"]: r for r in rules}
         self.rule_order = [r["id"] for r in rules]
@@ -188,8 +258,17 @@ def _structure(c: _Ctx):
                   [fid], "Record it as INFERENCE, or have the researcher adopt the wording and cite their "
                          "own source (authored_by human or human_ai_assisted).")
     # S001 required fields: the registry's required flags, widened or narrowed
-    # by the project's form profile (grantthai.mapping.form_profile.ProfileView).
-    for r in P.registry():
+    # by the project's form profile (grantthai.mapping.form_profile.ProfileView)
+    # on the NRIIS route (required_fields: registry); another route's own
+    # required_fields list otherwise.
+    if c.route.required_fields != "registry":
+        for fid in c.route.required_fields:
+            if c.value(fid) is None:
+                label = (c.reg.get(fid) or {}).get("label_en") or "not a registry field"
+                c.add("S001", f"Required field {fid} ({label}) is missing or NEEDS_INPUT "
+                              f"(required by route {c.route.id}).",
+                      [fid], f"Fill it: grantthai set {fid} <value> (or edit the work file).")
+    for r in (P.registry() if c.route.required_fields == "registry" else ()):
         fid = r["field_id"]
         if fid in c.profile.required and c.value(fid) is None:
             if fid in c.profile.profile_required:
@@ -471,6 +550,165 @@ def _logic(c: _Ctx):
 
 
 # --------------------------------------------------------------------------
+# FW — practice shared by funded work (REVIEW only; never BLOCK)
+# --------------------------------------------------------------------------
+
+def _filled(v) -> bool:
+    if v is None:
+        return False
+    if isinstance(v, str):
+        return v.strip() not in ("", "NEEDS_INPUT", "NEEDS_VERIFICATION")
+    if isinstance(v, (list, dict)):
+        return any(_filled(x) for x in (v.values() if isinstance(v, dict) else v))
+    return True
+
+
+def item_numbers(text: str) -> set:
+    """Distinct item numbers written in `text` (1) / (1) / 1. / ข้อ 1)."""
+    out = set()
+    for m in _ITEM_NO_RE.finditer(text or ""):
+        num = next(g for g in m.groups() if g)
+        out.add(int(num.translate(_THAI_DIGITS)))
+    return out
+
+
+def _practice(c: _Ctx):
+    theory = [f for f in ("CORE.NARRATIVE.THEORY", "CORE.RESEARCH.THEORETICAL_FOUNDATIONS") if _filled(c.value(f))]
+    if theory and not _filled(c.value("CORE.NARRATIVE.REFERENCES")):
+        c.add("FW001", f"{' and '.join(theory)} has content but CORE.NARRATIVE.REFERENCES is empty; 78 of 100 "
+              "funded final reports carry a reference list (corpus-100 pattern FWP-06).",
+              theory + ["CORE.NARRATIVE.REFERENCES"],
+              "List the works the theory and literature boxes draw on (CORE.NARRATIVE.REFERENCES), or record why "
+              "there are none. Practice, not a fund rule.")
+    objs = c.items("CORE.RESEARCH.OBJECTIVES")
+    narr = c.value("CORE.NARRATIVE.OBJECTIVES")
+    if len(objs) >= 2 and isinstance(narr, str) and _filled(narr) and len(item_numbers(narr)) < 2:
+        c.add("FW002", f"There are {len(objs)} objective items, but CORE.NARRATIVE.OBJECTIVES does not number "
+              "them; 77 of 100 funded final reports list objectives as numbered items (corpus-100 pattern FWP-03).",
+              ["CORE.NARRATIVE.OBJECTIVES", "CORE.RESEARCH.OBJECTIVES"],
+              "Write the objectives as 1) 2) 3) in the same order as the objective items, so each one can be "
+              "matched to its method and output. Practice, not a fund rule.")
+
+
+# --------------------------------------------------------------------------
+# AI — the AI-use ceiling (docs/policy/ai-use-ceiling.md; REVIEW only)
+# --------------------------------------------------------------------------
+
+GUIDELINE = "GenAI guideline 2569"
+DATA_BEARING_CHAIN = ("Evidence", "Observation", "LivedExperience")
+RISK_DIMENSIONS = ("impact_on_conclusions", "accuracy_hallucination", "data_sensitivity", "bias",
+                   "reproducibility")
+
+
+def convention_risk_level(scores) -> int | None:
+    """GrantThai's own convention, not the guideline's: the highest of the
+    five self-assessed scores (1-3). The guideline's table (p.10-11) is an
+    example and gives no rule for combining the scores. None when no score
+    is given."""
+    if not isinstance(scores, dict):
+        return None
+    vals = [scores.get(k) for k in RISK_DIMENSIONS]
+    vals = [v for v in vals if isinstance(v, int) and not isinstance(v, bool) and 1 <= v <= 3]
+    return max(vals) if vals else None
+
+
+def ai_use_recorded(raw: dict, doc: dict) -> bool:
+    auth = raw.get("authoring") or {}
+    if auth.get("mode") == "ai_assisted" or auth.get("tools_disclosed"):
+        return True
+    return any((rec.get("provenance") or {}).get("authored_by") in P.AI_AUTHORED
+               for rec, _ in P.iter_records(doc))
+
+
+def declaration_gaps(decl: dict, disclosed: list) -> list[str]:
+    """What an AI Use Declaration still lacks (AI001); shared with the renderer."""
+    gaps = []
+    tools = [t for t in decl.get("tools") or [] if isinstance(t, dict)]
+    if not tools:
+        gaps.append("no tool is listed in tools")
+    for t in tools:
+        name = t.get("name") or "(unnamed)"
+        for key in ("version", "purpose"):
+            if not _filled(t.get(key)):
+                gaps.append(f"tool {name!r} has no {key}")
+        if not t.get("stages"):
+            gaps.append(f"tool {name!r} has no stages")
+    named = {t.get("name") for t in tools}
+    for d in disclosed or []:
+        if d not in named:
+            gaps.append(f"disclosed tool {d!r} is not in tools")
+    for key in ("influence_on_conclusions", "human_verification", "data_handling"):
+        if not _filled(decl.get(key)):
+            gaps.append(f"{key} is empty")
+    return gaps
+
+
+def _ai_use(c: _Ctx):
+    auth = c.raw.get("authoring") if isinstance(c.raw.get("authoring"), dict) else {}
+    decl = auth.get("ai_use_declaration")
+    decl = decl if isinstance(decl, dict) else None
+    fix = ("The researcher fills authoring.ai_use_declaration in project.yaml (tools with version, stages and "
+           "purpose; influence_on_conclusions; human_verification; data_handling) and, after reading it, sets "
+           "declaration_confirmed_by_human: true themselves. An AI never sets that flag.")
+    if ai_use_recorded(c.raw, c.doc):
+        if decl is None:
+            c.add("AI001", f"AI assistance is recorded but authoring.ai_use_declaration is missing ({GUIDELINE} "
+                  "p.10-12: every use is disclosed with tool, stage, purpose, influence and oversight; p.34 "
+                  "sample form).", [], fix)
+        else:
+            gaps = declaration_gaps(decl, auth.get("tools_disclosed") or [])
+            if gaps:
+                c.add("AI001", "The AI Use Declaration is incomplete: " + "; ".join(gaps)
+                      + f" ({GUIDELINE} p.11-12, p.34).", [], fix)
+            if decl.get("declaration_confirmed_by_human") is not True:
+                c.add("AI001", "The AI Use Declaration is not confirmed by the researcher "
+                      f"(declaration_confirmed_by_human is not true; {GUIDELINE} p.12 item 4: the user confirms "
+                      "the output was checked).", [], fix)
+    # AI002: AI-drafted data-bearing records (extends X003)
+    for rec, key in P.iter_records(c.doc):
+        prov = rec.get("provenance") or {}
+        if prov.get("authored_by") != "ai_draft" or rec.get("value") is None:
+            continue
+        if key in DATA_BEARING_CHAIN or prov.get("source_type") == "PRIMARY_DATA":
+            fid = rec.get("field_id")
+            where = f"chain {key}" if key in DATA_BEARING_CHAIN else "source_type PRIMARY_DATA"
+            c.add("AI002", f"{fid}: a data-bearing record ({where}) is an AI draft. An AI may restate the "
+                  "researcher's own data but never generate or alter research data, results or factual images "
+                  f"({GUIDELINE} p.11, p.24-25).", [fid],
+                  "The researcher checks the record against their own data and source, then rewrites it or "
+                  "adopts it (authored_by human or human_ai_assisted); if it is not from their data, remove it.")
+    # AI003: personal-data-shaped strings in AI-assisted values
+    for rec, _ in P.iter_records(c.doc):
+        if (rec.get("provenance") or {}).get("authored_by") not in P.AI_AUTHORED:
+            continue
+        hits = pii.find_in_value(rec.get("value"))
+        if hits:
+            kinds = sorted({k for k, _ in hits})
+            fid = rec.get("field_id")
+            c.add("AI003", f"{fid}: a value written with AI assistance contains {len(hits)} personal-data-shaped "
+                  f"string(s) ({', '.join(kinds)}); personal data that identifies someone must not go into a "
+                  f"public AI ({GUIDELINE} p.14 item 1.1).", [fid],
+                  "Check whether the AI tool was a public service. Enter personal data yourself (grantthai set, "
+                  "without --ai), keep it out of AI chats, and record the tool's data handling in "
+                  "authoring.ai_use_declaration.data_handling.")
+    # AI004: high self-assessed risk; the level is GrantThai's convention
+    if decl is not None:
+        scores = decl.get("risk_self_assessment")
+        level = convention_risk_level(scores)
+        if level == 3:
+            high = [k for k in RISK_DIMENSIONS if (scores or {}).get(k) == 3]
+            extra = (" data_sensitivity is 3: that data must stay out of public AI; a closed or local system only, "
+                     f"with approval and a recorded reason ({GUIDELINE} p.14-16).") if "data_sensitivity" in high else ""
+            c.add("AI004", f"The researcher's risk self-assessment scores {', '.join(high)} at 3. GrantThai "
+                  "convention level: 3 (the highest of the five scores; GrantThai's convention, not the "
+                  f"guideline's, whose table is an example with no combination rule, {GUIDELINE} p.10-11). "
+                  "In the guideline's example reading, level 3 means detailed disclosure of the AI use and of "
+                  "the human validation (p.11)." + extra, [],
+                  "Describe the AI use and the human checks in detail in authoring.ai_use_declaration "
+                  "(human_verification, influence_on_conclusions) and in the method section if the call asks.")
+
+
+# --------------------------------------------------------------------------
 # F / ELIG — the bound fund profile
 # --------------------------------------------------------------------------
 
@@ -527,23 +765,56 @@ def _fund(c: _Ctx) -> tuple[list, list, str]:
 
 # --------------------------------------------------------------------------
 
-def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) -> Result:
-    """Validate a loaded project.yaml object. `as_of` (YYYY-MM-DD, default
-    today) is the date fund-rule staleness is judged against."""
+def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None,
+        route: str | None = None, sub_profile: str | None = None,
+        structure_profile: str | None = None) -> Result:
+    """Validate a loaded work.yaml / project.yaml object for one output
+    route. `as_of` (YYYY-MM-DD, default today) is the date fund-rule
+    staleness is judged against. `route` None = nriis-proposal (the legacy
+    behaviour, unchanged). `sub_profile` None = resolved from the object
+    (routing.sub_profiles, or a legacy top-level form_profile for NRIIS).
+    `structure_profile` None = routing.structure_profiles[route], else no
+    profile (the plain output); only a person selects one."""
     as_of = as_of or _dt.date.today().isoformat()
-    c = _Ctx(raw, project_dir, as_of)
+    rt = RTR.load(route or P.LEGACY_ROUTE)
+    sp = RTS.resolve_sub_profile(raw, rt, sub_profile)
+    if structure_profile and not RTST.has_profiles(rt):
+        raise RTR.RouteError(f"route {rt.id} has no structure profiles (asked for {structure_profile!r})")
+    ssp = RTST.resolve_structure_profile(raw, rt, structure_profile) if RTST.has_profiles(rt) else None
+    c = _Ctx(raw, project_dir, as_of, rt, sp, ssp)
 
-    schema_errs = P.schema_errors(raw, P.PROJECT_SCHEMA_ID)
+    work = P.is_work(raw)
+    fname = P.WORK_FILE if work else P.PROJECT_FILE
+    schema_file = "spec/work/work.schema.json" if work else "spec/project/project.schema.json"
+    schema_errs = P.schema_errors(raw, P.object_schema_id(raw))
     for e in schema_errs:
-        c.findings.append(Finding("SCHEMA", "BLOCK", f"project.yaml: {e}", [],
-                                  "Fix project.yaml so it validates against spec/project/project.schema.json."))
+        c.findings.append(Finding("SCHEMA", "BLOCK", f"{fname}: {e}", [],
+                                  f"Fix {fname} so it validates against {schema_file}."))
     if c.profile_problem:
-        c.findings.append(Finding("SCHEMA", "BLOCK", f"project.yaml: {c.profile_problem}", [],
+        c.findings.append(Finding("SCHEMA", "BLOCK", f"{fname}: {c.profile_problem}", [],
                                   "Set form_profile to a shipped profile id "
                                   "(mappings/nriis/form_profiles/) or remove it."))
     _structure(c)
     _logic(c)
-    hold, stale, trust = _fund(c)
+    _practice(c)
+    _ai_use(c)
+    evaluated = set(EVALUATED_AFTER_V01)
+    for fam, modname in sorted(ROUTE_FAMILY_MODULES.items()):
+        if fam not in rt.include_families:
+            continue
+        try:
+            import importlib
+            mod = importlib.import_module(modname)
+        except ModuleNotFoundError as exc:
+            if exc.name != modname:
+                raise
+            continue
+        mod.check(c)
+        evaluated |= set(getattr(mod, "EVALUATED", ()))
+    if rt.needs_fund_binding:
+        hold, stale, trust = _fund(c)
+    else:
+        hold, stale, trust = [], [], "NOT_APPLICABLE"
 
     # v0.2 writing layer: W101/W102 length findings (REVIEW only, report-only).
     # Imported here: grantthai.guidance.writing imports this module.
@@ -553,11 +824,18 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
     for rec, _ in P.iter_records(c.doc):
         if "HOLD_FOR_VERIFICATION" in (rec.get("markers") or []):
             hold.append(f"{rec.get('field_id')}: {rec.get('hold_reason') or 'HOLD_FOR_VERIFICATION'}")
+    if rt.always_hold:
+        hold.append(f"route {rt.id}: never submittable to any system (readiness.always_hold)")
 
-    # Account for every catalog rule not evaluated by this build (no silent skip).
+    # Route scope: keep only findings of rules in scope for this route.
+    in_scope = {rid for rid in c.rule_order if RTR.in_scope(rt, c.rules[rid])}
+    c.findings = [f for f in c.findings
+                  if (f.rule_id == "SCHEMA" and "SCHEMA" in rt.include_families) or f.rule_id in in_scope]
+
+    # Account for every in-scope catalog rule not evaluated by this build (no silent skip).
     for rid in c.rule_order:
         rule = c.rules[rid]
-        if rid in V02_EVALUATED:
+        if rid not in in_scope or rid in evaluated:
             continue
         if rid in V01_NOT_EVALUATED:
             reason = V01_NOT_EVALUATED[rid]
@@ -567,13 +845,45 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
             continue
         c.findings.append(Finding(rid, "INFO", f"{rid} not evaluated: {reason}.", [],
                                   f"See `grantthai explain {rid}`."))
+    # RT001: the route was not designed for this work_type (never a refusal).
+    wt = P.work_view(raw)["work_type"]
+    if rt.accepts_work_types and wt not in rt.accepts_work_types:
+        c.findings.append(Finding("RT001", "INFO", f"Route {rt.id} does not list work_type {wt} in "
+                                  f"accepts_work_types ({', '.join(rt.accepts_work_types)}); the build still "
+                                  "renders every field and shows what is missing.", [],
+                                  "Keep the route if it is the output you want, or choose another with --route."))
+    # RT003: the route in force is not one the researcher declared (never a refusal).
+    declared = [r for r in P.work_view(raw)["declared_routes"] if isinstance(r, str) and r.strip()]
+    if declared and rt.id not in declared:
+        c.findings.append(Finding("RT003", "INFO", f"Route {rt.id} is not in routing.declared_routes "
+                                  f"({', '.join(declared)}); the build still renders.", [],
+                                  f"Add {rt.id} to routing.declared_routes if this is an output you intend, or "
+                                  "choose a declared route with --route."))
+    # RT004: 7SSA structure-profile candidates (listed, never selected).
+    if ssp is None and RTST.has_profiles(rt):
+        cands = RTST.candidates(raw, rt, sp, c.value(RTST.ARTICLE_TYPE))
+        if cands:
+            match = ", ".join(cands["matching"]) or "none for this sub-profile"
+            c.findings.append(Finding("RT004", "INFO", f"Structure-profile candidates for route {rt.id} "
+                                      f"(ARTICLE.SSA.ARTICLE_TYPE {c.value(RTST.ARTICLE_TYPE)}): matching sub-profile "
+                                      f"{sp or '(default)'}: {match}; others: {', '.join(cands['others']) or 'none'}. "
+                                      "None is selected; the output is the plain overview.", [],
+                                      f"If you want a 7SSA layout, choose one yourself: routing.structure_profiles."
+                                      f"{rt.id} in work.yaml, or --structure-profile. GrantThai never chooses."))
+    # RT002: rules that declare this route but the route's config filters out.
+    filtered = [rid for rid in c.rule_order
+                if RTR.rule_declares(rt, c.rules[rid]) and not RTR.route_config_admits(rt, c.rules[rid])]
+    if filtered:
+        c.findings.append(Finding("RT002", "INFO", f"{len(filtered)} catalog rules not in scope for route "
+                                  f"{rt.id}: {', '.join(filtered)}.", [],
+                                  f"See routes/{rt.id}/route.yaml `rules` and `grantthai explain <id>`."))
 
-    order = {rid: i for i, rid in enumerate(["SCHEMA"] + c.rule_order)}
+    order = {rid: i for i, rid in enumerate(["SCHEMA"] + c.rule_order + sorted(ROUTER_FINDINGS))}
     sev_order = {"BLOCK": 0, "REVIEW": 1, "INFO": 2}
     findings = sorted(c.findings, key=lambda f: (sev_order[f.severity], order.get(f.rule_id, 999)))
     summary = {s.lower(): sum(1 for f in findings if f.severity == s) for s in ("BLOCK", "REVIEW", "INFO")}
     report = {
-        "project_id": str(raw.get("project_id")),
+        "project_id": P.work_id(raw),
         "project_content_sha256": content_sha256(raw),
         "project_state_sha256": state_sha256(raw),
         "rules_version": str(P.rules_catalog().get("version")),
@@ -588,11 +898,15 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
         trust_level=trust, real_world_verified=rwv,
         submittable=(summary["block"] == 0 and not hold),
         form_profile=c.profile,
+        route=rt.id, sub_profile=sp, ready_flag=rt.ready_flag, structure_profile=ssp,
     )
 
 
 def explain(rule_id: str) -> dict:
     """The catalog entry for a rule plus how v0.1 treats it."""
+    if rule_id in ROUTER_FINDINGS:
+        return {"id": rule_id, "severity": "INFO", "family": "RT", "routes": ["all"],
+                "description_en": ROUTER_FINDINGS[rule_id]}
     if rule_id == "SCHEMA":
         return {"id": "SCHEMA", "severity": "BLOCK", "family": "S", "implemented_in_v0_1": True,
                 "description_en": "project.yaml does not validate against spec/project/project.schema.json "
@@ -606,4 +920,6 @@ def explain(rule_id: str) -> dict:
         out["v0_1_note"] = V01_NOT_EVALUATED[rule_id]
     else:
         out["implemented_in_v0_1"] = out.get("ships") == "v0.1"
+    if rule_id in EVALUATED_AFTER_V01:
+        out["evaluated_by_this_build"] = True
     return out

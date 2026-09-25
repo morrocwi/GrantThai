@@ -1,0 +1,77 @@
+{#- templates/article_7ssa.md.j2 — the 7SSA manuscript body (a partial).
+    output_kind: route_partial
+    route: academic-article
+    included_by: templates/academic_article.md.j2
+    Included by the academic-article template ONLY when the researcher has
+    selected a 7SSA structure profile (routing.structure_profiles or
+    --structure-profile); the route still writes exactly one file,
+    build/ACADEMIC_ARTICLE.md. Context comes from src/grantthai/render/ssa.py
+    (`ssa`): the researcher's own sector texts placed into the profile's
+    visible sections by a pure, deterministic function. GrantThai composes
+    no text: every body line below is exactly what the work object says; an
+    empty sector prints NEEDS_INPUT under its [S#] marker. No timestamps. -#}
+
+### {{ ssa_section_no }}. 7SSA manuscript body: `{{ ssa.profile_id }}`
+
+The researcher's own sector texts arranged by the 7SSA structure profile `{{ ssa.profile_id }}` ({{ ssa.title_en }}), selected by the researcher, never by the tool. Every sector keeps its [S#] marker, whatever the number of visible sections; merging joins sectors and writes no bridging text. Headings are taken from the {{ ssa.source_doc }} (sha256 {{ ssa.source_sha256 }}; {{ ssa.source_locator }}). {{ ssa.status_note }}
+
+- Heading language: `{{ ssa.heading_lang }}`; article type (`ARTICLE.SSA.ARTICLE_TYPE`): `{{ ssa.article_type }}`{% if ssa.overlay %}; article-type headings applied: `{{ ssa.overlay }}` (7SSA v1 §15){% endif %}
+
+- Suggested writing order (7SSA v1 §22; reading order stays S1 to S7): {{ ssa.writing_order }}
+
+#### Sector map
+
+| Visible section | Heading | Sector | Body items | Required slots filled | Required slots NEEDS_INPUT | Compression |
+|---|---|---|---|---|---|---|
+{% for r in ssa.sector_map %}
+| {{ r.n }} | {{ r.heading | replace("|", "\\|") }} | {{ r.marker | replace("|", "\\|") }} | {{ r.item_count }} | {{ r.filled }} | {{ r.needs_input }} | {{ r.compression }} |
+{% endfor %}
+{% if ssa.rules %}
+
+Compression rules that permit the merges above (flags only; GrantThai writes no bridging prose):
+{% for r in ssa.rules %}
+- {{ r.id }} ({{ r.locator }}): {{ r.text_en }}
+{% endfor %}
+{% endif %}
+
+#### Body
+{% for sec in ssa.visible %}
+
+##### {{ sec.n }}. {{ sec.heading }}
+{% for s in sec.sectors %}
+
+###### {{ s.marker }}
+{% if s.empty %}
+
+NEEDS_INPUT (no researcher text for this sector yet)
+{% endif %}
+{% for b in s.blocks %}
+
+{% if b.label %}**{{ b.label }}** {% endif %}({{ b.source }}{% if b.slot and b.slot != b.label %}, slot `{{ b.slot }}`{% endif %})
+
+{{ b.text if b.text else "NEEDS_INPUT" }}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% if ssa.untagged %}
+
+#### Body items with no sector tag
+
+Listed so nothing is dropped. Add `ssa_sector` (and `ssa_slot`) to place them in a sector.
+{% for b in ssa.untagged %}
+
+{% if b.label %}**{{ b.label }}** {% endif %}({{ b.source }})
+
+{{ b.text if b.text else "NEEDS_INPUT" }}
+{% endfor %}
+{% endif %}
+
+#### Article audit table (7SSA v1 §31)
+
+Answered means only that the work object holds text for that sector; it is not a judgement of the answer.
+
+| Audit question | Sector | Visible section | Answered from the work object |
+|---|---|---|---|
+{% for a in ssa.audit %}
+| {{ a.question }} | {{ a.sector }} | {{ a.visible }} | {{ a.answered }} |
+{% endfor %}

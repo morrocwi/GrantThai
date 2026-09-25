@@ -46,11 +46,15 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Legacy flat list of disclosed tool names (kept for older files and the frontmatter). Since the AI-use ceiling (docs/policy/ai-use-ceiling.md), ai_use_declaration.tools carries name, version, stages and purpose."
         },
         "self_declared": {
           "type": "boolean",
           "const": true
+        },
+        "ai_use_declaration": {
+          "$ref": "#/$defs/ai_use_declaration"
         }
       },
       "additionalProperties": false
@@ -70,7 +74,10 @@
       "additionalProperties": false
     },
     "form_profile": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "default": null,
       "pattern": "^[a-z0-9_]+@[a-z0-9.\\-]+$",
       "description": "v0.2: id of a form profile in mappings/nriis/form_profiles/ (spec/mappings/form_profile.schema.json), e.g. ff_full_proposal@nriis-2570. Absent or null = the observed form (mappings/nriis/section_to_tab.yaml). Every profile is NEEDS_VERIFICATION. Authored content: changing it changes content_sha256."
@@ -189,6 +196,124 @@
     "field_record": {
       "$ref": "../common/field_record.schema.json",
       "unevaluatedProperties": false
+    },
+    "ai_use_declaration": {
+      "type": "object",
+      "description": "The researcher's own AI Use Declaration, rendered as a GrantThai appendix in NRIIS_SUBMISSION.md (section 4.7). Its shape follows the sample form in Appendix A (p.34) of the national GenAI research-ethics guideline (September 2569; docs/sources.md, docs/policy/ai-use-ceiling.md). It is NOT an NRIIS field: whether NRIIS or a fund asks for it is NEEDS_VERIFICATION. Self-declared and unverified. AI surfaces (set_field with actor ai_assisted: CLI --ai, MCP, HTTP, the skill script) may only add or extend tools[] entries (name, version, stage); every other key is the researcher's, and declaration_confirmed_by_human is set only by the researcher editing project.yaml. When an AI surface changes tools[], declaration_confirmed_by_human is reset to false.",
+      "properties": {
+        "tools": {
+          "type": "array",
+          "description": "One entry per AI tool used (guideline p.11-12, p.34 items 3-4).",
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "developer": {
+                "type": "string",
+                "description": "Who makes the tool (p.34 item 3)."
+              },
+              "version": {
+                "type": "string",
+                "description": "Model or product version (p.12 item 7.1). NEEDS_INPUT until the researcher states it."
+              },
+              "stages": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "$ref": "#/$defs/ai_use_stage"
+                }
+              },
+              "purpose": {
+                "type": "string",
+                "description": "What the tool was used for (p.11, p.34 item 4). NEEDS_INPUT until the researcher states it."
+              },
+              "used_on": {
+                "type": "string",
+                "description": "When it was used, free text such as a date or a date range (p.12 item 7.1)."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "influence_on_conclusions": {
+          "type": "string",
+          "description": "How the AI output influenced decisions or conclusions (p.11 item 2)."
+        },
+        "human_verification": {
+          "type": "string",
+          "description": "What the researcher checked, how, and who signs for it (p.12 item 4, p.34 item 7)."
+        },
+        "data_handling": {
+          "type": "string",
+          "description": "Which TYPES of data were given to the AI and how personal or confidential data was kept out (p.14-16, p.34 item 5). Describe the type; never paste the data itself."
+        },
+        "log_ref": {
+          "type": "string",
+          "description": "Where the researcher keeps the prompt and output log, tool versions and dates (p.12-13 item 7). A reference, not the log."
+        },
+        "risk_self_assessment": {
+          "type": "object",
+          "description": "The researcher's own scores, 1-3, on the five dimensions of the guideline's example scoring table (p.10-11, marked there as an example only). The guideline gives no rule for combining the five scores; any single level GrantThai prints is GrantThai's own convention (the highest score), never the guideline's.",
+          "properties": {
+            "impact_on_conclusions": {
+              "$ref": "#/$defs/risk_score"
+            },
+            "accuracy_hallucination": {
+              "$ref": "#/$defs/risk_score"
+            },
+            "data_sensitivity": {
+              "$ref": "#/$defs/risk_score"
+            },
+            "bias": {
+              "$ref": "#/$defs/risk_score"
+            },
+            "reproducibility": {
+              "$ref": "#/$defs/risk_score"
+            }
+          },
+          "additionalProperties": false
+        },
+        "declaration_confirmed_by_human": {
+          "type": "boolean",
+          "default": false,
+          "description": "True only when the researcher has read the whole declaration and confirms they checked every AI-assisted value and take full responsibility (p.12 item 4, p.15 item 2.3, p.34 item 8). Never set by an AI surface."
+        },
+        "confirmed_by": {
+          "type": "string",
+          "description": "Name or role of the person who confirmed (the researcher's choice)."
+        },
+        "confirmed_on": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ai_use_stage": {
+      "type": "string",
+      "enum": [
+        "idea",
+        "proposal_writing",
+        "literature",
+        "data",
+        "analysis",
+        "writing",
+        "language_editing",
+        "review",
+        "publication"
+      ],
+      "description": "Research stage (docs/policy/ai-use-ceiling.md section 2). 'review' means reviewing the project's own drafts, never reviewing someone else's work."
+    },
+    "risk_score": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
     }
   }
 }

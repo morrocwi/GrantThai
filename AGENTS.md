@@ -26,6 +26,10 @@ for first still lands here.
    contracts, commands, tests, and acceptance criteria per phase.
 6. `spec/INDEX.yaml` — the manifest of every contract file, its version,
    status, and which phase needs it.
+6a. `routes/INDEX.yaml` — the router: every output route, its `route.yaml`,
+   its output filename, and the shared/route partition of the field
+   registry. "Router" means a deterministic output route chosen by a
+   person, never by an AI.
 7. The specific `spec/**` files for whatever you are about to build.
 8. `docs/deviations.md` — where this scaffold intentionally departs from
    the original handoff package, so you do not "fix" an intentional
@@ -39,9 +43,11 @@ for first still lands here.
 Load `skills/grantthai/SKILL.md` and follow it. Short form: the
 researcher's own information is the source; you interview and draft, you
 never validate knowledge, never mark your own wording `SOURCE`, never
-invent a Thai fund or NRIIS fact (write `NEEDS_VERIFICATION`), leave gaps
-as `NEEDS_INPUT`, and hand back exactly one file,
-`build/NRIIS_SUBMISSION.md`. Three equivalent surfaces wrap the same
+invent a Thai fund, NRIIS or journal fact (write `NEEDS_VERIFICATION`),
+leave gaps as `NEEDS_INPUT`, list the routes and let the researcher choose
+(never choose for them), and hand back exactly one file per route they
+pick: `build/ACADEMIC_ARTICLE.md`, `build/NRIIS_SUBMISSION.md` or
+`build/RESEARCH_CONCEPT_NOTE.md`. Three equivalent surfaces wrap the same
 engine (`src/grantthai/api_py.py`), each capped at `DRAFT` inside the
 engine:
 
@@ -51,29 +57,72 @@ engine:
 | MCP server (stdio) | `grantthai-mcp --root DIR` | `docs/mcp.md`, `spec/mcp/tools.schema.json` |
 | HTTP API (local) | `grantthai-api` | `docs/api.md`, `spec/api/openapi.yaml` |
 
-## The one-input, one-output contract (headline)
+Every surface, and any AI building this repository, works under the
+**AI-use ceiling**, `docs/policy/ai-use-ceiling.md` (Thai:
+`docs/policy/ai-use-ceiling.th.md`), built on the GenAI guideline 2569
+(`docs/sources.md`). In short: show the personal/confidential-data warning
+before accepting any data; record the tool and version in
+`authoring.ai_use_declaration` (automatic on every AI-assisted write);
+never generate or alter research data or evidence; never supply a
+reference from memory; never set `declaration_confirmed_by_human` (only the
+researcher does); never use GrantThai to evaluate someone else's proposal.
+Rules AI001-AI004 are REVIEW only.
 
-See `spec/contracts/one-input-one-output.md` for the full contract:
+## The one-input, one-output-per-route contract (headline)
 
-- **One input:** `project.yaml` (`spec/project/project.schema.json`) is the
-  only canonical input. Every editor (webform, forms, questionnaires,
+See `spec/contracts/one-input-one-output.md` (0.3.0-draft) for the full
+contract. Founder reframe, 2026-09-25: "การลงใน NRIIS ไม่ใช่แกนหลักอีกต่อไป
+แต่เป็นแค่ทางเลือกหนึ่งของ router เพราะเราจะเปิดให้ตั้งแต่การทำบทความวิชาการด้วย" —
+entering NRIIS is one route of the router, not the core.
+
+- **One input:** `work.yaml` (`spec/work/work.schema.json`, 0.3, a superset
+  of `project.yaml` 0.2) is the only canonical input. A legacy
+  `project.yaml` is read unchanged as the NRIIS route; a directory holding
+  both stops `build` (exit 2). Every editor (forms, questionnaires,
   optional AI assist) writes this same file; none of them is a separate
   input.
-- **One command:** `grantthai build <project.yaml>`.
-- **One output:** `build/NRIIS_SUBMISSION.md`
-  (`spec/output/nriis-submission.contract.md`). No second GrantThai-generated
-  file is needed to enter data into NRIIS (attachments are the person's own
-  uploaded files, listed with their status). Citizen Mode's optional
-  `build/RESEARCH_CONCEPT_NOTE.md` is a separate, explicitly optional
-  artifact, never a substitute.
+- **One command per route:** `grantthai build <work.yaml> --route <id>`
+  (`route build`). The route comes from `--route`, else
+  `routing.default_route`, else the legacy file → `nriis-proposal`, else
+  the one route in `routing.declared_routes` (several declared: stop and
+  list them), else, only when nothing is declared, the single route whose
+  `default_for_work_types` lists the object's `work_type`; otherwise the tool lists the candidates and stops. **The
+  tool never picks a route**, and neither does an AI surface: MCP and HTTP
+  return the candidates for the researcher to choose from.
+- **One output per route:** `build/NRIIS_SUBMISSION.md`
+  (`spec/output/nriis-submission.contract.md`, unchanged, `submittable`
+  against the bound fund profile only), `build/ACADEMIC_ARTICLE.md`
+  (`spec/output/academic-article.contract.md`, `manuscript_ready` = no
+  BLOCK, never "accepted"), `build/RESEARCH_CONCEPT_NOTE.md`
+  (`spec/output/research-concept-note.contract.md`, never submittable).
+  Each invocation writes exactly one file and leaves the other routes'
+  files byte-identical. The academic-article route has **7SSA structure
+  profiles** (`routes/academic-article/profiles/`: `7ssa-world`,
+  `7ssa-thai-7`, `7ssa-thai-5`, `7ssa-thai-4`): a person selects one
+  (`routing.structure_profiles`, outside `content_sha256`, or
+  `--structure-profile`); the router only lists candidates (INFO RT004) and
+  no AI surface writes that key. A selected profile arranges the body into
+  sectors S1-S7 by a pure, deterministic function (every sector keeps its
+  `[S#]` marker; no text is composed or dropped) and turns on the SSA rules
+  7SSA-01..10 (REVIEW/INFO, never BLOCK). `build --format tex` writes
+  `build/ACADEMIC_ARTICLE.tex` instead, from a sha256-pinned copy of the
+  glosa GLOSA-7SSA template (`templates/tex/SOURCE.yaml`; English only). No second GrantThai-generated file is needed to
+  use a route's output (attachments and figures are the person's own
+  files, listed with their status).
+- `routing` is excluded from `content_sha256`: choosing a route never
+  makes a review record or the lock stale (`spec/common/object-hash.md`).
 - `profile.yaml` is an editor convenience only; `build` never reads it.
-  Identity and team data used in the submission live in `project.yaml`
-  (`PROFILE.*` fields).
+  Identity and team data live in `work.yaml` (`PROFILE.*`, `ARTICLE.*`).
+- The article route ships no venue registry and names no journal. A venue
+  fact enters only through the researcher's `ARTICLE.VENUE.TARGET` record
+  with the source they supplied (rule ART010); both sub-profiles are
+  `NEEDS_VERIFICATION`. GrantThai never composes section text.
 
 ## Ecosystem position
 
 GrantThai bridges Problem/Knowledge → Researchable project →
-Funding-aligned project → NRIIS-ready project. See `docs/ecosystem.md` and
+Funding-aligned project (when the route needs a fund) → route-ready output
+(article, NRIIS proposal or concept note; NRIIS is one route). See `docs/ecosystem.md` and
 `ecosystem/ecosystem.yaml` for the full picture (two nested ecosystems,
 actor table, flows, sibling-infrastructure pointers). Do not implement
 anything that would let GrantThai submit to NRIIS, decide PI eligibility
@@ -92,9 +141,10 @@ these are hard boundaries, not style choices.
    See `spec/common/status_permissions.yaml` ("hard_ceiling") — MCP, REST,
    and `assist` can never exceed `DRAFT`, and this must be enforced in
    `src/grantthai/core`, never trusted to a caller.
-3. **No invented Thai facts.** Any time-bound Thai rule, agency detail,
-   NRIIS field label, NRIIS tab name or tab order you do not have a
-   current, cited public source for must be written as the literal string
+3. **No invented Thai or journal facts.** Any time-bound Thai rule, agency
+   detail, NRIIS field label, NRIIS tab name or tab order, or any journal
+   or publisher requirement (scope, indexing, word limits, fees, review
+   time) you do not have a current, cited public source for must be written as the literal string
    `NEEDS_VERIFICATION` (or `NEEDS_INPUT` for a value the user must
    supply) — never guessed, never filled from training-data recall. The
    field registry (`registry/fields.jsonl`) already follows this: English
@@ -118,9 +168,13 @@ these are hard boundaries, not style choices.
    with NRCT, TSRI, any PMU, or NRIIS. The one-line NOTICE constant
    (`spec/output/notice_constant.txt`) is reused byte for byte in
    `NOTICE`, `README.md`, `README.en.md`, `ai.json`, `llms.txt`,
-   `llms-full.txt`, `GRANTTHAI_STANDALONE.md`, and as line 1 of every rendered
-   `build/NRIIS_SUBMISSION.md` body; `tools/ci/check_notice.py` enforces
-   this. Other files point to `NOTICE` rather than paraphrasing it.
+   `llms-full.txt`, `GRANTTHAI_STANDALONE.md`, and as line 1 of every
+   route's rendered output body (`NRIIS_SUBMISSION.md`,
+   `ACADEMIC_ARTICLE.md`, `RESEARCH_CONCEPT_NOTE.md`);
+   `tools/ci/check_notice.py` enforces this on every route template. A
+   route may add its own notice on line 2 (the article route: not
+   affiliated with any journal or publisher) but never replaces the
+   constant. Other files point to `NOTICE` rather than paraphrasing it.
 6. **Public-repo exclusions are absolute.** Never commit: the original
    handoff package as-is, source PDFs, the screenshot-derived readout,
    the Toledo concept reference image, private workspaces, or any real
@@ -151,6 +205,12 @@ criteria (AT-1 through AT-6). In short:
   `GOVERNANCE.md` ("Founder decisions log").
 - **v0.2 "Citizen, no AI" + review + lock:** Citizen Mode, concept note,
   review/lock, bridge ontology + generated SHACL. See AT-1/AT-2 extended.
+- **v0.3 router (unreleased):** `work.yaml` 0.3, `routes/` with three
+  routes, `route list|check|build`, `migrate`, the `ARTICLE.*` fields and
+  the ART family. Acceptance AT-R1 (a 0.2 file builds byte-identical
+  `NRIIS_SUBMISSION.md`), AT-R2 (the fictional article builds exactly one
+  file), AT-R3 (one object, two routes, two files, each build leaves the
+  other byte-identical). See `docs/BUILD_GUIDE.md` "v0.3 router".
 - **v0.3 optional AI assist:** `grantthai[ai]`, parity CI. See AT-3b.
 - **v0.4 interfaces:** REST, browser-assist. (MCP shipped early, in v0.1.0 —
   see above.)

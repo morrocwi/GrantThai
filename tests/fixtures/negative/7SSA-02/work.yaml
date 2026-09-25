@@ -1,0 +1,536 @@
+# tests/fixtures/negative/7SSA-02/work.yaml — FICTIONAL negative fixture (generated).
+# A mutated copy of examples/article-7ssa-fictional/work.yaml: the Sector 5 body items are moved before the Sector 4 item.
+# On route academic-article, 7SSA-02 fires and no other 7SSA rule does.
+schema_version: 0.3.0-draft
+work_id: FICTIONAL-7SSA-NEGATIVE-02
+work_type: academic_article
+fictional: true
+mode: expert
+authoring:
+  mode: human
+  tools_disclosed: []
+  self_declared: true
+routing:
+  declared_routes:
+  - academic-article
+  default_route: academic-article
+  sub_profiles:
+    academic-article: international-journal
+  structure_profiles:
+    academic-article: 7ssa-world
+sources:
+- source_id: SRC-2
+  kind: PUBLISHED_LITERATURE
+  citation: FICTIONAL Author A. (2024). A synthetic review of small-reservoir management. FICTIONAL Journal
+    of Examples, 1(1), 1-10.
+  locator: Section 4
+  contains_personal_data: false
+- source_id: SRC-4
+  kind: PUBLISHED_LITERATURE
+  citation: 'FICTIONAL Author C. (2025). Enforcement costs of shared-resource rules: a synthetic account.
+    FICTIONAL Review of Examples, 2(1), 11-20.'
+  locator: Section 2
+  contains_personal_data: false
+- source_id: SRC-VENUE-2
+  kind: OFFICIAL_DOCUMENT
+  citation: FICTIONAL Journal of Conceptual Examples. Author guidelines (synthetic document, supplied
+    by the researcher).
+  locator: Article types
+  contains_personal_data: false
+fields:
+- field_id: CORE.GENERAL.TITLE_EN
+  value: 'FICTIONAL: The co-authored rule, a third kind of shared-resource rule'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: CORE.GENERAL.TITLE_TH
+  value: 'ตัวอย่างสมมติ: กติกาที่ผู้ใช้ร่วมเขียน กติกาประเภทที่สามของการใช้ทรัพยากรร่วม'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: CORE.GENERAL.KEYWORDS_EN
+  value:
+  - FICTIONAL example
+  - shared resources
+  - rule typology
+  - conceptual analysis
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: PROFILE.TEAM.MEMBERS
+  value:
+  - id: TM1
+    full_name: FICTIONAL Lecturer A
+    organization: FICTIONAL Example University
+    project_role: PI
+    contribution_percent: 100
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: CORE.NARRATIVE.REFERENCES
+  value:
+  - FICTIONAL Author A. (2024). A synthetic review of small-reservoir management. FICTIONAL Journal of
+    Examples, 1(1), 1-10.
+  - 'FICTIONAL Author C. (2025). Enforcement costs of shared-resource rules: a synthetic account. FICTIONAL
+    Review of Examples, 2(1), 11-20.'
+  status: DRAFT
+  source_ids:
+  - SRC-2
+  - SRC-4
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.META.KIND
+  value: conceptual
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.META.LANGUAGE
+  value: en
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.META.TITLE_EN
+  value: 'FICTIONAL: The co-authored rule, a third kind of shared-resource rule'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.META.REFERENCE_STYLE
+  value: 'FICTIONAL: author-date (the researcher''s own label)'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.FRONT.ABSTRACT_EN
+  value: 'FICTIONAL: Accounts of shared-resource rules divide them into formal and informal ones, a split
+    that cannot place a schedule the users write and keep themselves. Using conceptual analysis of two
+    synthetic accounts, this article proposes the co-authored rule, defined by user authorship, a user-kept
+    record and user-only change. The construct applies only where no outside body registers the rule.'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.FRONT.ABSTRACT_TH
+  value: 'ตัวอย่างสมมติ: บทความนี้เสนอแนวคิดกติกาที่ผู้ใช้ร่วมเขียน ซึ่งไม่ใช่ทั้งกติกาทางการและไม่เป็นทางการ
+    โดยวิเคราะห์เชิงแนวคิดจากงานสมมติสองชิ้น'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.FRONT.AUTHORS
+  value:
+  - id: AU1
+    member_id: TM1
+    order: 1
+    corresponding: true
+    affiliation_as_typed: FICTIONAL Example University
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.FRONT.CONTRIBUTIONS
+  value:
+  - id: CRT1
+    member_id: TM1
+    roles:
+    - conceptualization
+    - methodology
+    - writing_original_draft
+    - writing_review_editing
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.SSA.ARTICLE_TYPE
+  value: conceptual
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.SSA.GAP
+  value:
+    gap_type: CLASSIFICATION_GAP
+    unresolved_problem: 'FICTIONAL: the formal/informal split has no place for a user-written, unregistered
+      rule.'
+    why_existing_knowledge_fails: 'FICTIONAL: both example accounts classify a rule by who enforces it,
+      not by who writes it.'
+    consequence_if_unresolved: 'FICTIONAL: such schedules are counted as informal, so studies cannot tell
+      whether writing a rule down changes how long it lasts.'
+    strongest_prior_attempt: 'FICTIONAL: the rival account calls every written rule formal, which erases
+      the difference between a user record and a registry.'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.SSA.CONTRIBUTION
+  value:
+    one_sentence: 'FICTIONAL: a rule written, kept and changed only by the people it binds is a third
+      kind, the co-authored rule.'
+    object_name: FICTIONAL co-authored rule
+    contribution_type: new_construct
+    definition: 'FICTIONAL: a rule authored by its users, recorded in a document the users keep, and changeable
+      only by them.'
+    nearest_prior: 'FICTIONAL: the informal rule of the older example account'
+    difference_from_prior: 'FICTIONAL: unlike an informal rule, its written record fixes who may change
+      it.'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.SSA.BEFORE_AFTER
+  value:
+    before_state: 'FICTIONAL: a user-written schedule could only be called informal or formal.'
+    after_state: 'FICTIONAL: it can be named as a co-authored rule and compared with both.'
+    non_claims:
+    - 'FICTIONAL: the article does not claim that co-authored rules reduce disputes.'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.BODY.SECTIONS
+  value:
+  - id: MSC1
+    ssa_sector: S1
+    ssa_slot: phenomenon
+    heading: Phenomenon
+    text: 'FICTIONAL: small communities that share one reservoir keep informal water-use turns that nobody
+      wrote down.'
+  - id: MSC2
+    ssa_sector: S1
+    ssa_slot: importance
+    heading: Why it matters
+    text: 'FICTIONAL: when the informal turns break down, neighbours stop cooperating on other shared
+      tasks as well.'
+  - id: MSC3
+    ssa_sector: S1
+    ssa_slot: scholarly_conversation
+    heading: Scholarly conversation
+    text: 'FICTIONAL: the example literature on shared-resource rules treats a rule as either formal or
+      informal.'
+  - id: MSC4
+    ssa_sector: S1
+    ssa_slot: gap_preview
+    heading: Gap preview
+    text: 'FICTIONAL: that two-way split cannot describe a rule that is written by the users themselves
+      but never registered anywhere.'
+  - id: MSC5
+    ssa_sector: S1
+    ssa_slot: central_argument
+    heading: Central argument
+    text: 'FICTIONAL: this article argues that such self-written rules form a third kind, here called
+      a FICTIONAL co-authored rule.'
+  - id: MSC6
+    ssa_sector: S1
+    ssa_slot: contributions
+    heading: Contribution preview
+    text: 'FICTIONAL: it proposes the construct, its three components and its boundary.'
+  - id: MSC7
+    ssa_sector: S2
+    ssa_slot: methodology
+    heading: Approach
+    text: 'FICTIONAL: conceptual analysis of the example literature, reading each account for how it classifies
+      a rule.'
+  - id: MSC8
+    ssa_sector: S2
+    ssa_slot: conceptual_method
+    heading: Conceptual method
+    text: 'FICTIONAL: the construct is built by contrasting it with its two nearest neighbours, one component
+      at a time.'
+  - id: MSC9
+    ssa_sector: S2
+    ssa_slot: construct_logic
+    heading: Construct logic
+    text: 'FICTIONAL: a rule counts as co-authored only when all three components are present.'
+  - id: MSC10
+    ssa_sector: S2
+    ssa_slot: source_base
+    heading: Source base
+    text: 'FICTIONAL: the synthetic sources SRC-2 and SRC-4 listed in the source manifest.'
+  - id: MSC11
+    ssa_sector: S2
+    ssa_slot: scope
+    heading: Scope
+    text: 'FICTIONAL: rules about one shared physical resource in a community of fewer than one hundred
+      households.'
+  - id: MSC12
+    ssa_sector: S3
+    ssa_slot: canonical_sources
+    heading: Canonical accounts
+    text: 'FICTIONAL: the older example account (SRC-2) divides rules into formal and informal ones.'
+  - id: MSC13
+    ssa_sector: S3
+    ssa_slot: recent_sources
+    heading: Recent accounts
+    text: 'FICTIONAL: a recent example account (SRC-4) keeps the same division and adds enforcement costs.'
+  - id: MSC14
+    ssa_sector: S3
+    ssa_slot: competing_literatures
+    heading: Competing literature
+    text: 'FICTIONAL: a rival example account treats every written rule as formal, whoever wrote it.'
+  - id: MSC16
+    ssa_sector: S5
+    ssa_slot: name
+    heading: The construct
+    text: 'FICTIONAL: the co-authored rule is a rule written, kept and changed by the people it binds,
+      without an outside registrar.'
+  - id: MSC17
+    ssa_sector: S5
+    ssa_slot: components
+    heading: Components
+    text: 'FICTIONAL: authorship by the users, a written record the users keep, and change only by the
+      users.'
+  - id: MSC15
+    ssa_sector: S4
+    ssa_slot: unresolved_problem
+    heading: The problem
+    text: 'FICTIONAL: neither account can say what kind of rule a user-written but unregistered schedule
+      is.'
+  - id: MSC18
+    ssa_sector: S6
+    ssa_slot: strongest_objection
+    heading: Strongest objection
+    text: 'FICTIONAL: a co-authored rule may simply be an informal rule that happens to be written down.'
+  - id: MSC19
+    ssa_sector: S6
+    ssa_slot: response
+    heading: Reply
+    text: 'FICTIONAL: the written record changes who can amend the rule, which an informal rule does not
+      fix.'
+  - id: MSC20
+    ssa_sector: S6
+    ssa_slot: boundary_conditions
+    heading: Boundary conditions
+    text: 'FICTIONAL: the construct applies only where no outside body registers or enforces the rule.'
+  - id: MSC21
+    ssa_sector: S6
+    ssa_slot: limitations
+    heading: Limitations
+    text: 'FICTIONAL: the analysis rests on two synthetic accounts and one example setting.'
+  - id: MSC22
+    ssa_sector: S7
+    ssa_slot: answer_to_problem
+    heading: Answer
+    text: 'FICTIONAL: a user-written, unregistered schedule is a co-authored rule, a third kind next to
+      formal and informal rules.'
+  - id: MSC23
+    ssa_sector: S7
+    ssa_slot: next_frontier
+    heading: Next frontier
+    text: 'FICTIONAL: whether co-authored rules last longer than informal ones is left for empirical work.'
+  status: DRAFT
+  source_ids:
+  - SRC-2
+  - SRC-4
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.STATEMENT.CONFLICT_OF_INTEREST
+  value: 'FICTIONAL: none declared.'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.STATEMENT.FUNDING
+  value: 'FICTIONAL: no specific funding.'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.STATEMENT.DATA_AVAILABILITY
+  value: 'FICTIONAL: no new data were created or analysed.'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.STATEMENT.OTHER
+  value:
+  - id: STM1
+    kind: authorship_accountability
+    text: 'FICTIONAL: the single author approved the text and is responsible for it; no AI tool is an
+      author.'
+  - id: STM2
+    kind: reporting_guideline
+    text: 'FICTIONAL: not applicable (conceptual article).'
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+- field_id: ARTICLE.VENUE.TARGET
+  value:
+    name_as_typed: FICTIONAL Journal of Conceptual Examples
+    sub_profile: international-journal
+    source_refs:
+    - SRC-VENUE-2
+  status: DRAFT
+  provenance:
+    provenance_class: DECISION
+    source_type: PROJECT_DOCUMENT
+    evidence_role: ORIENTING
+    authored_by: human
+chain:
+  Problem:
+  - field_id: CORE.RESEARCH.PROBLEM
+    value: 'FICTIONAL problem: accounts of shared-resource rules cannot place a user-written, unregistered
+      schedule.'
+    status: DRAFT
+    source_ids:
+    - SRC-2
+    provenance:
+      provenance_class: INFERENCE
+      source_type: PUBLISHED_LITERATURE
+      evidence_role: ORIENTING
+      authored_by: human
+  PriorKnowledge:
+  - field_id: CORE.PRIORKNOWLEDGE.PK1
+    value: 'FICTIONAL prior knowledge: the example accounts divide shared-resource rules into formal and
+      informal ones.'
+    status: DRAFT
+    source_ids:
+    - SRC-2
+    - SRC-4
+    links:
+      problem_ids:
+      - CORE.RESEARCH.PROBLEM
+    provenance:
+      provenance_class: SOURCE
+      source_type: PUBLISHED_LITERATURE
+      evidence_role: SUPPORTING
+      authored_by: human
+  Gap:
+  - field_id: CORE.RESEARCH.GAP
+    value: 'FICTIONAL gap: the two-way split has no category for a user-written, unregistered rule.'
+    status: DRAFT
+    links:
+      prior_knowledge_ids:
+      - CORE.PRIORKNOWLEDGE.PK1
+    provenance:
+      provenance_class: INFERENCE
+      source_type: PUBLISHED_LITERATURE
+      evidence_role: ORIENTING
+      authored_by: human
+  RQ:
+  - field_id: CORE.RESEARCH.RQ.PRIMARY
+    value: 'FICTIONAL RQ: what kind of rule is a schedule written and kept only by its users?'
+    status: DRAFT
+    links:
+      gap_ids:
+      - CORE.RESEARCH.GAP
+    provenance:
+      provenance_class: DECISION
+      source_type: PROJECT_DOCUMENT
+      evidence_role: ORIENTING
+      authored_by: human
+  Objective:
+  - field_id: CORE.RESEARCH.OBJECTIVES
+    value:
+    - id: OBJ1
+      statement: 'FICTIONAL: define the co-authored rule and delimit where it applies.'
+      rq_ids:
+      - CORE.RESEARCH.RQ.PRIMARY
+      method_ids:
+      - MP1
+    status: DRAFT
+    provenance:
+      provenance_class: DECISION
+      source_type: PROJECT_DOCUMENT
+      evidence_role: ORIENTING
+      authored_by: human
+  Method:
+  - field_id: METHOD.PLAN.DESIGN
+    value:
+      paradigm: interpretive
+      design_type: 'FICTIONAL: conceptual analysis'
+      approach: qualitative
+      phases:
+      - id: MP1
+        name: Contrast with the two nearest constructs
+        description: Read each account for how it classifies a rule, then contrast component by component.
+        objective_ids:
+        - OBJ1
+    status: DRAFT
+    provenance:
+      provenance_class: DECISION
+      source_type: PROJECT_DOCUMENT
+      evidence_role: ORIENTING
+      authored_by: human
+  Evidence:
+  - field_id: CORE.EVIDENCE.E1
+    value: 'FICTIONAL evidence: neither synthetic account names a category for user-written, unregistered
+      rules.'
+    status: DRAFT
+    source_ids:
+    - SRC-2
+    - SRC-4
+    supports_claim_id: CORE.CLAIM.C1
+    claim_strength_cap: FULL
+    provenance:
+      provenance_class: SOURCE
+      source_type: PUBLISHED_LITERATURE
+      evidence_role: SUPPORTING
+      authored_by: human
+  Claim:
+  - field_id: CORE.CLAIM.C1
+    value: 'FICTIONAL claim: a user-written, unregistered schedule is best described as a third kind of
+      rule.'
+    status: DRAFT
+    provenance:
+      provenance_class: INFERENCE
+      source_type: PROJECT_DOCUMENT
+      evidence_role: ORIENTING
+      authored_by: human
+ecosystem_positions: []
+review_records: []
+mappings: []
+lock:
+  locked: false

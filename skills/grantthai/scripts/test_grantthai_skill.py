@@ -21,9 +21,20 @@ sys.path.insert(0, str(SKILL / "scripts"))
 
 import grantthai_skill as gs  # noqa: E402
 from grantthai import api_py as api  # noqa: E402
+from grantthai.core import project as P  # noqa: E402
+from grantthai.routes import registry as R  # noqa: E402
 
 EXAMPLE = ROOT / "examples/lecturer-no-ai/project.yaml"
+GOLDEN = ROOT / "tests/golden/routes/lecturer-no-ai/NRIIS_SUBMISSION.md"
 AS_OF = "2026-09-25"
+# Routes whose files load in every wave (the article route file is another
+# work package's); resolution and new_work read every route's defaults.
+TWO_ROUTES = ("nriis-proposal", "concept-note")
+
+
+@pytest.fixture
+def two_routes(monkeypatch):
+    monkeypatch.setattr(R, "route_ids", lambda include_planned=False: TWO_ROUTES)
 
 
 def _answers_from_example() -> dict:
@@ -62,7 +73,8 @@ def test_every_rule_has_a_thai_explanation():
     th = gs.load_rules_th()
     rules = yaml.safe_load((ROOT / "validators/rules.yaml").read_text(encoding="utf-8"))["rules"]
     v01 = {r["id"] for r in rules if r.get("ships") == "v0.1"}
-    missing = sorted((v01 | {"SCHEMA"}) - set(th))
+    art = {r["id"] for r in rules if r["id"].startswith("ART")}          # the article route's family
+    missing = sorted((v01 | art | {"SCHEMA", "RT001", "RT002"}) - set(th))
     assert not missing, f"no Thai explanation for {missing}"
     assert all(th[k].strip() for k in th)
 
@@ -162,3 +174,75 @@ def test_project_form_profile_is_applied(tmp_path):
     gs.apply_answers(api, proj, {"project": {"project_id": "FICTIONAL-FP", "form_profile": "research@sd1-2566"},
                                  "answers": []}, init=True)
     assert api.load(proj)["form_profile"] == "research@sd1-2566"
+
+
+# ------------------------------------------------------------ v0.3 router
+
+def test_report_on_legacy_file_builds_nriis_route_byte_identical(tmp_path):
+    project = tmp_path / "project.yaml"
+    project.write_bytes(EXAMPLE.read_bytes())
+    r = gs.report(api, project, as_of=AS_OF)
+    assert r["route"] == "nriis-proposal" and r["candidates"] == []
+    assert Path(r["output"]).read_text(encoding="utf-8") == GOLDEN.read_text(encoding="utf-8")
+    r2 = gs.report(api, project, as_of=AS_OF, route="nriis-proposal")
+    assert Path(r2["output"]).read_text(encoding="utf-8") == GOLDEN.read_text(encoding="utf-8")
+    assert [p.name for p in (tmp_path / "build").iterdir()] == ["NRIIS_SUBMISSION.md"]
+
+
+def test_report_never_picks_a_route(tmp_path, two_routes):
+    work = tmp_path / "work.yaml"
+    doc = P.migrated(P.load(EXAMPLE))
+    doc.pop("routing")
+    doc["work_type"] = "final_report"          # default route of no route
+    P.save(doc, work)
+    r = gs.report(api, work, as_of=AS_OF)
+    assert r["route"] is None and r["candidates"] == list(TWO_ROUTES) and r["output"] is None
+    assert not (tmp_path / "build").exists()
+    # the CLI path exits 2 and builds nothing (the candidate text itself is
+    # checked in-process above: a subprocess cannot see the route-list pin)
+    proc = subprocess.run([sys.executable, str(SKILL / "scripts/grantthai_skill.py"), "report",
+                           "--project", str(work), "--as-of", AS_OF], capture_output=True, text=True, cwd=tmp_path)
+    assert proc.returncode == 2, proc.stdout + proc.stderr
+    assert not (tmp_path / "build").exists()
+    # the researcher's choice, given on the command line, builds that route only
+    r = gs.report(api, work, as_of=AS_OF, route="nriis-proposal")
+    assert r["route"] == "nriis-proposal" and Path(r["output"]).name == "NRIIS_SUBMISSION.md"
+
+
+def test_apply_records_the_researchers_route_choice_only_on_work_yaml(tmp_path, two_routes):
+    work = tmp_path / "work.yaml"
+    gs.apply_answers(api, work, {"project": {"work_id": "FICTIONAL-CN", "work_type": "concept_note"},
+                                 "answers": []}, init=True)
+    doc = api.load(work)
+    assert doc["schema_version"] == "0.3.0-draft" and doc["work_type"] == "concept_note"
+    assert "routing" not in doc and "fund_binding" not in doc         # no route until the researcher chooses
+    lines = gs.apply_answers(api, work, {"project": {"route": "concept-note"}, "answers": []})
+    assert any("routing.default_route: concept-note" in x for x in lines)
+    doc = api.load(work)
+    assert doc["routing"] == {"declared_routes": ["concept-note"], "default_route": "concept-note"}
+    before_hash = __import__("grantthai.core.object_hash", fromlist=["content_sha256"]).content_sha256(doc)
+    gs.apply_answers(api, work, {"answers": []}, route="nriis-proposal")
+    doc = api.load(work)
+    assert doc["routing"]["default_route"] == "nriis-proposal"
+    assert doc["routing"]["declared_routes"] == ["concept-note", "nriis-proposal"]
+    from grantthai.core.object_hash import content_sha256
+    assert content_sha256(doc) == before_hash                         # routing is outside the hash
+    with pytest.raises(ValueError, match="needs project.route"):
+        gs.apply_answers(api, work, {"project": {"sub_profile": "thai-journal"}, "answers": []})
+    with pytest.raises(ValueError, match="unknown keys"):
+        gs.apply_answers(api, work, {"project": {"routes": ["x"]}, "answers": []})
+    # a legacy 0.2 file has no routing block: refused, never silently written
+    legacy = tmp_path / "project.yaml"
+    api.new_project(path=legacy)
+    with pytest.raises(ValueError, match="legacy"):
+        gs.apply_answers(api, legacy, {"project": {"route": "nriis-proposal"}, "answers": []})
+    assert "routing" not in api.load(legacy)
+
+
+def test_skill_md_has_route_step_and_article_track():
+    text = (SKILL / "SKILL.md").read_text(encoding="utf-8")
+    assert "### 0." in text and "grantthai route list" in text
+    assert "never" in text.lower() and "reference/interview-article.md" in text and "reference/routes.md" in text
+    assert (SKILL / "reference/interview-article.md").exists() and (SKILL / "reference/routes.md").exists()
+    for fid in ("ARTICLE.META.KIND", "ARTICLE.FRONT.AUTHORS", "ARTICLE.VENUE.TARGET", "ARTICLE.STATEMENT.AI_USE"):
+        assert fid in (SKILL / "reference/interview-article.md").read_text(encoding="utf-8"), fid

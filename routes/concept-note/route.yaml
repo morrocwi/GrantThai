@@ -1,0 +1,37 @@
+# routes/concept-note/route.yaml — the research concept-note route.
+#
+# Formerly the "one exception" of spec/contracts/one-input-one-output.md
+# (an optional secondary artifact for Citizen Mode with no eligible PI
+# partner). In v0.3 it is an ordinary route: one work object in,
+# build/RESEARCH_CONCEPT_NOTE.md out. It is NEVER submittable to any
+# funder system (ready_flag is always false, rendered as a HOLD) and never
+# replaces the NRIIS route. No budget or fund rules run on this route.
+schema: grantthai.route.v0
+id: concept-note
+version: "0.1.0-draft"
+status: draft
+title_en: "Research concept note (pre-proposal, never submittable)"
+title_th: NEEDS_INPUT
+accepts_work_types: [concept_note, research_proposal, thesis_proposal]
+default_for_work_types: [concept_note]
+needs_fund_binding: false
+output:
+  filename: RESEARCH_CONCEPT_NOTE.md
+  template: templates/research_concept_note.md.j2   # tagged output_kind: secondary_optional today; retagged route_output by the guards work package
+  renderer_version: "research_concept_note.md.j2@0.1.0"
+  contract: spec/output/research-concept-note.contract.md   # written with the renderer (article/concept-note engine work package)
+placement: routes/concept-note/placement.yaml
+sub_profiles: null
+required_fields: [CORE.GENERAL.TITLE_TH, CORE.RESEARCH.PROBLEM, CORE.RESEARCH.RQ.PRIMARY]
+rules:
+  include_families: [SCHEMA, S, R, CH, X, AI, FW]   # S: S001 reads required_fields above; S002-S008, S011 check links and sources
+  exclude_ids: [FW002]
+readiness:
+  sections: [block, review, needs_input, needs_verification, ai_drafted_values, hold]
+  ready_flag: submittable                            # always rendered false with a HOLD: a concept note enters no system
+  always_hold: true
+disclosure_blocks: [notice, route_notice, ai_use_declaration, core_epistemic_note]
+route_notice_en: "A concept note is a pre-proposal working document. It is not a submission and enters no funder system."
+needs_verification_policy:
+  thai_label_without_source: NEEDS_VERIFICATION
+advisories: [knowledge-commons]

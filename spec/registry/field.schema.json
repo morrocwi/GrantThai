@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/morrocwi/GrantThai/spec/registry/field.schema.json",
   "title": "GrantThai core field registry record (one line of registry/fields.jsonl)",
-  "description": "Draft. One authoring field. Re-keyed from the handoff package core/05 (founder-owned, K13) per the re-key table in registry/README.md. label_en is a descriptive label from core/05, NOT an official NRIIS label; label_th stays NEEDS_VERIFICATION until captured from a public call or TOR document (K14). guidance replaces core/05's ai_prompt. Every record declares one origin (core/02 §2): NRIIS_NATIVE fields are rendered onto an NRIIS tab; every other origin is never presented as an NRIIS field (core/02 rule R4) and appears only in the output's 'Project records not placed on any NRIIS tab' appendix.",
+  "description": "Draft. One authoring field. Re-keyed from the handoff package core/05 (founder-owned, K13) per the re-key table in registry/README.md. label_en is a descriptive label from core/05, NOT an official NRIIS label; label_th stays NEEDS_VERIFICATION until captured from a public call or TOR document (K14). guidance replaces core/05's ai_prompt. Every record declares one origin (core/02 §2): NRIIS_NATIVE fields are rendered onto an NRIIS tab; every other origin is never presented as an NRIIS field (core/02 rule R4) and appears only in the output's 'Project records not placed on any NRIIS tab' appendix. v0.3 (router): every record also declares scope (shared: authored once, placed by more than one route; route: exists for one route's output) and route_ids (the routes whose body places it), both written by tools/registry/partition.py from routes/INDEX.yaml. origin keeps its NRIIS meaning (R4 still holds on the NRIIS route); the new origin VENUE_NATIVE marks a field that exists because a publication venue type asks for it (the academic-article route) and is never an NRIIS field.",
   "type": "object",
   "required": [
     "field_id",
@@ -23,13 +23,15 @@
     "guidance",
     "authored_by",
     "derived_from",
-    "markers"
+    "markers",
+    "scope",
+    "route_ids"
   ],
   "properties": {
     "field_id": {
       "type": "string",
-      "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE)(\\.[A-Z0-9_]+){2,}$",
-      "description": "<NS>.<GROUP>[.<SUB>].<NAME>. Never reused; renames go through registry/aliases.yaml."
+      "pattern": "^(PROFILE|FUND|CORE|METHOD|WORK|GEO|BUDGET|COMP|READY|RESULTS|DOC|AUDIT|BRIDGE|ARTICLE)(\\.[A-Z0-9_]+){2,}$",
+      "description": "<NS>.<GROUP>[.<SUB>].<NAME>. Never reused; renames go through registry/aliases.yaml. ARTICLE.* is the academic-article route's own namespace (scope: route)."
     },
     "source_field_id": {
       "type": "string",
@@ -37,7 +39,7 @@
     },
     "section": {
       "type": "string",
-      "description": "core/05 section name; mapped to an NRIIS tab by mappings/nriis/section_to_tab.yaml."
+      "description": "core/05 section name; mapped to an NRIIS tab by mappings/nriis/section_to_tab.yaml. A route-only section (e.g. Article) is listed under not_on_tab in that table."
     },
     "origin": {
       "type": "string",
@@ -46,9 +48,10 @@
         "FUND_PROFILE",
         "AUTHORING_CORE",
         "DERIVED",
-        "RECOMMENDED_EXTENSION"
+        "RECOMMENDED_EXTENSION",
+        "VENUE_NATIVE"
       ],
-      "description": "core/02 §2 origin types. NRIIS_NATIVE: a field or structure of the NRIIS proposal workflow (observed on the form or described by a public document; still NEEDS_VERIFICATION). FUND_PROFILE: a requirement of one funding call, agency, fiscal year or scheme. AUTHORING_CORE: an internal research-design field used to produce stronger NRIIS content. DERIVED: calculated from other fields. RECOMMENDED_EXTENSION: useful structure not confirmed as an NRIIS field. Only NRIIS_NATIVE records get an NRIIS.* record (tools/registry/build_nriis_fields.py)."
+      "description": "core/02 §2 origin types. NRIIS_NATIVE: a field or structure of the NRIIS proposal workflow (observed on the form or described by a public document; still NEEDS_VERIFICATION). FUND_PROFILE: a requirement of one funding call, agency, fiscal year or scheme. AUTHORING_CORE: an internal research-design field used to produce stronger NRIIS content. DERIVED: calculated from other fields. RECOMMENDED_EXTENSION: useful structure not confirmed as an NRIIS field. Only NRIIS_NATIVE records get an NRIIS.* record (tools/registry/build_nriis_fields.py). VENUE_NATIVE (v0.3): a field that exists because a publication venue type (journal, conference) asks for it; it belongs to a non-NRIIS route, is never rendered onto an NRIIS tab, and every venue-specific fact about it stays NEEDS_VERIFICATION until the researcher supplies the venue's own document."
     },
     "origin_basis": {
       "type": "string",
@@ -259,8 +262,8 @@
     },
     "derived_from": {
       "type": "string",
-      "pattern": "^(core/0[1-6]|sourcedoc/SD-[0-9]+)@sha256:[a-f0-9]{64}$",
-      "description": "Lineage: a handoff-package core file, or a public source document (docs/sources.md), with its sha256."
+      "pattern": "^(core/0[1-6]|sourcedoc/SD-[0-9]+)@sha256:[a-f0-9]{64}$|^route/[a-z][a-z0-9]*(-[a-z0-9]+)*@[0-9]+\\.[0-9]+\\.[0-9]+(-draft)?$",
+      "description": "Lineage: a handoff-package core file, or a public source document (docs/sources.md), with its sha256. route/<route-id>@<route version>: a field that exists for one output route (VENUE_NATIVE), traced to routes/<route-id>/route.yaml at that version."
     },
     "markers": {
       "type": "array",
@@ -287,10 +290,28 @@
       "type": "array",
       "items": {
         "type": "string",
-        "pattern": "^CX-[0-9]{2}$"
+        "pattern": "^CX-([0-9]{2}|7SSA-[0-9]{2})$"
       },
       "uniqueItems": true,
       "description": "Open contradictions touching this field (registry/contradictions.yaml, docs/contradictions.md). The output prints them."
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "shared",
+        "route"
+      ],
+      "description": "shared: in routes/INDEX.yaml partition.shared_core, authored once and placed by more than one route. route: placed by exactly one route. Written by tools/registry/partition.py (--check in CI)."
+    },
+    "route_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+      },
+      "description": "Routes (routes/INDEX.yaml ids) whose output body places this field. Invariant: scope shared <=> more than one route id."
     }
   },
   "additionalProperties": false,

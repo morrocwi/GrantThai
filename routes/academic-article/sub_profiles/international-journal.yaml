@@ -1,0 +1,43 @@
+# routes/academic-article/sub_profiles/international-journal.yaml — the
+# default sub-profile of the academic-article route (schema
+# grantthai.sub_profile.v0, spec/routes/sub_profile.schema.json).
+#
+# STATUS: NEEDS_VERIFICATION throughout. This is NOT a journal profile.
+# GrantThai ships no venue registry and names no journal, publisher, index
+# or fee. A sub-profile only says which of GrantThai's own descriptive
+# checks apply by default (which abstract languages ART001 looks at, the
+# keyword band ART002 uses) and every default here is `proposed_default`.
+# A venue fact enters only through the researcher's ARTICLE.VENUE.TARGET
+# record, each stated requirement with the source they supplied (ART010);
+# such an item overrides the defaults below.
+schema: grantthai.sub_profile.v0
+version: "0.1.0-draft"
+route: academic-article
+id: international-journal
+title_en: "International journal (English manuscript) — GrantThai defaults, not a venue profile"
+title_th: NEEDS_INPUT
+status: NEEDS_VERIFICATION
+# ART001 looks for an abstract in each `abstract` language; ART002 counts
+# keywords in each `keywords` language. No public document was read for
+# these defaults: nothing here is a venue fact.
+languages:
+  title: [en]
+  abstract: [en]
+  keywords: [en]
+requirements:
+  - item: keyword_count_min
+    value: 3
+    status: NEEDS_VERIFICATION
+    basis: proposed_default
+    note_en: "proposed_default: corpus-100 FWP-12 shows keyword presence in 50/100 funded final reports, not a count, and not for articles. A VENUE.stated_requirements item with a source overrides this band (ART002)."
+  - item: keyword_count_max
+    value: 6
+    status: NEEDS_VERIFICATION
+    basis: proposed_default
+    note_en: "Upper end of the same proposed_default band; NEEDS_VERIFICATION."
+notes:
+  - "English title, abstract and keywords are proposed_default, NEEDS_VERIFICATION against the venue's own author guidelines."
+  - "Statements the overview lists as commonly expected (presence only, no wording): ethics, AI use, data availability, conflict of interest, funding. Basis: proposed_default; GenAI research-ethics guideline 2569 (National Research Council of Thailand) p.27, authors check the journal's own GenAI rules first. NEEDS_VERIFICATION."
+  - "No length targets are shipped: W101/W102 apply to article fields only with a sourced target (spec §4.3)."
+  - "No reference style is shipped: the researcher declares a label in ARTICLE.META.REFERENCE_STYLE; GrantThai never reformats citations."
+  - "Defaults only. Word limits, indexing, scope, fees and review time of any venue are NEEDS_VERIFICATION unless the researcher supplies the venue's own document."

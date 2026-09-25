@@ -1,0 +1,101 @@
+# routes/academic-article/placement.yaml — field -> manuscript-overview
+# section order for the academic-article route (schema
+# grantthai.placement.v0, spec/routes/placement.schema.json). The analogue of
+# mappings/nriis/section_to_tab.yaml for this route.
+#
+# The section names are GrantThai's own descriptive headings for a
+# manuscript overview (IMRaD plus statements). They are NOT any journal's
+# headings: every venue's own structure, word limits and statement wording
+# are NEEDS_VERIFICATION until the researcher supplies that venue's current
+# author guidelines (ARTICLE.VENUE.TARGET, with a source per item).
+#
+# Placement rules:
+# - A field listed here prints in this order under its section. A field of
+#   the work object that is not listed prints under "Records not placed in
+#   the manuscript overview" (NOT_PLACED), never silently dropped.
+# - `shared: true` marks a field of the shared core (registry scope: shared)
+#   that this route reads as-is; the value is identical in every route built
+#   from the same object.
+# - `render_from` is informational: the chain records the researcher writes
+#   the section FROM. GrantThai never composes the section text.
+# - `fallback_copy_from` names the shared field whose value is copied (never
+#   composed) when the route field is empty; the output says so.
+schema: grantthai.placement.v0
+version: "0.1.0-draft"
+route: academic-article
+status_marker: NEEDS_VERIFICATION
+not_placed_policy: appendix   # every other filled registry field is listed in a "records not placed" appendix, never dropped silently
+# Sections print in file order.
+sections:
+  - id: front_matter
+    title_en: "Front matter"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.META.KIND}
+      - {field_id: ARTICLE.META.LANGUAGE}
+      - {field_id: ARTICLE.META.TITLE_TH, fallback_copy_from: CORE.GENERAL.TITLE_TH}
+      - {field_id: ARTICLE.META.TITLE_EN, fallback_copy_from: CORE.GENERAL.TITLE_EN}
+      - {field_id: ARTICLE.FRONT.AUTHORS}
+      - {field_id: ARTICLE.FRONT.CONTRIBUTIONS}
+      - {field_id: CORE.GENERAL.KEYWORDS_TH, shared: true}
+      - {field_id: CORE.GENERAL.KEYWORDS_EN, shared: true}
+  - id: abstract
+    title_en: "Abstract"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.FRONT.ABSTRACT_TH}
+      - {field_id: ARTICLE.FRONT.ABSTRACT_EN}
+  - id: body
+    title_en: "Body"
+    title_th: NEEDS_INPUT
+    note: "IMRaD sections for kind empirical_research; ARTICLE.BODY.SECTIONS for review, conceptual, case_study, short_communication and other (rule ART003)."
+    fields:
+      - {field_id: ARTICLE.SECTION.INTRODUCTION, render_from: [CORE.RESEARCH.PROBLEM, CORE.RESEARCH.GAP, CORE.RESEARCH.THEORETICAL_FOUNDATIONS]}
+      - {field_id: ARTICLE.SECTION.METHODS, render_from: [METHOD.PLAN.DESIGN, METHOD.PLAN.POPULATION, METHOD.PLAN.SAMPLE, METHOD.PLAN.INSTRUMENTS, METHOD.PLAN.DATA_COLLECTION, METHOD.PLAN.ANALYSIS]}
+      - {field_id: ARTICLE.SECTION.RESULTS, render_from: ["chain:Evidence"]}
+      - {field_id: ARTICLE.SECTION.DISCUSSION, render_from: ["chain:Claim", CORE.RESEARCH.THEORETICAL_FOUNDATIONS]}
+      - {field_id: ARTICLE.SECTION.CONCLUSION, render_from: ["chain:Claim"]}
+      - {field_id: ARTICLE.SECTION.LIMITATIONS, render_from: [METHOD.PLAN.QUALITY]}
+      - {field_id: ARTICLE.BODY.SECTIONS}
+  - id: ssa_records
+    title_en: "7SSA structure records"
+    title_th: NEEDS_INPUT
+    note: "Shown only when ARTICLE.SSA.ARTICLE_TYPE is set or a 7SSA structure profile is selected (routes/academic-article/profiles/); otherwise a filled record here is listed under records not placed, never dropped. The 7SSA fields are GrantThai RECOMMENDED_EXTENSION fields from the founder-authored 7SSA master schema v1.0, not venue fields."
+    when: {field_id: ARTICLE.SSA.ARTICLE_TYPE, in: [conceptual, theory, philosophical, legal, integrative_review, formal_conceptual, cs_sok, policy, other], or_structure_profile_selected: true}
+    fields:
+      - {field_id: ARTICLE.SSA.ARTICLE_TYPE}
+      - {field_id: ARTICLE.SSA.GAP, render_from: [CORE.RESEARCH.GAP]}
+      - {field_id: ARTICLE.SSA.CONTRIBUTION, render_from: [CORE.RESEARCH.INNOVATION]}
+      - {field_id: ARTICLE.SSA.BEFORE_AFTER}
+      - {field_id: ARTICLE.STATEMENT.OTHER}
+  - id: statements
+    title_en: "Statements"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.STATEMENT.ETHICS, render_from: [METHOD.PLAN.ETHICS, COMP.STANDARD.HUMAN]}
+      - {field_id: ARTICLE.STATEMENT.AI_USE}
+      - {field_id: ARTICLE.STATEMENT.DATA_AVAILABILITY}
+      - {field_id: ARTICLE.STATEMENT.CONFLICT_OF_INTEREST}
+      - {field_id: ARTICLE.STATEMENT.FUNDING}
+      - {field_id: ARTICLE.BACK.ACKNOWLEDGEMENTS}
+  - id: figures_tables
+    title_en: "Figures and tables"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.BODY.FIGURES_TABLES}
+  - id: references
+    title_en: "References"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.META.REFERENCE_STYLE}
+      - {field_id: CORE.NARRATIVE.REFERENCES, shared: true}
+  - id: venue
+    title_en: "Target venue (researcher-supplied, NEEDS_VERIFICATION)"
+    title_th: NEEDS_INPUT
+    note: "When the TOKE field RESULTS.PATHWAY.ACADEMIC_PATHWAY is registered (scope shared), it is placed here next to ARTICLE.VENUE.TARGET (spec §2.4). Not listed until it exists in registry/fields.jsonl."
+    fields:
+      - {field_id: ARTICLE.VENUE.TARGET}
+# Shared-core records this route reads but does not place in a section:
+# they print in the appendix "Shared records read by this route" so the
+# researcher can see what the manuscript rests on.
+appendix_shared: [PROFILE.TEAM.MEMBERS, CORE.RESEARCH.PROBLEM, CORE.RESEARCH.GAP, CORE.RESEARCH.RQ.PRIMARY, CORE.RESEARCH.OBJECTIVES, METHOD.PLAN.DESIGN, METHOD.PLAN.ETHICS, COMP.STANDARD.HUMAN]

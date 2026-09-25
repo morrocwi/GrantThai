@@ -1,0 +1,12 @@
+# Seeded bad fixture (schema-lint guard): a placement file in the old
+# shipped shape (`section:` keys, `section_order`, no not_placed_policy).
+schema: grantthai.placement.v0
+version: "0.1.0-draft"
+route: bad-route
+section_order: [FRONT_MATTER]
+sections:
+  - section: FRONT_MATTER
+    title_en: "Front matter"
+    title_th: NEEDS_INPUT
+    fields:
+      - {field_id: ARTICLE.META.KIND}

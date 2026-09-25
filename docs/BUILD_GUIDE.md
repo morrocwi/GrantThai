@@ -263,7 +263,8 @@ in `docs/deviations.md`):
   and order).
 - **Lifecycle.** The core/04 project lifecycle (20 states, V-L01–V-L06:
   certification, contract change control, extension, progress and final
-  reports, 5-year utilization reporting) as `spec/common/lifecycle.yaml`,
+  reports, 5-year utilization reporting) as `spec/common/lifecycle.yaml`
+  (planned, not present),
   or an explicit decision that it stays out of scope.
 - **Writing layer.** core/02 §4A.2 compression targets, §4B section writing
   intent and micro-templates, §4E section purpose matrix and §15
@@ -300,7 +301,8 @@ strength and adds a `hold_reason` instead (`spec/common/review_gates.yaml`).
 ## v0.3 — optional AI assist
 
 **Files to create:** `src/grantthai/assist/*` (`ask`, `propose-mapping`,
-`find-gaps`, `search-terms`, `draft <FIELD_ID>`), `examples/citizen-ai-assisted/`,
+`find-gaps`, `search-terms`, `draft <FIELD_ID>`), `examples/citizen-ai-assisted/`
+(planned, not present),
 populate `spec/common/parity.yaml` with a tested human equivalent per AI
 feature, enable `.github/workflows/parity.yml` (currently `if: false`).
 
@@ -310,6 +312,188 @@ X002/X003 catch misuse; every AI feature has a tested human equivalent.
 
 **Do NOT:** let anything in `assist` import into `core`/`validators`/etc.
 (one-way dependency only — CI already enforces the reverse direction).
+
+**AI-use ceiling (landed early, unreleased).** Every AI feature, in this
+phase and every other, stays under `docs/policy/ai-use-ceiling.md`, built
+on the GenAI guideline 2569 (`docs/sources.md`). What exists and must be
+kept when `assist` is built:
+
+- `authoring.ai_use_declaration` in `spec/project/project.schema.json`
+  (tools with version, stages and purpose; influence; human verification;
+  data handling; log reference; optional risk self-assessment; the
+  researcher's confirmation). Every AI-assisted write goes through
+  `grantthai.core.project.record_ai_tool` (called by `set_field` with
+  `actor="ai_assisted"` and a `tool`), which resets the confirmation when
+  tools or stages change. An `assist` command must pass its tool name and
+  version the same way, and must never set `declaration_confirmed_by_human`.
+- The data warning (`grantthai.core.pii.DATA_WARNING_TH/EN`) is shown
+  before any data is accepted; MCP and HTTP return it on project creation.
+- Rules AI001-AI004 (`validators/rules.yaml`, REVIEW only, source
+  `docs/policy/ai-use-ceiling.md`; the rule schema forbids BLOCK for that
+  source). AI003 uses `grantthai.core.pii`, the same patterns as the
+  leak/PII guard.
+- Output section 4.7 (`spec/output/nriis-submission.contract.md`): the AI
+  Use Declaration, a GrantThai appendix modelled on the guideline's
+  Appendix A (p.34), never an NRIIS field. Any single risk level printed is
+  labelled GrantThai's convention.
+- Tests: `tests/test_ai_use_ceiling.py`.
+
+**Do NOT:** make an AI rule BLOCK while the guideline's binding status is
+OPEN; present the convention risk level as the guideline's; add the
+declaration to an NRIIS tab; name the guideline's drafting committee.
+
+## v0.3 router — one work object, many routes (unreleased, landed 2026-09-25)
+
+**Founder reframe (binding, verbatim):** "การลงใน NRIIS ไม่ใช่แกนหลักอีกต่อไป
+แต่เป็นแค่ทางเลือกหนึ่งของ router เพราะเราจะเปิดให้ตั้งแต่การทำบทความวิชาการด้วย" —
+entering NRIIS is no longer the core; it is one option of a router, because
+GrantThai opens to academic articles as well. "Router" here means a
+**deterministic output route chosen by a person**, never an AI decision
+(`docs/deviations.md`, K-R1). Design record: `docs/design/PLAN.md` §N.
+
+**What exists (files):**
+- Input: `spec/work/work.schema.json` 0.3.0-draft (`work_id`, `work_type`,
+  `routing`, optional `fund_binding`); a superset of `project.yaml` 0.2.
+  Legacy files are read unchanged as `work_type: research_proposal`,
+  `routing.default_route: nriis-proposal`. `spec/common/object-hash.md`
+  excludes `routing` from `content_sha256` (K-R3).
+- Router: `routes/INDEX.yaml`, `routes/nriis-proposal/route.yaml` (wraps
+  the existing NRIIS assets in place, nothing moved),
+  `routes/academic-article/{route,placement}.yaml` +
+  `sub_profiles/{thai-journal,international-journal}.yaml` (both
+  `NEEDS_VERIFICATION`, GrantThai defaults, not venue profiles),
+  `routes/concept-note/{route,placement}.yaml`; schemas in
+  `spec/routes/`.
+- Registry: `scope` and `route_ids` on every field
+  (`tools/registry/partition.py`), 24 `ARTICLE.*` fields with origin
+  `VENUE_NATIVE` (K-R2), every Thai label `NEEDS_VERIFICATION`.
+- Engine: `src/grantthai/routes/{registry,resolve}.py`; `core/project.py`
+  (work.yaml discovery, both-present refusal, legacy view, `migrate`);
+  `src/grantthai/validators/engine.py` takes a route, evaluates only the rule families
+  in the route's scope, reports out-of-scope rules as one INFO (RT002),
+  runs `_fund()` only when `needs_fund_binding`; family ART (ART001–ART011,
+  `validators/rules.yaml`, REVIEW except ART007 BLOCK: an AI tool listed
+  as an author); renderers `render/submission.py` (untouched),
+  `render/article.py`, `render/concept_note.py`, dispatched by
+  `render/__init__.py::build_route`.
+- Surfaces: CLI `route list|check|build`, `build --route`, `init
+  --work-type`, `migrate [--rename] [--dry-run]`; `api_py.list_routes`,
+  `check_route`, `build(route=)`, `migrate`, `new_work`; MCP
+  `grantthai_list_routes`, `grantthai_check_route`, `route` on build and
+  validate; HTTP `GET /routes`, `POST /projects/{id}/routes/{route}/check`,
+  `route` on build; skill step 0 "choose the route with the researcher".
+- Guards: `tools/ci/check_one_output.py` (one template and one unique
+  output filename per route, contract cross-references, runtime
+  one-file-per-build check on every shipped example, three seeded bad
+  fixtures) and `tools/ci/check_notice.py` (NOTICE on body line 1 of every
+  route template; the route notice on line 2 where declared).
+- Contract: `spec/contracts/one-input-one-output.md` 0.3.0-draft, one
+  output per route; the concept note is a route, not an exception.
+
+**Route resolution (the tool never picks):** `--route`; else
+`routing.default_route`; else a legacy 0.2 file → `nriis-proposal`; else
+the one route in `routing.declared_routes` (several declared: exit 2
+listing them); else, only when nothing is declared, the single route whose
+`default_for_work_types` lists the `work_type`;
+else exit 2 with the candidates (`AmbiguousRoute`; MCP and HTTP return the
+list). A directory with both `work.yaml` and `project.yaml` exits 2.
+
+**Acceptance:**
+- **AT-R1** `examples/lecturer-no-ai` and `examples/demo-seedbank` build
+  byte-identical `NRIIS_SUBMISSION.md` through `build`, `build --route
+  nriis-proposal` and `route build`, against the golden snapshot taken
+  before the change (`tests/golden/routes/`).
+- **AT-R2** the fictional article example builds exactly one
+  `build/ACADEMIC_ARTICLE.md` with the NOTICE on line 1, BLOCK = 0 and the
+  seeded ART findings, deterministic across two runs.
+- **AT-R3** one object builds `NRIIS_SUBMISSION.md` and
+  `ACADEMIC_ARTICLE.md` in two invocations; each creates one file and
+  leaves the other byte-identical; shared-core values are identical in
+  both; editing `routing` does not change `content_sha256`.
+- Every guard passes on the tree and fails on its seeded fixtures
+  (`bash tools/ci/run_all_guards.sh`), run once at the end, not per edit.
+
+**Do NOT:** let any surface default the route when the resolution is
+ambiguous; name a journal, an index, a fee or a word limit anywhere (a
+venue fact enters only through `ARTICLE.VENUE.TARGET` with the
+researcher's source, ART010); let `manuscript_ready` read as accepted or
+publishable; make any ART rule BLOCK on a journal fact; compose section
+text; move the NRIIS assets under `routes/` (deferred, needs its own
+decision); change the NOTICE constant (K-R6 open); reuse the word "route"
+for the TOKE infrastructure advisory (that command is `advise infra`, not
+built here).
+
+**Open founder decisions:** K-R4 (file name `work.yaml` vs keep
+`project.yaml`), K-R5 (output name and whether both sub-profiles ship),
+K-R6 (NOTICE wording), K-R7 (next routes: thesis proposal, conference
+abstract, final report; whether a dated, human-checked venue profile
+should ever exist), K-R8 (router first, TOKE rebased onto it).
+
+### v0.3 router: 7SSA structure profiles (academic-article; unreleased)
+
+Founder request (2026-09-25): "ให้ router ใช้เทมเพลทนี้เมื่อต้องทำงานประเภทนี้" —
+the router uses the 7SSA template for this kind of work. 7SSA (Seven-Section
+Scholarly Architecture) comes from the founder-authored 7SSA master schema
+v1.0 and the GLOSA-7SSA LaTeX template (registered in glosa). It is a third
+axis of the academic-article route next to the sub-profile: how the body is
+arranged, not which venue.
+
+**Deliverables (S1 data, S2 render):**
+- `routes/academic-article/profiles/`: `7ssa-world`, `7ssa-thai-7`,
+  `7ssa-thai-5`, `7ssa-thai-4` and `INDEX.yaml` (sectors S1-S7, their slots
+  with required/optional, the fields they read, writing order, compression
+  rules A-D, eight article-type overlays);
+  `spec/routes/structure_profile.schema.json`, linted by
+  `tools/ci/check_schema_lint.py`.
+- Registry: `ARTICLE.SSA.ARTICLE_TYPE`, `.GAP`, `.CONTRIBUTION`,
+  `.BEFORE_AFTER`, `ARTICLE.STATEMENT.OTHER` (`RECOMMENDED_EXTENSION`);
+  `ssa_sector` / `ssa_slot` on `ARTICLE.BODY.SECTIONS` items.
+- Selection: `routing.structure_profiles` (outside `content_sha256`) or
+  `--structure-profile`; the router lists candidates when `work_type` is
+  `academic_article` and `ARTICLE.SSA.ARTICLE_TYPE` is one of the eight
+  types (INFO RT004). Nothing ever writes the key but the researcher.
+- Rules 7SSA-01..7SSA-10 (family SSA, REVIEW/INFO; the rule schema refuses a
+  BLOCK from a 7SSA source), each with `tests/fixtures/negative/7SSA-NN/`;
+  Thai explanations in `skills/grantthai/reference/rules-th.md`.
+- Render: `templates/article_7ssa.md.j2` (a `route_partial` included by the
+  article template, still one `ACADEMIC_ARTICLE.md`);
+  `src/grantthai/render/ssa.py` compresses 7 -> 5 -> 4 visible sections as
+  a pure function that keeps an `[S#]` marker per sector and drops no
+  researcher text.
+- Export: `grantthai build --route academic-article --format tex` writes
+  one `build/ACADEMIC_ARTICLE.tex` from `templates/tex/glosa_7ssa_v1.tex`
+  (byte-identical glosa copy, sha256 in `templates/tex/SOURCE.yaml`) through
+  `templates/tex/glosa_7ssa_v1.fillmap.yaml` (212 rows, one per `[FILL`).
+  English only; review and audit state is always `NEEDS_INPUT`; the
+  publisher-policy cells print `NEEDS_VERIFICATION`.
+- Contradictions CX-7SSA-01..12 (`docs/contradictions.md`), deviations in
+  `docs/deviations.md`.
+
+**Acceptance (`tests/test_7ssa.py`):**
+- **AT-7SSA-1** `examples/article-7ssa-fictional` builds exactly one
+  `ACADEMIC_ARTICLE.md` with seven `[S#]` markers, the NOTICE on line 1,
+  BLOCK = 0 and no 7SSA finding, byte-identical across runs.
+- **AT-7SSA-2** the same object renders as thai-7, thai-5 and thai-4 with
+  the source's headings, all seven markers, byte-identical reruns, the same
+  `content_sha256` and the same multiset of researcher strings (plus a
+  seeded property test of the compression function).
+- **AT-7SSA-3** `--format tex` writes exactly one `.tex` from the pinned
+  template and compiles with `latexmk` when it is installed (otherwise the
+  test is skipped with that reason).
+- AT-R1/R2/R3 unchanged: with no profile selected every output is
+  byte-identical to the output before 7SSA.
+
+**Do NOT:** select a profile for the researcher; use any quartile as a gate
+or readiness input; store per-sector VERIFIED status or integrity booleans;
+use an AI simulation (desk reject, red team) as a review; compute the
+source's word budget, contribution density or formula-like labels (none is
+a registered equation); write bridging prose when merging sections; edit
+the vendored LaTeX template (re-vendor and re-pin instead).
+
+**Open founder decisions** (7SSA integration spec §4.2): K-S2 (the
+eight-section world layout), K-S5 (a XeLaTeX derivative for Thai), K-S7
+(glosa schema additions), K-S8 (origin `RECOMMENDED_EXTENSION` or a new
+founder-standard origin).
 
 ## v0.4 — interfaces
 
@@ -343,9 +527,14 @@ silently editing anything.
   source would go (`docs/sources.md`).
 - Do not let AI set any field above `DRAFT`, or treat an
   `ACCEPTED_BY_REQUESTER` mapping as more than `CONTRIBUTORY` evidence.
-- Do not add a second "primary" output template — the one-input-one-output
-  contract requires exactly one (`tools/ci/check_one_output.py` enforces
-  this once templates exist).
+- Do not give a route a second template, share a template between routes,
+  or reuse an output filename across routes — the one-input-one-output
+  contract requires exactly one template and one unique output file per
+  route (`tools/ci/check_one_output.py` enforces this, with three seeded
+  bad fixtures).
+- Do not let a tool or an AI pick the output route; the route is the
+  person's declaration, and an ambiguous resolution stops with the
+  candidate list.
 - Do not add AI/vendor attribution anywhere outside
   `docs/lineage.md`/the README footers, and even there, never as authorship.
 - Do not skip a phase's acceptance criteria to reach a later phase faster.

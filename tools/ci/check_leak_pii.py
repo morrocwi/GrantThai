@@ -49,14 +49,13 @@ TEXT_EXTS = {
 
 SKIP_DIRS = {".git"}
 
-EMAIL_RE = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
-# Thai mobile/landline-ish patterns: 0X-XXX-XXXX or 0XXXXXXXXX (10 digits
-# starting with 0), optionally hyphenated.
-PHONE_RE = re.compile(r"\b0\d{1,2}-?\d{3}-?\d{3,4}\b")
-THAI_ID_RE = re.compile(r"\b\d{13}\b")
-
-# Emails that are clearly placeholders/examples and must not be flagged.
-EMAIL_ALLOWLIST_DOMAINS = {"example.invalid", "example.com", "example.org", "example.net"}
+# The personal-data patterns live in one place, src/grantthai/core/pii.py,
+# shared with the validator (rule AI003). This guard runs without the
+# package installed, so it puts the checkout's src/ on the path.
+sys.path.insert(0, str(REPO_ROOT / "src"))
+from grantthai.core.pii import (  # noqa: E402
+    EMAIL_RE, PHONE_RE, THAI_ID_RE, is_real_email, thai_id_checksum_valid,
+)
 
 GENERIC_LEAK_PATTERNS = [
     ("home-path", re.compile(r"/home/[A-Za-z0-9_.\-]+")),
@@ -88,24 +87,6 @@ def load_local_denylist():
             continue
         patterns.append((f"local-denylist-{n}", re.compile(line)))
     return patterns, sources
-
-FICTIONAL_EMAIL_DOMAIN_HINT = "@example."
-
-# Dated filenames like "positions@2026-09.yaml" look like emails to a
-# naive regex; exclude common non-email file extensions as the "TLD".
-NON_EMAIL_FILE_EXTENSIONS = {
-    "yaml", "yml", "json", "md", "py", "txt", "jsonl", "html", "j2",
-    "cff", "toml", "sh", "bat", "command", "jpg", "pdf",
-}
-
-
-def thai_id_checksum_valid(digits: str) -> bool:
-    if len(digits) != 13 or not digits.isdigit():
-        return False
-    d = [int(c) for c in digits]
-    total = sum(d[i] * (13 - i) for i in range(12))
-    check = (11 - (total % 11)) % 10
-    return check == d[12]
 
 
 def is_within_negative_fixtures(rel_parts) -> bool:
@@ -156,12 +137,8 @@ def scan_pii(root: Path):
                 violations.append(f"{rel}:{lineno}: phone-number-shaped string found: {m.group(0)}")
             for m in EMAIL_RE.finditer(line):
                 email = m.group(0)
-                domain = email.split("@", 1)[1].lower()
-                tld = domain.rsplit(".", 1)[-1]
-                if domain in EMAIL_ALLOWLIST_DOMAINS or FICTIONAL_EMAIL_DOMAIN_HINT in email.lower():
-                    continue
-                if tld in NON_EMAIL_FILE_EXTENSIONS:
-                    # e.g. "positions@2026-09.yaml" is a dated filename, not an email.
+                if not is_real_email(email):
+                    # a placeholder domain, or e.g. "positions@2026-09.yaml" (a dated filename)
                     continue
                 violations.append(f"{rel}:{lineno}: email address found: {email}")
     return violations

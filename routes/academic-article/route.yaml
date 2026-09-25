@@ -1,0 +1,78 @@
+# routes/academic-article/route.yaml — the academic-article output route
+# (schema grantthai.route.v0, spec/routes/route.schema.json).
+#
+# "Route" here means a deterministic output route chosen by a person:
+# the researcher declares it in work.yaml (routing.declared_routes /
+# routing.default_route) or on the command line (--route). No AI and no
+# tool ever picks a route; when the choice is ambiguous the tool stops and
+# lists the candidates.
+#
+# This route builds exactly one file, build/ACADEMIC_ARTICLE.md: a
+# manuscript OVERVIEW arranged from the researcher's own records. GrantThai
+# never composes section text, never reformats citations and never judges
+# whether a manuscript is publishable. "manuscript_ready" means only that no
+# BLOCK finding is open; it never means accepted or publishable.
+#
+# Every journal fact is NEEDS_VERIFICATION: GrantThai ships no venue
+# registry. A venue requirement enters only through the researcher's own
+# ARTICLE.VENUE.TARGET record, each item with the source they supplied.
+schema: grantthai.route.v0
+id: academic-article
+version: "0.1.0-draft"
+status: draft
+title_en: "Academic article manuscript overview"
+title_th: NEEDS_INPUT
+accepts_work_types: [academic_article, final_report, conference_abstract]
+default_for_work_types: [academic_article]
+needs_fund_binding: false
+output:
+  filename: ACADEMIC_ARTICLE.md
+  template: templates/academic_article.md.j2
+  renderer_version: "academic_article.md.j2@0.1.0"
+  contract: spec/output/academic-article.contract.md
+placement: routes/academic-article/placement.yaml
+sub_profiles:
+  dir: routes/academic-article/sub_profiles
+  default: international-journal
+# 7SSA structure profiles (spec/routes/structure_profile.schema.json): how
+# the body is arranged (world 7, Thai 7 / 5 / 4 visible sections). A third
+# axis next to the sub-profile. Chosen by the researcher only
+# (routing.structure_profiles, outside content_sha256, or
+# --structure-profile); the router lists candidates (INFO RT004) and never
+# selects. With none selected the output is the plain overview, unchanged.
+structure_profiles:
+  index: routes/academic-article/profiles/INDEX.yaml
+  dir: routes/academic-article/profiles
+# Optional alternative output format (`build --format tex`): writes exactly
+# one build/ACADEMIC_ARTICLE.tex INSTEAD of the Markdown overview, by literal
+# replacement into a sha256-pinned copy of the glosa-registered GLOSA-7SSA
+# LaTeX template (templates/tex/SOURCE.yaml). Needs a 7SSA structure profile
+# selected by the researcher. English only (pdflatex): Thai values print a
+# NEEDS_INPUT note (docs/deviations.md).
+exports:
+  - format: tex
+    filename: ACADEMIC_ARTICLE.tex
+    template: templates/tex/glosa_7ssa_v1.tex
+    source: templates/tex/SOURCE.yaml
+    fillmap: templates/tex/glosa_7ssa_v1.fillmap.yaml
+    requires_structure_profile_family: 7ssa
+    english_only: true
+# The S001 BLOCK set for this route. Kept minimal on purpose: journal
+# requirements vary and are NEEDS_VERIFICATION, so no BLOCK here may rest on
+# a journal fact (spec §4.3). Everything else is REVIEW or NEEDS_INPUT.
+required_fields: [ARTICLE.META.KIND, ARTICLE.FRONT.AUTHORS]
+rules:
+  include_families: [SCHEMA, S, R, CH, X, AI, FW, ART, SSA, OK, E]
+  exclude_ids: [FW002]
+readiness:
+  sections: [block, review, needs_input, needs_verification, ai_drafted_values, advisories]
+  ready_flag: manuscript_ready
+disclosure_blocks: [notice, route_notice, ai_use_declaration, core_epistemic_note]
+route_notice_en: "GrantThai is not affiliated with any journal or publisher. Venue requirements are yours to confirm from the venue's own current author guidelines."
+needs_verification_policy:
+  venue_fact_without_source: NEEDS_VERIFICATION   # ART010
+  thai_label_without_source: NEEDS_VERIFICATION
+# Route-adjacent advisories (TOKE integration, spec §2.4). Printed only in
+# the "Advisories (not decisions)" appendix and only when their own fields
+# are filled; they never change readiness. Not implemented in this wave.
+advisories: [toke-infra, knowledge-commons]
