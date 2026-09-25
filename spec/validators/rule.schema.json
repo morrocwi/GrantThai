@@ -20,7 +20,7 @@
         "required": ["family", "ships", "checks", "ids_status"],
         "properties": {
           "family": {"type": "string"},
-          "ships": {"type": "string", "enum": ["v0.1", "v0.2", "ci_only"]},
+          "ships": {"type": "string", "enum": ["v0.1", "v0.2", "v0.3", "ci_only"]},
           "checks": {"type": "string"},
           "ids_status": {"type": "string", "enum": ["enumerated", "NEEDS_INPUT", "ci_only"]}
         },
@@ -39,8 +39,8 @@
       "required": ["id", "family", "ships", "severity", "severity_basis", "description_en", "inputs", "chain_step", "source", "negative_fixture"],
       "properties": {
         "id": {"type": "string", "pattern": "^[A-Z]{1,4}[0-9]{3}$"},
-        "family": {"type": "string", "enum": ["S", "R", "W", "B", "T", "CH", "F", "ELIG", "E", "U", "P", "G", "X", "C"]},
-        "ships": {"type": "string", "enum": ["v0.1", "v0.2"]},
+        "family": {"type": "string", "enum": ["S", "R", "W", "B", "T", "CH", "F", "ELIG", "E", "U", "P", "G", "X", "C", "FW"]},
+        "ships": {"type": "string", "enum": ["v0.1", "v0.2", "v0.3"]},
         "severity": {"type": "string", "enum": ["BLOCK", "REVIEW", "INFO"]},
         "severity_basis": {"type": "string", "enum": ["plan", "proposed_default"]},
         "description_en": {"type": "string", "minLength": 1},
@@ -54,7 +54,7 @@
           "type": "object",
           "required": ["derived_from", "locator"],
           "properties": {
-            "derived_from": {"type": "string", "pattern": "^(core/0[1-6]@sha256:[a-f0-9]{64}|docs/design/PLAN\\.md)$"},
+            "derived_from": {"type": "string", "pattern": "^(core/0[1-6]@sha256:[a-f0-9]{64}|docs/design/PLAN\\.md|docs/practice/funded-work-patterns\\.md)$", "description": "docs/practice/funded-work-patterns.md = a practice pattern shared by funded final reports (corpus-100); such a rule is REVIEW or INFO only, never BLOCK."},
             "locator": {"type": "string"}
           },
           "additionalProperties": false
@@ -66,7 +66,9 @@
         },
         "notes": {"type": "string"}
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "if": {"properties": {"source": {"properties": {"derived_from": {"const": "docs/practice/funded-work-patterns.md"}}}}},
+      "then": {"properties": {"severity": {"enum": ["REVIEW", "INFO"]}}}
     }
   }
 }

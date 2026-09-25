@@ -48,7 +48,7 @@ stale_rules: []
 accepted_by_requester_mappings: []
 validation_summary:
   block: 0
-  review: 0
+  review: 1
   info: 31
 disclaimer: GrantThai is an independent, unofficial project. It is NOT affiliated with, endorsed by, sponsored by, or officially connected to NRCT, TSRI, any PMU, or NRIIS. / GrantThai เป็นโครงการอิสระ ไม่เป็นทางการ และไม่ผูกพันกับ วช. สกสว. หน่วยบริหารจัดการทุน (PMU) ใด ๆ หรือระบบ NRIIS
 ---
@@ -62,7 +62,7 @@ This file is the researcher's own information, arranged for copy/paste into NRII
 
 ## 1. Readiness summary
 
-- Findings: BLOCK 0 / REVIEW 0 / INFO 31
+- Findings: BLOCK 0 / REVIEW 1 / INFO 31
 - Submittable to a real call: n/a (fictional call). Against the fictional test profile `example/FICTIONAL_CALL@0.1` only: yes
 - Hold reasons:
   - RG0: no review record (claim strength downgraded; build is not blocked)
@@ -77,7 +77,7 @@ This file is the researcher's own information, arranged for copy/paste into NRII
 - None.
 
 ### 1.2 REVIEW findings (a person should look)
-- None.
+- **FW001** [CORE.NARRATIVE.THEORY, CORE.NARRATIVE.REFERENCES]: CORE.NARRATIVE.THEORY has content but CORE.NARRATIVE.REFERENCES is empty; 78 of 100 funded final reports carry a reference list (corpus-100 pattern FWP-06). Next step: List the works the theory and literature boxes draw on (CORE.NARRATIVE.REFERENCES), or record why there are none. Practice, not a fund rule.
 
 ### 1.3 NEEDS_INPUT (required NRIIS fields with no value)
 - None.
@@ -1085,7 +1085,7 @@ LABEL_TH: NEEDS_VERIFICATION (candidate, NEEDS_VERIFICATION: "แนวคิด
 - INPUT_CONTROL: textarea
 - DEPENDENCIES: CORE.RESEARCH.CONSTRUCTS, CORE.RESEARCH.HYPOTHESES, CORE.RESEARCH.INNOVATION, CORE.RESEARCH.FEASIBILITY
 - SOURCE_IDS: SRC-T20
-- VALIDATION: no BLOCK/REVIEW finding
+- VALIDATION: FW001 REVIEW
 - AUTHORED_BY: human (self-declared)
 
 #### PROJECT.6 Research Methodology and Procedures
@@ -1124,7 +1124,7 @@ LABEL_TH: NEEDS_VERIFICATION (candidate, NEEDS_VERIFICATION: "เอกสาร
 - INPUT_CONTROL: repeating_textarea
 - DEPENDENCIES: none
 - SOURCE_IDS: none
-- VALIDATION: no BLOCK/REVIEW finding
+- VALIDATION: FW001 REVIEW
 - AUTHORED_BY: human (self-declared)
 
 #### PROJECT.8 Related Intellectual Property Check

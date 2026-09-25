@@ -76,6 +76,10 @@ rule_families:
   ships: v0.2
   checks: classification compatibility (research issue, OECD, ISCED, problem, method)
   ids_status: enumerated
+- family: FW
+  ships: v0.3
+  checks: practice shared by funded work (CORE patterns of docs/practice/funded-work-patterns.md, REVIEW only, never BLOCK)
+  ids_status: enumerated
 - family: ECO
   ships: v0.2
   checks: ecosystem checks for declared positions only
@@ -1207,3 +1211,40 @@ rules:
     locator: 05 VAL.012; 02 §10.6 V-C03
   negative_fixture: not_evaluated_in_v0.1
   notes: A meaning comparison, not a structural check; not evaluated in v0.1 (INFO).
+- id: FW001
+  family: FW
+  ships: v0.3
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The theory box (CORE.NARRATIVE.THEORY) or the theoretical foundations
+    (CORE.RESEARCH.THEORETICAL_FOUNDATIONS) has content, but the reference list (CORE.NARRATIVE.REFERENCES)
+    is empty or not supplied. Practice, not a fund rule.
+  inputs:
+  - CORE.NARRATIVE.THEORY
+  - CORE.RESEARCH.THEORETICAL_FOUNDATIONS
+  - CORE.NARRATIVE.REFERENCES
+  chain_step: project
+  source:
+    derived_from: docs/practice/funded-work-patterns.md
+    locator: corpus-100 pattern FWP-06 (78/100; CORE)
+  negative_fixture: test:tests/test_practice_patterns.py::test_FW001_theory_without_references
+  notes: A reference list is present in 78 of the 100 funded final reports (HSRI repository 78%, PSU
+    repository 76%). REVIEW only; it never blocks, and it does not judge the references themselves.
+- id: FW002
+  family: FW
+  ships: v0.3
+  severity: REVIEW
+  severity_basis: proposed_default
+  description_en: The project has two or more objective items (CORE.RESEARCH.OBJECTIVES), but the objectives
+    narrative (CORE.NARRATIVE.OBJECTIVES) does not number them (fewer than two distinct item numbers such
+    as 1) 2), (1) (2) or 1. 2.). Practice, not a fund rule.
+  inputs:
+  - CORE.RESEARCH.OBJECTIVES
+  - CORE.NARRATIVE.OBJECTIVES
+  chain_step: Objective
+  source:
+    derived_from: docs/practice/funded-work-patterns.md
+    locator: corpus-100 pattern FWP-03 (77/100; CORE)
+  negative_fixture: test:tests/test_practice_patterns.py::test_FW002_objectives_not_numbered
+  notes: Objectives are written as a numbered list of two or more items in 77 of the 100 funded final
+    reports (HSRI repository 76%, PSU repository 82%). Thai digits count as numbers. REVIEW only.

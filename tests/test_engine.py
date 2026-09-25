@@ -83,7 +83,7 @@ def test_report_matches_schema_and_accounts_for_every_rule():
     for rid in catalog:
         rule = P.rules_catalog()["rules"][catalog.index(rid)]
         evaluated = ((rule["ships"] == "v0.1" and rid not in E.V01_NOT_EVALUATED)
-                     or rid in E.V02_EVALUATED)
+                     or rid in E.EVALUATED_AFTER_V01)
         assert evaluated != (rid in not_eval), rid       # evaluated XOR reported as not evaluated
 
 

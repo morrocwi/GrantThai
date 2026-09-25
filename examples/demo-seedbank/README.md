@@ -37,8 +37,12 @@ byte for byte what `build --as-of 2026-09-25` gives for the committed
 
 ## What the result says, and does not say
 
-- `grantthai validate`: BLOCK 0, REVIEW 0 (structure and links only). This
-  does not mean the project is sound, novel or fundable.
+- `grantthai validate`: BLOCK 0, REVIEW 1 (structure and links only). This
+  does not mean the project is sound, novel or fundable. The one REVIEW
+  finding is FW001 (unreleased, after v0.2.0): the theory box has content
+  but the reference list is empty, while 78 of 100 funded final reports
+  carry one (`docs/practice/funded-work-patterns.md`). The demo is left
+  unchanged on purpose so the finding stays visible.
 - No value is `SOURCE`; every record is `DRAFT` or `NEEDS_INPUT`; there are
   no review records and no lock, because no named human has reviewed
   anything. `authoring.mode` is `ai_assisted` and the tool is disclosed

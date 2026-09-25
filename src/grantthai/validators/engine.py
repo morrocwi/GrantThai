@@ -33,6 +33,17 @@ V01_NOT_EVALUATED = {
 
 # Rules shipped in v0.2 that this engine evaluates (not reported as INFO).
 V02_EVALUATED = frozenset({"W101", "W102"})
+# Rules shipped after v0.2 that this engine evaluates: the FW family, practice
+# shared by funded work (docs/practice/funded-work-patterns.md). REVIEW only.
+V03_EVALUATED = frozenset({"FW001", "FW002"})
+EVALUATED_AFTER_V01 = V02_EVALUATED | V03_EVALUATED
+
+# An item number in an objectives narrative: 1) 2) / (1) (2) / 1. 2. / ข้อ 1,
+# with Thai digits allowed. A decimal such as 2.5 is not an item number.
+_ITEM_NO_RE = re.compile(r"(?:\(\s*([0-9๐-๙]{1,2})\s*\)"
+                         r"|(?<![0-9๐-๙.])([0-9๐-๙]{1,2})\s*[).](?![0-9๐-๙])"
+                         r"|ข้อ(?:ที่)?\s*([0-9๐-๙]{1,2}))")
+_THAI_DIGITS = str.maketrans("๐๑๒๓๔๕๖๗๘๙", "".join(map(str, range(10))))
 
 TRUST_ORDER = ["FICTIONAL", "COMMUNITY_EXTRACTED", "HUMAN_VERIFIED", "SECOND_CHECKED"]
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$")
@@ -471,6 +482,47 @@ def _logic(c: _Ctx):
 
 
 # --------------------------------------------------------------------------
+# FW — practice shared by funded work (REVIEW only; never BLOCK)
+# --------------------------------------------------------------------------
+
+def _filled(v) -> bool:
+    if v is None:
+        return False
+    if isinstance(v, str):
+        return v.strip() not in ("", "NEEDS_INPUT", "NEEDS_VERIFICATION")
+    if isinstance(v, (list, dict)):
+        return any(_filled(x) for x in (v.values() if isinstance(v, dict) else v))
+    return True
+
+
+def item_numbers(text: str) -> set:
+    """Distinct item numbers written in `text` (1) / (1) / 1. / ข้อ 1)."""
+    out = set()
+    for m in _ITEM_NO_RE.finditer(text or ""):
+        num = next(g for g in m.groups() if g)
+        out.add(int(num.translate(_THAI_DIGITS)))
+    return out
+
+
+def _practice(c: _Ctx):
+    theory = [f for f in ("CORE.NARRATIVE.THEORY", "CORE.RESEARCH.THEORETICAL_FOUNDATIONS") if _filled(c.value(f))]
+    if theory and not _filled(c.value("CORE.NARRATIVE.REFERENCES")):
+        c.add("FW001", f"{' and '.join(theory)} has content but CORE.NARRATIVE.REFERENCES is empty; 78 of 100 "
+              "funded final reports carry a reference list (corpus-100 pattern FWP-06).",
+              theory + ["CORE.NARRATIVE.REFERENCES"],
+              "List the works the theory and literature boxes draw on (CORE.NARRATIVE.REFERENCES), or record why "
+              "there are none. Practice, not a fund rule.")
+    objs = c.items("CORE.RESEARCH.OBJECTIVES")
+    narr = c.value("CORE.NARRATIVE.OBJECTIVES")
+    if len(objs) >= 2 and isinstance(narr, str) and _filled(narr) and len(item_numbers(narr)) < 2:
+        c.add("FW002", f"There are {len(objs)} objective items, but CORE.NARRATIVE.OBJECTIVES does not number "
+              "them; 77 of 100 funded final reports list objectives as numbered items (corpus-100 pattern FWP-03).",
+              ["CORE.NARRATIVE.OBJECTIVES", "CORE.RESEARCH.OBJECTIVES"],
+              "Write the objectives as 1) 2) 3) in the same order as the objective items, so each one can be "
+              "matched to its method and output. Practice, not a fund rule.")
+
+
+# --------------------------------------------------------------------------
 # F / ELIG — the bound fund profile
 # --------------------------------------------------------------------------
 
@@ -543,6 +595,7 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
                                   "(mappings/nriis/form_profiles/) or remove it."))
     _structure(c)
     _logic(c)
+    _practice(c)
     hold, stale, trust = _fund(c)
 
     # v0.2 writing layer: W101/W102 length findings (REVIEW only, report-only).
@@ -557,7 +610,7 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
     # Account for every catalog rule not evaluated by this build (no silent skip).
     for rid in c.rule_order:
         rule = c.rules[rid]
-        if rid in V02_EVALUATED:
+        if rid in EVALUATED_AFTER_V01:
             continue
         if rid in V01_NOT_EVALUATED:
             reason = V01_NOT_EVALUATED[rid]
@@ -606,4 +659,6 @@ def explain(rule_id: str) -> dict:
         out["v0_1_note"] = V01_NOT_EVALUATED[rule_id]
     else:
         out["implemented_in_v0_1"] = out.get("ships") == "v0.1"
+    if rule_id in EVALUATED_AFTER_V01:
+        out["evaluated_by_this_build"] = True
     return out
