@@ -74,12 +74,16 @@ def test_e2e_example_builds_exactly_one_file_block_zero(tmp_path):
 def test_report_matches_schema_and_accounts_for_every_rule():
     rep = api.validate(EXAMPLE, as_of=AS_OF)
     assert P.schema_errors(rep, P.REPORT_SCHEMA_ID) == []
-    assert rep["summary"]["block"] == 0 and rep["summary"]["review"] == 0
+    assert rep["summary"]["block"] == 0
+    # v0.2: the only REVIEW findings on the (deliberately terse) example are
+    # writing-length guidance (W101/W102), never a structural or logic finding.
+    assert {f["rule_id"] for f in rep["findings"] if f["severity"] == "REVIEW"} <= {"W101", "W102"}
     catalog = [r["id"] for r in P.rules_catalog()["rules"]]
     not_eval = set(_rules(rep, "INFO"))
     for rid in catalog:
         rule = P.rules_catalog()["rules"][catalog.index(rid)]
-        evaluated = rule["ships"] == "v0.1" and rid not in E.V01_NOT_EVALUATED
+        evaluated = ((rule["ships"] == "v0.1" and rid not in E.V01_NOT_EVALUATED)
+                     or rid in E.V02_EVALUATED)
         assert evaluated != (rid in not_eval), rid       # evaluated XOR reported as not evaluated
 
 
@@ -187,7 +191,7 @@ def test_ai_draft_is_never_source_and_never_above_draft():
     with pytest.raises(ValueError):
         P.set_field(doc2, "CORE.GENERAL.TITLE_EN", "x", provenance={"authored_by": "ai_draft"})
     text, _ = __import__("grantthai.render.submission", fromlist=["render"]).render(doc2, EXAMPLE.parent, AS_OF)
-    assert "- `CORE.GENERAL.TITLE_EN`: authored_by marks an AI draft" in text
+    assert "- `CORE.GENERAL.TITLE_EN`: authored_by is `ai_draft`" in text
     assert "ai_assisted" in text
 
 
@@ -214,3 +218,18 @@ def test_hand_written_status_above_draft_is_flagged_in_output(tmp_path):
     path = _copy_example(tmp_path, mutate)
     text = api.build(path, as_of=AS_OF).read_text(encoding="utf-8")
     assert "STATUS: VERIFIED (basis: self-declared in project.yaml and NOT backed by any check" in text
+
+
+def test_worksheet_never_advises_relabelling_adopted_ai_text_as_human():
+    """Section 1.5: an unadopted ai_draft may be rewritten and set to human;
+    an adopted human_ai_assisted value is only confirmed, never relabelled."""
+    doc = P.load(EXAMPLE)
+    P.set_field(doc, "CORE.GENERAL.TITLE_EN", "AI text", actor="ai_assisted", tool="some-tool")
+    for rec, _ in P.iter_records(doc):
+        if rec.get("field_id") == "CORE.GENERAL.TITLE_EN":
+            rec["provenance"]["authored_by"] = "human_ai_assisted"
+    text, _ = __import__("grantthai.render.submission", fromlist=["render"]).render(doc, EXAMPLE.parent, AS_OF)
+    line = next(ln for ln in text.splitlines() if ln.startswith("- `CORE.GENERAL.TITLE_EN`: authored_by"))
+    assert "`human_ai_assisted`" in line
+    assert "set authored_by to human" not in line
+    assert "keep authored_by as human_ai_assisted" in line

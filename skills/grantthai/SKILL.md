@@ -60,10 +60,24 @@ Start a project in the researcher's folder:
 grantthai init project.yaml --project-id MY-PROJECT-001
 ```
 
-Only one fund profile ships in v0.1: `example/FICTIONAL_CALL@0.1`, a
+Only one fund profile ships: `example/FICTIONAL_CALL@0.1`, a
 fictional test profile. Keep it as the binding and tell the researcher
 that fund-specific checks (ceiling, eligibility) are not real-fund checks
 yet.
+
+Since v0.2 a project may also name a **form profile** (`form_profile:` at
+the top of `project.yaml`; `grantthai profiles` lists them). A form profile
+says which proposal form type the researcher is filling (for example
+`ff_full_proposal@nriis-2570`); every profile is `NEEDS_VERIFICATION`, and
+its budget rules are listed, never evaluated. Pick one only when the
+researcher names the form; otherwise leave it out.
+
+`grantthai explain FIELD_ID` shows what a box is for and a length target
+(`reference/writing.md`). Use it to ask better questions, never to write
+the researcher's content for them.
+
+Review, lock and `link` (v0.2) are for a named human at the terminal.
+You never run `review` or `lock` on the researcher's behalf.
 
 ### 2. Interview
 
@@ -153,6 +167,7 @@ depends on the date.
 | `reference/provenance.md` | how to record researcher statements, AI drafts, sources, unknowns |
 | `reference/answers-format.md` | the `answers.yaml` format for `scripts/grantthai_skill.py apply` |
 | `reference/rules-th.md` | every v0.1 rule explained in plain Thai, with how to fix it |
+| `reference/writing.md` | what each box is for, micro-templates, length targets (W101/W102, REVIEW only), completeness checklist |
 | `reference/PROMPT_PACKET.md` | paste-in prompt for chat-only AIs without tools |
 | `scripts/grantthai_skill.py` | `check`, `apply`, `report`: thin wrapper over `grantthai.api_py` |
 

@@ -115,7 +115,9 @@ contradictions:
         says: "five: GENERAL, PROJECT, WORKPLAN, UTILIZATION, ATTACHMENTS/VALIDATION."
       - source: "SD-1 (edition 2566) p15-18; SD-4 p164 and p166"
         says: "part 1 general, 2 project, 3 plan, 4 entrepreneur information (if any), 5 output/outcome/impact; SD-4 adds part 5 attachments and part 6 a validation page (its numbering differs from SD-1)."
-    current_handling: "five tabs kept (NEEDS_VERIFICATION). Entrepreneur information is placed on UTILIZATION. The validation page is not modelled (the worksheet's readiness summary plays that role). Multi-form profiles are deferred to v0.2."
+      - source: "SD-5 (FF full-proposal form, 2570) p1, p3, p6, p12"
+        says: "four parts: 1 general (p1), 2 project (p3), 3 workplan (p6), 4 outputs/outcomes/impacts (p12)."
+    current_handling: "five tabs kept (NEEDS_VERIFICATION). Entrepreneur information is placed on UTILIZATION. The validation page is not modelled (the worksheet's readiness summary plays that role). Form profiles shipped in v0.2 (mappings/nriis/form_profiles/); no profile overrides the tab order, so SD-5's four-part reading is recorded, not applied."
     affects:
       files: [mappings/nriis/section_to_tab.yaml]
       sections: [Entrepreneur]

@@ -142,3 +142,23 @@ def test_researcher_edited_ai_draft(tmp_path):
     assert p["authoring"]["mode"] == "ai_assisted"
     rep = api.validate(project, as_of=AS_OF)
     assert "SCHEMA" not in {f["rule_id"] for f in rep["findings"]}
+
+
+def test_answer_markers_keep_a_supplied_value_unverified(tmp_path):
+    proj = tmp_path / "project.yaml"
+    doc = {"project": {"project_id": "FICTIONAL-MARKERS"},
+           "answers": [{"field_id": "FUND.CALL.FISCAL_YEAR", "value": 2570, "by": "researcher",
+                        "markers": ["NEEDS_VERIFICATION"]}]}
+    gs.apply_answers(api, proj, doc, init=True)
+    rec = [r for r in api.load(proj)["fields"] if r["field_id"] == "FUND.CALL.FISCAL_YEAR"][0]
+    assert rec["value"] == 2570 and rec["markers"] == ["NEEDS_VERIFICATION"] and rec["status"] == "DRAFT"
+    with pytest.raises(ValueError):
+        gs.apply_answers(api, proj, {"answers": [{"field_id": "FUND.CALL.FISCAL_YEAR", "value": 1,
+                                                  "by": "researcher", "markers": ["VERIFIED"]}]})
+
+
+def test_project_form_profile_is_applied(tmp_path):
+    proj = tmp_path / "project.yaml"
+    gs.apply_answers(api, proj, {"project": {"project_id": "FICTIONAL-FP", "form_profile": "research@sd1-2566"},
+                                 "answers": []}, init=True)
+    assert api.load(proj)["form_profile"] == "research@sd1-2566"

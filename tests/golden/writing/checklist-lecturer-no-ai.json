@@ -1,0 +1,171 @@
+[
+  {
+    "id": "WC01",
+    "state": "PASS",
+    "field_ids": [
+      "CORE.RESEARCH.NATIONAL_NEED",
+      "CORE.RESEARCH.PROBLEM",
+      "CORE.RESEARCH.GAP",
+      "CORE.RESEARCH.RQ.PRIMARY"
+    ],
+    "check_en": "Need, problem, gap and the primary research question are all written.",
+    "evaluable": "deterministic",
+    "kind": "fields_filled"
+  },
+  {
+    "id": "WC02",
+    "state": "PASS",
+    "field_ids": [
+      "CORE.RESEARCH.OBJECTIVES"
+    ],
+    "check_en": "Every objective names the research question it answers.",
+    "evaluable": "deterministic",
+    "kind": "items_have_key"
+  },
+  {
+    "id": "WC03",
+    "state": "PASS",
+    "field_ids": [
+      "CORE.RESEARCH.OBJECTIVES"
+    ],
+    "check_en": "Every objective names the method that reaches it.",
+    "evaluable": "deterministic",
+    "kind": "items_have_key"
+  },
+  {
+    "id": "WC04",
+    "state": "PASS",
+    "field_ids": [
+      "CORE.RESEARCH.OBJECTIVES"
+    ],
+    "check_en": "Every objective names the output it produces.",
+    "evaluable": "deterministic",
+    "kind": "items_have_key"
+  },
+  {
+    "id": "WC05",
+    "state": "PASS",
+    "field_ids": [
+      "METHOD.PLAN.DESIGN",
+      "METHOD.PLAN.SAMPLE",
+      "METHOD.PLAN.INSTRUMENTS",
+      "METHOD.PLAN.DATA_COLLECTION",
+      "METHOD.PLAN.ANALYSIS",
+      "METHOD.PLAN.ETHICS"
+    ],
+    "check_en": "Design, sample, instruments, data collection, analysis and ethics are all written.",
+    "evaluable": "deterministic",
+    "kind": "fields_filled"
+  },
+  {
+    "id": "WC06",
+    "state": "PASS",
+    "field_ids": [
+      "RESULTS.CHAIN.OUTPUTS"
+    ],
+    "check_en": "Every output names the objective that produces it.",
+    "evaluable": "deterministic",
+    "kind": "items_have_key"
+  },
+  {
+    "id": "WC07",
+    "state": "PASS",
+    "field_ids": [
+      "CORE.ALIGNMENT.STATEMENT"
+    ],
+    "check_en": "The one-sentence alignment statement is written.",
+    "evaluable": "deterministic",
+    "kind": "fields_filled"
+  },
+  {
+    "id": "WC08",
+    "state": "PASS",
+    "field_ids": [
+      "CORE.NARRATIVE.SUMMARY",
+      "CORE.NARRATIVE.RATIONALE",
+      "CORE.NARRATIVE.OBJECTIVES",
+      "CORE.NARRATIVE.FRAMEWORK",
+      "CORE.NARRATIVE.THEORY",
+      "CORE.NARRATIVE.METHOD"
+    ],
+    "check_en": "The narrative boxes (summary, rationale, objectives, framework, theory, method) are all written.",
+    "evaluable": "deterministic",
+    "kind": "fields_filled"
+  },
+  {
+    "id": "WC09",
+    "state": "OPEN",
+    "field_ids": [
+      "CORE.NARRATIVE.SUMMARY",
+      "CORE.NARRATIVE.RATIONALE",
+      "CORE.NARRATIVE.METHOD",
+      "CORE.RESEARCH.OBJECTIVES",
+      "CORE.ALIGNMENT.STATEMENT"
+    ],
+    "check_en": "No narrative box or core field is outside its length target.",
+    "evaluable": "deterministic",
+    "kind": "length_within"
+  },
+  {
+    "id": "WC10",
+    "state": "PASS",
+    "field_ids": [
+      "CORE.GENERAL.TITLE_TH",
+      "CORE.GENERAL.TITLE_EN",
+      "CORE.GENERAL.KEYWORDS_TH",
+      "CORE.GENERAL.KEYWORDS_EN"
+    ],
+    "check_en": "Titles and keywords are written in both languages.",
+    "evaluable": "deterministic",
+    "kind": "fields_filled"
+  },
+  {
+    "id": "WC11",
+    "state": "HUMAN_CHECK",
+    "field_ids": [
+      "CORE.RESEARCH.NATIONAL_NEED",
+      "CORE.RESEARCH.PROBLEM",
+      "CORE.RESEARCH.GAP"
+    ],
+    "check_en": "Every factual claim in need, problem and gap has a source the reader can find.",
+    "evaluable": "human",
+    "kind": null
+  },
+  {
+    "id": "WC12",
+    "state": "HUMAN_CHECK",
+    "field_ids": [
+      "CORE.NARRATIVE.SUMMARY",
+      "CORE.NARRATIVE.RATIONALE",
+      "CORE.NARRATIVE.OBJECTIVES",
+      "CORE.NARRATIVE.FRAMEWORK",
+      "CORE.NARRATIVE.THEORY",
+      "CORE.NARRATIVE.METHOD"
+    ],
+    "check_en": "Each narrative box says only what its render_from records say; nothing new is introduced in the box.",
+    "evaluable": "human",
+    "kind": null
+  },
+  {
+    "id": "WC13",
+    "state": "HUMAN_CHECK",
+    "field_ids": [
+      "CORE.NARRATIVE.SUMMARY",
+      "CORE.NARRATIVE.RATIONALE"
+    ],
+    "check_en": "The summary and rationale read as the researcher's own words, and the person pasting them has re-read them once against the form.",
+    "evaluable": "human",
+    "kind": null
+  },
+  {
+    "id": "WC14",
+    "state": "HUMAN_CHECK",
+    "field_ids": [
+      "RESULTS.CHAIN.IMPACTS",
+      "CORE.RESEARCH.NATIONAL_NEED"
+    ],
+    "check_en": "The results chain reaches the national need: at least one impact returns to it, with an honest claim strength.",
+    "evaluable": "human",
+    "kind": null
+  }
+]

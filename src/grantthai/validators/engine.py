@@ -21,6 +21,7 @@ from typing import Any
 from grantthai.core import links
 from grantthai.core import project as P
 from grantthai.core.object_hash import content_sha256, state_sha256
+from grantthai.mapping import form_profile as FP
 
 # Rules whose ids ship in v0.1 but which this build does not evaluate, with
 # the reason printed in their INFO finding.
@@ -29,6 +30,9 @@ V01_NOT_EVALUATED = {
     "B004": "prohibited costs: spec/fund/fund-profile.schema.json has no prohibited-cost slot yet, so this rule cannot fire",
     "F004": "historical rule reuse needs rule lineage across profile versions, which v0.1 does not track (F003 still blocks a non-ACTIVE profile)",
 }
+
+# Rules shipped in v0.2 that this engine evaluates (not reported as INFO).
+V02_EVALUATED = frozenset({"W101", "W102"})
 
 TRUST_ORDER = ["FICTIONAL", "COMMUNITY_EXTRACTED", "HUMAN_VERIFIED", "SECOND_CHECKED"]
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$")
@@ -67,6 +71,9 @@ class Result:
     trust_level: str
     real_world_verified: bool
     submittable: bool
+    # v0.2: the form profile in force (grantthai.mapping.form_profile.ProfileView);
+    # the renderer reads .rendered, .tab_order, .extra_items, .budget_rules.
+    form_profile: Any = None
 
 
 def q(x) -> Decimal:
@@ -96,6 +103,19 @@ class _Ctx:
         self.source_problems = links.resolve_sources(self.doc, project_dir)
         self.fund, self.fund_id, self.fund_problems = P.load_fund_profile(self.doc)
         self.findings: list[Finding] = []
+        # v0.2 form profile (mappings/nriis/form_profiles/): absent or null =
+        # the observed form. An unknown or malformed profile id falls back to
+        # the observed form AND is reported (never a silent fallback).
+        self.profile_problem: str | None = None
+        try:
+            self.profile = FP.resolve(self.doc)
+        except FP.FormProfileNotFound:
+            self.profile = FP.view(None)
+            self.profile_problem = (f"form_profile {FP.selected(self.doc)!r} is not a shipped profile "
+                                    f"(known: {', '.join(FP.profile_ids()) or 'none'}).")
+        except FP.FormProfileError as e:
+            self.profile = FP.view(None)
+            self.profile_problem = f"form_profile {FP.selected(self.doc)!r} fails its contract: {e}"
         rules = P.rules_catalog()["rules"]
         self.rules = {r["id"]: r for r in rules}
         self.rule_order = [r["id"] for r in rules]
@@ -167,11 +187,18 @@ def _structure(c: _Ctx):
             c.add("X003", f"{fid}: an AI draft (authored_by ai_draft) is marked provenance_class SOURCE.",
                   [fid], "Record it as INFERENCE, or have the researcher adopt the wording and cite their "
                          "own source (authored_by human or human_ai_assisted).")
-    # S001 required fields
+    # S001 required fields: the registry's required flags, widened or narrowed
+    # by the project's form profile (grantthai.mapping.form_profile.ProfileView).
     for r in P.registry():
-        if r.get("required") and c.value(r["field_id"]) is None:
-            c.add("S001", f"Required field {r['field_id']} ({r['label_en']}) is missing or NEEDS_INPUT.",
-                  [r["field_id"]], f"Fill it: grantthai set {r['field_id']} <value> (or edit project.yaml).")
+        fid = r["field_id"]
+        if fid in c.profile.required and c.value(fid) is None:
+            if fid in c.profile.profile_required:
+                c.add("S001", f"Required field {fid} ({r['label_en']}) is missing or NEEDS_INPUT "
+                              f"(required by form profile {c.profile.profile_id}, NEEDS_VERIFICATION).",
+                      [fid], f"Fill it: grantthai set {fid} <value> (or edit project.yaml).")
+            else:
+                c.add("S001", f"Required field {fid} ({r['label_en']}) is missing or NEEDS_INPUT.",
+                      [fid], f"Fill it: grantthai set {fid} <value> (or edit project.yaml).")
     for rec, _ in P.iter_records(c.doc):
         fid, v = rec.get("field_id"), rec.get("value")
         reg = c.reg.get(fid)
@@ -510,21 +537,32 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
     for e in schema_errs:
         c.findings.append(Finding("SCHEMA", "BLOCK", f"project.yaml: {e}", [],
                                   "Fix project.yaml so it validates against spec/project/project.schema.json."))
+    if c.profile_problem:
+        c.findings.append(Finding("SCHEMA", "BLOCK", f"project.yaml: {c.profile_problem}", [],
+                                  "Set form_profile to a shipped profile id "
+                                  "(mappings/nriis/form_profiles/) or remove it."))
     _structure(c)
     _logic(c)
     hold, stale, trust = _fund(c)
+
+    # v0.2 writing layer: W101/W102 length findings (REVIEW only, report-only).
+    # Imported here: grantthai.guidance.writing imports this module.
+    from grantthai.guidance import writing as _W
+    c.findings.extend(_W.length_findings(c.doc))
 
     for rec, _ in P.iter_records(c.doc):
         if "HOLD_FOR_VERIFICATION" in (rec.get("markers") or []):
             hold.append(f"{rec.get('field_id')}: {rec.get('hold_reason') or 'HOLD_FOR_VERIFICATION'}")
 
-    # Account for every catalog rule not evaluated by v0.1 (no silent skip).
+    # Account for every catalog rule not evaluated by this build (no silent skip).
     for rid in c.rule_order:
         rule = c.rules[rid]
+        if rid in V02_EVALUATED:
+            continue
         if rid in V01_NOT_EVALUATED:
             reason = V01_NOT_EVALUATED[rid]
         elif rule.get("ships") != "v0.1":
-            reason = f"ships {rule.get('ships')}; not evaluated by v0.1"
+            reason = f"ships {rule.get('ships')}; not yet implemented in this build"
         else:
             continue
         c.findings.append(Finding(rid, "INFO", f"{rid} not evaluated: {reason}.", [],
@@ -549,6 +587,7 @@ def run(raw: dict, project_dir: Path | None = None, as_of: str | None = None) ->
         fund_profile=c.fund, fund_profile_id=c.fund_id, hold_reasons=hold, stale_rules=stale,
         trust_level=trust, real_world_verified=rwv,
         submittable=(summary["block"] == 0 and not hold),
+        form_profile=c.profile,
     )
 
 

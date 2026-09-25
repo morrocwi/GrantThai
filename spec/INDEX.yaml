@@ -77,6 +77,16 @@ contracts:
     version: "0.1.0-draft"
     status: draft
     needed_by: v0.1
+  - path: spec/guidance/writing_intent.schema.json
+    version: "0.2.0-draft"
+    status: draft
+    needed_by: v0.2
+    note: "Writing layer: per-field intent + completeness checklist; instance guidance/writing_intent.yaml (validated in tests/test_writing_intent.py)."
+  - path: spec/mappings/form_profile.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.2
+    note: "Form profile per proposal form type; instances mappings/nriis/form_profiles/*.yaml, all NEEDS_VERIFICATION (validated in tests/test_form_profiles.py)."
   - path: spec/registry/structured_fields.schema.json
     version: "0.2.0-draft"
     status: draft

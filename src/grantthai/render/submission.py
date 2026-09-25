@@ -18,10 +18,12 @@ import yaml
 from grantthai import __version__
 from grantthai.core import project as P
 from grantthai.core.object_hash import content_sha256, state_sha256
+from grantthai.guidance import writing as W
+from grantthai.review import records as RR
 from grantthai.validators import engine as E
 
 TEMPLATE = "nriis_submission.md.j2"
-RENDERER_VERSION = "nriis_submission.md.j2@0.1.0"
+RENDERER_VERSION = "nriis_submission.md.j2@0.2.0"
 STRUCTURED_TYPES = ("array<object>", "object", "rich_text|object")
 AI_AUTHORED = ("ai_draft", "human_ai_assisted")
 
@@ -179,14 +181,26 @@ def build_context(raw: dict, result: E.Result) -> dict:
     recs = P.records_by_id(doc)
     reg = P.registry_by_id()
     unresolved = {ref.target for ref, _ in result.link_report.unresolved}
+    gate_st = RR.gate_states(doc)
+    cur_gates = [f"{g} ({v['record'].get('independence')} review by role {v['record'].get('reviewer_role')}, "
+                 f"{v['record'].get('date')})" for g, v in gate_st.items() if v["state"] == "current"]
+    review_basis = ("named review record(s), current: " + "; ".join(cur_gates)) if cur_gates else None
     by_field: dict[str, list[str]] = {}
     for f in result.findings:
         if f.severity in ("BLOCK", "REVIEW"):
             for fid in f.field_ids:
                 by_field.setdefault(fid, []).append(f"{f.rule_id} {f.severity}")
 
-    tab_order = P.tab_mapping().get("tab_order") or []
-    nf = sorted(P.nriis_fields(), key=lambda n: (tab_order.index(n["tab"]) if n["tab"] in tab_order else 99,
+    # v0.2 form profile (grantthai.mapping.form_profile.ProfileView). With no
+    # profile (form_profile absent or null) the observed form is used as in v0.1.
+    fp = result.form_profile
+    fp_id = getattr(fp, "profile_id", None)
+    tab_order = list(fp.tab_order) if fp_id else (P.tab_mapping().get("tab_order") or [])
+    nf_all = P.nriis_fields()
+    if fp_id:
+        shown = set(fp.rendered)
+        nf_all = [n for n in nf_all if n["core_field_id"] in shown and n["tab"] in tab_order]
+    nf = sorted(nf_all, key=lambda n: (tab_order.index(n["tab"]) if n["tab"] in tab_order else 99,
                                                 n["entry_order"]))
     tabs, meta, needs_input = [], [], []
     for n in nf:
@@ -196,15 +210,20 @@ def build_context(raw: dict, result: E.Result) -> dict:
         value = None if rec is None else rec.get("value")
         prov = (rec or {}).get("provenance") or {}
         markers = sorted(set(list((rec or {}).get("markers") or [])))
+        required = bool(n["required"]) or (bool(fp_id) and cfid in fp.profile_required)
         if value is None:
-            status = "NEEDS_INPUT" if n["required"] else "EMPTY"
-            basis = "no value in project.yaml" + ("" if n["required"] else " (optional)")
-            if n["required"]:
+            status = "NEEDS_INPUT" if required else "EMPTY"
+            basis = "no value in project.yaml" + ("" if required else " (optional)")
+            if required:
                 needs_input.append(cfid)
         else:
             status = rec.get("status") or "DRAFT"
             if status in ("DRAFT", "NEEDS_INPUT"):
                 basis = "as authored; report-only validation, no review record"
+            elif status in ("STRUCTURE_CHECKED", "LOGIC_LINKED"):
+                basis = "set by the deterministic validator (grantthai link); structure/links only, not a review"
+            elif status in ("HUMAN_REVIEWED", "VERIFIED", "LOCKED") and review_basis:
+                basis = review_basis
             else:
                 # v0.1 has no review or lock: a status above DRAFT can only
                 # have been typed into project.yaml by hand. Show it, but say
@@ -233,7 +252,8 @@ def build_context(raw: dict, result: E.Result) -> dict:
             "status": status,
             "basis": basis,
             "markers": markers,
-            "required": "true" if n["required"] else "false",
+            "required": ("true" if required else "false") + (
+                f" (form profile {fp_id}, NEEDS_VERIFICATION)" if required and not n["required"] else ""),
             "input_control": n["input_control"],
             "dependencies": ", ".join(r.get("dependencies") or n.get("dependencies") or []) or "none",
             "source_ids": ", ".join((rec or {}).get("source_ids") or []) or "none",
@@ -248,7 +268,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
         meta.append({
             "nriis_field_id": n["field_id"], "field_id": cfid, "origin": n.get("origin"), "tab": n["tab"],
             "entry_order": n["entry_order"],
-            "required": n["required"], "status": status, "markers": markers,
+            "required": required, "status": status, "markers": markers,
             "source_ids": list((rec or {}).get("source_ids") or []),
             "authored_by": prov.get("authored_by"),
         })
@@ -315,7 +335,8 @@ def build_context(raw: dict, result: E.Result) -> dict:
     # Readiness summary
     marked = [(rec.get("field_id"), m, rec.get("hold_reason"))
               for rec, _ in P.iter_records(doc) for m in sorted(set(rec.get("markers") or []))]
-    ai_drafts = [rec.get("field_id") for rec, _ in P.iter_records(doc)
+    ai_drafts = [(rec.get("field_id"), (rec.get("provenance") or {}).get("authored_by"))
+                 for rec, _ in P.iter_records(doc)
                  if ((rec.get("provenance") or {}).get("authored_by")) in AI_AUTHORED]
     record_needs_input = [rec.get("field_id") for rec, _ in P.iter_records(doc)
                           if rec.get("value") is None and rec.get("field_id") not in needs_input]
@@ -364,6 +385,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
     locked = bool(lock.get("locked")) and lock.get("locked_content_sha256") == csha
     auth = raw.get("authoring") or {}
     summary = result.report["summary"]
+    hold = list(result.hold_reasons) + RR.gate_hold_reasons(raw)
     frontmatter = {
         "grantthai_version": __version__,
         "schema_version": str(raw.get("schema_version")),
@@ -375,6 +397,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
         "fund_profile": result.fund_profile_id or "NEEDS_INPUT",
         "fund_profile_trust_level": result.trust_level,
         "nriis_mapping": str(P.tab_mapping().get("observed_form")),
+        "form_profile": fp_id,
         "authoring": {"mode": auth.get("mode", "human"),
                       "tools_disclosed": list(auth.get("tools_disclosed") or []),
                       "self_declared": True},
@@ -383,7 +406,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
         "review": gates,
         "submittable": result.submittable,
         "real_world_verified": result.real_world_verified,
-        "hold_reasons": list(result.hold_reasons),
+        "hold_reasons": hold,
         "stale_rules": list(result.stale_rules),
         "accepted_by_requester_mappings": sorted(str(m.get("mapping_id") or m.get("id"))
                                                  for m in mappings if m.get("acceptance_state") == "ACCEPTED_BY_REQUESTER"),
@@ -396,7 +419,11 @@ def build_context(raw: dict, result: E.Result) -> dict:
         "project_id": str(raw.get("project_id")),
         "summary": summary,
         "submittable": result.submittable,
-        "hold_reasons": result.hold_reasons,
+        "hold_reasons": hold,
+        "form_profile_id": fp_id,
+        "profile_extra_items": list(fp.extra_items) if fp_id else [],
+        "profile_budget_rules": list(fp.budget_rules) if fp_id else [],
+        "checklist": W.checklist(raw),
         "blocks": [vars(f) for f in result.findings if f.severity == "BLOCK"],
         "reviews": [vars(f) for f in result.findings if f.severity == "REVIEW"],
         "infos": [vars(f) for f in result.findings if f.severity == "INFO"],

@@ -69,6 +69,12 @@
       },
       "additionalProperties": false
     },
+    "form_profile": {
+      "type": ["string", "null"],
+      "default": null,
+      "pattern": "^[a-z0-9_]+@[a-z0-9.\\-]+$",
+      "description": "v0.2: id of a form profile in mappings/nriis/form_profiles/ (spec/mappings/form_profile.schema.json), e.g. ff_full_proposal@nriis-2570. Absent or null = the observed form (mappings/nriis/section_to_tab.yaml). Every profile is NEEDS_VERIFICATION. Authored content: changing it changes content_sha256."
+    },
     "fields": {
       "type": "array",
       "description": "Project-level field records: every registry field whose chain_node is null (e.g. titles, keywords, team, requested budget).",

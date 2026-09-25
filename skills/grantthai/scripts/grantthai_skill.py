@@ -45,7 +45,11 @@ RULES_TH = SKILL_DIR / "reference" / "rules-th.md"
 ANSWER_KEYS = {
     "field_id", "value", "by", "provenance_class", "source_type", "evidence_role",
     "source_ids", "links", "chain_node", "supports_claim_id", "claim_strength_cap", "note",
+    "markers",
 }
+# Markers an answer may attach to a value it supplies (v0.2): a value read
+# from a public document or an unconfirmed call keeps NEEDS_VERIFICATION.
+ANSWER_MARKERS = {"NEEDS_VERIFICATION", "HOLD_FOR_VERIFICATION"}
 # Who wrote the words in `value`.
 BY_VALUES = {
     "researcher": ("human", "human"),                          # the researcher said or wrote it
@@ -139,6 +143,11 @@ def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = Fa
                         fund_profile_id=meta.get("fund_profile_id", "example/FICTIONAL_CALL@0.1"),
                         mode=meta.get("mode", "expert"), path=project_path)
     doc = api.load(project_path)
+    meta = answers_doc.get("project") or {}
+    if "form_profile" in meta:
+        # v0.2: the proposal form type (mappings/nriis/form_profiles/; every
+        # profile is NEEDS_VERIFICATION). The engine reports an unknown id.
+        doc["form_profile"] = meta["form_profile"]
     _upsert_sources(doc, answers_doc.get("sources") or [])
     source_kind = {s.get("source_id"): s.get("kind") for s in doc.get("sources") or []}
     tool = answers_doc.get("tool")
@@ -175,6 +184,11 @@ def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = Fa
                             chain_node=a.get("chain_node"), provenance=prov or None,
                             source_ids=a.get("source_ids"), links=a.get("links"),
                             tool=tool if actor == "ai_assisted" else None, save=False)
+        if a.get("markers"):
+            bad = set(a["markers"]) - ANSWER_MARKERS
+            if bad:
+                raise ValueError(f"{a['field_id']}: markers must be among {sorted(ANSWER_MARKERS)}, not {sorted(bad)}")
+            rec["markers"] = sorted(set(list(rec.get("markers") or []) + list(a["markers"])))
         if "supports_claim_id" in a:
             rec["supports_claim_id"] = a["supports_claim_id"]
         if "claim_strength_cap" in a:

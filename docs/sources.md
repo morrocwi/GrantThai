@@ -47,7 +47,7 @@ What is derived, concretely:
   rule families in `docs/design/PLAN.md` §E.
 - The schemas and YAML contracts under `spec/`, as tagged in each file.
 
-## Excluded source PDFs (SD-1 to SD-4)
+## Excluded source PDFs (SD-1 to SD-5)
 
 These documents informed the ecosystem and fund-rule background (core/03,
 core/04) and, since v0.1.0, some registry fields, candidate labels and the
@@ -67,6 +67,15 @@ taken from it is declared official or current (founder ruling K14).
 | SD-2 | คู่มือในการส่งข้อเสนอโครงการ (proposal submission manual) | หน่วยบริหารและจัดการทุนด้านการเพิ่มความสามารถในการแข่งขันของประเทศ (บพข.) | มีนาคม 2564 | `3382acc8ca922bb39a7ad0f5996b338c992abb76dbb21e10444e2511910a39dc` | NEEDS_VERIFICATION |
 | SD-3 | คู่มือการส่งข้อเสนอโครงการ (บพค.) (proposal submission manual) | as printed on PDF p1: หน่วยบริหารจัดการทุนด้านเทคโนโลยีและนวัตกรรมเพื่ออุตสาหกรรมแห่งอนาคต (บพค.) | ฉบับปรับปรุงครั้งที่ 3 (มิถุนายน 2569) | `1df827ce8af160dfb5a37e1b6c7ec3c6cc7f1b368812f73c7caf1801c6498105` | NEEDS_VERIFICATION |
 | SD-4 | University lecture slides on writing a research proposal for funding (training session handout) | a university research institute's training programme (lecturer not named here) | session dated 2566 | `29ace18ff6599bef925b254f5d879b9cc267f628b0325d5c0093fa4f49b924dc` | NEEDS_VERIFICATION |
+| SD-5 | แบบฟอร์มข้อเสนอโครงการวิจัยและนวัตกรรม ฉบับสมบูรณ์ (Full Proposal) งบประมาณเพื่อสนับสนุนงานมูลฐาน (Fundamental Fund; FF) (blank full-proposal form) | not printed on the cover; downloaded from the public NRIIS download page | ปีงบประมาณ 2570 (52 PDF pages) | `f212e61beb19aea74b203bdc80d68d935f508006358fa4bf92d50adee90621ec` | NEEDS_VERIFICATION (public download page of nriis.go.th; no licence statement, so it is cited only) |
+
+SD-5 was added in v0.2 (form profile `ff_full_proposal@nriis-2570`,
+writing-layer caps, and the demo comparison in `docs/demo/comparison.md`).
+It carries no licence statement, so it is cited by page only and short
+fragments at most; its text is never reproduced. The funded final reports
+used only as structure comparators in `docs/demo/comparison.md` (R1–R3)
+are cited there by title, first author and contract or handle; their PDFs
+are never committed either.
 
 Page numbers cited anywhere in this repository are **PDF page numbers**. In
 SD-1 and SD-4 the printed page number equals the PDF page; in SD-3 the

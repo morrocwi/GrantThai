@@ -1,6 +1,8 @@
 # `build/NRIIS_SUBMISSION.md` — output contract
 
-Draft, Phase 0 (contract only; renderer ships v0.1). This is the **one
+Draft, Phase 0 (contract only; renderer ships v0.1; v0.2 adds the
+`form_profile` key, gate hold reasons, the form-profile subsection and the
+completeness checklist, renderer `nriis_submission.md.j2@0.2.0`). This is the **one
 canonical output** of GrantThai's one-input, one-output pipeline — see
 `spec/contracts/one-input-one-output.md`.
 
@@ -18,13 +20,14 @@ canonical output** of GrantThai's one-input, one-output pipeline — see
 | `fund_profile` | string | `<agency>/<call-id>@<major.minor>` |
 | `fund_profile_trust_level` | string | `FICTIONAL` < `COMMUNITY_EXTRACTED` < `HUMAN_VERIFIED` < `SECOND_CHECKED` (ordered). The rendered value is the **lowest** trust level among the profile itself and every rule the project used |
 | `nriis_mapping` | string | `<form>@<observed-date>`; today `nrct-master-hss@NEEDS_VERIFICATION` |
+| `form_profile` | string or null | v0.2: the form profile in force (`mappings/nriis/form_profiles/`), or `null` for the observed form. Every profile is `NEEDS_VERIFICATION` |
 | `authoring` | object | `{mode: human|ai_assisted, tools_disclosed: [], self_declared: true}` — default `human` |
 | `submission_mode` | object | `{human_copy_paste: true, ai_assisted_fill: false, direct_submit: false}` — `ai_assisted_fill` becomes true only on explicit opt-in (never the package's original default of true) |
 | `human_final_approval_required` | boolean | always `true` |
 | `review` | object | `{RG0..RG4: {state, basis}}` |
 | `submittable` | boolean | true/false, **against the bound fund profile only** |
 | `real_world_verified` | boolean | false unless `fund_profile_trust_level` is at least `HUMAN_VERIFIED` and every rule used is current |
-| `hold_reasons` | array | plain strings |
+| `hold_reasons` | array | plain strings; since v0.2 also one line per review gate RG0–RG4 that is missing or stale (`spec/common/review_gates.yaml` missing-gate policy: never blocks `build`) |
 | `stale_rules` | array | rule ids |
 | `accepted_by_requester_mappings` | array | mapping ids capped at CONTRIBUTORY |
 | `validation_summary` | object | `{block: N, review: N, info: N}` — counts of `BLOCK` / `REVIEW` / `INFO` findings (the one severity vocabulary, defined in `validators/rules.yaml`) |
@@ -42,7 +45,13 @@ template puts it there.
    every `PROPOSED`/`ACCEPTED_BY_REQUESTER` mapping, every `AUTHOR_CHECKED`
    item, every `BLOCK` / `REVIEW` finding — each with a plain-language
    next step — and the count of open contradictions and conflicts
-   (section 4.4).
+   (section 4.4). When a form profile is in force (v0.2), a subsection
+   names it (`NEEDS_VERIFICATION`), lists its unmapped profile items
+   (items the form asks for that have no single registry field) and its
+   candidate budget rules, labelled "listed, not evaluated". A field the
+   profile requires prints `REQUIRED: true (form profile <id>,
+   NEEDS_VERIFICATION)`; the profile may also restrict which fields are
+   placed on a tab (`render_only`, `hide`) but never renames a tab.
 2. **Copy/paste fields by NRIIS tab.** Tabs and order come from
    `mappings/nriis/section_to_tab.yaml` (today: General, Project, Workplan,
    Utilization, Attachments). **These tab names, their order and the field
@@ -108,7 +117,16 @@ template puts it there.
       field is not `NRIIS_NATIVE` (or whose section is `not_on_tab`), with
       its `ORIGIN`, the reason it is not a box, the narrative boxes it
       feeds (`render_from`), and its value. These are never to be pasted as
-      NRIIS boxes.
+      NRIIS boxes;
+   6. **completeness checklist** (v0.2; `guidance/writing_intent.yaml`,
+      `grantthai.guidance.writing.checklist`): one row per item WC01–WCnn,
+      in id order: id, state (`PASS` | `OPEN` | `HUMAN_CHECK`), the field
+      ids it covers, and the check text in English (Thai `NEEDS_INPUT`
+      until sourced). Deterministic items are computed; `HUMAN_CHECK` items
+      are for the researcher to confirm and are never marked PASS by the
+      renderer. No timestamps. A line above the table states the file's
+      status (`DRAFT`, `NEEDS_VERIFICATION`) and that it is guidance, not
+      validation.
 
    (Version 0.1 of this contract listed an undefined "conflict log"; item 4
    is its defined replacement. See `docs/deviations.md`.)

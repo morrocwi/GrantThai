@@ -11,11 +11,15 @@ one record, so a second apply replaces the earlier value rather than
 adding a copy. Sources are matched by `source_id` the same way.
 
 ```yaml
-# Used only with --init, when project.yaml does not exist yet.
+# Used with --init, when project.yaml does not exist yet (form_profile: every run).
 project:
   project_id: "MY-PROJECT-001"
   fund_profile_id: "example/FICTIONAL_CALL@0.1"   # the only profile shipped in v0.1
   mode: expert
+  # v0.2, optional: the proposal form type, only if the researcher names it
+  # (`grantthai profiles`; every profile is NEEDS_VERIFICATION). Applied on
+  # every run, not only with --init.
+  # form_profile: "ff_full_proposal@nriis-2570"
 
 # The AI product name, as the researcher wants it disclosed.
 # Needed only when some answer has by: ai.
@@ -80,7 +84,10 @@ Keys per answer: `field_id`, `value`, `by` (all required, except that
 `ai`, with no default: when in doubt, `ai`);
 `provenance_class`, `source_type`, `evidence_role`, `source_ids`, `links`,
 `chain_node`, `supports_claim_id`, `claim_strength_cap`, `note` (a comment
-for you; not written to `project.yaml`). Any other key is refused.
+for you; not written to `project.yaml`), `markers` (v0.2: a list among
+`NEEDS_VERIFICATION`, `HOLD_FOR_VERIFICATION`, kept next to a value the
+researcher supplied, e.g. a fiscal year read from a public form that
+nobody has checked against the current call). Any other key is refused.
 
 Values are YAML: numbers stay numbers (`50000`), lists are lists, and
 structured fields are lists of objects with `id` keys (see
