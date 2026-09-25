@@ -28,8 +28,10 @@ import yaml
 from grantthai import __version__
 from grantthai.core import project as P
 from grantthai.core.object_hash import content_sha256, state_sha256
+from grantthai.render import ssa as SSA
 from grantthai.render import submission as S
 from grantthai.review import records as RR
+from grantthai.routes import structure as ST
 from grantthai.validators import article as ART
 from grantthai.validators import engine as E
 
@@ -371,9 +373,21 @@ def _env():
     return S._env()
 
 
-def render(raw: dict, project_dir: Path | None = None, *, route, sub_profile=None, as_of=None):
-    result = E.run(raw, project_dir, as_of, route=route.id, sub_profile=sub_profile)
+def ssa_context(raw: dict, recs: dict, route, result) -> dict | None:
+    """The 7SSA body context when the researcher selected a shipped
+    structure profile, else None (the plain overview, unchanged)."""
+    pid = getattr(result, "structure_profile", None)
+    if not pid or not ST.has_profiles(route) or pid not in ST.profile_ids(route):
+        return None
+    return SSA.context(raw, recs, route, pid)
+
+
+def render(raw: dict, project_dir: Path | None = None, *, route, sub_profile=None, as_of=None,
+           structure_profile=None):
+    result = E.run(raw, project_dir, as_of, route=route.id, sub_profile=sub_profile,
+                   structure_profile=structure_profile)
     ctx = common_context(raw, result, route, placement=read_placement(route))
+    ssa = ssa_context(raw, ctx["recs"], route, result)
     recs = ctx["recs"]
     kind = (recs.get(ART.KIND) or {}).get("value")
     lang = (recs.get("ARTICLE.META.LANGUAGE") or {}).get("value")
@@ -404,6 +418,10 @@ def render(raw: dict, project_dir: Path | None = None, *, route, sub_profile=Non
         "disclaimer": P.notice_constant(),
         "route_notice": route.route_notice_en or "",
     }
+    if ssa:
+        # printed only when a profile is selected, so the plain overview is unchanged
+        frontmatter["structure_profile"] = ssa["profile_id"]
+        frontmatter["structure_profile_renderer"] = ssa["renderer_version"]
     context = {k: ctx[k] for k in ("summary", "hold_reasons", "blocks", "reviews", "infos", "needs_input",
                                    "record_needs_input", "marked", "ai_drafts", "sections", "meta_yaml", "gates",
                                    "sources", "unresolved", "project_conflicts", "unmapped", "shared_records",
@@ -424,6 +442,8 @@ def render(raw: dict, project_dir: Path | None = None, *, route, sub_profile=Non
         # Route-adjacent advisories (spec §2.4) are not in this build: none of
         # their fields exists yet, so the section is absent.
         "advisories": [],
+        "ssa": ssa,
+        "ssa_section_no": len(ctx["sections"]) + 1,
     })
     template = Path(route.template).name
     text = _env().get_template(template).render(**context)

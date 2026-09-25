@@ -24,6 +24,8 @@ Guard: the data contracts hold, not only parse.
        routes/*/profiles/*.yaml             -> spec/routes/structure_profile.schema.json (7SSA;
                                                id = file name; S1-S7 covered in order;
                                                INDEX.yaml cross-checked)
+       templates/tex/*.fillmap.yaml         -> spec/routes/tex_fillmap.schema.json (7SSA tex export;
+                                               rows numbered 1..n = token_count)
        routes/*/sub_profiles/*.yaml         -> spec/routes/sub_profile.schema.json (v0.3;
                                                id must equal the file name, route the folder)
   5. Cross-file checks: every chain.yaml edge endpoint is a declared node,
@@ -593,6 +595,13 @@ def main() -> int:
             validate(violations, registry, schemas, "mappings/form_profile.schema.json", get(rel), rel)
         if rel == "guidance/writing_intent.yaml":
             validate(violations, registry, schemas, "guidance/writing_intent.schema.json", get(rel), rel)
+        if rel.startswith("templates/tex/") and rel.endswith(".fillmap.yaml"):
+            validate(violations, registry, schemas, "routes/tex_fillmap.schema.json", get(rel), rel)
+            doc = get(rel)
+            if isinstance(doc, dict):
+                rows = doc.get("rows") or []
+                if [r.get("n") for r in rows] != list(range(1, len(rows) + 1)) or doc.get("token_count") != len(rows):
+                    violations.append(f"{rel}: rows must be numbered 1..n and token_count must equal the row count")
         if rel.startswith("routes/"):
             parts = rel.split("/")
             if len(parts) == 3 and parts[2] == "route.yaml":

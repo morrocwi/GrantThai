@@ -1,0 +1,954 @@
+% ============================================================================
+% GLOSA-7SSA GLOBAL SCHOLARLY PUBLICATION SCHEMA
+% Standalone LaTeX master template
+% Version 1.0 | 2026-09-25
+%
+% PURPOSE
+% -------
+% A journal-facing + audit-facing manuscript architecture that integrates:
+%   (1) glosa's claim/evidence/provenance discipline,
+%   (2) 7SSA: Seven-Section Scholarly Architecture,
+%   (3) leading international journal declaration practices,
+%   (4) Thai NRCT guidance on ethical use of Generative AI in research,
+%   (5) cross-publisher AI, authorship, COI, funding, ethics, data/code,
+%       reproducibility and transparency statements.
+%
+% DESIGN RULE
+% -----------
+% Visible journal sections may change, but the seven intellectual functions
+% must remain. Internal glosa audit material is switchable and should normally
+% be submitted only when the target journal requests or permits it.
+%
+% POLICY NOTE
+% -----------
+% This is a conservative cross-publisher interoperability profile, NOT a claim
+% that one single universal publisher standard exists. The current instructions
+% of the target journal always override placement, wording, file-format, and
+% disclosure details.
+%
+% COMPILATION
+% -----------
+% Tested as a self-contained pdflatex document. For visible Thai script in a
+% journal-specific derivative, use XeLaTeX/LuaLaTeX and the journal's permitted
+% font setup. Thai text is therefore kept mainly in comments in this portable
+% pdflatex master.
+%
+% SOURCE ANCHORS USED IN THE DESIGN
+% ---------------------------------
+% - morrocwi/glosa current public repository:
+%   methodology/P07_ai_fill_disclosure.md
+%   methodology/P10_publish_gate.md
+%   methodology/P13_literature_review.md
+%   templates/paper/arxiv-onecol/main.tex
+%   templates/paper/arxiv-twocol/main.tex
+% - NRCT (Thailand), Ethical Application of Generative AI for Researchers,
+%   September 2026.
+% - ICMJE Recommendations, updated January 2026.
+% - Elsevier Generative AI policies for journals, updated 2026.
+% - Springer Nature AI editorial/manuscript policies, current 2026.
+% - Wiley Best Practice Guidelines on Research Integrity and Publishing Ethics.
+% - ANSI/NISO CRediT taxonomy (14 contributor roles).
+%
+% ============================================================================
+
+\documentclass[11pt]{article}
+
+% ---- Portable packages ------------------------------------------------------
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{authblk}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{ifthen}
+\usepackage{xparse}
+
+% ---- Appearance -------------------------------------------------------------
+\definecolor{Ink}{RGB}{25,25,28}
+\definecolor{Slate}{RGB}{82,88,96}
+\definecolor{Soft}{RGB}{245,245,245}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=Ink,
+  citecolor=Ink,
+  urlcolor=Slate,
+  pdftitle={GLOSA-7SSA Global Scholarly Publication Schema},
+  pdfauthor={[FILL: Human author(s)]}
+}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{0.25em}
+\setlist{nosep,leftmargin=*}
+\captionsetup{font=small,labelfont=bf}
+\titleformat{\section}{\large\bfseries}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
+
+% ---- Modes -----------------------------------------------------------------
+% submissionmode:
+%   true  = journal-facing manuscript
+%   false = internal development/audit copy
+%
+% glosaaudit:
+%   true  = append glosa claim matrix, AI-route audit, mastery gate, etc.
+%   false = omit internal audit appendices
+%
+% thaiarticle:
+%   true  = semantic flag for Thai-journal renderer; headings remain English in
+%           this pdflatex master for portability. Replace heading strings in a
+%           XeLaTeX/LuaLaTeX derivative if Thai script is required.
+\newif\ifsubmissionmode
+\newif\ifglosaaudit
+\newif\ifthaiarticle
+
+\submissionmodetrue
+\glosaaudittrue
+\thaiarticlefalse
+
+% ---- Schema metadata --------------------------------------------------------
+\newcommand{\SchemaName}{GLOSA--7SSA Global Scholarly Publication Schema}
+\newcommand{\SchemaVersion}{1.0}
+\newcommand{\SchemaDate}{2026-09-25}
+\newcommand{\TargetVenue}{[FILL: journal / venue]}
+\newcommand{\ArticleType}{[FILL: conceptual / theory / review / legal / formal / SoK / policy / other]}
+\newcommand{\TargetSystem}{[FILL: Q1 World / Thai leading journal / repository working paper]}
+\newcommand{\PolicyCheckedDate}{[FILL: YYYY-MM-DD]}
+
+% ---- Glosa tier macros -------------------------------------------------------
+\newcommand{\ThCoqc}{\textsc{Th\_coqc}}
+\newcommand{\FiniteDiag}{\textsc{finite\_diagnostic}}
+\newcommand{\FitCal}{\textsc{fit\_calibrated}}
+\newcommand{\DrTier}{\textsc{Dr}}
+\newcommand{\DefTier}{\textsc{definition}}
+\newcommand{\OpenTier}{\textsc{Open}}
+\newcommand{\tier}[1]{\textsc{#1}}
+\newcommand{\claimref}[1]{\textsuperscript{[#1]}}
+
+% ---- Status labels -----------------------------------------------------------
+\newcommand{\Required}{\textbf{REQUIRED}}
+\newcommand{\Conditional}{\textbf{CONDITIONAL}}
+\newcommand{\Internal}{\textbf{INTERNAL}}
+\newcommand{\NA}{\textit{Not applicable}}
+\newcommand{\Fill}{\texttt{[FILL]}}
+\newcommand{\Pass}{\textsc{PASS}}
+\newcommand{\Hold}{\textsc{HOLD}}
+\newcommand{\Fail}{\textsc{FAIL}}
+
+% ---- Utility environments ---------------------------------------------------
+\newenvironment{schemaBox}[1]
+  {\begin{center}\begin{minipage}{0.96\linewidth}\small
+   \noindent\textbf{#1}\par\medskip}
+  {\end{minipage}\end{center}}
+
+\newenvironment{declarationblock}[1]
+  {\subsection*{#1}\addcontentsline{toc}{subsection}{#1}}
+  {}
+
+\newenvironment{auditblock}[1]
+  {\subsection*{#1}\addcontentsline{toc}{subsection}{#1}\small}
+  {\normalsize}
+
+% ---- Header/footer -----------------------------------------------------------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize \SchemaName}
+\fancyhead[R]{\footnotesize v\SchemaVersion\ --- \ArticleType}
+\fancyfoot[C]{\footnotesize \thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+% ============================================================================
+% FRONT MATTER — PUBLICATION IDENTITY LAYER
+% ============================================================================
+
+\title{\textbf{[FILL: Manuscript Title]}\\[0.35em]
+\large [FILL: Optional subtitle]}
+\author[1]{[FILL: Author One]\thanks{ORCID: [FILL]}}
+\author[2]{[FILL: Author Two]\thanks{ORCID: [FILL]}}
+\affil[1]{[FILL: Affiliation or ``Independent Researcher''] }
+\affil[2]{[FILL: Affiliation]}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{schemaBox}{Submission profile}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+Schema & \SchemaName\ v\SchemaVersion\ (\SchemaDate)\\
+Target system & \TargetSystem\\
+Target venue & \TargetVenue\\
+Article type & \ArticleType\\
+Journal policy last checked & \PolicyCheckedDate\\
+Corresponding author & [FILL: name, email]\\
+Manuscript status & [FILL: draft / preprint / submitted / revision]\\
+Registration / protocol / preregistration & [FILL: DOI/URL/id or N/A]\\
+Repository / archival record & [FILL: DOI/URL or N/A]\\
+\bottomrule
+\end{tabularx}
+\end{schemaBox}
+
+\begin{abstract}
+[FILL: 150--250 words, adapted to the target journal.
+
+Functional order:
+(1) important problem;
+(2) exact limitation/gap;
+(3) approach or scholarly method;
+(4) principal new contribution;
+(5) main implication and one important boundary/limitation.
+
+Do not claim evidence, novelty, causality, validation, or generality beyond the
+body of the manuscript.]
+\end{abstract}
+
+\noindent\textbf{Keywords:} [FILL: 4--8 terms]
+
+% Optional publisher items: highlights, graphical abstract, classifications.
+% Keep only if the target journal asks for them.
+
+% ============================================================================
+% THE 7SSA CORE — SEVEN INTELLECTUAL SECTORS
+% ============================================================================
+
+
+\section*{Core Epistemic Structure}
+\label{sec:ces}
+Per \texttt{methodology/P20\_core\_epistemic\_structure.md}: who brought the world in, who bridged,
+and which machines took part --- three roles, never merged (non-collapse rule below). Registration
+is an attribution device, not a certification of truth or expertise.
+\begin{description}
+  \item[Core Respondent / Experience-Based Expert:] [FILL: name or anonymised role] ---
+    [FILL: lived experience; selections; interpretation]
+  \item[Interactional Expert:] [FILL: name / role, or \textbf{None}]
+  \item[AI Model(s) Used:] [FILL: Model 1 --- role]; [FILL: Model 2 --- role] (role disclosure only; never authorship)
+\end{description}
+Non-collapse rule: Experience-Based Expertise $\neq$ Interactional Expertise $\neq$ AI Model.
+
+\section{Introduction}
+\label{sec:s1}
+
+% THAI RENDERER:
+% 1. บทนำ
+%
+% Intellectual function:
+% Problem + importance + scholarly conversation + gap preview + central argument
+% + exact contribution.
+
+\subsection{Problem and phenomenon}
+[FILL: State the phenomenon or intellectual problem without smuggling the
+proposed answer into the problem statement.]
+
+\subsection{Why the problem matters}
+[FILL: Explain why the target field or readership should care. Separate
+disciplinary importance from local/practical importance.]
+
+\subsection{Scholarly conversation}
+[FILL: Locate the active conversation, including the closest international
+and, where relevant, Thai/local scholarship.]
+
+\subsection{Unresolved tension}
+[FILL: Preview the contradiction, missing mechanism, conceptual ambiguity,
+boundary failure, assumption failure, new phenomenon, or other scholarly gap.]
+
+\subsection{Central argument and contribution}
+\noindent\textbf{Central argument.}
+[FILL: one sentence beginning, if useful, ``We argue that ...'']
+
+\noindent\textbf{Contribution.}
+[FILL: name the new intellectual object: construct, distinction, theory,
+framework, mechanism, taxonomy, ontology, architecture, formalization,
+interpretation, legal principle, or research agenda.]
+
+\noindent\textbf{Roadmap.}
+[FILL: optional; follow target-journal style.]
+
+% ---------------------------------------------------------------------------
+
+\section{Approach, Scope, and Knowledge Base}
+\label{sec:s2}
+
+% THAI RENDERER:
+% 2. แนวทาง ขอบเขต และฐานความรู้
+%
+% This is not necessarily "Methods" in a conceptual paper. It is the
+% reconstruction layer: how the paper knows what it claims to know.
+
+\subsection{Scholarly method}
+[FILL: conceptual analysis / theory construction / philosophical argument /
+integrative synthesis / doctrinal legal analysis / formal method /
+systematization of knowledge / critical review / policy analysis / other.]
+
+\subsection{Scope and exclusions}
+\begin{itemize}
+  \item Domain/population/object: [FILL]
+  \item Geography/jurisdiction: [FILL]
+  \item Time window: [FILL]
+  \item Languages/source families: [FILL]
+  \item Explicit exclusions: [FILL]
+\end{itemize}
+
+\subsection{Knowledge-base construction}
+[FILL: databases/search routes, canonical sources, target-journal literature,
+adjacent disciplines, local literature, source-acquisition logic, and how
+sources were verified.]
+
+\subsection{Literature-review mode}
+\label{sec:lrs-mode}
+Select honestly:
+\begin{itemize}
+  \item [FILL] Targeted scholarly search
+  \item [FILL] Integrative review
+  \item [FILL] Systematic review / scoping review / SoK (only if protocol supports it)
+  \item [FILL] Doctrinal/legal corpus
+  \item [FILL] Archival/historical corpus
+\end{itemize}
+
+\subsection{AI involvement in the research process}
+\label{sec:ai-method}
+If AI affected the research process (not merely manuscript language), describe
+here the tool/model, version or release identifier when available, provider,
+date(s) of use, research stage, inputs, outputs, validation, and retained logs.
+The public declaration in \Cref{sec:ai-declaration} summarizes manuscript-level
+AI use; this subsection gives method-level reproducibility detail.
+
+\begin{schemaBox}{Glosa compatibility rule}
+AI-generated content is never treated as evidence merely because the model
+produced it. AI-discovered or AI-suggested claims, sources, analyses, code, or
+interpretations enter the manuscript only after the relevant human/source/
+formal/computational verification route has been completed and logged.
+\end{schemaBox}
+
+% ---------------------------------------------------------------------------
+
+\section{Existing Knowledge and Theoretical Foundation}
+\label{sec:s3}
+
+% THAI RENDERER:
+% 3. แนวคิด ทฤษฎี และองค์ความรู้ที่เกี่ยวข้อง
+
+\subsection{Key constructs}
+[FILL: Define the constructs used by the argument; distinguish neighboring
+constructs and levels of analysis.]
+
+\subsection{Major theories or positions}
+[FILL: Organize by problems/positions/mechanisms, not by a chronological
+``Author A said; Author B said'' list.]
+
+\subsection{Nearest intellectual neighbors}
+[FILL: Identify the strongest prior theory/framework/method that could make
+this paper unnecessary.]
+
+\subsection{What is already established}
+[FILL: State K0---the knowledge state before this paper---with claim-matched
+citations.]
+
+% ---------------------------------------------------------------------------
+
+\section{Problem in Existing Knowledge}
+\label{sec:s4}
+
+% THAI RENDERER:
+% 4. ปัญหา ข้อจำกัด หรือช่องว่างขององค์ความรู้เดิม
+
+\subsection{Exact inadequacy}
+Select and justify one or more:
+\begin{itemize}
+  \item conceptual ambiguity;
+  \item contradiction;
+  \item missing mechanism;
+  \item fragmented literatures;
+  \item unclear boundary conditions;
+  \item hidden/failed assumption;
+  \item formalization gap;
+  \item classification gap;
+  \item level-of-analysis gap;
+  \item normative or doctrinal gap;
+  \item new phenomenon not handled by existing theory.
+\end{itemize}
+
+\subsection{Why the inadequacy matters}
+[FILL: What can the field not explain, distinguish, justify, predict, organize,
+or decide because of this problem?]
+
+\subsection{Strongest prior attempt}
+[FILL: Treat the strongest existing solution charitably. Explain why it is
+still insufficient without manufacturing a gap.]
+
+% ---------------------------------------------------------------------------
+
+\section{New Contribution}
+\label{sec:s5}
+
+% THAI RENDERER:
+% 5. การวิเคราะห์และข้อเสนอใหม่ของผู้เขียน
+
+\subsection{Name and definition of the contribution}
+\noindent\textbf{Name:} [FILL]\\
+\textbf{Type:} [FILL: construct / distinction / mechanism / theory / framework /
+taxonomy / ontology / architecture / principle / formalization / interpretation]\\
+\textbf{Definition:} [FILL]
+
+\subsection{Components and relations}
+[FILL: Explain nodes, entities, dimensions, mechanisms, transitions, or
+inferential steps.]
+
+\subsection{Derivation}
+[FILL: Show how the contribution follows from Sectors 3 and 4 rather than
+appearing as an unsupported diagram.]
+
+\subsection{Propositions, principles, or formal statements}
+\begin{enumerate}
+  \item P1: [FILL]
+  \item P2: [FILL]
+  \item P3: [FILL]
+\end{enumerate}
+
+\subsection{Comparison with nearest prior framework}
+[FILL: same / different / extends / challenges. Avoid unsupported priority
+claims such as ``first ever'' unless an adequate search supports them.]
+
+% ---------------------------------------------------------------------------
+
+\section{Critical Evaluation, Boundaries, and Implications}
+\label{sec:s6}
+
+% THAI RENDERER:
+% 6. การอภิปราย ข้อโต้แย้ง ข้อจำกัด และนัยสำคัญ
+
+\subsection{Strongest objection}
+[FILL: State the strongest plausible objection in a form its proponent would
+recognize.]
+
+\subsection{Alternative explanation or rival theory}
+[FILL]
+
+\subsection{Counterexample or failure case}
+[FILL]
+
+\subsection{Response and repair}
+[FILL: Defend, revise, or narrow the contribution. A narrow honest theory is
+better than an unfalsifiable broad one.]
+
+\subsection{Boundary conditions}
+[FILL: Where should the contribution apply? Where should it not apply?]
+
+\subsection{Limitations}
+[FILL: epistemic, conceptual, methodological, empirical, legal, cultural,
+technical, data, AI, and generalizability limits as applicable.]
+
+\subsection{Implications}
+\begin{itemize}
+  \item Theoretical implications: [FILL]
+  \item Methodological implications: [FILL]
+  \item Practical/professional implications: [FILL or N/A]
+  \item Policy/governance implications: [FILL or N/A]
+  \item Future research: [FILL]
+\end{itemize}
+
+% ---------------------------------------------------------------------------
+
+\section{Conclusion}
+\label{sec:s7}
+
+% THAI RENDERER:
+% 7. บทสรุป
+
+\subsection*{Answer to the original problem}
+[FILL]
+
+\subsection*{Before $\rightarrow$ After}
+\begin{description}[style=nextline,leftmargin=1.4em]
+  \item[Before this paper:] [FILL: what the field could not adequately
+  distinguish/explain/organize.]
+  \item[After this paper:] [FILL: the precise new capability supplied by the
+  contribution.]
+\end{description}
+
+\subsection*{What this paper does not claim}
+[FILL: explicit non-claims.]
+
+\subsection*{Next frontier}
+[FILL]
+
+% ============================================================================
+% WORLD-STANDARD DECLARATIONS & TRANSPARENCY LAYER
+% These are NOT "Sector 8". They are publication-governance metadata around
+% the 7SSA intellectual core.
+% ============================================================================
+
+\section*{Statements and Declarations}
+\addcontentsline{toc}{section}{Statements and Declarations}
+
+\begin{declarationblock}{Author contributions (CRediT)}
+% Use the target journal's exact implementation. CRediT has 14 roles.
+% CRediT describes contributions; it does not itself decide who qualifies
+% for authorship.
+\begin{tabularx}{\linewidth}{@{}p{0.31\linewidth}X@{}}
+\toprule
+CRediT role & Contributor(s)\\
+\midrule
+Conceptualization & [FILL]\\
+Data curation & [FILL / N/A]\\
+Formal analysis & [FILL / N/A]\\
+Funding acquisition & [FILL / N/A]\\
+Investigation & [FILL / N/A]\\
+Methodology & [FILL]\\
+Project administration & [FILL / N/A]\\
+Resources & [FILL / N/A]\\
+Software & [FILL / N/A]\\
+Supervision & [FILL / N/A]\\
+Validation & [FILL]\\
+Visualization & [FILL / N/A]\\
+Writing -- original draft & [FILL]\\
+Writing -- review \& editing & [FILL]\\
+\bottomrule
+\end{tabularx}
+\end{declarationblock}
+
+\begin{declarationblock}{Authorship and accountability}
+[FILL: Confirm that every listed author satisfies the target journal's
+authorship criteria, approved the submitted version, and accepts responsibility
+for the work. AI systems/tools are not listed as authors.]
+\end{declarationblock}
+
+\begin{declarationblock}{Declaration of generative AI and AI-assisted technologies}
+\label{sec:ai-declaration}
+
+% Conservative cross-publisher superset.
+% At submission, adapt placement and exact wording to the target journal.
+%
+% For glosa: keep the detailed route-level record internally even if the
+% publisher allows a shorter public declaration.
+
+\noindent\textbf{Public summary.}
+During the preparation and/or research process for this work, the author(s)
+used [FILL: tool/service/model] for [FILL: purpose and research/manuscript
+stage]. The author(s) reviewed, verified, and edited all material as required
+and retain full responsibility for the submitted work.
+
+\medskip
+\noindent\textbf{Detailed disclosure record.}
+
+\begin{longtable}{@{}p{0.28\linewidth}p{0.66\linewidth}@{}}
+\toprule
+Field & Disclosure\\
+\midrule
+\endhead
+Tool/service & [FILL: product/service/model]\\
+Provider/developer & [FILL]\\
+Model/version/release & [FILL: where available]\\
+Dates accessed & [FILL]\\
+Use category & [FILL: ideation; information discovery; refinement; translation/editing;
+analysis/recommendation; code generation/optimization; visual/media creation; other]\\
+Research/manuscript stage & [FILL: question; literature; design; code; data; analysis;
+visualization; drafting; review; submission preparation]\\
+Purpose & [FILL]\\
+Extent/influence & [FILL: did it affect central arguments, methods, results, or conclusions?]\\
+Input-data class & [FILL: public / licensed / internal / confidential / personal /
+sensitive / unpublished / copyrighted / none]\\
+Prompt/settings retained & [FILL: yes/no; location; explain any lawful/privacy redactions]\\
+Outputs retained & [FILL: yes/no; location]\\
+Human verification & [FILL: what was checked; against what independent source/method]\\
+Human checker/approver & [FILL]\\
+Citation verification & [FILL: source-first verification route]\\
+Code verification & [FILL: tests/oracle/review, or N/A]\\
+Visual-content verification & [FILL: underlying verifiable source/data, or N/A]\\
+Privacy/IP/terms check & [FILL]\\
+Material effect on conclusion & [FILL: none / limited / substantive; explain]\\
+\bottomrule
+\end{longtable}
+
+\noindent\textbf{Non-delegation statement.}
+Human author(s) retain responsibility for the scholarly argument, interpretation,
+source verification, authorship decisions, and final submission. AI output is
+not used as a primary scholarly source and is not treated as evidence merely
+because it was generated.
+\end{declarationblock}
+
+\begin{declarationblock}{Funding}
+[FILL one:
+(a) This work received support from [funder, grant number], and the funder had
+[role/no role] in [design/analysis/writing/decision to submit];
+or
+(b) The authors received no specific funding for this work.]
+\end{declarationblock}
+
+\begin{declarationblock}{Competing interests / conflict of interest}
+% Disclose relationships or activities that could reasonably be perceived to
+% influence the work. Follow the target journal's disclosure period and form.
+%
+% Consider: financial interests, employment, consultancy, advisory roles,
+% speaking fees, stocks/shares, patents/IP, litigation, leadership roles,
+% personal/professional relationships, political/religious/advocacy interests
+% where directly relevant, or other non-financial competing interests.
+[FILL: Declare relevant competing interests, or state that none are declared.]
+\end{declarationblock}
+
+\begin{declarationblock}{Ethics approval and research integrity}
+[FILL according to the work:
+- approving REC/IRB/ethics body and approval number;
+- waiver/exemption and basis;
+- for a purely conceptual/review paper with no new human/animal data, state
+  the applicable N/A rationale;
+- for community/indigenous/culturally sensitive knowledge, identify relevant
+  consent/governance route where applicable.]
+\end{declarationblock}
+
+\begin{declarationblock}{Consent to participate}
+[FILL: approval/consent details or N/A.]
+\end{declarationblock}
+
+\begin{declarationblock}{Consent for publication}
+[FILL: consent for identifiable material, quotations, images, case details, or N/A.]
+\end{declarationblock}
+
+\begin{declarationblock}{Data availability}
+[FILL one:
+- data DOI/repository and access conditions;
+- restricted data + justified access route;
+- no new data were created or analyzed;
+- all data are contained within article/supplement.]
+\end{declarationblock}
+
+\begin{declarationblock}{Code and software availability}
+[FILL: repository, commit/tag, license, environment/lock file, DOI, or N/A.]
+\end{declarationblock}
+
+\begin{declarationblock}{Materials, protocol, and preregistration}
+[FILL: protocol DOI/registration, materials repository, preregistration id,
+or N/A. Do not imply preregistration if the protocol was frozen after results
+were seen.]
+\end{declarationblock}
+
+\begin{declarationblock}{Reproducibility and verification}
+[FILL: identify what another scholar can inspect or rerun: search manifest,
+source ledger, theorem proof, software environment, data pipeline, analysis
+script, simulation, benchmark, claim-evidence matrix, etc.]
+\end{declarationblock}
+
+\begin{declarationblock}{Intellectual property, permissions, and third-party material}
+[FILL: permissions/licenses for copyrighted figures/tables/text/data; patent
+or confidential-information considerations; or N/A.]
+\end{declarationblock}
+
+\begin{declarationblock}{Dual-use, safety, and biosecurity statement}
+[FILL where relevant: safety review, controlled details, risk mitigation, or N/A.]
+\end{declarationblock}
+
+\begin{declarationblock}{Acknowledgements}
+[FILL: people, organizations, facilities, language/editorial assistance,
+non-author contributors, and permissions to acknowledge where required.]
+\end{declarationblock}
+
+\begin{declarationblock}{Prior dissemination, preprint, and overlapping publication}
+[FILL: preprint/working-paper DOI, conference abstract, thesis chapter,
+translation, prior version, or state none. Explain material overlap.]
+\end{declarationblock}
+
+\begin{declarationblock}{Reporting guideline}
+[FILL if applicable: PRISMA, CONSORT, STROBE, CARE, SRQR, COREQ, ARRIVE,
+TRIPOD, CHEERS, etc.; otherwise N/A.]
+\end{declarationblock}
+
+% ============================================================================
+% REFERENCES
+% Replace this placeholder with journal-specific bibliography handling.
+% ============================================================================
+
+\section*{References}
+\addcontentsline{toc}{section}{References}
+
+\begin{thebibliography}{9}
+
+\bibitem{placeholder1}
+[FILL: Reference 1.]
+
+\bibitem{placeholder2}
+[FILL: Reference 2.]
+
+\end{thebibliography}
+
+% ============================================================================
+% GLOSA AUDIT LAYER — INTERNAL OR SUPPLEMENTARY
+% This layer protects epistemic traceability but is not forced into the visible
+% manuscript unless the journal requests/permits it.
+% ============================================================================
+
+\ifglosaaudit
+\appendix
+
+\section{Glosa audit profile}
+\label{app:glosa-profile}
+
+\begin{auditblock}{A. Core epistemic roles}
+\begin{description}[style=nextline,leftmargin=1.4em]
+  \item[Experience-based / core respondent] [FILL: who brought the world/problem in]
+  \item[Interactional expert / bridge] [FILL or None]
+  \item[AI model(s)/tool(s)] [FILL: model + role]
+  \item[Human accountable author/approver] [FILL]
+\end{description}
+
+\noindent Non-collapse:
+\[
+\text{Experience-Based Expertise}
+\neq
+\text{Interactional Expertise}
+\neq
+\text{AI Model}.
+\]
+\end{auditblock}
+
+\begin{auditblock}{B. Standpoint and competence boundary}
+\textbf{Standpoint:} [FILL]\\
+\textbf{Disciplines/competencies explicitly not claimed:} [FILL]\\
+\textbf{Local/practice knowledge scope:} [FILL]
+\end{auditblock}
+
+\begin{auditblock}{C. Question round trip}
+\begin{description}[style=nextline,leftmargin=1.4em]
+  \item[Question as lived] [FILL: verbatim human wording]
+  \item[Question as readout] [FILL: what is actually observed/distinguished]
+  \item[World-language hypothesis] [FILL]
+  \item[Falsifier] [FILL: what record would defeat/narrow the claim]
+\end{description}
+\end{auditblock}
+
+\section{Claim Matrix}
+\label{app:claim-matrix}
+
+\begin{longtable}{@{}p{0.05\linewidth}p{0.35\linewidth}p{0.20\linewidth}p{0.10\linewidth}p{0.10\linewidth}p{0.10\linewidth}@{}}
+\toprule
+ID & Claim & Evidence/formal support & Tier & Produced by & Responsible\\
+\midrule
+\endhead
+C1 & [FILL] & [FILL] & [FILL] & human/AI/joint & human\\
+C2 & [FILL] & [FILL] & [FILL] & human/AI/joint & human\\
+\bottomrule
+\end{longtable}
+
+\section{Five-question claim audit}
+\label{app:five-q}
+
+For each load-bearing claim record:
+\begin{enumerate}
+  \item \texttt{seen}: what was actually observed/opened/executed;
+  \item \texttt{separates}: what that record distinguishes;
+  \item \texttt{ai\_filled}: what AI added;
+  \item \texttt{assumed}: what was taken as given;
+  \item \texttt{tested}: what independent check was run.
+\end{enumerate}
+
+\begin{longtable}{@{}p{0.05\linewidth}p{0.17\linewidth}p{0.17\linewidth}p{0.17\linewidth}p{0.17\linewidth}p{0.17\linewidth}@{}}
+\toprule
+ID & seen & separates & ai\_filled & assumed & tested\\
+\midrule
+\endhead
+C1 & [FILL] & [FILL] & [FILL] & [FILL] & [FILL]\\
+C2 & [FILL] & [FILL] & [FILL] & [FILL] & [FILL]\\
+\bottomrule
+\end{longtable}
+
+\section{AI route-level disclosure and silent-lift audit}
+\label{app:ai-route}
+
+% Mirrors glosa P07 at a publication-compatible level.
+\begin{longtable}{@{}p{0.26\linewidth}p{0.68\linewidth}@{}}
+\toprule
+Audit category & Record\\
+\midrule
+\endhead
+Current evidence supplied/handled by AI & [FILL / none identified]\\
+Retrieved tool evidence & [FILL / none identified]\\
+Retained-record route & [FILL / none identified]\\
+Model/calibration assumption & [FILL / none identified]\\
+Prompt/system constraint & [FILL / none identified]\\
+Decision policy proposed by AI & [FILL / none identified]\\
+Represented dependency set & [FILL]\\
+Actual dependency set & [FILL]\\
+Silent-lift flags & [FILL: none / list]\\
+Human completeness judgment & [FILL]\\
+\bottomrule
+\end{longtable}
+
+\section{Literature Review System record}
+\label{app:lrs}
+
+% Compatible with glosa P13:
+% L1 framing -> L2 frozen protocol -> L3 acquisition -> L4 extraction
+% -> L5 citation verification -> L6 manifest/neighbour table.
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\toprule
+Stage & Required artifact & Status\\
+\midrule
+L1 & Frozen question/scope & [FILL]\\
+L2 & Search protocol / honest review mode & [FILL]\\
+L3 & Acquisition log & [FILL]\\
+L4 & Source reading/extraction records & [FILL]\\
+L5 & Metadata + claim-match verification & [FILL]\\
+L6 & Manifest + neighbour/dialogue table & [FILL]\\
+\bottomrule
+\end{tabularx}
+
+\medskip
+\noindent\textbf{Accuracy gate:} [FILL: PASS / PASS WITH LIMITS / FAIL]\\
+\textbf{Diversity gate:} [FILL: PASS / PASS WITH LIMITS / FAIL]\\
+\textbf{Secondary-citation audit:} [FILL]\\
+\textbf{Retraction/correction check:} [FILL]\\
+\textbf{Review-mode claim:} [FILL; never call targeted search ``systematic'']
+
+\section{Blackbox Note and transformation log}
+\label{app:blackbox}
+
+\begin{longtable}{@{}p{0.12\linewidth}p{0.12\linewidth}p{0.12\linewidth}p{0.42\linewidth}p{0.16\linewidth}@{}}
+\toprule
+ID & Role & Kind & Verbatim retained human line & Became\\
+\midrule
+\endhead
+BB-001 & [FILL] & [FILL] & [FILL: exact retained wording] & [FILL: claim/rule]\\
+\bottomrule
+\end{longtable}
+
+\medskip
+\begin{longtable}{@{}p{0.12\linewidth}p{0.12\linewidth}p{0.18\linewidth}p{0.50\linewidth}@{}}
+\toprule
+Step & By & Input & Transformation / output\\
+\midrule
+\endhead
+[FILL] & human/AI/joint & [FILL] & [FILL]\\
+\bottomrule
+\end{longtable}
+
+\section{Knowledge state and independence}
+\label{app:kstate}
+
+\noindent\textbf{Overall K-state:} [FILL]\\
+\textbf{Highest claim tier:} [FILL]\\
+\textbf{Independence class(es):} [FILL]\\
+\textbf{Known route dependence:} [FILL]\\
+\textbf{Claims on HOLD/Open:} [FILL]
+
+\section{Human Mastery Gate}
+\label{app:mastery}
+
+Before submission/public release, the human accountable author should be able
+to defend without AI assistance:
+\begin{enumerate}
+  \item the problem;
+  \item major literature families;
+  \item closest constructs/frameworks;
+  \item the precise inadequacy;
+  \item the proposed mechanism/argument;
+  \item boundary conditions;
+  \item strongest counterargument;
+  \item strongest counterexample;
+  \item falsifying record;
+  \item discriminating empirical/formal test where relevant.
+\end{enumerate}
+
+\noindent\textbf{Gate status:} [FILL: PASS / PASS WITH NAMED GAPS / NOT READY]\\
+\textbf{Named gaps:} [FILL]
+
+\section{Pre-publication adversarial gate}
+\label{app:publish-gate}
+
+% Based on glosa P10; upgraded to include publication-ethics declarations.
+\begin{tabularx}{\linewidth}{@{}p{0.08\linewidth}p{0.63\linewidth}p{0.20\linewidth}@{}}
+\toprule
+Gate & Check & Status\\
+\midrule
+R1 & Leak/privacy/confidentiality scan & [FILL]\\
+R2 & License, copyright, permissions, and IP coverage & [FILL]\\
+R3 & Claim-tier / evidence-strength fidelity & [FILL]\\
+R4 & Citation accuracy and source-match recheck & [FILL]\\
+R5 & Lineage / anchor-preservation audit & [FILL]\\
+R6 & Overclaim/register scan (contaminated-concept table) & [FILL]\\
+R7 & Completeness / dangling-reference / supplement check & [FILL]\\
+R8 & Human Mastery Gate & [FILL]\\
+R9 & Authorship + CRediT + acknowledgements consistency & [FILL]\\
+R10 & Funding + competing-interest disclosure completeness & [FILL]\\
+R11 & Ethics/consent/data/code/protocol declarations & [FILL]\\
+R12 & AI public disclosure matches internal AI-use log & [FILL]\\
+R13 & Target-journal current policy checked & [FILL]\\
+R14 & Confidential peer-review material not exposed to non-permitted AI & [FILL]\\
+\bottomrule
+\end{tabularx}
+
+\section{Reproduction ledger}
+\label{app:reproduction}
+
+\begin{longtable}{@{}p{0.24\linewidth}p{0.70\linewidth}@{}}
+\toprule
+Object & Immutable/reproducible locator\\
+\midrule
+\endhead
+Manuscript source & [FILL: commit/tag/hash]\\
+Bibliography/source manifest & [FILL]\\
+Data & [FILL / N/A]\\
+Code & [FILL / N/A]\\
+Environment & [FILL / N/A]\\
+Formal proof & [FILL / N/A]\\
+Figures/tables generation & [FILL / N/A]\\
+AI prompt/output log & [FILL / restricted + reason]\\
+Validation records & [FILL]\\
+Zenodo/OSF/other DOI & [FILL / N/A]\\
+\bottomrule
+\end{longtable}
+
+\section{Internal policy-interoperability checklist}
+\label{app:policy-map}
+
+This internal table is a routing aid, not a legal opinion and not a claim that
+publishers have identical rules.
+
+\begin{tabularx}{\linewidth}{@{}p{0.32\linewidth}XXXX@{}}
+\toprule
+Item & NRCT-TH & ICMJE & Elsevier & Springer/Wiley\\
+\midrule
+Human accountability & check & check & check & check\\
+AI not author & check & check & check & check\\
+Substantive AI disclosure & check & check & check & check\\
+Research-process AI in methods & check & check & check & check\\
+Citation/source verification & check & check & check & check\\
+Privacy/confidentiality & check & check & check & check\\
+IP/rights/terms review & check & -- & check & check\\
+Prompt/output/validation log & check & recommended & recommended & documented\\
+AI peer-review confidentiality & check & check & check & check\\
+Competing-interest statement & journal-dependent & check & journal-dependent & check\\
+Funding statement & journal-dependent & check & journal-dependent & check\\
+\bottomrule
+\end{tabularx}
+
+\fi % end glosaaudit
+
+% ============================================================================
+% END-OF-FILE IMPLEMENTATION NOTES
+% ============================================================================
+
+\ifsubmissionmode
+% Submission mode:
+% - remove/internalize glosa-only metadata if the journal does not request it;
+% - keep the seven intellectual functions even if headings are merged;
+% - keep declarations required by the target journal;
+% - re-check the current author guidelines on the actual submission date.
+\else
+% Internal mode:
+% - retain all audit appendices;
+% - retain model/version/time, prompt/output records subject to privacy/IP;
+% - do not publicly expose confidential/sensitive prompts merely for
+%   reproducibility.
+\fi
+
+\end{document}

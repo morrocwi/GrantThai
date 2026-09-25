@@ -108,6 +108,18 @@ class Route:
     def route_notice_en(self) -> str | None:
         return self.raw.get("route_notice_en")
 
+    @property
+    def exports(self) -> tuple[dict, ...]:
+        """Optional alternative output formats (route.yaml `exports`)."""
+        return tuple(e for e in self.raw.get("exports") or [] if isinstance(e, dict))
+
+    def export(self, fmt: str) -> dict:
+        for e in self.exports:
+            if e.get("format") == fmt:
+                return e
+        known = ", ".join(e.get("format") for e in self.exports) or "none"
+        raise RouteError(f"route {self.id} has no --format {fmt} export (formats: md, {known}); nothing was written")
+
 
 @lru_cache(maxsize=None)
 def index() -> dict:

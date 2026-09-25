@@ -11,7 +11,9 @@
     (tools/ci/check_notice.py). `route_notice` is route.yaml's
     route_notice_en and is the second body line. No timestamps anywhere
     (determinism). GrantThai never composes section text: every value below
-    is exactly what the work object says. -#}
+    is exactly what the work object says. When the researcher has selected a
+    7SSA structure profile, the partial templates/article_7ssa.md.j2 is
+    included after the placed sections (still one output file). -#}
 ---
 {{ frontmatter_yaml }}
 ---
@@ -134,6 +136,10 @@ LABEL_TH: {{ f.label_th }}
 - AUTHORED_BY: {{ f.authored_by }}
 {% endfor %}
 {% endfor %}
+{% if ssa %}
+
+{% include "article_7ssa.md.j2" %}
+{% endif %}
 
 ## 3. Machine field metadata
 

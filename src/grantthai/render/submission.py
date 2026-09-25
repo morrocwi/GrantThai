@@ -90,9 +90,16 @@ def _props(fid: str) -> tuple[str, list[str]]:
     return "object", []
 
 
+# Columns printed only when some item carries them (the 7SSA sector tags on
+# ARTICLE.BODY.SECTIONS items), so a table without them is unchanged.
+OPTIONAL_COLUMNS = frozenset({"ssa_sector", "ssa_slot"})
+
+
 def _table(fid: str, value: Any, unresolved: set) -> str:
     kind, keys = _props(fid)
     if kind == "array" and isinstance(value, list):
+        keys = [k for k in keys if k not in OPTIONAL_COLUMNS
+                or any(isinstance(it, dict) and k in it for it in value)]
         extra = []
         for it in value:
             if isinstance(it, dict):

@@ -49,6 +49,17 @@ entries:
   - ai_feature: "mcp:grantthai_list_fields(route) / api:listFields(route)"
     human_equivalent: "cli:grantthai fields --route"
     test_ref: "tests/test_routes_at_r1.py"
+  # 7SSA structure profiles (academic-article): the researcher selects a
+  # profile; no AI surface writes routing.structure_profiles.
+  - ai_feature: "mcp:grantthai_list_structure_profiles / api:listStructureProfiles"
+    human_equivalent: "cli:grantthai route profiles"
+    test_ref: "tests/test_7ssa.py::test_cli_validate_and_route_profiles"
+  - ai_feature: "mcp:grantthai_validate(structure_profile) / mcp:grantthai_check_route(structure_profile) / api:validateProject(structure_profile)"
+    human_equivalent: "cli:grantthai validate --structure-profile, or grantthai route check --structure-profile"
+    test_ref: "tests/test_7ssa.py::test_cli_validate_and_route_profiles"
+  - ai_feature: "mcp:grantthai_build(structure_profile, format) / api:buildSubmission(structure_profile, output_format)"
+    human_equivalent: "cli:grantthai build --structure-profile P --format md|tex, or grantthai route build"
+    test_ref: "tests/test_7ssa.py::test_cli_build_format_tex_and_structure_profile"
   # TOKE (later work package): `advise infra` (renamed from TOKE's `route`;
   # "route" means output route only). Not implemented here.
   # - ai_feature: "mcp:grantthai_advise_infra / api_py.advise_infra"

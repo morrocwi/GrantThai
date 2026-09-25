@@ -12,8 +12,10 @@ SOURCE, and validation is report-only.
               provenance=None, source_ids=None, links=None, tool=None,
               tool_version=None, stage=None, save=True) -> dict
     validate(project, *, as_of=None, route=None, sub_profile=None, structure_profile=None) -> dict   # validation report
-    build(path=None, *, route=None, sub_profile=None, out_dir=None, as_of=None) -> Path
+    build(path=None, *, route=None, sub_profile=None, out_dir=None, as_of=None,
+          structure_profile=None, fmt="md", glosa_audit=False) -> Path
                                                        # exactly one build/<route output file>
+                                                       # (fmt "tex": build/ACADEMIC_ARTICLE.tex instead)
     new_work(work_id=..., work_type=..., fund_profile_id=None, mode=..., path=None) -> dict   # work.yaml 0.3
     list_routes() -> list[dict]                        # every route; never picks one
     resolve_route(project, route=None) -> str          # ValueError (AmbiguousRoute, .candidates) if a person must choose
@@ -218,13 +220,20 @@ def list_routes() -> list[dict]:
 
 
 def build(path: str | Path | None = None, *, route: str | None = None, sub_profile: str | None = None,
-          out_dir: str | Path | None = None, as_of: str | None = None) -> Path:
+          out_dir: str | Path | None = None, as_of: str | None = None, structure_profile: str | None = None,
+          fmt: str = "md", glosa_audit: bool = False) -> Path:
     """One work object -> exactly one build/<route output filename>
     (NRIIS_SUBMISSION.md for nriis-proposal, the legacy default). Always
     renders; BLOCK findings are listed in the file's readiness summary.
     Raises AmbiguousRoute (ValueError) when no route can be resolved and
-    TwoCanonicalInputs when work.yaml and project.yaml sit side by side."""
-    return _RD.build_route(path, route, sub_profile=sub_profile, out_dir=out_dir, as_of=as_of)
+    TwoCanonicalInputs when work.yaml and project.yaml sit side by side.
+    `structure_profile` overrides routing.structure_profiles (a 7SSA layout of
+    the academic-article route). `fmt` "tex" writes the route's LaTeX export
+    (build/ACADEMIC_ARTICLE.tex) instead of the Markdown file; it needs a
+    selected 7SSA profile and runs no LaTeX engine; `glosa_audit` keeps the
+    template's glosa audit appendices."""
+    return _RD.build_route(path, route, sub_profile=sub_profile, out_dir=out_dir, as_of=as_of,
+                           structure_profile=structure_profile, fmt=fmt, glosa_audit=glosa_audit)
 
 
 def migrate(path: str | Path, *, rename: bool = False, dry_run: bool = False) -> dict:

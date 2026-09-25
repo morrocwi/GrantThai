@@ -26,7 +26,7 @@ AS_OF = "2026-09-25"
 NOTICE = (ROOT / "spec/output/notice_constant.txt").read_text(encoding="utf-8").rstrip("\n")
 EXPECTED_TOOLS = {"grantthai_new_project", "grantthai_list_fields", "grantthai_set_field",
                   "grantthai_validate", "grantthai_explain", "grantthai_build",
-                  "grantthai_list_routes", "grantthai_check_route"}
+                  "grantthai_list_routes", "grantthai_check_route", "grantthai_list_structure_profiles"}
 STATUS_RANK = {"NEEDS_INPUT": 0, "EMPTY": 0, "DRAFT": 1}
 # Routes whose files load in every wave (the article route file belongs to
 # another work package); resolution step 4 reads every route's defaults.

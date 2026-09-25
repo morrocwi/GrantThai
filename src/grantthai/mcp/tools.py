@@ -20,6 +20,11 @@ Hard rules kept by this module (spec/mcp/tools.schema.json):
     routing.default_route in work.yaml, a legacy project.yaml, or the one
     route that is the default for the work_type). When that does not decide,
     the tool returns the candidate list and builds nothing: it never picks;
+  * a structure profile (7SSA layout of the academic-article route) is the
+    researcher's choice too: grantthai_list_structure_profiles lists the
+    profiles and the candidates, and no tool ever writes
+    routing.structure_profiles; `structure_profile` is only passed through
+    when the researcher named one;
   * file paths are resolved inside one root folder (default: the server's
     working directory) and may not escape it.
 """
@@ -127,6 +132,13 @@ _SUB_PROFILE = {
     "description": "A sub-profile of the route (for nriis-proposal a form profile such as research@sd1-2566; for "
                    "academic-article thai-journal or international-journal, both NEEDS_VERIFICATION). Optional; "
                    "default: routing.sub_profiles[route] in the work file, else the route's own default.",
+}
+_STRUCTURE_PROFILE = {
+    "type": "string",
+    "description": "A 7SSA structure profile of the academic-article route (7ssa-world, 7ssa-thai-7, 7ssa-thai-5, "
+                   "7ssa-thai-4; see grantthai_list_structure_profiles). Optional; default: "
+                   "routing.structure_profiles[route] in the work file, else none (the plain overview). Pass it only "
+                   "when the researcher chose it; never choose one for them.",
 }
 _AS_OF = {
     "type": "string",
@@ -247,7 +259,7 @@ TOOL_SPECS: list[dict] = [
         "inputSchema": {
             "type": "object",
             "properties": {"project_path": _PROJECT_PATH, "as_of": _AS_OF, "route": _ROUTE,
-                           "sub_profile": _SUB_PROFILE},
+                           "sub_profile": _SUB_PROFILE, "structure_profile": _STRUCTURE_PROFILE},
             "additionalProperties": False,
         },
     },
@@ -284,6 +296,13 @@ TOOL_SPECS: list[dict] = [
                 "project_path": _PROJECT_PATH,
                 "route": _ROUTE,
                 "sub_profile": _SUB_PROFILE,
+                "structure_profile": _STRUCTURE_PROFILE,
+                "format": {"type": "string", "enum": ["md", "tex"], "default": "md",
+                           "description": "md (default): the route's Markdown file. tex: the academic-article LaTeX "
+                                          "export build/ACADEMIC_ARTICLE.tex INSTEAD (needs a 7SSA structure profile "
+                                          "the researcher selected; English only; runs no LaTeX engine)."},
+                "glosa_audit": {"type": "boolean", "default": False,
+                                "description": "format tex only: keep the template's glosa audit appendices."},
                 "out_dir": {"type": "string",
                             "description": "Folder to write the one file into. Default: build/ next to the work file."},
                 "as_of": _AS_OF,
@@ -305,6 +324,26 @@ TOOL_SPECS: list[dict] = [
         "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
     },
     {
+        "name": "grantthai_list_structure_profiles",
+        "wraps_cli_command": "grantthai route profiles",
+        "status_effect": "none",
+        "annotations": {"readOnlyHint": True, "openWorldHint": False},
+        "description": (
+            "List the structure profiles of a route (academic-article: the 7SSA layouts 7ssa-world, 7ssa-thai-7, "
+            "7ssa-thai-5, 7ssa-thai-4) with their visible sections. With project_path also `selected` (what the "
+            "researcher declared) and `candidates` (the router's proposal for this article type and sub-profile). "
+            "Show the list and ask; never choose, and never write routing.structure_profiles."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {"project_path": dict(_PROJECT_PATH, default=None,
+                                                description="Optional work file (or its folder) to read the "
+                                                            "selection and candidates from."),
+                           "route": dict(_ROUTE, description="Route id (default academic-article).")},
+            "additionalProperties": False,
+        },
+    },
+    {
         "name": "grantthai_check_route",
         "wraps_cli_command": "grantthai route check",
         "status_effect": "none",
@@ -317,7 +356,7 @@ TOOL_SPECS: list[dict] = [
         "inputSchema": {
             "type": "object",
             "properties": {"project_path": _PROJECT_PATH, "route": dict(_ROUTE, description="Route id (required)."),
-                           "sub_profile": _SUB_PROFILE, "as_of": _AS_OF},
+                           "sub_profile": _SUB_PROFILE, "structure_profile": _STRUCTURE_PROFILE, "as_of": _AS_OF},
             "required": ["route"],
             "additionalProperties": False,
         },
@@ -449,12 +488,22 @@ def _validate(ctx: Context, a: dict) -> dict:
     rid, cands = _resolve(p, a.get("route"))
     if cands:
         return _candidates(ctx, p, cands)
-    return api.validate(p, as_of=a.get("as_of"), route=rid, sub_profile=a.get("sub_profile"))
+    return api.validate(p, as_of=a.get("as_of"), route=rid, sub_profile=a.get("sub_profile"),
+                        structure_profile=a.get("structure_profile"))
 
 
 def _check_route(ctx: Context, a: dict) -> dict:
     p = _input(ctx, a)
-    return api.check_route(p, a["route"], sub_profile=a.get("sub_profile"), as_of=a.get("as_of"))
+    return api.check_route(p, a["route"], sub_profile=a.get("sub_profile"), as_of=a.get("as_of"),
+                           structure_profile=a.get("structure_profile"))
+
+
+def _list_structure_profiles(ctx: Context, a: dict) -> dict:
+    proj = _input(ctx, a) if a.get("project_path") else None
+    res = api.list_structure_profiles(a.get("route") or "academic-article", proj)
+    res["note"] = ("The researcher selects a structure profile (routing.structure_profiles or the "
+                   "structure_profile argument). Show this list and ask; never choose one for them.")
+    return res
 
 
 def _explain(ctx: Context, a: dict) -> dict:
@@ -467,11 +516,20 @@ def _build(ctx: Context, a: dict) -> dict:
     if cands:
         return _candidates(ctx, p, cands)
     out_dir = ctx.path(a["out_dir"]) if a.get("out_dir") else None
-    out = api.build(p, route=rid, sub_profile=a.get("sub_profile"), out_dir=out_dir, as_of=a.get("as_of"))
-    report = api.validate(p, as_of=a.get("as_of"), route=rid, sub_profile=a.get("sub_profile"))
-    return {"path": ctx.rel(out), "route": rid, "filename": Path(out).name, "summary": report.get("summary"),
-            "markdown": Path(out).read_text(encoding="utf-8"),
-            "note": "Overview for the researcher to check. Nothing was submitted anywhere."}
+    fmt = a.get("format") or "md"
+    out = api.build(p, route=rid, sub_profile=a.get("sub_profile"), out_dir=out_dir, as_of=a.get("as_of"),
+                    structure_profile=a.get("structure_profile"), fmt=fmt, glosa_audit=bool(a.get("glosa_audit")))
+    report = api.validate(p, as_of=a.get("as_of"), route=rid, sub_profile=a.get("sub_profile"),
+                          structure_profile=a.get("structure_profile"))
+    text = Path(out).read_text(encoding="utf-8")
+    res = {"path": ctx.rel(out), "route": rid, "filename": Path(out).name, "summary": report.get("summary"),
+           "markdown": text if fmt == "md" else None,
+           "note": "Overview for the researcher to check. Nothing was submitted anywhere."}
+    if fmt != "md":
+        res.update({"format": fmt, "content": text,
+                    "note": "A LaTeX draft for the researcher to check (no LaTeX engine was run). Nothing was "
+                            "submitted anywhere."})
+    return res
 
 
 HANDLERS: dict[str, Callable[[Context, dict], dict]] = {
@@ -483,6 +541,7 @@ HANDLERS: dict[str, Callable[[Context, dict], dict]] = {
     "grantthai_build": _build,
     "grantthai_list_routes": _list_routes,
     "grantthai_check_route": _check_route,
+    "grantthai_list_structure_profiles": _list_structure_profiles,
 }
 
 

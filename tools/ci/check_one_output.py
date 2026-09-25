@@ -19,7 +19,13 @@ Structural checks (no engine needed):
      the route id. No template is claimed by two routes, and no template
      tagged `route_output` (or carrying a `route:` tag) is left without a
      route. At most one template is tagged `primary_submission`.
-  3. Output filenames are unique across routes.
+     A template tagged `output_kind: route_partial` (the 7SSA body of the
+     academic-article route) is not an output template: it must carry a
+     `route:` tag and be included (`{% include "<name>" %}`) by that route's
+     one template, so the route still writes one file.
+  3. Output filenames are unique across routes, and so are the filenames of
+     every route's optional `exports` (e.g. --format tex ->
+     ACADEMIC_ARTICLE.tex); each export's template exists.
   4. Every route's contract file (`output.contract`) exists and names
      spec/contracts/one-input-one-output.md; the one-input-one-output
      contract names every route's contract path (the reverse).
@@ -32,6 +38,9 @@ Runtime check (in-process Python API, no network):
      exactly one new file per build with the declared name, and every file
      written by an earlier build in the same directory stays byte-identical.
      A route with no shipped example is reported as not runtime-checked.
+     An example that selects a structure profile for a route with `exports`
+     is also built once per export format into a fresh directory, which must
+     then hold exactly that export's one file.
 
 Seeded bad fixtures (each must make this guard FAIL):
   tests/fixtures/negative/one_output_dup_filename/   two routes, one filename
@@ -56,6 +65,7 @@ import yaml
 CONTRACT = "spec/contracts/one-input-one-output.md"
 INDEX = "routes/INDEX.yaml"
 ACCEPTED_KINDS = {"route_output", "primary_submission", "secondary_optional"}
+PARTIAL_KIND = "route_partial"
 LEGACY_ROUTE = "nriis-proposal"
 AS_OF = "2026-09-25"
 
@@ -147,7 +157,13 @@ def structural(root: Path, violations: list[str]) -> dict[str, dict]:
             template = None
         if not contract:
             violations.append(f"route {rid}: output.contract is missing")
-        routes[rid] = {"filename": filename, "template": template, "contract": contract}
+        exports = [e for e in route.get("exports") or [] if isinstance(e, dict)]
+        for e in exports:
+            if not e.get("filename"):
+                violations.append(f"route {rid}: an export lacks a filename")
+            if not e.get("template") or not (root / e["template"]).exists():
+                violations.append(f"route {rid}: export {e.get('format')} template {e.get('template')} does not exist")
+        routes[rid] = {"filename": filename, "template": template, "contract": contract, "exports": exports}
 
     # 2. templates: one per route, tags agree, none shared, none orphaned
     claimed: dict[str, list[str]] = {}
@@ -175,6 +191,14 @@ def structural(root: Path, violations: list[str]) -> dict[str, dict]:
             kind, tag = _template_tags(path)
             if kind == "primary_submission":
                 primary.append(rel)
+            if kind == PARTIAL_KIND:
+                owner = routes.get(tag or "", {}).get("template")
+                if not tag or not owner:
+                    violations.append(f"template {rel} is a route_partial with no route that owns it (route: {tag})")
+                elif f'{{% include "{path.name}" %}}' not in (root / owner).read_text(encoding="utf-8"):
+                    violations.append(f"template {rel} is a route_partial of route {tag} but {owner} does not "
+                                      "include it")
+                continue
             if tag is not None:
                 by_route_tag.setdefault(tag, []).append(rel)
             if (kind == "route_output" or tag is not None) and rel not in claimed:
@@ -193,6 +217,9 @@ def structural(root: Path, violations: list[str]) -> dict[str, dict]:
     for rid, info in routes.items():
         if info["filename"]:
             names.setdefault(info["filename"], []).append(rid)
+        for e in info.get("exports") or []:
+            if e.get("filename"):
+                names.setdefault(e["filename"], []).append(f"{rid} --format {e.get('format')}")
     for name, rids in names.items():
         if len(rids) > 1:
             violations.append(f"output filename {name!r} is used by more than one route: {rids}")
@@ -279,6 +306,22 @@ def runtime(root: Path, routes: dict[str, dict], violations: list[str], notes: l
                 if (build_dir / expected).exists():
                     seen[expected] = _sha(build_dir / expected)
                 checked.add(rid)
+            chosen = (doc.get("routing") or {}).get("structure_profiles") or {}
+            for rid in wanted:
+                for e in routes.get(rid, {}).get("exports") or []:
+                    if not chosen.get(rid):
+                        continue
+                    edir = tmp_path / f"export-{e.get('format')}"
+                    try:
+                        out = api.build(tmp_path / src.name, route=rid, out_dir=edir, as_of=AS_OF, fmt=e["format"])
+                    except Exception as exc:  # noqa: BLE001
+                        violations.append(f"{label}: build --route {rid} --format {e.get('format')} raised {exc!r}")
+                        continue
+                    got = sorted(p.name for p in edir.iterdir())
+                    if got != [e["filename"]] or out != edir / e["filename"]:
+                        violations.append(f"{label}: --format {e.get('format')} wrote {got!r}, expected "
+                                          f"[{e['filename']!r}]")
+                    notes.append(f"{label}: built --route {rid} --format {e.get('format')}")
         notes.append(f"{label}: built {', '.join(wanted)}")
     for rid in routes:
         if rid not in checked:

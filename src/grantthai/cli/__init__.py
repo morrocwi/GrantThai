@@ -15,7 +15,8 @@ command stops (exit 2) when both are present.
     grantthai validate [PATH] [--route ID] [--sub-profile SP] [--structure-profile P] [--json] [--as-of YYYY-MM-DD]
     grantthai explain RULE_ID|FIELD_ID
     grantthai explain-field FIELD_ID
-    grantthai build [PATH] [--route ID] [--sub-profile SP] [--out DIR] [--as-of YYYY-MM-DD]
+    grantthai build [PATH] [--route ID] [--sub-profile SP] [--structure-profile P] [--format md|tex]
+                    [--glosa-audit] [--out DIR] [--as-of YYYY-MM-DD]
     grantthai fields [--route ID] [--tab TAB] [--required]
     grantthai profiles
     grantthai link | review | accept-mapping | reject-mapping | lock | diff   (v0.2, named human only)
@@ -95,6 +96,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("path", nargs="?", default=None)
     p.add_argument("--route")
     p.add_argument("--sub-profile")
+    cmd_route.add_build_options(p)
     p.add_argument("--out")
     p.add_argument("--as-of")
 
@@ -148,7 +150,8 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(cmd_explain_field.explain_any(a.rule_id), ensure_ascii=False, indent=2))
             return 0
         if a.cmd == "build":
-            out = api.build(a.path, route=a.route, sub_profile=a.sub_profile, out_dir=a.out, as_of=a.as_of)
+            out = api.build(a.path, route=a.route, sub_profile=a.sub_profile, out_dir=a.out, as_of=a.as_of,
+                            structure_profile=a.structure_profile, fmt=a.format, glosa_audit=a.glosa_audit)
             print(str(out))
             return 0
         if a.cmd == "fields":

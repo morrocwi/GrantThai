@@ -171,6 +171,16 @@ contracts:
     status: draft
     needed_by: v0.3
     note: "A named variant of a route's output (routes/<route>/sub_profiles/<id>.yaml); always NEEDS_VERIFICATION, never a venue registry."
+  - path: spec/routes/structure_profile.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.3
+    note: "7SSA structure profiles of the academic-article route (routes/academic-article/profiles/: world, thai-7, thai-5, thai-4 and INDEX.yaml with sectors, slots, overlays). Chosen by the researcher only (routing.structure_profiles, outside content_sha256); the router lists candidates (RT004). Linted by tools/ci/check_schema_lint.py; tests/test_7ssa.py."
+  - path: spec/routes/tex_fillmap.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.3
+    note: "Fill map of a vendored, sha256-pinned LaTeX template (templates/tex/*.fillmap.yaml; route.yaml `exports`, `build --format tex`). One row per [FILL token; literal, escaped replacement; NEEDS_INPUT otherwise."
 
 not_yet_created:
   - path: spec/output/parity.schema.json

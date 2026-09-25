@@ -43,6 +43,20 @@ sub_profiles:
 structure_profiles:
   index: routes/academic-article/profiles/INDEX.yaml
   dir: routes/academic-article/profiles
+# Optional alternative output format (`build --format tex`): writes exactly
+# one build/ACADEMIC_ARTICLE.tex INSTEAD of the Markdown overview, by literal
+# replacement into a sha256-pinned copy of the glosa-registered GLOSA-7SSA
+# LaTeX template (templates/tex/SOURCE.yaml). Needs a 7SSA structure profile
+# selected by the researcher. English only (pdflatex): Thai values print a
+# NEEDS_INPUT note (docs/deviations.md).
+exports:
+  - format: tex
+    filename: ACADEMIC_ARTICLE.tex
+    template: templates/tex/glosa_7ssa_v1.tex
+    source: templates/tex/SOURCE.yaml
+    fillmap: templates/tex/glosa_7ssa_v1.fillmap.yaml
+    requires_structure_profile_family: 7ssa
+    english_only: true
 # The S001 BLOCK set for this route. Kept minimal on purpose: journal
 # requirements vary and are NEEDS_VERIFICATION, so no BLOCK here may rest on
 # a journal fact (spec §4.3). Everything else is REVIEW or NEEDS_INPUT.

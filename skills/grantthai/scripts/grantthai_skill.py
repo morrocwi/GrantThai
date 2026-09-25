@@ -23,9 +23,12 @@ provenance and validation decision is made by the GrantThai engine.
         legacy project.yaml). --route ID (or `project.route` in the answers
         file) records the output route THE RESEARCHER CHOSE as
         routing.default_route; never write one they did not choose.
+        `project.structure_profile` (a 7SSA layout of the academic-article
+        route, e.g. 7ssa-thai-5) is recorded the same way, as
+        routing.structure_profiles[route], only when the researcher chose it.
 
     python grantthai_skill.py report [--project work.yaml] [--route ID] [--sub-profile SP]
-                                      [--as-of YYYY-MM-DD] [--json]
+                                      [--structure-profile P] [--as-of YYYY-MM-DD] [--json]
         Validate for one route, explain every BLOCK and REVIEW finding in
         plain Thai (from reference/rules-th.md), then build that route's one
         output file (build/NRIIS_SUBMISSION.md, ACADEMIC_ARTICLE.md or
@@ -75,7 +78,7 @@ SOURCE_KEYS = {"source_id", "kind", "citation", "locator", "url", "file", "sha25
 # the researcher's choice of output route (v0.3 router); the script records
 # them and never decides them.
 PROJECT_KEYS = {"project_id", "work_id", "work_type", "fund_profile_id", "mode", "form_profile", "route",
-                "sub_profile"}
+                "sub_profile", "structure_profile"}
 # Keys of the answers file's ai_use_declaration block. The researcher's
 # confirmation (declaration_confirmed_by_human, confirmed_by, confirmed_on)
 # is refused here: only the researcher sets it, in project.yaml.
@@ -162,7 +165,7 @@ def _is_work(doc: dict) -> bool:
     return str(doc.get("schema_version", "")).startswith("0.3")
 
 
-def set_route(doc: dict, route: str, sub_profile: str | None = None) -> str:
+def set_route(doc: dict, route: str, sub_profile: str | None = None, structure_profile: str | None = None) -> str:
     """Record the output route the researcher chose (routing.default_route,
     plus declared_routes and, when given, sub_profiles[route]) on a work.yaml
     0.3 object. A legacy 0.2 project.yaml has no `routing` key: refuse and
@@ -179,7 +182,11 @@ def set_route(doc: dict, route: str, sub_profile: str | None = None) -> str:
     routing["default_route"] = route
     if sub_profile:
         routing.setdefault("sub_profiles", {})[route] = sub_profile
-    return f"routing.default_route: {route} (the researcher's choice; not part of content_sha256)"
+    if structure_profile:
+        routing.setdefault("structure_profiles", {})[route] = structure_profile
+    return f"routing.default_route: {route} (the researcher's choice; not part of content_sha256)" + \
+        (f"; routing.structure_profiles.{route}: {structure_profile} (the researcher's choice)" if structure_profile
+         else "")
 
 
 def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = False,
@@ -211,9 +218,10 @@ def apply_answers(api, project_path: Path, answers_doc: dict, *, init: bool = Fa
             doc["form_profile"] = meta["form_profile"]
     chosen = route or meta.get("route")
     if chosen:
-        lines.append(set_route(doc, chosen, meta.get("sub_profile")))
-    elif meta.get("sub_profile"):
-        raise ValueError("project.sub_profile needs project.route (the route it belongs to)")
+        lines.append(set_route(doc, chosen, meta.get("sub_profile"), meta.get("structure_profile")))
+    elif meta.get("sub_profile") or meta.get("structure_profile"):
+        raise ValueError("project.sub_profile (or project.structure_profile) needs project.route (the route it "
+                         "belongs to)")
     _upsert_sources(doc, answers_doc.get("sources") or [])
     source_kind = {s.get("source_id"): s.get("kind") for s in doc.get("sources") or []}
     tool = answers_doc.get("tool")
@@ -330,7 +338,7 @@ def authored_by_any_human_ai(doc: dict) -> bool:
 # report
 # --------------------------------------------------------------------------
 def report(api, project_path: Path, *, as_of: str | None = None, route: str | None = None,
-           sub_profile: str | None = None) -> dict:
+           sub_profile: str | None = None, structure_profile: str | None = None) -> dict:
     """Validate and build ONE route. The route is --route, else what the
     researcher declared in the file (routing.default_route; a legacy
     project.yaml is nriis-proposal; else the one default route of the
@@ -343,7 +351,8 @@ def report(api, project_path: Path, *, as_of: str | None = None, route: str | No
                 "output": None, "ai_drafts_to_confirm": [],
                 "note": "ยังไม่ได้เลือกเส้นทางผลลัพธ์ ให้ถามผู้วิจัยว่าจะให้สร้างไฟล์แบบไหน แล้วรันใหม่ด้วย --route "
                         "(GrantThai และ AI ไม่เลือกเส้นทางแทนผู้วิจัย)"}
-    rep = api.validate(project_path, as_of=as_of, route=rid, sub_profile=sub_profile)
+    kw = {"structure_profile": structure_profile} if structure_profile else {}
+    rep = api.validate(project_path, as_of=as_of, route=rid, sub_profile=sub_profile, **kw)
     th = load_rules_th()
     explained = []
     for f in rep["findings"]:
@@ -352,7 +361,7 @@ def report(api, project_path: Path, *, as_of: str | None = None, route: str | No
         explained.append({**f, "explain_th": th.get(f["rule_id"],
                           "ยังไม่มีคำอธิบายภาษาไทยสำหรับกฎนี้ ดูคำอธิบายภาษาอังกฤษด้วยคำสั่ง "
                           f"`grantthai explain {f['rule_id']}`")})
-    out = api.build(project_path, route=rid, sub_profile=sub_profile, as_of=as_of)
+    out = api.build(project_path, route=rid, sub_profile=sub_profile, as_of=as_of, **kw)
     ai_drafts = []
     doc = api.load(project_path)
     for rec in list(doc.get("fields") or []) + [r for rs in (doc.get("chain") or {}).values() for r in rs or []]:
@@ -421,6 +430,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--project", default=None, help="work.yaml / project.yaml (default: the one in the current folder)")
     p.add_argument("--route", default=None, help="the output route the RESEARCHER chose")
     p.add_argument("--sub-profile", default=None)
+    p.add_argument("--structure-profile", default=None, help="a 7SSA layout the RESEARCHER chose (academic-article)")
     p.add_argument("--as-of")
     p.add_argument("--json", action="store_true")
     a = ap.parse_args(argv)
@@ -446,7 +456,8 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if a.cmd == "report":
             project = Path(a.project) if a.project else _discover(api)
-            r = report(api, project, as_of=a.as_of, route=a.route, sub_profile=a.sub_profile)
+            r = report(api, project, as_of=a.as_of, route=a.route, sub_profile=a.sub_profile,
+                       structure_profile=a.structure_profile)
             if a.json:
                 print(json.dumps(r, ensure_ascii=False, indent=2))
             else:

@@ -6,13 +6,15 @@ Endpoints (see spec/api/openapi.yaml):
     GET   /openapi.yaml | /openapi.json
     GET   /fields                        ?tab=&required=true&route=
     GET   /routes                        every output route; never picks one
+    GET   /routes/{route}/profiles       the route's structure profiles (7SSA layouts); never picks one
     GET   /rules/{rule_id}               explain one validator rule
     POST  /projects                      create a blank project.yaml (or work.yaml with work_type)
     GET   /projects/{id}                 read the work file (as JSON)
     PATCH /projects/{id}/fields          set one or more fields (DRAFT at most)
-    POST  /projects/{id}/validate        validation report (report-only) {as_of?, route?, sub_profile?}
+    POST  /projects/{id}/validate        validation report (report-only) {as_of?, route?, sub_profile?, structure_profile?}
     POST  /projects/{id}/routes/{route}/check   route-scoped report for an explicit route
-    POST  /projects/{id}/build           {route?, sub_profile?, as_of?} -> build/<route output file> text
+    POST  /projects/{id}/build           {route?, sub_profile?, structure_profile?, output_format?, glosa_audit?, as_of?}
+                                         -> build/<route output file> text (output_format tex: build/ACADEMIC_ARTICLE.tex)
 
 Every handler is a thin call into grantthai.api_py. The output route is
 the researcher's choice (v0.3 router): with no `route` the server resolves
@@ -45,7 +47,8 @@ PROVENANCE_KEYS = {"provenance_class", "source_type", "evidence_role"}
 DEFAULT_TOOL_NAME = "http-client"
 CREATE_KEYS = {"project_id", "fund_profile_id", "mode", "work_type"}
 WORK_TYPES = tuple(_P.schema(_P.WORK_SCHEMA_ID)["$defs"]["work_type"]["enum"])
-ROUTE_KEYS = {"as_of", "route", "sub_profile"}
+ROUTE_KEYS = {"as_of", "route", "sub_profile", "structure_profile"}
+BUILD_KEYS = ROUTE_KEYS | {"output_format", "glosa_audit"}
 
 
 class HTTPError(Exception):
@@ -90,6 +93,7 @@ class GrantThaiAPI:
             ("GET", re.compile(r"^/openapi\.json$"), self.openapi_json),
             ("GET", re.compile(r"^/fields$"), self.fields),
             ("GET", re.compile(r"^/routes$"), self.list_routes),
+            ("GET", re.compile(r"^/routes/(?P<route>[^/]+)/profiles$"), self.list_structure_profiles),
             ("GET", re.compile(r"^/rules/(?P<rule_id>[^/]+)$"), self.rule),
             ("POST", re.compile(r"^/projects$"), self.create_project),
             ("GET", re.compile(r"^/projects/(?P<pid>[^/]+)$"), self.get_project),
@@ -168,10 +172,10 @@ class GrantThaiAPI:
             raise HTTPError(409, str(e)) from None
 
     @staticmethod
-    def _route_body(body: Any, what: str) -> tuple[str | None, str | None, str | None]:
+    def _route_body(body: Any, what: str, allowed: set[str] = ROUTE_KEYS) -> tuple[str | None, str | None, str | None]:
         """(as_of, route, sub_profile) from a validate/build body."""
-        body = GrantThaiAPI._obj(body, ROUTE_KEYS, what)
-        for k in ("route", "sub_profile"):
+        body = GrantThaiAPI._obj(body, allowed, what)
+        for k in ("route", "sub_profile", "structure_profile"):
             if body.get(k) is not None and (not isinstance(body[k], str) or not body[k]):
                 raise HTTPError(400, f"{k} must be a non-empty string")
         return _check_as_of(body.get("as_of")), body.get("route"), body.get("sub_profile")
@@ -260,6 +264,15 @@ class GrantThaiAPI:
         return 200, "application/json", {"routes": api_py.list_routes(),
                                          "note": "The researcher chooses the route; this list never does."}
 
+    def list_structure_profiles(self, route: str, **_):
+        try:
+            res = api_py.list_structure_profiles(route)
+        except KeyError as e:          # RouteNotFound
+            raise HTTPError(404, str(e)) from None
+        except ValueError as e:
+            raise HTTPError(409, str(e)) from None
+        return 200, "application/json", res
+
     def rule(self, rule_id: str, **_):
         try:
             return 200, "application/json", api_py.explain(rule_id)
@@ -336,38 +349,56 @@ class GrantThaiAPI:
         as_of, route, sub_profile = self._route_body(body, "request body")
         path = self._project_file(pid)
         rid = self._resolve(path, route)
-        report = api_py.validate(path, as_of=as_of, route=rid, sub_profile=sub_profile)
+        try:
+            report = api_py.validate(path, as_of=as_of, route=rid, sub_profile=sub_profile,
+                                     structure_profile=body.get("structure_profile"))
+        except ValueError as e:          # RouteError: this route has no structure profiles
+            raise HTTPError(409, str(e)) from None
         return 200, "application/json", report
 
     def check_route(self, pid: str, route: str, body: Any, **_):
-        body = self._obj(body, {"as_of", "sub_profile"}, "request body")
-        if body.get("sub_profile") is not None and not isinstance(body["sub_profile"], str):
-            raise HTTPError(400, "sub_profile must be a string")
+        body = self._obj(body, {"as_of", "sub_profile", "structure_profile"}, "request body")
+        for k in ("sub_profile", "structure_profile"):
+            if body.get(k) is not None and not isinstance(body[k], str):
+                raise HTTPError(400, f"{k} must be a string")
         path = self._project_file(pid)
         self._resolve(path, route)      # unknown route -> 404
-        report = api_py.check_route(path, route, sub_profile=body.get("sub_profile"),
-                                    as_of=_check_as_of(body.get("as_of")))
+        try:
+            report = api_py.check_route(path, route, sub_profile=body.get("sub_profile"),
+                                        as_of=_check_as_of(body.get("as_of")),
+                                        structure_profile=body.get("structure_profile"))
+        except ValueError as e:
+            raise HTTPError(409, str(e)) from None
         return 200, "application/json", report
 
     def build(self, pid: str, body: Any, query: dict, **_):
-        as_of, route, sub_profile = self._route_body(body, "request body")
+        as_of, route, sub_profile = self._route_body(body, "request body", BUILD_KEYS)
+        body = body if isinstance(body, dict) else {}
+        out_fmt = body.get("output_format") or "md"
+        if out_fmt not in ("md", "tex"):
+            raise HTTPError(400, "output_format must be md or tex")
+        if body.get("glosa_audit") is not None and not isinstance(body["glosa_audit"], bool):
+            raise HTTPError(400, "glosa_audit must be a boolean")
+        ssp = body.get("structure_profile")
         fmt = (query.get("format") or ["markdown"])[0]
         if fmt not in ("markdown", "json"):
             raise HTTPError(400, "format must be markdown or json")
         path = self._project_file(pid)
         rid = self._resolve(path, route)
         try:
-            out = api_py.build(path, route=rid, sub_profile=sub_profile, as_of=as_of)
-        except ValueError as e:          # RouteError: no renderer in this build; nothing written
+            out = api_py.build(path, route=rid, sub_profile=sub_profile, as_of=as_of, structure_profile=ssp,
+                               fmt=out_fmt, glosa_audit=bool(body.get("glosa_audit")))
+        except ValueError as e:          # RouteError: no renderer / no profile / no export; nothing written
             raise HTTPError(409, str(e)) from None
         text = out.read_text(encoding="utf-8")
         if fmt == "json":
-            report = api_py.validate(path, as_of=as_of, route=rid, sub_profile=sub_profile)
-            return 200, "application/json", {
-                "id": pid, "route": rid, "filename": out.name, "markdown": text,
-                "summary": report.get("summary"),
-            }
-        return 200, "text/markdown", text
+            report = api_py.validate(path, as_of=as_of, route=rid, sub_profile=sub_profile, structure_profile=ssp)
+            res = {"id": pid, "route": rid, "filename": out.name, "markdown": text if out_fmt == "md" else None,
+                   "summary": report.get("summary")}
+            if out_fmt != "md":
+                res.update({"output_format": out_fmt, "content": text})
+            return 200, "application/json", res
+        return 200, ("text/markdown" if out_fmt == "md" else "application/x-tex"), text
 
 
 def make_app(workdir: str | Path = "grantthai-work") -> GrantThaiAPI:

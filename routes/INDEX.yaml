@@ -35,7 +35,7 @@ routes:
     status: draft
     path: routes/academic-article/route.yaml
     output_filename: ACADEMIC_ARTICLE.md
-    note: "Route file, placement and sub-profiles (thai-journal, international-journal; both NEEDS_VERIFICATION). The registry carries its 24 ARTICLE.* fields."
+    note: "Route file, placement and sub-profiles (thai-journal, international-journal; both NEEDS_VERIFICATION). The registry carries its 29 ARTICLE.* fields (5 of them for the 7SSA structure profiles, routes/academic-article/profiles/)."
   - id: concept-note
     version: "0.1.0-draft"
     status: draft

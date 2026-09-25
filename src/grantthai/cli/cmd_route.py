@@ -3,7 +3,8 @@
     grantthai route list [--json]
     grantthai route check --route ID [PATH] [--sub-profile SP] [--structure-profile P] [--json] [--as-of D]
     grantthai route profiles [--route ID] [PATH] [--json]   # structure profiles (7SSA); candidates; never selects
-    grantthai route build --route ID [PATH] [--sub-profile SP] [--out DIR] [--as-of D]
+    grantthai route build --route ID [PATH] [--sub-profile SP] [--structure-profile P] [--format md|tex]
+                          [--glosa-audit] [--out DIR] [--as-of D]
 
 A route is always chosen by a person. `route list` only lists; `check` and
 `build` require --route. `grantthai build [PATH] --route ID` is the same as
@@ -18,6 +19,15 @@ from __future__ import annotations
 import json
 
 from grantthai import api_py as api
+
+
+def add_build_options(q) -> None:
+    q.add_argument("--structure-profile", help="a 7SSA structure profile (overrides routing.structure_profiles)")
+    q.add_argument("--format", default="md", choices=["md", "tex"],
+                   help="md (default): the route's Markdown file; tex: the route's LaTeX export instead "
+                        "(academic-article with a 7SSA profile; English only; runs no LaTeX engine)")
+    q.add_argument("--glosa-audit", action="store_true",
+                   help="--format tex only: keep the template's glosa audit appendices")
 
 
 def register(sub) -> None:
@@ -41,6 +51,7 @@ def register(sub) -> None:
     q.add_argument("path", nargs="?", default=None, help="work.yaml / project.yaml or its directory")
     q.add_argument("--route", required=True)
     q.add_argument("--sub-profile")
+    add_build_options(q)
     q.add_argument("--out")
     q.add_argument("--as-of")
 
@@ -93,6 +104,7 @@ def run(a) -> int | None:
                           f"others {', '.join(c['others']) or 'none'}")
         return 0
     if a.route_cmd == "build":
-        print(str(api.build(a.path, route=a.route, sub_profile=a.sub_profile, out_dir=a.out, as_of=a.as_of)))
+        print(str(api.build(a.path, route=a.route, sub_profile=a.sub_profile, out_dir=a.out, as_of=a.as_of,
+                            structure_profile=a.structure_profile, fmt=a.format, glosa_audit=a.glosa_audit)))
         return 0
     return 2

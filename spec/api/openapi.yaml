@@ -114,6 +114,32 @@ paths:
                     type: array
                     items: {$ref: "#/components/schemas/RouteInfo"}
                   note: {type: string}
+  /routes/{route}/profiles:
+    get:
+      operationId: listStructureProfiles
+      summary: List a route's structure profiles (academic-article; the 7SSA layouts). The list never chooses; the researcher does.
+      parameters:
+        - name: route
+          in: path
+          required: true
+          schema: {type: string}
+          description: Output route id (GET /routes).
+      responses:
+        "200":
+          description: The profiles with their visible sections; `selected` and `candidates` are null here (they need a work object; see the CLI `route profiles PATH`).
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [route, profiles]
+                properties:
+                  route: {type: string}
+                  profiles: {type: array, items: {type: object}}
+                  selected: {type: ["string", "null"]}
+                  candidates: {type: ["object", "null"]}
+                  note: {type: string}
+        "404": {$ref: "#/components/responses/Error"}
+        "409": {$ref: "#/components/responses/Error"}
   /rules/{rule_id}:
     get:
       operationId: explainRule
@@ -298,6 +324,7 @@ paths:
               properties:
                 as_of: {type: string, format: date}
                 sub_profile: {type: string}
+                structure_profile: {type: string}
       responses:
         "200":
           description: The report (spec/common/validation_report.schema.json).
@@ -414,6 +441,16 @@ components:
         sub_profile:
           type: string
           description: A sub-profile of the route (a form profile for nriis-proposal; thai-journal or international-journal for academic-article, both NEEDS_VERIFICATION). Default routing.sub_profiles[route], else the route's own default.
+        structure_profile:
+          type: string
+          description: A 7SSA structure profile of the academic-article route (7ssa-world, 7ssa-thai-7, 7ssa-thai-5, 7ssa-thai-4; GET /routes/academic-article/profiles), chosen by the researcher. Default routing.structure_profiles[route], else none (the plain overview). The server never chooses one.
+        output_format:
+          type: string
+          enum: [md, tex]
+          description: Build only. md (default) = the route's Markdown file; tex = the academic-article LaTeX export build/ACADEMIC_ARTICLE.tex INSTEAD (needs a selected 7SSA profile; English only; no LaTeX engine is run).
+        glosa_audit:
+          type: boolean
+          description: Build with output_format tex only. Keep the template's glosa audit appendices.
     ValidationReport:
       type: object
       required: [summary, findings]
