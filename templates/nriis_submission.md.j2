@@ -96,15 +96,16 @@ This file is the researcher's own information, arranged for copy/paste into NRII
 
 ## 2. Copy/paste fields by NRIIS tab
 
-Tab names, their order and the field order within each tab describe one observed form and are **NEEDS_VERIFICATION**.
+Tab names, their order and the field order within each tab describe one observed form and are **NEEDS_VERIFICATION**. A Thai label marked "candidate" was read from a public document edition (docs/sources.md) and is also NEEDS_VERIFICATION: check it against the current call; it is never an official label.
 {% for t in tabs %}
 
-### Tab {{ loop.index }}: {{ t.tab }} (NEEDS_VERIFICATION)
+### Tab {{ loop.index }}: {{ t.tab }} (NEEDS_VERIFICATION){% if t.candidate %}; candidate part label (candidate, NEEDS_VERIFICATION): {{ t.candidate }}{% endif %}
 {% for f in t.fields %}
 
 #### {{ t.tab }}.{{ f.entry_order }} {{ f.label_en }}
 
-LABEL_TH: {{ f.label_th }}
+LABEL_TH: {{ f.label_th }}{% if f.label_th_candidate %} (candidate, NEEDS_VERIFICATION: {{ f.label_th_candidate }}){% endif %}
+
 
 {{ f.value }}
 

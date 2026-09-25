@@ -496,6 +496,12 @@ def main() -> int:
     if get("mappings/nriis/section_to_tab.yaml") is not None:
         validate(violations, registry, schemas, "mappings/section_to_tab.schema.json", get("mappings/nriis/section_to_tab.yaml"), "mappings/nriis/section_to_tab.yaml")
     for rel in parsed:
+        if rel.startswith("mappings/nriis/labels@") and rel.endswith(".yaml"):
+            validate(violations, registry, schemas, "mappings/labels.schema.json", get(rel), rel)
+            fids = {r.get("field_id") for r in get("registry/fields.jsonl") or []}
+            for fid in ((get(rel) or {}).get("field_labels") or {}):
+                if fids and fid not in fids:
+                    violations.append(f"{rel}: field_labels key {fid} is not a registry field")
         if rel.startswith("mappings/modes/") and rel.endswith(".yaml"):
             validate(violations, registry, schemas, "mappings/mode_mapping.schema.json", get(rel), rel)
         if rel.startswith("interview/") and rel.endswith(".yaml"):

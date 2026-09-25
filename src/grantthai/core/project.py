@@ -87,6 +87,31 @@ def tab_mapping() -> dict:
 
 
 @lru_cache(maxsize=None)
+def candidate_labels() -> dict:
+    """mappings/nriis/labels@<edition>.yaml: CANDIDATE Thai labels and code
+    lists from public documents, every one NEEDS_VERIFICATION (K14). With
+    several editions the files are merged in sorted file-name order."""
+    out: dict = {}
+    for path in sorted((DATA_ROOT / "mappings" / "nriis").glob("labels@*.yaml")):
+        doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        for k, v in doc.items():
+            if isinstance(v, dict) and isinstance(out.get(k), dict):
+                out[k] = {**out[k], **v}
+            else:
+                out[k] = v
+    return out
+
+
+def candidate_label_text(entry: dict | None) -> str:
+    """'"<label>" (SD-1 p15, item 1.1)' for a field_labels/tab_labels entry."""
+    if not isinstance(entry, dict) or not entry.get("label_th"):
+        return ""
+    src = entry.get("source") or {}
+    where = f"{src.get('doc')} p{src.get('pages')}" + (f", item {src['item']}" if src.get("item") else "")
+    return f'"{entry["label_th"]}" ({where})'
+
+
+@lru_cache(maxsize=None)
 def contradictions() -> tuple[dict, ...]:
     """registry/contradictions.yaml: package-level contradictions, all kept OPEN."""
     return tuple((_read_yaml("registry/contradictions.yaml") or {}).get("contradictions") or [])

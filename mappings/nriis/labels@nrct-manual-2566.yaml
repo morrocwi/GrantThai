@@ -1,0 +1,252 @@
+# mappings/nriis/labels@nrct-manual-2566.yaml — CANDIDATE Thai labels and
+# code lists, read from public source documents.
+#
+# STATUS: every entry is a CANDIDATE and NEEDS_VERIFICATION. Nothing in this
+# file is declared official or current. The documents describe a form
+# edition (SD-1 is edition 2566, SD-4 is a 2566 training handout); today's
+# NRIIS form may differ. Before entering anything, check it against the
+# current call.
+#
+# Founder ruling K14 (2026-09-25): labels come from public documents, never
+# from the screenshot-derived readout. Nothing here was taken from that
+# readout or from the screenshots behind it; every entry cites a public
+# document id (docs/sources.md) and a PDF page.
+#
+# What the renderer does with it: next to a field's LABEL_TH:
+# NEEDS_VERIFICATION it prints the candidate, tagged "(candidate,
+# NEEDS_VERIFICATION)", with its source. Registry `label_th` stays
+# NEEDS_VERIFICATION. The OECD lists are the candidate_values of
+# CORE.GENERAL.OECD.PRIMARY / SECONDARY (rule S011: a value outside the list
+# gets a REVIEW finding, never a BLOCK). The typologies are guidance for the
+# free-text output_type / outcome_type / impact_type keys; no rule enforces
+# them.
+#
+# Transcription notes: `as_printed: false` means the text was normalised:
+# `spacing_normalised` (the PDF text layer splits Thai words with spaces) or
+# `restored_sara_am` (the SD-4 text layer drops the vowel sign "ำ"; restored
+# by hand). A normalised entry is itself NEEDS_VERIFICATION.
+#
+# No amount, rate or ceiling is copied here: those are fund rules and live
+# only in a dated fund profile (P6).
+schema: grantthai.nriis_labels.v0
+version: "0.1.0-draft"
+status: CANDIDATE
+status_marker: NEEDS_VERIFICATION
+sources:
+  SD-1: {edition: "2566", derived_from: "sourcedoc/SD-1@sha256:98423019ad17f0f0aafc3863840e9d7aaa81007a84f3ddd64a10aab689a4b52e"}
+  SD-4: {edition: "2566 (training handout)", derived_from: "sourcedoc/SD-4@sha256:29ace18ff6599bef925b254f5d879b9cc267f628b0325d5c0093fa4f49b924dc"}
+
+# Form parts as printed in SD-1 p15-18 (and SD-4 for attachments). Which
+# GrantThai tab each part corresponds to is itself NEEDS_VERIFICATION
+# (contradictions CX-07, CX-09).
+tab_labels:
+  GENERAL:     {label_th: "1. ข้อมูลทั่วไป", source: {doc: SD-1, pages: "15"}}
+  PROJECT:     {label_th: "2. ข้อมูลโครงการวิจัย", source: {doc: SD-1, pages: "16"}}
+  WORKPLAN:    {label_th: "3. ข้อมูลแผนงาน", source: {doc: SD-1, pages: "16-17"}}
+  UTILIZATION: {label_th: "5. ผลผลิต/ผลลัพธ์/ผลกระทบ", source: {doc: SD-1, pages: "18"},
+                note: "SD-1 part 4 'ข้อมูลผู้ประกอบการ (ถ้ามี)' is also placed on this tab (CX-09)."}
+  ATTACHMENTS: {label_th: "ส่วนที่ 5 : เอกสารแนบ", source: {doc: SD-4, pages: "164"},
+                note: "SD-4's part numbering differs from SD-1's (CX-09)."}
+
+# Candidate Thai labels per registry field, from SD-1 p15-18 (the numbered
+# items of "รายละเอียดของข้อเสนอการวิจัยและนวัตกรรม"). `item` is
+# <part>.<item as numbered in SD-1>. For the research-standards items the
+# label joins the item name and the sub-option as printed.
+field_labels:
+  CORE.GENERAL.TITLE_TH: {label_th: "ชื่อโครงการ", source: {doc: SD-1, pages: "15", item: "1.1"}, note: "SD-1 does not split Thai and English titles."}
+  CORE.GENERAL.TITLE_EN: {label_th: "ชื่อโครงการ", source: {doc: SD-1, pages: "15", item: "1.1"}, note: "SD-1 does not split Thai and English titles."}
+  CORE.GENERAL.SUBPROJECTS: {label_th: "ชื่อโครงการย่อยภายใต้โครงการ (ถ้ามี)", source: {doc: SD-1, pages: "15", item: "1.2"}}
+  CORE.GENERAL.PROGRAMME_NAME: {label_th: "ชื่อชุดโครงการ", source: {doc: SD-4, pages: "40", item: "1.5"}}
+  CORE.GENERAL.CHARACTERISTIC: {label_th: "ลักษณะโครงการ", source: {doc: SD-1, pages: "15", item: "1.3"}}
+  CORE.GENERAL.PAST_PERFORMANCE: {label_th: "ผลการดำเนินที่ผ่านมา (กรณีที่เป็นโครงการต่อเนื่อง)", source: {doc: SD-1, pages: "15", item: "1.3"}}
+  CORE.GENERAL.OTHER_FUNDER: {label_th: "โครงการยื่นเสนอขอรับทุนจากหน่วยงานอื่น", source: {doc: SD-1, pages: "15", item: "1.4"}}
+  CORE.GENERAL.KEYWORDS_TH: {label_th: "คำสำคัญ (Keywords)", source: {doc: SD-1, pages: "15", item: "1.5"}, note: "Thai and English keywords in one item."}
+  CORE.GENERAL.KEYWORDS_EN: {label_th: "คำสำคัญ (Keywords)", source: {doc: SD-1, pages: "15", item: "1.5"}, note: "Thai and English keywords in one item."}
+  CORE.GENERAL.OECD.PRIMARY: {label_th: "สาขาการวิจัยหลัก/ย่อย OECD", source: {doc: SD-1, pages: "15", item: "1.6"}, note: "One item for main and sub field (CX-10)."}
+  CORE.GENERAL.OECD.SECONDARY: {label_th: "สาขาการวิจัยหลัก/ย่อย OECD", source: {doc: SD-1, pages: "15", item: "1.6"}, note: "One item for main and sub field (CX-10)."}
+  CORE.GENERAL.ISCED.BROAD: {label_th: "ISCED Broad field", source: {doc: SD-1, pages: "15", item: "1.7"}}
+  CORE.GENERAL.ISCED.NARROW: {label_th: "ISCED Narrow field", source: {doc: SD-1, pages: "15", item: "1.7"}}
+  CORE.GENERAL.ISCED.DETAILED: {label_th: "ISCED Detailed field", source: {doc: SD-1, pages: "15", item: "1.7"}}
+  PROFILE.TEAM.MEMBERS: {label_th: "รายละเอียดของคณะผู้วิจัย", source: {doc: SD-1, pages: "15", item: "1.8"}}
+  PROFILE.TEAM.EXPERTISE: {label_th: "ความชำนาญ/ความสนใจพิเศษ/ความรับผิดชอบต่อแผนงาน/โครงการ อื่นๆ ที่อยู่ระหว่างดำเนินการ", source: {doc: SD-1, pages: "15", item: "1.8"}, note: "Part of the team-details item."}
+  CORE.NARRATIVE.SUMMARY: {label_th: "บทสรุปข้อเสนอการวิจัยและนวัตกรรม", source: {doc: SD-1, pages: "16", item: "2.1"}, note: "SD-1 states a length limit for this item; limits belong in the fund profile (P6)."}
+  CORE.NARRATIVE.RATIONALE: {label_th: "หลักการและเหตุผล", source: {doc: SD-1, pages: "16", item: "2.2"}}
+  CORE.NARRATIVE.OBJECTIVES: {label_th: "วัตถุประสงค์", source: {doc: SD-1, pages: "16", item: "2.3"}}
+  CORE.NARRATIVE.FRAMEWORK: {label_th: "กรอบการวิจัย", source: {doc: SD-1, pages: "16", item: "2.4"}}
+  CORE.NARRATIVE.THEORY: {label_th: "แนวคิด ทฤษฎี และสมมติฐานงานวิจัย", source: {doc: SD-1, pages: "16", item: "2.5"}, as_printed: false, spacing_normalised: true}
+  CORE.NARRATIVE.METHOD: {label_th: "ระเบียบวิธีวิจัยและวิธีการดำเนินการวิจัย", source: {doc: SD-1, pages: "16", item: "2.6"}}
+  CORE.NARRATIVE.REFERENCES: {label_th: "เอกสาร/งานวิจัยอ้างอิงทางวิชาการเกี่ยวกับโครงการ", source: {doc: SD-1, pages: "16", item: "2.7"}, as_printed: false, spacing_normalised: true}
+  CORE.NARRATIVE.IP_CHECK: {label_th: "การตรวจสอบทรัพย์สินทางปัญญาที่เกี่ยวข้อง", source: {doc: SD-1, pages: "16", item: "2.8"}}
+  WORK.PLAN.ACTIVITIES: {label_th: "แผนการดำเนินงานวิจัย", source: {doc: SD-1, pages: "16", item: "3.1"}, note: "SD-1 item 3.2 'ผลงานในแต่ละช่วงเวลา' (deliverables per period) is the activities' deliverables key."}
+  GEO.AREA.RESEARCH_SITES: {label_th: "พื้นที่ทำวิจัย", source: {doc: SD-1, pages: "16", item: "3.3"}}
+  GEO.AREA.BENEFIT_AREAS: {label_th: "พื้นที่ที่ได้รับประโยชน์จากการวิจัย", source: {doc: SD-1, pages: "16", item: "3.4"}}
+  BUDGET.PLAN.ITEMS: {label_th: "แผนการใช้จ่ายงบประมาณของโครงการวิจัย", source: {doc: SD-1, pages: "17", item: "3.5"}}
+  BUDGET.PLAN.YEARS: {label_th: "แผนการใช้จ่ายงบประมาณของโครงการวิจัย", source: {doc: SD-1, pages: "17", item: "3.5"}}
+  COMP.STANDARD.ANIMAL: {label_th: "มาตรฐานการวิจัย: มีการใช้สัตว์ทดลอง", source: {doc: SD-1, pages: "17", item: "3.6"}}
+  COMP.STANDARD.HUMAN: {label_th: "มาตรฐานการวิจัย: มีการวิจัยในมนุษย์", source: {doc: SD-1, pages: "17", item: "3.6"}}
+  COMP.STANDARD.BIOSAFETY: {label_th: "มาตรฐานการวิจัย: มีการวิจัยที่เกี่ยวข้องกับงานด้านเทคโนโลยีชีวภาพสมัยใหม่", source: {doc: SD-1, pages: "17", item: "3.6"}}
+  COMP.STANDARD.CHEMICAL: {label_th: "มาตรฐานการวิจัย: มีการใช้ห้องปฏิบัติการที่เกี่ยวกับสารเคมี", source: {doc: SD-1, pages: "17", item: "3.6"}}
+  WORK.PARTNERS.ORGANIZATIONS: {label_th: "หน่วยงานร่วมดำเนินการ/ภาคเอกชนหรือชุมชนที่ร่วมลงทุนหรือดำเนินการ", source: {doc: SD-1, pages: "17", item: "3.7"}}
+  READY.TRL.CURRENT: {label_th: "ระดับความพร้อมทางเทคโนโลยี (Technology Readiness Level: TRL)", source: {doc: SD-1, pages: "17", item: "3.8.1"}}
+  READY.TRL.TARGET: {label_th: "ระดับความพร้อมทางเทคโนโลยี (Technology Readiness Level: TRL)", source: {doc: SD-1, pages: "17", item: "3.8.1"}}
+  READY.SRL.CURRENT: {label_th: "ระดับความพร้อมทางสังคม (Societal Readiness Level: SRL)", source: {doc: SD-1, pages: "17", item: "3.8.2"}}
+  READY.SRL.TARGET: {label_th: "ระดับความพร้อมทางสังคม (Societal Readiness Level: SRL)", source: {doc: SD-1, pages: "17", item: "3.8.2"}}
+  RESULTS.PATHWAY.EXPERTS: {label_th: "การเชื่อมโยงกับนักวิจัยที่เป็นผู้เชี่ยวชาญในสาขาวิชาที่ทำการวิจัยทั้งในและต่างประเทศ (ถ้ามี)", source: {doc: SD-1, pages: "17", item: "3.9.1"}, as_printed: false, spacing_normalised: true}
+  RESULTS.PATHWAY.STAKEHOLDERS: {label_th: "การเชื่อมโยงหรือความร่วมมือกับผู้มีส่วนได้ส่วนเสีย และผู้ใช้ประโยชน์จากงานวิจัย (Stakeholder and User Engagement)", source: {doc: SD-1, pages: "17", item: "3.9.2"}}
+  WORK.PLAN.RISKS: {label_th: "ความเสี่ยงของโครงการ", source: {doc: SD-1, pages: "17", item: "3.10"}}
+  RESULTS.ENTREPRENEUR.PROFILE: {label_th: "ข้อมูลผู้ประกอบการ (ถ้ามี)", source: {doc: SD-1, pages: "18", item: "4"}}
+  RESULTS.CHAIN.BENEFIT_SUMMARY: {label_th: "ประโยชน์ที่คาดว่าจะได้รับ", source: {doc: SD-1, pages: "18", item: "5.1"}}
+  RESULTS.CHAIN.BENEFICIARIES: {label_th: "ผู้ที่จะได้ประโยชน์จากโครงการ", source: {doc: SD-1, pages: "18", item: "5.2"}}
+  RESULTS.CHAIN.OUTPUTS: {label_th: "ผลผลิตที่คาดว่าจะได้รับ (Output)", source: {doc: SD-1, pages: "18", item: "5.3"}, as_printed: false, spacing_normalised: true}
+  RESULTS.CHAIN.OUTCOMES: {label_th: "ผลลัพธ์ (Expected Outcomes) ที่เกิดจากการนำผลงานไปใช้ประโยชน์ของผู้ใช้ (users)", source: {doc: SD-1, pages: "18", item: "5.4"}}
+  RESULTS.CHAIN.IMPACTS: {label_th: "ผลกระทบ (Expected Impacts)", source: {doc: SD-1, pages: "18", item: "5.5"}}
+
+# SD-1 p20 "สาขาตาม OECD": 6 main groups and their sub-fields.
+oecd_main:
+  source: {doc: SD-1, pages: "20"}
+  values:
+    - {code: "1", label_th: "เกษตรศาสตร์"}
+    - {code: "2", label_th: "มนุษยศาสตร์"}
+    - {code: "3", label_th: "วิทยาศาสตร์การแพทย์และสุขภาพ"}
+    - {code: "4", label_th: "วิทยาศาสตร์ธรรมชาติ"}
+    - {code: "5", label_th: "วิศวกรรมและเทคโนโลยี"}
+    - {code: "6", label_th: "สังคมศาสตร์"}
+oecd_sub:
+  source: {doc: SD-1, pages: "20"}
+  values:
+    - {code: "1.1", label_th: "เกษตรกรรม"}
+    - {code: "1.2", label_th: "ป่าไม้"}
+    - {code: "1.3", label_th: "ประมง"}
+    - {code: "1.4", label_th: "สัตวศาสตร์"}
+    - {code: "1.5", label_th: "สัตวแพทยศาสตร์"}
+    - {code: "1.6", label_th: "เทคโนโลยีชีวภาพด้านการเกษตร"}
+    - {code: "1.7", label_th: "วิทยาศาสตร์การเกษตร"}
+    - {code: "1.8", label_th: "วิทยาศาสตร์ทางด้านการเกษตรอื่น ๆ"}
+    - {code: "2.1", label_th: "ประวัติศาสตร์และโบราณคดี"}
+    - {code: "2.2", label_th: "ภาษาและวรรณคดี"}
+    - {code: "2.3", label_th: "ปรัชญา จริยธรรมและศาสนา"}
+    - {code: "2.4", label_th: "ศิลปะ"}
+    - {code: "2.5", label_th: "มนุษยศาสตร์อื่น ๆ"}
+    - {code: "3.1", label_th: "การแพทย์พื้นฐาน"}
+    - {code: "3.2", label_th: "การแพทย์คลินิก"}
+    - {code: "3.3", label_th: "วิทยาศาสตร์สุขภาพ"}
+    - {code: "3.4", label_th: "เทคโนโลยีชีวภาพทางด้านการแพทย์"}
+    - {code: "3.5", label_th: "วิทยาศาสตร์ทางการแพทย์อื่น"}
+    - {code: "4.1", label_th: "คณิตศาสตร์"}
+    - {code: "4.2", label_th: "วิทยาศาสตร์กายภาพ"}
+    - {code: "4.3", label_th: "วิทยาศาสตร์คอมพิวเตอร์และสารสนเทศ"}
+    - {code: "4.4", label_th: "วิทยาศาสตร์เคมี"}
+    - {code: "4.5", label_th: "วิทยาศาสตร์ชีวภาพ"}
+    - {code: "4.6", label_th: "วิทยาศาสตร์สิ่งแวดล้อม"}
+    - {code: "4.7", label_th: "วิทยาศาสตร์ธรรมชาติอื่น ๆ"}
+    - {code: "5.1", label_th: "เทคโนโลยีชีวภาพสิ่งแวดล้อม"}
+    - {code: "5.2", label_th: "เทคโนโลยีชีวภาพอุตสาหการ"}
+    - {code: "5.3", label_th: "เทคโนโลยีพลังงาน"}
+    - {code: "5.4", label_th: "นาโนเทคโนโลยี"}
+    - {code: "5.5", label_th: "วิศวกรรมการแพทย์"}
+    - {code: "5.6", label_th: "วิศวกรรมเคมี"}
+    - {code: "5.7", label_th: "วิศวกรรมเครื่องกล"}
+    - {code: "5.8", label_th: "วิศวกรรมไฟฟ้า อิเล็กทรอนิกส์ และสารสนเทศ"}
+    - {code: "5.9", label_th: "วิศวกรรมโยธา"}
+    - {code: "5.10", label_th: "วิศวกรรมสิ่งแวดล้อม"}
+    - {code: "5.11", label_th: "วิศวกรรมโลหะและวัสดุ"}
+    - {code: "5.12", label_th: "วิศวกรรมและเทคโนโลยีอื่น ๆ"}
+    - {code: "6.1", label_th: "จิตวิทยา"}
+    - {code: "6.2", label_th: "เศรษฐศาสตร์"}
+    - {code: "6.3", label_th: "ศึกษาศาสตร์"}
+    - {code: "6.4", label_th: "สังคมศาสตร์"}
+    - {code: "6.5", label_th: "นิติศาสตร์"}
+    - {code: "6.6", label_th: "รัฐศาสตร์"}
+    - {code: "6.7", label_th: "ภูมิศาสตร์ทางสังคมและเศรษฐกิจ"}
+    - {code: "6.8", label_th: "นิเทศน์ศาสตร์และสื่อสารมวลชน"}
+    - {code: "6.9", label_th: "สังคมศาสตร์อื่น ๆ"}
+
+# Budget categories. Labels only: no rate, ceiling or amount (P6).
+budget_categories:
+  - source: {doc: SD-1, pages: "17", item: "3.5"}
+    note: "Categories listed under the budget-plan item."
+    values:
+      - {label_th: "งบดำเนินงาน: ค่าตอบแทน/ค่าจ้าง"}
+      - {label_th: "งบดำเนินงาน: ค่าใช้สอย"}
+      - {label_th: "งบดำเนินงาน: ค่าวัสดุ"}
+      - {label_th: "งบลงทุน: ค่าครุภัณฑ์"}
+      - {label_th: "งบดำเนินงาน: ค่าธรรมเนียมอุดหนุนสถาบัน"}
+  - source: {doc: SD-1, pages: "21"}
+    note: "Four budget groups in the budgeting section; SD-1 says utilities are included in the institutional fee."
+    values:
+      - {code: "1", label_th: "งบบุคลากร"}
+      - {code: "1.1", label_th: "ค่าจ้างลูกจ้างโครงการ"}
+      - {code: "1.2", label_th: "ค่าจ้างผู้ช่วยนักวิจัย"}
+      - {code: "2", label_th: "งบดำเนินงาน"}
+      - {code: "2.1", label_th: "ค่าตอบแทน"}
+      - {code: "2.2", label_th: "ค่าใช้สอย"}
+      - {code: "2.3", label_th: "ค่าวัสดุ"}
+      - {code: "3", label_th: "งบลงทุน"}
+      - {code: "3.1", label_th: "ค่าครุภัณฑ์"}
+      - {code: "3.2", label_th: "ค่าสิ่งก่อสร้าง"}
+      - {code: "4", label_th: "ค่าธรรมเนียมอุดหนุนสถาบัน"}
+  - source: {doc: SD-4, pages: "90"}
+    note: "Budget types as shown for NRIIS in SD-4. SD-4 writes 'งบดำเนินการ' where SD-1 writes 'งบดำเนินงาน', and lists utilities as their own line."
+    values:
+      - {label_th: "งบบุคลากร"}
+      - {label_th: "งบดำเนินการ : ค่าตอบแทน", as_printed: false, restored_sara_am: true}
+      - {label_th: "งบดำเนินการ : ค่าใช้สอย", as_printed: false, restored_sara_am: true}
+      - {label_th: "งบดำเนินการ : ค่าวัสดุ", as_printed: false, restored_sara_am: true}
+      - {label_th: "งบดำเนินการ : ค่าสาธารณูปโภค", as_printed: false, restored_sara_am: true, note: "The text layer reads 'ค่าสาธารณูประโภค'; standard spelling used."}
+      - {label_th: "งบลงทุน : ครุภัณฑ์"}
+
+# Output typology (SD-4 p120-134). Guidance for RESULTS.CHAIN.OUTPUTS.output_type.
+# SD-4 prints these in table cells broken across lines; every SD-4 typology
+# label below was joined (spacing_normalised) and is NEEDS_VERIFICATION.
+output_types:
+  source: {doc: SD-4, pages: "120-134"}
+  note: "SD-4 p120: a main output answers the main KR, a secondary output answers a secondary KR or is a by-product; every output should lead to an outcome (kr_role, kr_ids)."
+  values:
+    - {label_th: "กำลังคนหรือหน่วยงานที่ได้รับการพัฒนาทักษะ", pages: "122", as_printed: false, spacing_normalised: true, restored_sara_am: true}
+    - {label_th: "ต้นฉบับบทความวิจัย (Manuscript)", pages: "124", as_printed: false, spacing_normalised: true}
+    - {label_th: "หนังสือ (Book Chapter / Whole book / Monograph)", pages: "125", as_printed: false, spacing_normalised: true}
+    - {label_th: "ต้นแบบผลิตภัณฑ์ หรือเทคโนโลยี/กระบวนการใหม่ หรือนวัตกรรมทางสังคม", pages: "126", note: "Sub-types: ต้นแบบผลิตภัณฑ์; เทคโนโลยี/กระบวนการใหม่; นวัตกรรมทางสังคม (Social Innovation).", as_printed: false, spacing_normalised: true}
+    - {label_th: "ทรัพย์สินทางปัญญา", pages: "129", as_printed: false, spacing_normalised: true}
+    - {label_th: "เครื่องมือและโครงสร้างพื้นฐาน", pages: "130", as_printed: false, spacing_normalised: true}
+    - {label_th: "ฐานข้อมูล ระบบและกลไก หรือมาตรฐาน", pages: "131", as_printed: false, spacing_normalised: true}
+    - {label_th: "เครือข่าย", pages: "132", as_printed: false, spacing_normalised: true}
+    - {label_th: "การลงทุนวิจัยและนวัตกรรม", pages: "133", as_printed: false, spacing_normalised: true}
+    - {label_th: "ข้อเสนอแนะเชิงนโยบายและมาตรการ", pages: "134", as_printed: false, spacing_normalised: true}
+
+# Outcome typologies (SD-4). Guidance for RESULTS.CHAIN.OUTCOMES.outcome_type.
+outcome_kinds:
+  source: {doc: SD-4, pages: "140-141"}
+  values:
+    - {label_th: "ผลลัพธ์เชิงเทคโนโลยี", label_en: "technological outcome", pages: "140", as_printed: false, spacing_normalised: true}
+    - {label_th: "ผลลัพธ์เชิงสถาบัน", label_en: "institutional outcome", pages: "140", as_printed: false, spacing_normalised: true}
+    - {label_th: "ผลลัพธ์เชิงพฤติกรรม", label_en: "behavioral outcome", pages: "140", as_printed: false, spacing_normalised: true}
+    - {label_th: "การเสริมสร้างความสามารถ", label_en: "capacity building", pages: "141", as_printed: false, spacing_normalised: true}
+    - {label_th: "ผลลัพธ์เชิงแนวคิด", label_en: "conceptual outcome", pages: "141", as_printed: false, spacing_normalised: true}
+outcome_types:
+  source: {doc: SD-4, pages: "142-149"}
+  values:
+    - {label_th: "ผลงานตีพิมพ์", label_en: "Publications", pages: "142", as_printed: false, spacing_normalised: true}
+    - {label_th: "การอ้างอิง", label_en: "Citations", pages: "142", as_printed: false, spacing_normalised: true}
+    - {label_th: "เครื่องมือและระเบียบวิธีการวิจัย", label_en: "Research tools and methods", pages: "143", as_printed: false, spacing_normalised: true}
+    - {label_th: "ฐานข้อมูลและแบบจำลองวิจัย", label_en: "Research databases and models", pages: "143", as_printed: false, spacing_normalised: true, restored_sara_am: true}
+    - {label_th: "ความก้าวหน้าในวิชาชีพของบุคลากรด้านวิทยาศาสตร์วิจัยและนวัตกรรม", label_en: "Next destination", pages: "144", as_printed: false, spacing_normalised: true}
+    - {label_th: "รางวัลและการยอมรับ", label_en: "Awards and recognition", pages: "144", as_printed: false, spacing_normalised: true}
+    - {label_th: "การใช้ประโยชน์จากเครื่องมือ อุปกรณ์ ห้องวิจัยและโครงสร้างพื้นฐาน", label_en: "Use of facilities and resources", pages: "145", as_printed: false, spacing_normalised: true}
+    - {label_th: "ทรัพย์สินทางปัญญาและการอนุญาตให้ใช้สิทธิ", label_en: "Intellectual property and licensing", pages: "146", as_printed: false, spacing_normalised: true}
+    - {label_th: "การจัดตั้งบริษัท", label_en: "Spin-off Companies", pages: "147", as_printed: false, spacing_normalised: true}
+    - {label_th: "ผลิตภัณฑ์ใหม่", label_en: "New Products", pages: "147", as_printed: false, spacing_normalised: true}
+    - {label_th: "ทุนวิจัยต่อยอด", label_en: "Further funding", pages: "148", as_printed: false, spacing_normalised: true}
+    - {label_th: "ความร่วมมือหรือหุ้นส่วนความร่วมมือ", label_en: "Collaborations and partnerships", pages: "148", as_printed: false, spacing_normalised: true}
+    - {label_th: "การผลักดันนโยบาย แนวปฏิบัติ แผนและกฎระเบียบ", label_en: "Influence on policy, practice, plan and regulations", pages: "149", as_printed: false, spacing_normalised: true}
+    - {label_th: "กิจกรรมสร้างการมีส่วนร่วม", label_en: "Engagement activities", pages: "149", as_printed: false, spacing_normalised: true}
+
+# Impact typology. Guidance for RESULTS.CHAIN.IMPACTS.impact_type.
+impact_types:
+  source: {doc: SD-4, pages: "155-157"}
+  note: "SD-1 p18 item 5.5 and SD-4 p155: impacts include positive and negative, direct and indirect effects (impact keys sign, directness, intended)."
+  values:
+    - {label_th: "ผลกระทบทางเศรษฐกิจ", label_en: "economic", pages: "156", as_printed: false, spacing_normalised: true}
+    - {label_th: "ผลกระทบทางสังคม", label_en: "social", pages: "156", as_printed: false, spacing_normalised: true}
+    - {label_th: "ผลกระทบทางนโยบาย", label_en: "policy", pages: "157", as_printed: false, spacing_normalised: true}
+    - {label_th: "ผลกระทบทางวิชาการ", label_en: "academic", pages: "157", as_printed: false, spacing_normalised: true}
+    - {label_th: "ด้านสิ่งแวดล้อม", label_en: "environmental", pages: "155", note: "Named in the impact definition (SD-4 p155; SD-1 p18) but not given its own heading on p156-157.", as_printed: false, spacing_normalised: true}

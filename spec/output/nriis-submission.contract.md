@@ -52,7 +52,12 @@ template puts it there.
    **Only fields with registry `origin: NRIIS_NATIVE` are placed here**
    (core/02 rule R4: an authoring-core field is never presented as an
    NRIIS field). Each field block gives: label (EN, plus TH or
-   `LABEL_TH: NEEDS_VERIFICATION`), a fenced plain value, `FIELD_ID`,
+   `LABEL_TH: NEEDS_VERIFICATION`; where a public document edition gives
+   one, the line adds a candidate Thai label tagged
+   `(candidate, NEEDS_VERIFICATION: "<label>" (<SD-n> p<page>, item <n>))`
+   from `mappings/nriis/labels@<edition>.yaml` — never declared official,
+   never from the screenshot-derived readout, K14; the tab heading shows a
+   candidate part label the same way), a fenced plain value, `FIELD_ID`,
    `ORIGIN` (the registry origin, core/02 §2), `PROVENANCE` (the record's
    provenance class, source type and evidence role), `RENDER_FROM` on a
    narrative field (the records the box is written from; GrantThai never

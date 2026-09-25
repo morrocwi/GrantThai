@@ -221,6 +221,7 @@ def build_context(raw: dict, result: E.Result) -> dict:
             "entry_order": n["entry_order"],
             "label_en": n["label_en"],
             "label_th": n["label_th"],
+            "label_th_candidate": P.candidate_label_text((P.candidate_labels().get("field_labels") or {}).get(cfid)),
             "value": rendered,
             "field_id": cfid,
             "nriis_field_id": n["field_id"],
@@ -241,7 +242,8 @@ def build_context(raw: dict, result: E.Result) -> dict:
             "arith": _arith(cfid, recs),
         }
         if not tabs or tabs[-1]["tab"] != n["tab"]:
-            tabs.append({"tab": n["tab"], "fields": []})
+            tabs.append({"tab": n["tab"], "fields": [], "candidate": P.candidate_label_text(
+                (P.candidate_labels().get("tab_labels") or {}).get(n["tab"]))})
         tabs[-1]["fields"].append(block)
         meta.append({
             "nriis_field_id": n["field_id"], "field_id": cfid, "origin": n.get("origin"), "tab": n["tab"],

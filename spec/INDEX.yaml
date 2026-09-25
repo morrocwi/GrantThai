@@ -94,6 +94,11 @@ contracts:
     version: "0.1.0-draft"
     status: draft
     needed_by: phase0
+  - path: spec/mappings/labels.schema.json
+    version: "0.1.0-draft"
+    status: draft
+    needed_by: v0.1
+    note: "Candidate Thai labels and code lists from public documents (mappings/nriis/labels@nrct-manual-2566.yaml); every entry NEEDS_VERIFICATION (K14)."
   - path: spec/mappings/mode_mapping.schema.json
     version: "0.1.0-draft"
     status: draft
