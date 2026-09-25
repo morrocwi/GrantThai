@@ -162,11 +162,12 @@ def test_article_fields_are_venue_native_route_scoped_and_never_required_globall
 
 def test_pre_router_records_only_gained_scope_and_route_ids():
     """The 122 legacy records are byte-identical apart from the two new keys."""
-    legacy = subprocess.run(["git", "show", "corpus-100:registry/fields.jsonl"], cwd=ROOT,
+    # Pinned to the last commit before the router work; a branch name would move.
+    legacy = subprocess.run(["git", "show", "0d79ef1:registry/fields.jsonl"], cwd=ROOT,
                             capture_output=True, text=True)
     if legacy.returncode != 0:
         import pytest
-        pytest.skip("base branch corpus-100 not available")
+        pytest.skip("pre-router baseline commit 0d79ef1 not available")
     old = [json.loads(x) for x in legacy.stdout.splitlines() if x.strip()]
     new = _jsonl("fields.jsonl")
     assert len(old) == 122
