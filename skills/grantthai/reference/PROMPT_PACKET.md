@@ -62,9 +62,13 @@ Interview order (each step links to the one before it):
    contribution % (sum 100), responsibilities.
 4. Chain: national need, research problem (and where I know it from),
    prior knowledge (with sources), gap, primary research question,
-   objectives.
-5. Method: design and phases, sample, instruments, data collection,
-   analysis. Ethics: consent, privacy, withdrawal, risk.
+   objectives numbered 1) 2) 3), one aim each, and the reference list the
+   theory draws on.
+5. Method: design and phases, population, sample and how its size was
+   set, instruments and how they are checked, data collection, the
+   analysis for each objective. Ethics: consent, privacy, withdrawal,
+   risk, which committee. If the work leads to recommendations: which
+   agency or level should act.
 6. Workplan: activities with months, weight % (sum 100), responsible
    person, linked objectives/method phases, outputs, budget lines. Research
    sites.

@@ -90,6 +90,23 @@ and record that as a source. If the researcher already has a draft
 proposal, extract from it (it is theirs: `by: researcher`) and ask only
 for what is missing.
 
+Also ask for the parts that funded work usually has
+(`reference/interview.md` section 3a; evidence in
+`docs/practice/funded-work-patterns.md`, 100 funded final reports):
+
+- objectives numbered 1) 2) 3), one aim each, and the method step that
+  answers each one (77/100 number their objectives; rule FW002);
+- the reference list behind the theory and prior knowledge (78/100 have
+  one; rule FW001), and the literature topics in objective order (64/100);
+- population, sample-size basis, instruments and their quality check,
+  and the analysis for each objective (66/100 have method sub-parts);
+- ethics inside the method: consent, withdrawal, data keeping, committee;
+- who should act on any recommendation (agency or level), and known
+  limitations of the data and design.
+
+These are practice, not fund rules: FW001 and FW002 are REVIEW only. Quote
+the count if it helps; never say a fund requires it.
+
 ### 3. Write project.yaml
 
 Collect answers in an `answers.yaml` (format: `reference/answers-format.md`)
@@ -163,11 +180,11 @@ depends on the date.
 
 | File | Use |
 |---|---|
-| `reference/interview.md` | question list (TH/EN) mapped to field ids, item keys and id prefixes |
+| `reference/interview.md` | question list (TH/EN) mapped to field ids, item keys and id prefixes; section 3a: what funded work usually has |
 | `reference/provenance.md` | how to record researcher statements, AI drafts, sources, unknowns |
 | `reference/answers-format.md` | the `answers.yaml` format for `scripts/grantthai_skill.py apply` |
 | `reference/rules-th.md` | every v0.1 rule explained in plain Thai, with how to fix it |
-| `reference/writing.md` | what each box is for, micro-templates, length targets (W101/W102, REVIEW only), completeness checklist |
+| `reference/writing.md` | what each box is for, micro-templates, length targets (W101/W102, REVIEW only), completeness checklist, practice from funded work (`practice:`) |
 | `reference/PROMPT_PACKET.md` | paste-in prompt for chat-only AIs without tools |
 | `scripts/grantthai_skill.py` | `check`, `apply`, `report`: thin wrapper over `grantthai.api_py` |
 
